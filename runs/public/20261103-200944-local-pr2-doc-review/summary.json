@@ -1,0 +1,29 @@
+{
+  "executed_at": "2026-11-03T20:09:44.642433+09:00",
+  "environment": "local Windows Python 3.12; document review only",
+  "pr": "https://github.com/ik-e/dubakwi-ttareungi-support/pull/2",
+  "reviewed_head": "b882cdacbba0969974a11333eabbe2c56fe54c73",
+  "version_scope": "R01 synchronization changes included with this evidence commit",
+  "configuration": "uv.lock; pyproject.toml; .gitignore in this commit",
+  "case_ids": [],
+  "checks": {
+    "project_docs": "pass: 20 documents, 347 links, 42 anchors",
+    "public_files": "pass before evidence addition: 43 candidates, 357 links",
+    "repository_unit_tests": "11 passed",
+    "ruff_check": "passed",
+    "ruff_format": "12 files already formatted",
+    "git_diff_check": "passed",
+    "gitleaks": "8.30.1; exact staged candidate export before this summary; 0 findings"
+  },
+  "limitations": [
+    "tscan unavailable; public-file scanner and Gitleaks used instead",
+    "No RAG indexing, retrieval, authorization or service integration executed",
+    "R04/R05 role approvals and document-level knowledge approval remain pending",
+    "Merged material is a review draft, not approved index input"
+  ],
+  "next": [
+    "P08/D04 source, scope and access review",
+    "Approved knowledge migration and manifest",
+    "P10/P16 indexing and retrieval tests"
+  ]
+}
