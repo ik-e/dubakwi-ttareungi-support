@@ -28,3 +28,28 @@ FAQ는 QR 코드가 스캔되지 않으면 자전거 우측 페달 옆의 5자�
 
 - 출처: [서울시설공단, 자전거 대여 방법](https://www.sisul.or.kr/open_content/globalcenter/bbs/bbsMsgDetail.do?bcd=faq&msg_seq=481&pgno=8)
 - 자료 구분: 공식 공개 안내. 확인일: 2026-11-03.
+
+## 대여가 되지 않거나 대여를 취소할 때
+
+공식 대여 FAQ는 QR 스캔 문제에 대해 자전거 번호 입력과 기기 설정을 확인하도록 안내한다. 서울시설공단 FAQ 목록에는 대여 신청 후 연결되지 않는 경우 30초 후 취소 버튼이 활성화된다는 설명이 있다. 현재 앱에서 버튼의 위치와 동작이 같은지는 다시 확인해야 한다.
+
+- 출처: [서울시설공단 대여 안내](https://www.sisul.or.kr/open_content/globalcenter/bbs/bbsMsgDetail.do?bcd=faq&msg_seq=481&pgno=8), [서울시설공단 FAQ 목록의 대여 취소 안내](https://sisul.or.kr/open_content/main/bbs/bbsMsgList.do?bcd=faq&cate1=08&keyfield=title&listsz=10&pgno=4).
+- 자료 구분: 공식 공개 안내. 확인일: 2026-11-03. 원문 갱신일: 미확인.
+
+## 사용자 제공 안내 중 재확인할 대여 정보
+
+사용자가 제공한 안내에는 앱 업데이트, 휴대전화 설정, 연결 기기 종료, 앱 캐시 삭제, 재부팅과 즐겨찾기 화면 사용 등의 대여 실패 대응이 포함되어 있다. 현재 기종·운영체제·앱 버전에 모두 적용되는지 확인하지 못했으므로 확정된 절차로 안내하지 않는다. 사용자가 제시한 가족권 대여 순서와 예약 기능 관련 설명도 현재 공식 안내 확인이 필요하다.
+
+특히 사용자가 제공한 문구는 Wi-Fi를 끄고 데이터만 사용하도록 안내하지만, 아래 앱 가이드에는 Wi-Fi 이용에 관한 설명도 있어 모든 경우의 필수 조건으로 단정하지 않는다. 모든 앱 권한을 일괄 허용해야 한다고 일반화하지 않는다.
+
+- 자료 구분: 사용자가 제공한 안내의 요약. 원문 출처·게시일·현재 적용 여부: 미확인. 전달받은 날짜: 2026-11-03.
+- 비교 참고: [사용자 제공 앱 이용 가이드](https://docs.channel.io/bikeseoul/ko/articles/%EC%95%B1-%EC%9D%B4%EC%9A%A9-%EA%B0%80%EC%9D%B4%EB%93%9C-40dc62fe). 페이지 본문 확인, 운영 주체·갱신일 미확인.
+
+## 사용자가 제공한 대여·대여소 참고 링크
+
+- [자전거 이용 가이드](https://docs.channel.io/bikeseoul/ko/articles/%EC%9E%90%EC%A0%84%EA%B1%B0-%EC%9D%B4%EC%9A%A9-%EA%B0%80%EC%9D%B4%EB%93%9C-adeaf778)
+- [앱 이용 가이드](https://docs.channel.io/bikeseoul/ko/articles/%EC%95%B1-%EC%9D%B4%EC%9A%A9-%EA%B0%80%EC%9D%B4%EB%93%9C-40dc62fe)
+- [대여소 안내](https://docs.channel.io/bikeseoul/ko/articles/%EB%8C%80%EC%97%AC%EC%86%8C-%EC%95%88%EB%82%B4-b91ed0e6)
+- [서울시 공공자전거 따릉이 QR단말기형 대여 방법 영상](https://www.youtube.com/watch?v=2i2FpMWQBnU)
+
+Channel.io 링크 3개는 HTTP 응답과 페이지 제목·일부 본문을 확인했으나 운영 주체·갱신일은 미확인이다. 영상은 제목과 게시자 메타데이터를 확인했으나 영상 내용과 현행 앱 일치는 미확인이다. 확인 전 시민 답변의 확정 근거로 사용하지 않는다.
