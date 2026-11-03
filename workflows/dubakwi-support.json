@@ -1,0 +1,343 @@
+{
+  "name": "dubakwi-support",
+  "nodes": [
+    {
+      "id": "14f64b12-e38c-5eab-a3d7-46b4f0f69449",
+      "name": "B01 문의 수신",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        300
+      ],
+      "webhookId": "85023d09-4f5d-5739-bfc5-d5226093f837",
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "dubakwi-support",
+        "authentication": "headerAuth",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "name": "dubakwi-team-key"
+        }
+      }
+    },
+    {
+      "id": "fc93cccd-7195-55fd-8f55-e48af9276e37",
+      "name": "B02 입력 검사",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        220,
+        300
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "// B02 입력 검사 (P11 골격). 계약 원본: WORKFLOW-DESIGN 6.1 Request, 6.4.1, 7.4.\n// 규칙으로 판정 가능한 검사만 수행하고 LLM은 호출하지 않는다(WF-08 LLM 0회).\n// 미확정(팀 합의 전): codes 세부 이름, case_ref 필드(D02), 주입 패턴 목록.\nconst MAX_QUESTION = 500;\nconst MAX_ID = 64;\nconst DEADLINE_MS = 20000; // 일반 응답 20초는 초기 비교값(D05 실측 전)\n\nconst body = $json.body;\nconst codes = [];\nconst isObj = (v) => v !== null && typeof v === 'object' && !Array.isArray(v);\nconst str = (v) => (typeof v === 'string' ? v.trim() : null);\n\nlet request = null;\nif (!isObj(body)) {\n  codes.push('body_not_object');\n} else {\n  const request_id = str(body.request_id);\n  const user = str(body.user);\n  const question = str(body.question);\n  if (request_id === null || request_id.length === 0) codes.push('request_id_required');\n  else if (request_id.length > MAX_ID) codes.push('request_id_too_long');\n  if (user === null || user.length === 0) codes.push('user_required');\n  else if (user.length > MAX_ID) codes.push('user_too_long');\n  if (question === null || question.length === 0) codes.push('question_empty');\n  else if (question.length > MAX_QUESTION) codes.push('question_too_long');\n\n  let attempt = 1;\n  if (body.attempt !== undefined && body.attempt !== null) {\n    if (!Number.isInteger(body.attempt) || body.attempt < 1) codes.push('attempt_invalid');\n    else attempt = body.attempt;\n  }\n  for (const key of ['channel', 'context', 'case_ref']) {\n    if (body[key] !== undefined && body[key] !== null && typeof body[key] !== 'string') {\n      codes.push(`${key}_invalid`);\n    }\n  }\n  request = {\n    request_id: request_id ?? '',\n    user: user ?? '',\n    question: question ?? '',\n    channel: str(body.channel) ?? undefined,\n    attempt,\n    context: str(body.context) ?? undefined,\n    case_ref: str(body.case_ref) ?? undefined, // D02 확인 전 팀 확장 필드\n  };\n}\n\n// 명백한 주입만 차단한다. 타인 기록 요청은 권한 문제(WF-06/07)라 여기서 막지 않는다.\nconst INJECTION = [\n  /ignore\\s+(all\\s+|any\\s+)?(previous|prior|above)\\s+(instructions|prompts?|rules)/i,\n  /disregard\\s+(the\\s+)?(system|previous)\\s+(prompt|instructions)/i,\n  /(reveal|print|show)\\s+(me\\s+)?(the\\s+|your\\s+)?system\\s+prompt/i,\n  /you\\s+are\\s+now\\s+(a|an|in)\\s/i,\n  /(developer|dan|jailbreak)\\s+mode/i,\n  /(이전|앞|위)의?\\s*(모든\\s*)?(지시|지침|명령|규칙|프롬프트)\\S*\\s*(을|를|은|는)?\\s*(전부\\s*|모두\\s*)?(무시|잊어)/,\n  /시스템\\s*프롬프트\\S*\\s*(을|를)?\\s*(보여|출력|알려|공개)/,\n  /(너는|당신은)\\s*이제(부터)?\\s*.{0,20}(관리자|개발자|역할|시스템)/,\n  /(관리자|운영자|개발자)\\s*(권한|모드)\\s*(으로|로)\\s*(전환|실행|바꿔|변경)/,\n  /<\\s*\\/?\\s*(script|system|im_start|im_end)\\b/i,\n];\nlet blocked = false;\nif (codes.length === 0) {\n  const text = `${request.question}\\n${request.context ?? ''}`;\n  blocked = INJECTION.some((re) => re.test(text));\n}\n\nconst now = Date.now();\nconst security = { blocked_by: null, reason: null, masked: 0 };\nlet response = null;\nlet status = 200;\nlet error_code = null;\n\nif (codes.length > 0) {\n  status = 400;\n  error_code = 'invalid_input';\n  response = { error: 'invalid_input', codes };\n} else if (blocked) {\n  status = 200;\n  error_code = 'prompt_injection';\n  security.blocked_by = 'B02 입력 검사';\n  security.reason = 'prompt_injection';\n  response = {\n    request_id: request.request_id,\n    route: '차단',\n    answer: '요청에 처리할 수 없는 지시가 포함되어 있어 접수하지 않았습니다. 따릉이 이용 문의만 다시 보내 주세요.',\n    sources: [],\n    ticket: null,\n    agents: [],\n    security,\n    reason: 'prompt_injection',\n  };\n}\n\n// headers는 인증 처리 후 업무 문맥·감사에 복사하지 않는다(6.1 WebhookBody).\nreturn {\n  json: {\n    request,\n    input_ok: codes.length === 0 && !blocked,\n    actor: null,\n    security,\n    response,\n    status,\n    error_code,\n    received_at: new Date(now).toISOString(),\n    deadline_at: new Date(now + DEADLINE_MS).toISOString(),\n  },\n};\n"
+      }
+    },
+    {
+      "id": "ae06d81b-023c-5837-9476-406b4a76586a",
+      "name": "B03 입력 통과",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        440,
+        300
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "5e7f29e7-8814-59e0-bc18-285bad056828",
+              "leftValue": "={{ $json.input_ok }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "e4a17c60-8330-5385-a9b4-8e7b23d97180",
+      "name": "B04 사용자 확인",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        660,
+        200
+      ],
+      "onError": "continueRegularOutput",
+      "parameters": {
+        "method": "GET",
+        "url": "=http://localhost:8800/employees/{{ encodeURIComponent($json.request.user) }}",
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true,
+              "neverError": true
+            }
+          },
+          "timeout": 1500
+        }
+      }
+    },
+    {
+      "id": "b5a8e46a-7aee-5bbd-b6ed-3c3fd6c2cd8d",
+      "name": "B05 등록·권한 확인",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        880,
+        200
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "// B05 등록·권한 확인 (P11 골격). B04 full response를 받아 서버 기준 actor를 만든다.\n// 요청 본문의 자기소개(역할·권한)는 사용하지 않는다(6.1 Actor, 6.4.1).\n// 미확정: data-api /employees 응답 필드 이름(D03), 시민 사용자 공급 방식(D01·P09 R04).\nconst ctx = $('B02 입력 검사').item.json; // 호출 직전 문맥 복원(6.1)\nconst raw = $json;\nconst statusCode = Number(raw.statusCode ?? raw.status ?? 0);\nconst body = raw.body && typeof raw.body === 'object' ? raw.body : null;\nconst ROLES = ['citizen', 'support', 'security'];\n\nlet actor = null;\nlet actor_ok = false;\nlet response = null;\nlet status = 200;\nlet error_code = null;\n\nif (statusCode === 200 && body) {\n  const id = String(body.id ?? body.user ?? ctx.request.user);\n  const role = ROLES.includes(body.role) ? body.role : 'citizen';\n  const levels = Array.isArray(body.access_levels)\n    ? body.access_levels\n    : Array.isArray(body.access)\n      ? body.access\n      : ['public'];\n  actor = { id, role, access_levels: levels.map(String) };\n  actor_ok = true;\n} else if (statusCode === 404) {\n  status = 400;\n  error_code = 'unknown_user';\n  response = { error: 'unknown_user', codes: ['unknown_user'] };\n} else {\n  // 조회 장애는 미등록과 구분한다. HTTP 상태·코드는 7.4에 없어 팀 합의 필요(임시 503).\n  status = 503;\n  error_code = 'user_lookup_error';\n  response = { error: 'user_lookup_error', codes: ['user_lookup_error'] };\n}\n\nreturn { json: { ...ctx, actor, actor_ok, response, status, error_code } };\n"
+      }
+    },
+    {
+      "id": "cb362f86-3bbc-52e7-b9f7-358fe998d6b1",
+      "name": "B06 사용자 통과",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1100,
+        200
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "07b6f972-d342-53df-91ce-43e436cbeded",
+              "leftValue": "={{ $json.actor_ok }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "8332a1b6-7337-5f98-8b14-d6edc8095f89",
+      "name": "M01 골격 mock (B07~B32 대체)",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1320,
+        100
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "// M01 골격 mock: B07~B32(문맥·분류·RAG·답변·검증·티켓·저장)를 대신한다.\n// P19에서 실제 노드로 교체한다. mock 통과는 실제 연동 완료가 아니다.\nconst ctx = $json;\nreturn {\n  json: {\n    ...ctx,\n    status: 200,\n    error_code: null,\n    response: {\n      request_id: ctx.request.request_id,\n      route: '담당자 이관',\n      answer: '문의를 확인했습니다. 담당자가 이어서 확인할 예정입니다.',\n      sources: [],\n      ticket: null,\n      agents: [],\n      security: ctx.security,\n      reason: 'skeleton_mock',\n    },\n  },\n};\n"
+      }
+    },
+    {
+      "id": "bd9566f5-a223-567b-9997-cb53da938f23",
+      "name": "B33 응답 구성",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1540,
+        300
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "// B33 응답 구성 (P11 골격 범위): 거절·차단·mock 결과를 공통 응답으로 정규화한다.\n// 정상 Response 형식은 과정 공통 계약, InputError={error,codes}.\nconst ctx = $json;\nconst r = ctx.response;\nlet body;\nlet status = Number.isInteger(ctx.status) ? ctx.status : 500;\n\nif (r && typeof r.error === 'string') {\n  body = { error: r.error, codes: Array.isArray(r.codes) ? r.codes : [] };\n} else if (r && typeof r.route === 'string') {\n  body = {\n    request_id: r.request_id ?? ctx.request?.request_id ?? '',\n    route: r.route,\n    answer: r.answer ?? '',\n    sources: Array.isArray(r.sources) ? r.sources : [],\n    ticket: r.ticket ?? null,\n    agents: Array.isArray(r.agents) ? r.agents : [],\n    security: r.security ?? { blocked_by: null, reason: null, masked: 0 },\n  };\n  if (r.case_ref) body.case_ref = r.case_ref; // D02 확인 전\n  if (r.reason) body.reason = r.reason;\n  body.timings = { total_ms: Math.max(0, Date.now() - Date.parse(ctx.received_at)) };\n} else {\n  status = 500;\n  body = { error: 'protocol_error', codes: ['response_missing'] };\n}\n\n// 감사 메타: 원문 질문·답변·연락처는 남기지 않는다(7.4).\nconst log = {\n  request_id: ctx.request?.request_id ?? null,\n  node: 'B33',\n  route: body.route ?? null,\n  status,\n  reason: body.reason ?? ctx.error_code ?? null,\n  masked: body.security?.masked ?? 0,\n  at: new Date().toISOString(),\n};\n\nreturn { json: { ...ctx, response_ready: true, http_status: status, http_body: body, log } };\n"
+      }
+    },
+    {
+      "id": "13f5cfea-6712-520e-8113-37d1cb51162b",
+      "name": "B35 메타 기록",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1760,
+        300
+      ],
+      "onError": "continueRegularOutput",
+      "parameters": {
+        "method": "POST",
+        "url": "http://localhost:8800/logs",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($json.log) }}",
+        "options": {
+          "response": {
+            "response": {
+              "neverError": true
+            }
+          },
+          "timeout": 1500
+        }
+      }
+    },
+    {
+      "id": "d5a1241d-f910-58e9-91a1-44d3adf29b2b",
+      "name": "B36 응답",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        1980,
+        300
+      ],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify($('B33 응답 구성').item.json.http_body) }}",
+        "options": {
+          "responseCode": "={{ $('B33 응답 구성').item.json.http_status }}"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "B01 문의 수신": {
+      "main": [
+        [
+          {
+            "node": "B02 입력 검사",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "B02 입력 검사": {
+      "main": [
+        [
+          {
+            "node": "B03 입력 통과",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "B03 입력 통과": {
+      "main": [
+        [
+          {
+            "node": "B04 사용자 확인",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "B33 응답 구성",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "B04 사용자 확인": {
+      "main": [
+        [
+          {
+            "node": "B05 등록·권한 확인",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "B05 등록·권한 확인": {
+      "main": [
+        [
+          {
+            "node": "B06 사용자 통과",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "B06 사용자 통과": {
+      "main": [
+        [
+          {
+            "node": "M01 골격 mock (B07~B32 대체)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "B33 응답 구성",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "M01 골격 mock (B07~B32 대체)": {
+      "main": [
+        [
+          {
+            "node": "B33 응답 구성",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "B33 응답 구성": {
+      "main": [
+        [
+          {
+            "node": "B35 메타 기록",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "B35 메타 기록": {
+      "main": [
+        [
+          {
+            "node": "B36 응답",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": false
+  },
+  "tags": []
+}
