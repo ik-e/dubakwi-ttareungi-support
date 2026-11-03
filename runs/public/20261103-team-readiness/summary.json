@@ -1,0 +1,212 @@
+{
+  "date": "2026-11-03 KST",
+  "scope": "Team handoff/design documentation and development tooling; not service runtime",
+  "status": "passed_with_open_environment_and_team_decisions",
+  "versions": {
+    "topic": "0.6",
+    "charter": "0.8",
+    "system": "0.6",
+    "workflow": "0.12",
+    "rag": "0.4",
+    "storage": "0.3"
+  },
+  "checks": {
+    "project_documents": {
+      "files": 20,
+      "local_links": 339,
+      "anchors": 41,
+      "errors": []
+    },
+    "public_candidates": {
+      "files": 35,
+      "local_links": 341,
+      "errors": []
+    },
+    "static": {
+      "checks": 47,
+      "failures": [],
+      "planned_nodes": 95,
+      "planned_edges": 126,
+      "json_examples": 9
+    },
+    "contracts": {
+      "checks": 21,
+      "failures": []
+    },
+    "handoff": {
+      "checks": 11,
+      "failures": []
+    },
+    "mermaid": {
+      "diagrams": 18,
+      "failures": []
+    },
+    "uv_sync_locked": "passed",
+    "ruff_check": "passed",
+    "ruff_format_check": "passed",
+    "unittest": {
+      "passed": 11,
+      "failed": 0
+    },
+    "public_only_reproduction": "passed; no preserved local originals needed for tool checks",
+    "gitleaks": {
+      "version": "8.30.1",
+      "findings": []
+    },
+    "pii_pattern_findings": []
+  },
+  "service": {
+    "implemented": false,
+    "common_scenarios_executed": false,
+    "discord_jira_db_connected": false,
+    "rag_quality_measured": false
+  },
+  "open_items": [
+    "Assign actual people to R01-R05, prefix and presenter",
+    "Remote membership, branch protection/PR review and quality check settings",
+    "VM/Docker/runtime packaging/secrets and D01/D03/D07 actual Jira/store/Discord support",
+    "D02 actual common-harness ticket/duplicate comparison",
+    "Course topic/combination confirmation",
+    "License choice and actual service acceptance tests"
+  ],
+  "source_hash_scope": "Git candidate worktree except this self-describing summary; commit may normalize line endings",
+  "sources": [
+    {
+      "file": ".gitattributes",
+      "sha256": "71529fd2d8c2ebc6a12f7e6f4bda4847885528c9ff807ea9261cd010e3b712dd"
+    },
+    {
+      "file": ".github/pull_request_template.md",
+      "sha256": "e571e4febb32c36cc22fe1d738b1aff7abc92ce305cdf10ae98601b6541008c6"
+    },
+    {
+      "file": ".github/workflows/quality.yml",
+      "sha256": "b440230c1b326a75619d1092df3dfebad2d78efb03a4e516fe08775ca6abba3b"
+    },
+    {
+      "file": ".gitignore",
+      "sha256": "77604d482b3cc64b1a47d06bb4e03568a12e1693d58d3c0ce842c85c96b87091"
+    },
+    {
+      "file": ".python-version",
+      "sha256": "7b55f8e67b5623c4bef3fa691288da9437d79d3aba156de48d481db32ac7d16d"
+    },
+    {
+      "file": "AGENTS.md",
+      "sha256": "21d260f9bcf25ededd5e818b993a2471a90f876da9afd0bb313e105ce35d487c"
+    },
+    {
+      "file": "README.md",
+      "sha256": "f96b5a451f02357e7bf3a7a76c95f299448a84c92be1185cabbc353f287acc32"
+    },
+    {
+      "file": "docs/DEVELOPMENT-PLAN.md",
+      "sha256": "b039a30a1b7655c8b81b870129ffe5fcf3d605aff23c25c0519f3e90b3326fc1"
+    },
+    {
+      "file": "docs/PRESENTATION-PLAN.md",
+      "sha256": "37eaa4d9d62bd754553ffba2e12c578a36548dcd57866442afb726cf68a2efba"
+    },
+    {
+      "file": "docs/PUBLIC-SOURCES.md",
+      "sha256": "ca4b34499c6b07fb9c72e8df0f612ca9b7748d328b8dee6b1b8857d7d0890b6b"
+    },
+    {
+      "file": "docs/PUBLICATION.md",
+      "sha256": "f35cf4a691c07fb8c9a1ba7c872e61a7eab89a4f8bd8a67022feb1a9a580f727"
+    },
+    {
+      "file": "docs/PYTHON-DEVELOPMENT.md",
+      "sha256": "08dd5af81cd9643055c47ab76e8529557ad78d0245d49588a17fa4ce01b49f1b"
+    },
+    {
+      "file": "docs/README.md",
+      "sha256": "af45e703fa90b22da8e720adfed11f006cc6d523df58cbcbceddd3248e2318cb"
+    },
+    {
+      "file": "docs/TEAM-START.md",
+      "sha256": "95c29fd1517bc38dd4d63f7bf1461f3eb36a9dbd02cb4b1198544893cbff5b10"
+    },
+    {
+      "file": "docs/project/RAG-ARCHITECTURE.md",
+      "sha256": "c7e00b238e79838c61c4066ff4a7156145ed28a40e301aa1971fd59329c0ecb9"
+    },
+    {
+      "file": "docs/project/README.md",
+      "sha256": "97b77ca70a4813d7fca51e3f70dbee10c8f44d0dd347ddefdf75d235ce1b77a6"
+    },
+    {
+      "file": "docs/project/STORAGE-DESIGN.md",
+      "sha256": "9369a1f3712208000ba66636df197c69c744e127509b94a075865c4692b3ad7e"
+    },
+    {
+      "file": "docs/project/SYSTEM-DESIGN.md",
+      "sha256": "e2b49c482e96adeecf99b9249d0ef23aadf3a249295977b1bbd16bf7c5190f8b"
+    },
+    {
+      "file": "docs/project/TEAM-CHARTER.md",
+      "sha256": "859c67472a6d19f52990365091544a2751dd1dfcc6a8c9af47b69a835279b96d"
+    },
+    {
+      "file": "docs/project/TEAM-READINESS-REVIEW.md",
+      "sha256": "2b32250ed46b967a4ecc116636b519a2ed6c8da17a8ebd775c0e1749cb1d88c6"
+    },
+    {
+      "file": "docs/project/TOPIC.md",
+      "sha256": "09a5fc4289df8a222f76a5911cb4bebec0e1c22d63a0ea965cc05f41faec5ed4"
+    },
+    {
+      "file": "docs/project/WORKFLOW-DESIGN.md",
+      "sha256": "f219933c82bd9bd092fbadd6ea76b32230aefe70cda2077dd8f2b55b5861072a"
+    },
+    {
+      "file": "infra/README.md",
+      "sha256": "45064702ca40b57d24649099aa74d958039e1d36bdb562a2df695ce82d5335f3"
+    },
+    {
+      "file": "pyproject.toml",
+      "sha256": "151cc9b6f27e91ce8ed96826a36a0d61bdb9ecd3fcde949bcc7e0c8e54074b91"
+    },
+    {
+      "file": "scripts/README.md",
+      "sha256": "9d6448f814dd5bf39a92a47f4a9eb5615314d07e21a5528040f8cabebf540bd0"
+    },
+    {
+      "file": "scripts/dev/README.md",
+      "sha256": "0ec814d4fb7b0e8869c2402285ba6f95dadf4a1080885c8473e2dfc1278bfd78"
+    },
+    {
+      "file": "scripts/dev/export_public.py",
+      "sha256": "a3fe8770a274df3892910450501fceb6ab43ee0630a105fba496d3ce026b97a6"
+    },
+    {
+      "file": "scripts/dev/public-files.json",
+      "sha256": "8e30ba89f8c83b9c5fce710787dfb034c66abc35fefb5b77f26b0980507f005e"
+    },
+    {
+      "file": "scripts/test/README.md",
+      "sha256": "590c2d0bfc2ba768aaea5dabc3994d16ac653f79200bb160ae591ed45c6946bd"
+    },
+    {
+      "file": "scripts/test/check_project_docs.py",
+      "sha256": "34c503f2543e33f5bba5a629382e195a5a29a0a1a310b611b5831661ce6ef6e2"
+    },
+    {
+      "file": "scripts/test/check_public_files.py",
+      "sha256": "62569c91d19600bdf5cb08a6db02ac3e0b236b56edba63f566c8e782fccc67e7"
+    },
+    {
+      "file": "scripts/test/test_git_public_files.py",
+      "sha256": "a2a7a65ffa8e2b8dafe17a04ba730928e51926e47b3b7134e49242b67f797035"
+    },
+    {
+      "file": "scripts/test/test_public_export.py",
+      "sha256": "5bb9583d31f5727067600c6f28b32a8a3062ce103c4d97114615eac5efb7e3e9"
+    },
+    {
+      "file": "uv.lock",
+      "sha256": "4129378ecbfd70cfe6dd00ad2f327663090f8f7312264a70524a1b99cf45090c"
+    }
+  ],
+  "uploaded": false
+}

@@ -1,0 +1,189 @@
+{
+  "date": "2026-11-03 KST",
+  "scope": "current team identity and document naming; past evidence/snapshots retained",
+  "status": "passed",
+  "team_name": "두바퀴",
+  "technical_prefix": "dubakwi",
+  "webhook": "POST /webhook/dubakwi-support",
+  "workflow_names": [
+    "dubakwi-support.json",
+    "dubakwi-index.json",
+    "dubakwi-search.json",
+    "dubakwi-handoff.json",
+    "dubakwi-state.json",
+    "dubakwi-dlq.json",
+    "dubakwi-errors.json"
+  ],
+  "versions": {
+    "TOPIC.md": "0.7",
+    "TEAM-CHARTER.md": "0.9",
+    "SYSTEM-DESIGN.md": "0.7",
+    "WORKFLOW-DESIGN.md": "0.13",
+    "RAG-ARCHITECTURE.md": "0.5",
+    "STORAGE-DESIGN.md": "0.4"
+  },
+  "checks": {
+    "stale_name_placeholders": [],
+    "documents": {
+      "files": 20,
+      "local_links": 340,
+      "anchors": 41,
+      "errors": []
+    },
+    "git_candidates": {
+      "files": 36,
+      "local_links": 342,
+      "errors": []
+    },
+    "ruff_check": "passed",
+    "ruff_format_check": "passed",
+    "unittest_passed": 11
+  },
+  "notes": [
+    "Historical review baselines and previous JSON evidence not rewritten",
+    "Naming change only; workflow JSONs, real environments and connections still unimplemented",
+    "No staging, commit or upload performed"
+  ],
+  "sources": [
+    {
+      "file": ".gitattributes",
+      "sha256": "71529fd2d8c2ebc6a12f7e6f4bda4847885528c9ff807ea9261cd010e3b712dd"
+    },
+    {
+      "file": ".github/pull_request_template.md",
+      "sha256": "e7feb491769b8dda33d33f1dc2608dc3d213377796e289e59887468c1018878b"
+    },
+    {
+      "file": ".github/workflows/quality.yml",
+      "sha256": "b440230c1b326a75619d1092df3dfebad2d78efb03a4e516fe08775ca6abba3b"
+    },
+    {
+      "file": ".gitignore",
+      "sha256": "77604d482b3cc64b1a47d06bb4e03568a12e1693d58d3c0ce842c85c96b87091"
+    },
+    {
+      "file": ".python-version",
+      "sha256": "7b55f8e67b5623c4bef3fa691288da9437d79d3aba156de48d481db32ac7d16d"
+    },
+    {
+      "file": "AGENTS.md",
+      "sha256": "95256d573b7f87349c351c58f1b772211e3ec46fe9ba0b9a2f769cfaeaf0f330"
+    },
+    {
+      "file": "README.md",
+      "sha256": "33f5190cb65e39d5522254783a551e62ddc51862cc0ac302123abf18382807de"
+    },
+    {
+      "file": "docs/DEVELOPMENT-PLAN.md",
+      "sha256": "a825e679503bdf4ff401807280ada69aba6db18681b43f55dc83d06f9a2129a0"
+    },
+    {
+      "file": "docs/PRESENTATION-PLAN.md",
+      "sha256": "0ffef9acaac0a2fac41bee082a500f392b7711a002dc4866b9a1aee29cc7106a"
+    },
+    {
+      "file": "docs/PUBLIC-SOURCES.md",
+      "sha256": "ca4b34499c6b07fb9c72e8df0f612ca9b7748d328b8dee6b1b8857d7d0890b6b"
+    },
+    {
+      "file": "docs/PUBLICATION.md",
+      "sha256": "f35cf4a691c07fb8c9a1ba7c872e61a7eab89a4f8bd8a67022feb1a9a580f727"
+    },
+    {
+      "file": "docs/PYTHON-DEVELOPMENT.md",
+      "sha256": "08dd5af81cd9643055c47ab76e8529557ad78d0245d49588a17fa4ce01b49f1b"
+    },
+    {
+      "file": "docs/README.md",
+      "sha256": "af45e703fa90b22da8e720adfed11f006cc6d523df58cbcbceddd3248e2318cb"
+    },
+    {
+      "file": "docs/TEAM-START.md",
+      "sha256": "877de1e703f595b3a5193f83d528503a78de8386aa55e6462b5dda8548f49f0c"
+    },
+    {
+      "file": "docs/project/RAG-ARCHITECTURE.md",
+      "sha256": "e454b8583d166f93607d9d5738b9ff372408d3b5179e591a08174cf521601d11"
+    },
+    {
+      "file": "docs/project/README.md",
+      "sha256": "2ee2f420be1e9fb3e27b0e5cc4e30496698c6f63d81ed845409c01a17919a5eb"
+    },
+    {
+      "file": "docs/project/STORAGE-DESIGN.md",
+      "sha256": "f08a057b480b4f48421ae646c1a0ed6664a05d2e0bca9754123eded05aee76ad"
+    },
+    {
+      "file": "docs/project/SYSTEM-DESIGN.md",
+      "sha256": "7ffb867114b7c6c75fc1f1ff16a5db8d63814240d5fc7800fbb3073be2bcee73"
+    },
+    {
+      "file": "docs/project/TEAM-CHARTER.md",
+      "sha256": "f592bf093726a670771962891281216b02a5fb6ccd8d25ed82d3e616a4607b23"
+    },
+    {
+      "file": "docs/project/TEAM-READINESS-REVIEW.md",
+      "sha256": "2765c709dab4ec7820c2c2c7d7062d701967bf63b9209247a9faafed6afb3683"
+    },
+    {
+      "file": "docs/project/TOPIC.md",
+      "sha256": "19619f7f1910cb3d2eda1498073b4d136eae67260b876722f18488ebf1f1b3a0"
+    },
+    {
+      "file": "docs/project/WORKFLOW-DESIGN.md",
+      "sha256": "28467bc35ab89f3e4e4077bbd9dc695c73c16657390c06b9488775317130d913"
+    },
+    {
+      "file": "infra/README.md",
+      "sha256": "8ed13c2b3407c05e2d74872025036194b01612d048454080438744652be6c94b"
+    },
+    {
+      "file": "pyproject.toml",
+      "sha256": "151cc9b6f27e91ce8ed96826a36a0d61bdb9ecd3fcde949bcc7e0c8e54074b91"
+    },
+    {
+      "file": "runs/public/20261103-team-readiness/summary.json",
+      "sha256": "6900d90bd2c6bd4a240047afa34bda09c77d657e66fc2c2aa75d5b74c432d746"
+    },
+    {
+      "file": "scripts/README.md",
+      "sha256": "9d6448f814dd5bf39a92a47f4a9eb5615314d07e21a5528040f8cabebf540bd0"
+    },
+    {
+      "file": "scripts/dev/README.md",
+      "sha256": "0ec814d4fb7b0e8869c2402285ba6f95dadf4a1080885c8473e2dfc1278bfd78"
+    },
+    {
+      "file": "scripts/dev/export_public.py",
+      "sha256": "c7d1a1a6b28bdee9c06369979bfd852360af83979ac906e3ede8f93cf45ddf5f"
+    },
+    {
+      "file": "scripts/dev/public-files.json",
+      "sha256": "8e30ba89f8c83b9c5fce710787dfb034c66abc35fefb5b77f26b0980507f005e"
+    },
+    {
+      "file": "scripts/test/README.md",
+      "sha256": "590c2d0bfc2ba768aaea5dabc3994d16ac653f79200bb160ae591ed45c6946bd"
+    },
+    {
+      "file": "scripts/test/check_project_docs.py",
+      "sha256": "34c503f2543e33f5bba5a629382e195a5a29a0a1a310b611b5831661ce6ef6e2"
+    },
+    {
+      "file": "scripts/test/check_public_files.py",
+      "sha256": "62569c91d19600bdf5cb08a6db02ac3e0b236b56edba63f566c8e782fccc67e7"
+    },
+    {
+      "file": "scripts/test/test_git_public_files.py",
+      "sha256": "a2a7a65ffa8e2b8dafe17a04ba730928e51926e47b3b7134e49242b67f797035"
+    },
+    {
+      "file": "scripts/test/test_public_export.py",
+      "sha256": "5bb9583d31f5727067600c6f28b32a8a3062ce103c4d97114615eac5efb7e3e9"
+    },
+    {
+      "file": "uv.lock",
+      "sha256": "4129378ecbfd70cfe6dd00ad2f327663090f8f7312264a70524a1b99cf45090c"
+    }
+  ]
+}
