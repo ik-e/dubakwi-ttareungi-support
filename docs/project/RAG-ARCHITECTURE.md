@@ -2,7 +2,8 @@
 
 전체 구성·상태·시나리오에서 RAG의 위치는 [최상위 시스템 설계서](SYSTEM-DESIGN.md)를 참조한다. 검색·색인 내부 상세의 원본은 이 문서다.
 
-- 작성: 2026-11-03 KST / 버전·상태: **v0.5 두바퀴 dubakwi 색인 접두사 동기화 초안·미구현/미측정** / 책임: R03, 검토: R02·R04·R05.
+- 작성: 2026-11-03 KST / 버전·상태: **v0.6 P08 지식 초안 경로 동기화·색인/검색 미구현·미측정** / 책임: R03, 검토: R02·R04·R05.
+- v0.6 변경: PR #2의 문서6개를 검토용 초안으로 연결한다. 승인 서비스 지식·manifest와 구분하며 공개 계약·노드/엣지는 유지한다. R01의 이번 대리 편집은 개발 계획 P08 통합 검토 기록에 남긴다.
 - v0.5 변경: 팀 이름 두바퀴·색인/검색 접두사 dubakwi 반영. 검색 설정·버전/권한 실측은 미완료.
 - v0.4 변경: I02는 시스템 설계의 knowledge/public·restricted와 manifest를 따르며, 승인된 문서만 읽고 manifest를 본문으로 색인하지 않는다. 공개 SearchRequest/SearchResult 계약은 유지한다.
 - [공식 템플릿 — 공개본 제외 자료](../../docs/PUBLIC-SOURCES.md)의 5개 절과 [RAG 가이드 — 공개본 제외 자료](../../docs/PUBLIC-SOURCES.md)를 따른다. 기존 워크플로우 설계의 검색·색인 상세를 이 문서로 이관했다. 기술 후보를 확정값 또는 실측으로 표현하지 않는다.
@@ -13,7 +14,7 @@
 | 항목 | 값 |
 | --- | --- |
 | 대상 문서 | 팀 knowledge/에 시민 문의용 문서6개 이상, 각 ##절3개 이상 준비 예정. 제공 /docs 8개+관리자 문서1개는 가이드상 자료이며 실제 제공·채택 미확인. 그대로 전부 색인하지 않음 |
-| 후보 내용 | rental-guide.md,return-guide.md,breakdown-report.md,fees-refund-guide.md,support-followup.md,privacy-security-guide.md. 공개6종에 더해 과제용 이관 정책·티켓 처리 정책의 제한 문서2종은 TOPIC의 추가 후보이며 기관 SOP로 쓰지 않음. 파일·본문 미작성 |
+| 후보 내용 | rental-guide.md,return-guide.md,breakdown-report.md,fees-refund-guide.md,support-followup.md,privacy-security-guide.md. 공개6종에 더해 과제용 이관 정책·티켓 처리 정책의 제한 문서2종은 TOPIC의 추가 후보이며 기관 SOP로 쓰지 않음. 검토 전 초안6개 작성, 서비스 지식 이관·제한 문서2종 미작성 |
 | 근거 | TOPIC의 조사·시나리오와 출처 원장을 바탕으로 작성. 실제 SOP·기관 내부 규정으로 간주하지 않음 |
 | 문서 형식 | Markdown의 # 제목·##절·목록·표. 파일별 doc ID·출처·권한·갱신시각 명세 필요 |
 | 문서 길이 | 최소/중앙/최대·절 수·글자/토큰 수 모두 미측정. 지식 문서 작성 뒤 측정 |
@@ -23,6 +24,23 @@
 | 색인 제외 | 실명·연락처·개별 거래/티켓 원문·미검증 내부 정책. 본인 상태는 업무 API 조회로 처리 |
 
 문서 목록·원본 해시·출처·승인 상태·접근권한을 manifest로 관리하는 안이다. 조사 원문 전체를 서비스 지식으로 취급하지 않는다. 실제 지식 목록·통계·측정 명령/보고서는 생성 후 이 절에 연결한다.
+
+### 1.1 검토 전 초안과 서비스 지식의 관계
+
+[PR #2](https://github.com/ik-e/dubakwi-ttareungi-support/pull/2)의 `docs/rag-knowledge/`는 공유·검토용 초안이며 I02의 색인 입력에 추가하지 않는다. 초안 병합은 사실 정확성·현행성·서비스 사용 승인이 아니다.
+
+| 초안 | 내용 |
+| --- | --- |
+| [대여](../rag-knowledge/rental-guide.md) | 대여 준비·오류 안내 |
+| [반납](../rag-knowledge/return-guide.md) | 반납·완료 확인 |
+| [고장 신고](../rag-knowledge/breakdown-report.md) | 고장·신고 경로 |
+| [요금·환불](../rag-knowledge/fees-refund-guide.md) | 이용권·요금·환불 |
+| [계정·보안](../rag-knowledge/privacy-security-guide.md) | 계정·개인정보 |
+| [후속 문의](../rag-knowledge/support-followup.md) | 상담·모의 조회/이관 |
+
+R03이 문서/절별 출처·확인일·적용 범위·가상 정책 여부를 정리하고, R04가 권한/가상 정책을, R05가 근거와 기대 문서·절을 검토한다. 검토된 내용만 `knowledge/public/` 또는 `knowledge/restricted/`로 이관하고 `knowledge/manifest.json`에 원본 경로·해시·출처·승인 상태·권한·버전을 등록한다. I02는 기존 계약대로 승인 manifest의 서비스 문서만 읽는다. 이관 이후 내용 수정은 서비스 지식 원본에서 관리하며 초안을 별도 현행 원본으로 병행 관리하지 않는다.
+
+미확인·상충하는 금액/기간·앱 조건은 확인 또는 제외한 뒤 승인한다. 공개 안내와 가상 정책의 구분·출처·적용 조건은 절/최종 청크에서도 보존하고 내부 정책은 공개 청크에 섞지 않는다. 실제 manifest 형식과 권한 값은 D04에서 정한다. 지식 승인·manifest 등록·색인/권한/검색 검증은 후속 작업이며 이번 PR에서는 완료로 처리하지 않는다.
 
 ## 2. 전처리 및 청킹
 
