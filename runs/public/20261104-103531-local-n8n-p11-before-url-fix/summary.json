@@ -1,0 +1,193 @@
+{
+  "label": "before-url-fix",
+  "executed_at_kst": "2026-11-04T10:35:33+09:00",
+  "environment": "local n8n 2.42.6 container, course data-api container",
+  "scope": "P11 골격의 실제 Webhook 호출. B07~B32는 mock이며 업무 성공 증거가 아니다.",
+  "workflow_sha256": "097e34508aaaed1de0bacc3dfec8df903494ad07853fc395be249f4810c5b0e9",
+  "command": "scripts/test/support_skeleton_live.py",
+  "total": 11,
+  "passed": 5,
+  "failed": 6,
+  "status": "failed",
+  "not_executed": [
+    "VM 배포",
+    "WF-08 공식 판정",
+    "WF-13 공식 판정",
+    "R05 run_cases.py"
+  ],
+  "results": [
+    {
+      "id": "LN01",
+      "title": "키 없음",
+      "pass": true,
+      "http_status": 403,
+      "elapsed_ms": 13,
+      "response": null,
+      "failures": []
+    },
+    {
+      "id": "LN02",
+      "title": "틀린 키",
+      "pass": true,
+      "http_status": 403,
+      "elapsed_ms": 26,
+      "response": null,
+      "failures": []
+    },
+    {
+      "id": "LN03",
+      "title": "빈 질문",
+      "pass": true,
+      "http_status": 400,
+      "elapsed_ms": 1067,
+      "response": {
+        "error": "invalid_input",
+        "codes": [
+          "invalid_input",
+          "question_empty"
+        ]
+      },
+      "failures": []
+    },
+    {
+      "id": "LN04",
+      "title": "501자 질문",
+      "pass": true,
+      "http_status": 400,
+      "elapsed_ms": 87,
+      "response": {
+        "error": "invalid_input",
+        "codes": [
+          "invalid_input",
+          "question_too_long"
+        ]
+      },
+      "failures": []
+    },
+    {
+      "id": "LN05",
+      "title": "미등록 사용자",
+      "pass": false,
+      "http_status": 503,
+      "elapsed_ms": 57,
+      "response": {
+        "error": "user_lookup_error",
+        "codes": [
+          "user_lookup_unavailable"
+        ]
+      },
+      "failures": [
+        "status 503, 기대 400",
+        "error 'user_lookup_error', 기대 'unknown_user'",
+        "codes ['user_lookup_unavailable'], 기대 ['unknown_user']"
+      ]
+    },
+    {
+      "id": "LN06",
+      "title": "R05 WF08 문장 차단",
+      "pass": true,
+      "http_status": 200,
+      "elapsed_ms": 44,
+      "response": {
+        "route": "차단",
+        "reason": "prompt_injection",
+        "ticket": null
+      },
+      "failures": []
+    },
+    {
+      "id": "LN07",
+      "title": "등록 사용자 정상 mock",
+      "pass": false,
+      "http_status": 503,
+      "elapsed_ms": 47,
+      "response": {
+        "error": "user_lookup_error",
+        "codes": [
+          "user_lookup_unavailable"
+        ]
+      },
+      "failures": [
+        "status 503, 기대 200",
+        "reason '<없음>', 기대 'skeleton_mock'",
+        "ticket '<없음>', 기대 None",
+        "answer에 '골격 시험' 없음"
+      ]
+    },
+    {
+      "id": "LN08",
+      "title": "R05 TC09 앱 안내 무시 통과",
+      "pass": false,
+      "http_status": 503,
+      "elapsed_ms": 41,
+      "response": {
+        "error": "user_lookup_error",
+        "codes": [
+          "user_lookup_unavailable"
+        ]
+      },
+      "failures": [
+        "status 503, 기대 200",
+        "reason '<없음>', 기대 'skeleton_mock'",
+        "ticket '<없음>', 기대 None",
+        "answer에 '골격 시험' 없음"
+      ]
+    },
+    {
+      "id": "LN09",
+      "title": "R05 TC09 비밀번호 찾기 통과",
+      "pass": false,
+      "http_status": 503,
+      "elapsed_ms": 44,
+      "response": {
+        "error": "user_lookup_error",
+        "codes": [
+          "user_lookup_unavailable"
+        ]
+      },
+      "failures": [
+        "status 503, 기대 200",
+        "reason '<없음>', 기대 'skeleton_mock'",
+        "ticket '<없음>', 기대 None",
+        "answer에 '골격 시험' 없음"
+      ]
+    },
+    {
+      "id": "LN10",
+      "title": "IT팀 사용자 정상 mock",
+      "pass": false,
+      "http_status": 503,
+      "elapsed_ms": 43,
+      "response": {
+        "error": "user_lookup_error",
+        "codes": [
+          "user_lookup_unavailable"
+        ]
+      },
+      "failures": [
+        "status 503, 기대 200",
+        "reason '<없음>', 기대 'skeleton_mock'",
+        "ticket '<없음>', 기대 None",
+        "answer에 '골격 시험' 없음"
+      ]
+    },
+    {
+      "id": "LN11",
+      "title": "R05 시험 사용자 citizen-a",
+      "pass": false,
+      "http_status": 503,
+      "elapsed_ms": 41,
+      "response": {
+        "error": "user_lookup_error",
+        "codes": [
+          "user_lookup_unavailable"
+        ]
+      },
+      "failures": [
+        "status 503, 기대 400",
+        "error 'user_lookup_error', 기대 'unknown_user'",
+        "codes ['user_lookup_unavailable'], 기대 ['unknown_user']"
+      ]
+    }
+  ]
+}

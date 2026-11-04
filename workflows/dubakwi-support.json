@@ -84,7 +84,7 @@
       "onError": "continueRegularOutput",
       "parameters": {
         "method": "GET",
-        "url": "=http://localhost:8800/employees/{{ encodeURIComponent($json.request.user) }}",
+        "url": "=http://data-api:8800/employees/{{ encodeURIComponent($json.request.user) }}",
         "options": {
           "response": {
             "response": {
@@ -184,7 +184,7 @@
       "onError": "continueRegularOutput",
       "parameters": {
         "method": "POST",
-        "url": "http://localhost:8800/logs",
+        "url": "http://data-api:8800/logs",
         "sendBody": true,
         "specifyBody": "json",
         "jsonBody": "={{ JSON.stringify($json.log) }}",

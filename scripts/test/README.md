@@ -20,6 +20,8 @@ Windows에서 `python`이 Microsoft Store 별칭이면 같은 명령의 실행�
 
 P11 support 골격의 Code 노드 로컬 시험은 `node scripts/test/support-skeleton-cases.js [--workflow <json>] [--label <이름>] [--output runs/public/<실행묶음ID>/summary.json]`로 실행한다. JSON의 jsCode를 Node.js에서 실행하고 connections를 따라 진행하며 B04·B35 HTTP는 대체값을 쓴다. 실패 시 종료 코드 1이고 기존 출력 파일은 덮어쓰지 않는다. unittest의 `test_support_skeleton.py`도 같은 시험을 실행한다. n8n 가져오기·Webhook·data-api 실호출·VM·WF-08/13 공식 판정을 대신하지 않는다.
 
+게시된 n8n의 Webhook 호출은 `SUPPORT_TEAM_KEY=<시험 키> uv run --locked python scripts/test/support_skeleton_live.py --url <Webhook URL> [--output runs/public/<실행묶음ID>/summary.json]`로 확인한다. 키는 결과에 남기지 않는다. n8n 게시 직후 결과가 이전 버전으로 나올 수 있어 실패하면 잠시 뒤 다시 확인하고 최초 결과를 보존한다. VM·공식 판정을 대신하지 않는다.
+
 조사·보존 해시·전체 저장소 검사는 기존 [조사 문서 검사 — 공개본 제외 자료](../../docs/PUBLIC-SOURCES.md)를 사용한다. 기존 임시 Mermaid 검사 환경은 정식 도구가 아니며 [임시 기록 — 공개본 제외 자료](../../docs/PUBLIC-SOURCES.md)에서 한계를 확인한다. 서비스 시험/검색 측정 도구는 실제 구현 때 이 경로에 추가하고 사용법·입출력·고장 복원 방법을 기록한다.
 
 [도구 목록](../README.md) · [작업 규칙](../../AGENTS.md)

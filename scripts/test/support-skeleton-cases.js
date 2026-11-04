@@ -194,6 +194,7 @@ function checkStatic(workflow) {
     }
   }
   const text = JSON.stringify(workflow);
+  if (text.includes('localhost:8800')) failures.push('data-api 주소: n8n 안에서는 data-api:8800을 사용해야 함');
   if (/담당자가 이어서/.test(text)) failures.push('mock 문구: 후속 처리 약속이 남아 있음');
   return failures;
 }

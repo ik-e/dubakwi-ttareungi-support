@@ -3,7 +3,7 @@
 전체 구성·상태 관계·기능/시나리오 추적은 [최상위 시스템 설계서](SYSTEM-DESIGN.md)를 먼저 읽는다. 이 문서는 노드·엣지와 업무 계약의 상세 원본이다.
 
 - 작성: 2026-11-02 / 개정: 2026-11-04 KST
-- 버전·상태: **v0.14 / P11 support 골격 JSON·역할 프롬프트 초안·B05 사용자 응답 검증 추가**, 공동 검토 전. 골격은 로컬 Code 로직 시험만 수행했고 n8n 가져오기·VM 실행은 전.
+- 버전·상태: **v0.14 / P11 support 골격 JSON·역할 프롬프트 초안·B05 사용자 응답 검증 추가**, 공동 검토 전. 골격은 로컬 Code 시험과 로컬 n8n Webhook 호출까지 확인했고 VM 실행·공식 판정은 전.
 - [공식 템플릿 — 공개본 제외 자료](../../docs/PUBLIC-SOURCES.md)의 8개 절 유지. 범위는 [TOPIC](TOPIC.md), 역할은 [팀 헌장](TEAM-CHARTER.md), 배정·구현 순서는 [개발 계획](../DEVELOPMENT-PLAN.md).
 - **티켓 최초 생성 위치를 뒤로 이동**했다. 일반 안내는 답변·검증 후 생성/종료, 정보 부족은 보완 질문 준비 후 생성/대기, 긴급은 분류 직후 생성/이관한다.
 
@@ -483,15 +483,17 @@ B28은 먼저 error_code=null && state_saved=true && 최신 state_ref를 확인�
 | B01 문의 수신 | Webhook POST `dubakwi-support`, Header Auth, responseNode | Credential 이름 `dubakwi-team-key`만 넣고 ID·값은 넣지 않음. VM에서 연결. 경로는 팀 헌장의 `POST /webhook/dubakwi-support`를 유지 |
 | B02 입력 검사 | 본문 객체, request_id/user 1~64자, question trim 1~500자, attempt 정수≥1, channel/context/case_ref 문자열 검사. 명백한 주입 정규식 차단(question+context) | `codes`는 공통 코드 `invalid_input`을 먼저 두고 세부 사유(`question_empty` 등)를 뒤에 둠. 주입 패턴은 초기 목록이며 명령형만 차단하고 가능 여부 질문·경험 서술은 통과시킴. 타인 기록 요청은 권한 문제라 여기서 막지 않음 |
 | B03 입력 통과 | If input_ok. false → B33(E087) | 없음 |
-| B04 사용자 확인 | GET `http://localhost:8800/employees/<user>`, full response·neverError·timeout 1.5초 | 주소는 과정 data-api 기준이며 실호출 전. 시민 사용자 공급(R04 P09) 형식은 6.4.1 제안 기준으로 R04 확인 필요 |
+| B04 사용자 확인 | GET `http://data-api:8800/employees/<user>`, full response·neverError·timeout 1.5초 | n8n 컨테이너 안에서는 `localhost:8800`에 연결되지 않아 서비스 이름을 사용. 과정 data-api 실호출 확인. 시민 사용자 공급(R04 P09) 형식은 6.4.1 제안 기준으로 R04 확인 필요 |
 | B05 등록·권한 확인 | 200 응답의 구조·필수 ID·요청 사용자 일치·권한 조합을 6.4.1 기준으로 검증해 Actor 구성. 404 → 400 `unknown_user`, 그 외 → 503 `user_lookup_error` | 권한 조합과 오류 계약은 R02 제안이며 R04·R05 검토 대기. 과정 형식의 dept 매핑은 미확정이라 최소 권한만 부여 |
 | B06 사용자 통과 | If actor_ok. false → B33(E088) | 없음 |
 | M01 골격 mock | B07~B32 대신 route=담당자 이관, reason=skeleton_mock, ticket=null과 “실제 접수·티켓 생성·이관 없음” 안내 응답 | P19에서 실제 노드로 교체. route는 공통 enum을 지키기 위한 값이며 mock 응답은 업무 성공이 아님 |
 | B33 응답 구성 | InputError 또는 공통 Response 정규화, timings.total_ms, 가린 감사 메타 구성 | B34·B37~B39 저장 게이트는 아직 없음 |
-| B35 메타 기록 | POST `/logs`, 실패해도 응답 진행 | 원문 질문·답변·연락처·헤더 제외 |
+| B35 메타 기록 | POST `http://data-api:8800/logs`, 실패해도 응답 진행 | 원문 질문·답변·연락처·헤더 제외 |
 | B36 응답 | B33의 body/status로 한 번 응답 | 없음 |
 
-로컬 확인(2026-11-04): [`support-skeleton-cases.js`](../../scripts/test/support-skeleton-cases.js)로 Code 노드 JS를 Node.js에서 실행하고 connections를 따라 입력을 확인했다. B04·B35는 대체값이다. B05 보완 전 커밋 `55bba3d`는 [8/36 통과](../../runs/public/20261104-090315-local-p11-before-fix/summary.json), 보완 후는 [36/36 통과](../../runs/public/20261104-090407-local-p11-skeleton/summary.json)다. 이후 B02 사례 10개를 더한 46개 기준으로 수정 전 [38/46](../../runs/public/20261104-102320-local-p11-before-b02-fix/summary.json), 수정 후 [46/46 통과](../../runs/public/20261104-102342-local-p11-b02-fix/summary.json)다. 보완 전 실패에는 코드 이름 변경·mock 문구 변경으로 기대값이 달라진 사례도 포함된다. 대상은 입력 오류, 주입과 오탐 경계, 미등록, 조회 장애, 빈 사용자 응답, ID 불일치, 잘못된 권한 조합, 정상 mock이다. **n8n 가져오기, Webhook 실호출, data-api 실호출, VM 시험, WF-08/13 공식 판정은 미실행이다.** 공식 판정은 R05의 P13 증거로 기록한다.
+로컬 확인(2026-11-04): [`support-skeleton-cases.js`](../../scripts/test/support-skeleton-cases.js)로 Code 노드 JS를 Node.js에서 실행하고 connections를 따라 입력을 확인했다. B04·B35는 대체값이다. B05 보완 전 커밋 `55bba3d`는 [8/36 통과](../../runs/public/20261104-090315-local-p11-before-fix/summary.json), 보완 후는 [36/36 통과](../../runs/public/20261104-090407-local-p11-skeleton/summary.json)다. 이후 B02 사례 10개를 더한 46개 기준으로 수정 전 [38/46](../../runs/public/20261104-102320-local-p11-before-b02-fix/summary.json), 수정 후 [46/46 통과](../../runs/public/20261104-102342-local-p11-b02-fix/summary.json)다. 보완 전 실패에는 코드 이름 변경·mock 문구 변경으로 기대값이 달라진 사례도 포함된다. 대상은 입력 오류, 주입과 오탐 경계, 미등록, 조회 장애, 빈 사용자 응답, ID 불일치, 잘못된 권한 조합, 정상 mock이다. 
+
+로컬 n8n 확인(2026-11-04): n8n 2.42.6 컨테이너에 가져와 게시하고 과정 data-api로 [`support_skeleton_live.py`](../../scripts/test/support_skeleton_live.py)를 실행했다. 첫 실행은 B04의 `localhost:8800` 연결 거부로 [5/11](../../runs/public/20261104-103531-local-n8n-p11-before-url-fix/summary.json)이었다. 주소를 고친 뒤 재시작 직후 실행도 [5/11](../../runs/public/20261104-103812-local-n8n-p11-skeleton/summary.json)이었고 실행 기록에는 이전 주소의 연결 거부가 남았다. 재시작 시점 문제로 보이지만 원인은 확정하지 못했다. 잠시 뒤 재실행은 [11/11 통과](../../runs/public/20261104-104205-local-n8n-p11-pass/summary.json)다. 인증 키 없음·오류 403, 입력 400, 미등록 400, 주입 차단, 정상 mock, B35 `/logs` 기록과 질문 원문 미포함을 확인했다. 과정 data-api에는 R05 시험 사용자 `citizen-a`가 없어 400 `unknown_user`가 나오므로 R04 P09의 사용자 공급이 필요하다. **VM 시험, R05 실행 도구 시험, WF-08/13 공식 판정은 미실행이다.** 공식 판정은 R05의 P13 증거로 기록한다.
 
 ## 5. 외부 연동 노드
 
@@ -940,7 +942,7 @@ Jira에는 가린 facts,최소 상태에는 가린 최종 응답을 두고 감�
 
 | 가져온 것 (일차 · 파일) | 어디에 | 바꾼 것 |
 | --- | --- | --- |
-| 과정 data-api(`localhost:8800`)의 `/employees/<이름>` (`Last3Mon/78/data-api/server.py` 응답 `{name,dept}`·404 코드 읽기 확인, 실호출 전) | B04 사용자 확인 | P11 골격에서 채택. B05가 6.4.1 기준으로 구조·ID·권한을 검증 |
+| 과정 data-api(n8n 안 `data-api:8800`, 터미널 `localhost:8800`)의 `/employees/<이름>` (`Last3Mon/78/data-api/server.py` 응답 `{name,dept}`·404 코드 읽기 확인, 로컬 n8n 실호출 확인) | B04 사용자 확인 | P11 골격에서 채택. B05가 6.4.1 기준으로 구조·ID·권한을 검증 |
 | 과정 data-api의 `POST /logs` (가이드 인용) | B35 메타 기록 | P11 골격에서 채택. 원문 대신 가린 메타만 전송 |
 | 과정 data-api의 `/tickets`, `/alerts`, `/dlq`, 고장 스위치 (가이드 인용) | H 노드·X 노드 (R04) | 미채택. 공통 판정용 경로로 R04가 확인 |
 | `tools/flow.py` check·push·call·test·bench·fault (가이드 인용) | R05 시험, R01 배포 | 미채택. 실제 명령 확인은 P06·P13 |
