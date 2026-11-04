@@ -6,7 +6,7 @@
 
 팀 이름은 **두바퀴**, 기술 접두사는 **dubakwi**입니다.
 
-이 문서는 **슬라이드에서 무엇을 설명하고 어떤 증거를 보여줄지** 정합니다. 현재는 구성안이며, Discord 시민 문의·Jira·최소 상태/실행 기록/DLQ·Docker Compose를 반영합니다. 발표자 역할 ID·공용 파일 형식·실행 결과는 미확정입니다. 설계 기준은 [시스템 v0.8](project/SYSTEM-DESIGN.md), [워크플로우 v0.13](project/WORKFLOW-DESIGN.md), [RAG v0.6](project/RAG-ARCHITECTURE.md), [저장소 v0.4](project/STORAGE-DESIGN.md)입니다. 발표 준비의 진행 상태는 [개발 작업 원장 P29](DEVELOPMENT-PLAN.md#5-작업-원장)에서 관리하고, 슬라이드별 상태를 별도로 복제하지 않습니다.
+이 문서는 **슬라이드에서 무엇을 설명하고 어떤 증거를 보여줄지** 정합니다. 현재는 구성안이며, Discord 시민 문의·Jira·최소 상태/실행 기록/DLQ·Docker Compose를 반영합니다. 발표자 역할 ID·공용 파일 형식·실행 결과는 미확정입니다. 설계 기준은 [시스템 v0.9](project/SYSTEM-DESIGN.md), [워크플로우 v0.13](project/WORKFLOW-DESIGN.md), [RAG v0.6](project/RAG-ARCHITECTURE.md), [저장소 v0.4](project/STORAGE-DESIGN.md)입니다. 발표 준비의 진행 상태는 [개발 작업 원장 P29](DEVELOPMENT-PLAN.md#5-작업-원장)에서 관리하고, 슬라이드별 상태를 별도로 복제하지 않습니다.
 
 ## 1. 발표의 중심 내용
 
