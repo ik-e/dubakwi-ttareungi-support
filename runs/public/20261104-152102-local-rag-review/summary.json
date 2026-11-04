@@ -1,0 +1,57 @@
+{
+  "record_type": "retrospective_masked_summary",
+  "executed_at_kst": "2026-11-04 15:21 (B14 local evidence; other cases earlier that afternoon, exact times not preserved)",
+  "recorded_at_kst": "2026-11-04",
+  "environment": {
+    "n8n": "1.120.4 local single process",
+    "model": "text-embedding-3-large",
+    "store": "Simple Vector Store, in-memory, separate public/restricted/readiness keys",
+    "knowledge": "44 education/demo chunks; approval pending",
+    "search_threshold": 0.3
+  },
+  "workflow_versions": {
+    "index_test": "local temporary authenticated webhook variant, derived from repository manual-trigger workflow; failure injected only in local copy",
+    "search_test": "local webhook variant with local credentials; request deadline was subsequently checked again in final repository variant",
+    "repository_reference_commit": "ac772ae (initial HTTP and readiness implementation; formatting-only d599966)",
+    "index_sha256_at_recording": "2ceac1f8c21f86848c218d2a671692c7beb4c91c3149d7d5e4ac435d569b66e5",
+    "search_sha256_at_recording": "2fee9797b3bcf72ab359d5327275275704b27f44f807443414dc0763e3faae21"
+  },
+  "cases": [
+    {
+      "id": "http-suite",
+      "expected": "six tests pass: authentication, skip/invalid/expired, citizen, staff, topic and WF03 empty",
+      "observed": "6 passed; no secrets or full response retained",
+      "status": "passed"
+    },
+    {
+      "id": "restart",
+      "expected": "index_not_ready after restart then successful search after indexing",
+      "observed": "index_not_ready; reindex returned indexed; HTTP suite 6/6 passed",
+      "status": "passed"
+    },
+    {
+      "id": "building",
+      "expected": "no partial evidence during indexing",
+      "observed": "concurrent sample requests returned index_not_ready while building; final request after completion returned empty",
+      "status": "passed"
+    },
+    {
+      "id": "failure-recovery",
+      "expected": "failed build makes search not ready; subsequent successful reindex restores search",
+      "observed": "execution status error; search index_not_ready; reindex succeeded and HTTP suite passed; test-only index webhook returned HTTP 200 even on failure",
+      "status": "passed_with_limit"
+    },
+    {
+      "id": "r02-b14",
+      "expected": "HTTP 200, same request_id, status ok, evidence nonempty",
+      "observed": "HTTP 200, r02-b14-test, ok, 5 evidence; localhost ::1 failed and local IPv4 URL used",
+      "status": "passed"
+    }
+  ],
+  "limitations": [
+    "Summary transcribed retrospectively from local run outputs and session notes; no complete execution trace or exact timestamps retained for every case.",
+    "No real user/server authorization, R02 end-to-end, R05 official judgment, team VM, simultaneous index locking, or multiprocess sharing tested.",
+    "Index execution used local temporary webhook variant; manual-trigger repository JSON was not directly tested for same-process sharing.",
+    "No key values, personal data, raw embeddings or source text included."
+  ]
+}
