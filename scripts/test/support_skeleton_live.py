@@ -107,7 +107,12 @@ CASES = [
         "S4 본인 조회와 가림",
         "valid",
         ask(question="제 문의 T-DEMO-01 처리 상태가 궁금해요."),
-        {"status": 200, "route": "자동 답변", "masked_at_least": 1, "answer_has": "waiting_info"},
+        {
+            "status": 200,
+            "route": "자동 답변",
+            "masked_at_least": 1,
+            "answer_has": "추가 정보 확인 대기",
+        },
     ),
     (
         "LN16",
@@ -122,6 +127,13 @@ CASES = [
         "valid",
         ask(question="사칭 링크에 비밀번호를 입력했어요. 개인정보가 노출된 것 같아요."),
         {"status": 200, "route": "담당자 이관", "has_ticket": True, "priority": "high"},
+    ),
+    (
+        "LN19",
+        "조회 8초 지연에도 6초 안에 이관",
+        "valid",
+        ask(request_id="live-slow-lookup", question="제 문의 T-DEMO-01 처리 상태가 궁금해요."),
+        {"status": 200, "route": "담당자 이관", "reason": "lookup_error", "max_ms": 6000},
     ),
     (
         "LN18",
@@ -204,6 +216,8 @@ def run_case(url: str, key: str, case: tuple) -> dict:
     except OSError as error:
         return {"id": case_id, "title": title, "pass": False, "failures": [f"호출 실패: {error}"]}
     failures = problems(expected, status, payload)
+    if "max_ms" in expected and elapsed_ms > expected["max_ms"]:
+        failures.append(f"elapsed {elapsed_ms}ms")
     response_summary = None
     if isinstance(payload, dict):
         allowed = ("route", "reason", "error", "codes", "ticket", "sources", "agents")

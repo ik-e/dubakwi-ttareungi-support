@@ -64,7 +64,14 @@ function evalExpr(text, scope) {
 }
 
 // connections를 따라 실행한다. 분기·병합·긴급 재진입을 실제 연결로 지난다.
+const clock = {
+  real: Date.now,
+  shift(ms) { const before = Date.now; Date.now = () => before() + ms; },
+  reset() { Date.now = this.real; },
+};
+
 function runWorkflow(workflow, webhookItem, b04Response, overrides = {}) {
+  clock.reset();
   const env = { ...defaults(), ...overrides };
   const nodes = new Map(workflow.nodes.map((node) => [node.name, node]));
   const outputs = new Map();
@@ -142,6 +149,7 @@ function runWorkflow(workflow, webhookItem, b04Response, overrides = {}) {
       default:
         throw new Error(`시험 도구가 지원하지 않는 노드: ${node.type} (${name})`);
     }
+    if (env.advanceAfter?.[name.split(' ')[0]]) clock.shift(env.advanceAfter[name.split(' ')[0]]);
     outputs.set(name, json);
     const targets = workflow.connections[name]?.main?.[port] ?? [];
     const next = [];
@@ -267,12 +275,12 @@ const FLOWS = [
   ['FL16', 'S2', 'case_ref 서버 횟수 우선', ask({ attempt: 1, case_ref: 'case-1' }), { triage: { text: RETURN_ASK }, ...earlier(2) }, handoff('attempt_limit', { sentAttempt: 3 })],
   ['FL17', 'S2', 'case_ref 두 번째 보완', ask({ attempt: 1, case_ref: 'case-1' }), { triage: { text: RETURN_ASK }, ...earlier(1) }, flow({ route: '보완 질문', sentAttempt: 2, sentTicket: 'T-1' })],
   ['FL18', 'S3', '사람 판단 이관', ask(), { triage: { text: triage({ type: 'fees', needs_human: true }) } }, handoff('needs_human', { llm: 1, action: 'handoff', search: 0 })],
-  ['FL19', 'S4', '본인 상태 조회', LOOKUP_Q, { triage: { text: FOLLOWUP }, ...lookupOk() }, flow({ route: '자동 답변', llm: 1, action: 'close', answerHas: 'waiting_info', searchEnabled: false })],
+  ['FL19', 'S4', '본인 상태 조회', LOOKUP_Q, { triage: { text: FOLLOWUP }, ...lookupOk() }, flow({ route: '자동 답변', llm: 1, action: 'close', answerHas: '추가 정보 확인 대기', searchEnabled: false })],
   ['FL20', 'S4', '타인 조회 거절', LOOKUP_Q, { triage: { text: FOLLOWUP }, ...lookupAs('denied') }, flow({ route: '권한 없음', llm: 1, action: 'close', closeStatus: 'closed_rejected', reason: 'case_access_denied' })],
   ['FL21', 'S4', '조회 장애 이관', LOOKUP_Q, { triage: { text: FOLLOWUP }, lookup: () => ({ error: { message: 'timeout' } }) }, handoff('lookup_error', { llm: 1 })],
   ['FL22', 'S4', '타인 레코드 반환 차단', LOOKUP_Q, { triage: { text: FOLLOWUP }, lookup: (r) => ({ statusCode: 200, body: { request_id: r.request_id, status: 'ok', record: { ticket_id: 'T-9', owner_id: 'u99', status: '비밀상태', observed_at: 'now' }, masked: 0 } }) }, handoff('protocol_error', { noText: '비밀상태' })],
   ['FL23', 'S4', '조회 가림 건수 전달', LOOKUP_Q, { triage: { text: FOLLOWUP }, ...lookupOk({ masked: 2 }) }, flow({ route: '자동 답변', maskedAtLeast: 2 })],
-  ['FL24', 'S5', '긴급 선이관 후 조회', ask({ question: '사칭 링크에 비밀번호를 입력했어요. 제 문의 T-9도 봐주세요.' }), { triage: { text: triage({ type: 'security', urgency: 'high', target_ticket_id: 'T-9' }) }, ...lookupOk() }, flow({ route: '담당자 이관', reason: 'urgent', llm: 1, process: 1, search: 1, lookup: 1, saves: 1, priority: 'high', ticketId: 'T-1', answerHas: 'waiting_info', sources: 1, processFirst: true })],
+  ['FL24', 'S5', '긴급 선이관 후 조회', ask({ question: '사칭 링크에 비밀번호를 입력했어요. 제 문의 T-9도 봐주세요.' }), { triage: { text: triage({ type: 'security', urgency: 'high', target_ticket_id: 'T-9' }) }, ...lookupOk() }, flow({ route: '담당자 이관', reason: 'urgent', llm: 1, process: 1, search: 1, lookup: 1, saves: 1, priority: 'high', ticketId: 'T-1', answerHas: '추가 정보 확인 대기', sources: 1, processFirst: true, noText: '[실제 안내]' })],
   ['FL25', 'S5', '긴급 티켓 실패는 즉시 응답', ask(), { triage: { text: triage({ type: 'security', urgency: 'high' }) }, process: () => ({ statusCode: 500, body: {} }) }, handoff('tickets_down', { search: 0, dlq: 1, alerts: 1, ticket: null, saves: 0 })],
   ['FL26', 'S5', '긴급 유지 + 조회 거절 병기', ask({ question: '사칭 링크 입력했어요. T-9 봐주세요.' }), { triage: { text: triage({ type: 'security', urgency: 'high', target_ticket_id: 'T-9' }) }, ...lookupAs('denied') }, flow({ route: '담당자 이관', ticketId: 'T-1', answerHas: '본인 문의로 확인되지', process: 1 })],
   ['FL27', 'S8', '티켓 API 500', ask(), { process: () => ({ statusCode: 500, body: {} }) }, handoff('tickets_down', { dlq: 1, alerts: 1, ticket: null, saves: 0 })],
@@ -287,12 +295,24 @@ const FLOWS = [
   ['FL36', 'S7', '타 소유자 case_ref', ask({ case_ref: 'case-x' }), begin('conflict', { response: { error: 'case_access_denied', codes: ['case_access_denied'] }, http_status: 403, error_code: 'case_access_denied' }), { status: 403, b04: true, error: 'case_access_denied', llm: 0, process: 0, saves: 0 }],
   ['FL37', 'S8', 'begin 오류', ask(), begin('error', { error_code: 'state_error' }), handoff('state_error', { llm: 0, process: 0, dlq: 1, alerts: 1, ticket: null })],
   ['FL38', 'S8', 'begin 봉투 ID 불일치', ask(), { begin: () => ({ request_id: 'other', mode: 'proceed' }) }, handoff('protocol_error', { llm: 0, process: 0, dlq: 0, alerts: 1 })],
-  ['FL39', '가림', '답변 연락처 가림', ask(), { writer: { text: JSON.stringify({ answer: `문의는 ${FAKE_PHONE}로 연락하세요.`, cited_source_ids: ['c1'] }) } }, flow({ route: '자동 답변', maskedAtLeast: 1, noText: FAKE_PHONE })],
+  ['FL39', '가림', '답변 연락처 가림', ask(), { search: (r) => ({ statusCode: 200, body: { request_id: r.request_id, status: 'ok', error_code: null, evidence: [{ ...EVIDENCE, text: `담당 번호는 ${FAKE_PHONE}입니다.` }] } }), writer: { text: JSON.stringify({ answer: `문의는 ${FAKE_PHONE}로 연락하세요.`, cited_source_ids: ['c1'] }) } }, flow({ route: '자동 답변', maskedAtLeast: 1, noText: FAKE_PHONE })],
   ['FL40', '가림', '질문 연락처는 검색어에서 가림', ask({ question: `제 번호 ${FAKE_PHONE}인데 대여가 안 돼요` }), {}, flow({ route: '자동 답변', maskedAtLeast: 1, queryNoContact: true })],
-  ['FL42', 'S4', '문의 번호가 있으면 누락·사람 판단 무시', LOOKUP_Q, { triage: { text: triage({ type: 'followup', missing: ['target_ticket_id'], needs_human: true, target_ticket_id: 'T-9' }) }, ...lookupOk() }, flow({ route: '자동 답변', llm: 1, lookup: 1, answerHas: 'waiting_info' })],
+  ['FL42', 'S4', '문의 번호가 있으면 누락·사람 판단 무시', LOOKUP_Q, { triage: { text: triage({ type: 'followup', missing: ['target_ticket_id'], needs_human: true, target_ticket_id: 'T-9' }) }, ...lookupOk() }, flow({ route: '자동 답변', llm: 1, lookup: 1, answerHas: '추가 정보 확인 대기' })],
   ['FL43', 'S4', '질문에 없는 문의 번호는 버림', ask({ question: '제 문의 상태가 궁금해요.' }), { triage: { text: triage({ type: 'followup', missing: ['target_ticket_id'], target_ticket_id: 'T-9' }) } }, flow({ route: '보완 질문', answerHas: '문의 번호' })],
   ['FL44', 'S3', '원문 단어로 재구성한 사실은 인정', ask({ question: '11월 2일에 1시간권을 결제했는데 대여가 안 됐어요. 따릉이 앱에서 카드로 결제했어요. 환불해 주세요.' }), { triage: { text: triage({ type: 'fees', needs_human: true, missing: ['usage_date', 'charge_detail'], facts: { summary: '환불', reported: [{ key: 'usage_date', value: '11월 2일', origin: 'user' }, { key: 'charge_detail', value: '1시간권을 따릉이 앱에서 카드로 결제', origin: 'user' }], confirmed: [], attempted_actions: [], missing: [], uncertainties: [], evidence_refs: [] } }) } }, handoff('needs_human', { llm: 1, action: 'handoff' })],
   ['FL45', 'S2', '원문에 없는 사실은 인정하지 않음', ask({ question: '요금이 더 나온 것 같아요. 환불해 주세요.' }), { triage: { text: triage({ type: 'fees', needs_human: true, missing: ['usage_date', 'charge_detail'], facts: { summary: '환불', reported: [{ key: 'usage_date', value: '11월 2일', origin: 'user' }, { key: 'charge_detail', value: '1시간권 카드 결제', origin: 'user' }], confirmed: [], attempted_actions: [], missing: [], uncertainties: [], evidence_refs: [] } }) } }, flow({ route: '보완 질문', answerHas: '이용일' })],
+  ['FL46', 'S6', '완료 주장 답변 거절', ask(), { writer: { text: JSON.stringify({ answer: '문의를 접수해 처리를 완료했습니다.', cited_source_ids: ['c1'] }) } }, handoff('verification_failed', { noText: '처리를 완료' })],
+  ['FL47', 'S6', '근거 없는 번호 답변 거절', ask(), { writer: { text: JSON.stringify({ answer: 'QR을 스캔하세요. 고객센터 02-1234-5678로 문의하세요.', cited_source_ids: ['c1'] }) } }, handoff('verification_failed', { noText: '02-1234' })],
+  ['FL48', 'S6', '근거에 있는 번호와 완료 표현 통과', ask(), { search: (r) => ({ statusCode: 200, body: { request_id: r.request_id, status: 'ok', error_code: null, evidence: [{ ...EVIDENCE, text: '반납 완료 알림을 확인하고 고객센터 1599-0120에 문의합니다.' }] } }), writer: { text: JSON.stringify({ answer: '반납 완료 알림을 확인하고 고객센터 1599-0120에 문의하세요.', cited_source_ids: ['c1'] }) } }, flow({ route: '자동 답변', sources: 1 })],
+  ['FL49', 'S5', '긴 초동 근거는 문장 경계에서 자름', ask(), { triage: { text: triage({ type: 'security', urgency: 'high' }) }, search: (r) => ({ statusCode: 200, body: { request_id: r.request_id, status: 'ok', error_code: null, evidence: [{ ...EVIDENCE, text: `[실제 안내] 링크를 누르지 마세요. ${'가'.repeat(220)}. 끝문장입니다.` }] } }) }, handoff('urgent', { answerHas: '링크를 누르지 마세요.', noText: '끝문장' })],
+  ['FL50', 'S1', '방법 문의는 필수 항목을 묻지 않음', ask({ question: '바구니가 부서지면 어떻게 신고하나요?' }), { triage: { text: triage({ type: 'breakdown', missing: ['bike_id_or_place', 'symptom'] }) } }, flow({ route: '자동 답변', llm: 3 })],
+  ['FL51', 'S2', '방법 문의가 아니면 필수 항목 유지', ask({ question: '바구니가 부서졌어요.' }), { triage: { text: triage({ type: 'breakdown', missing: ['bike_id_or_place', 'symptom'] }) } }, flow({ route: '보완 질문' })],
+  ['FL52', 'S2', '위험 단서 없는 반납 긴급은 낮춤', ask({ question: '잠금장치가 안 잠겨요.' }), { triage: { text: triage({ type: 'return', urgency: 'high', missing: ['bike_id'] }) } }, flow({ route: '보완 질문', process: 1 })],
+  ['FL53', 'S5', '위험 단서 있으면 반납 유형도 긴급 유지', ask({ question: '반납하다가 넘어져 다쳤어요.' }), { triage: { text: triage({ type: 'return', urgency: 'high', missing: ['bike_id'] }) } }, handoff('urgent', { priority: 'high' })],
+  ['FL54', 'S5', '고장 유형 긴급은 낮추지 않음', ask({ question: '자전거에서 연기가 나요.' }), { triage: { text: triage({ type: 'breakdown', urgency: 'high' }) } }, handoff('urgent', { priority: 'high' })],
+  ['FL55', '시간', '분류 뒤 시한 초과면 검색 없이 이관', ask(), { advanceAfter: { B10: 21000 } }, handoff('deadline_exceeded', { llm: 1, search: 0 })],
+  ['FL56', '시간', '검색 뒤 답변 시간 부족이면 이관', ask(), { advanceAfter: { B14: 14000 } }, handoff('deadline_exceeded', { llm: 1, search: 1, action: 'handoff' })],
+  ['FL57', '시간', '시한 초과여도 긴급은 이관 유지', ask(), { triage: { text: triage({ type: 'security', urgency: 'high' }) }, advanceAfter: { B10: 21000 } }, handoff('urgent', { priority: 'high', process: 1 })],
   ['FL41', '계약', 'BeginRequest 서버 값', ask({ role: 'security' }), {}, flow({ route: '자동 답변', beginShape: true })],
 ];
 

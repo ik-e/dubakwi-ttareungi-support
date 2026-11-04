@@ -353,6 +353,7 @@ R03이 승인된 지식을 검색 가능한 상태로 준비한다. 색인·메�
 - 질문에 문의 번호가 있으면 target_ticket_id에 그대로 적고 missing에 넣지 않는다. 본인 문의 상태 조회는 needs_human=false다.
 - 필수 항목과 같은 뜻의 내용이 질문에 있으면 표현이 달라도 있는 것으로 본다. 그 항목 키로 reported에 적고 missing에서 뺀다. reported의 value는 질문 원문 일부를 그대로 옮긴다.
 - 항목 대응: 날짜·요일·시각 표현은 usage_date 또는 returned_at, 이용권 종류·금액·결제 수단은 charge_detail, 대여소·지명은 station_or_place, 앱·QR 언급은 app_or_qr. 예: "10월 3일에 일일권을 앱에서 카드로 샀어요"는 usage_date="10월 3일", charge_detail="일일권을 앱에서 카드로" 이다.
+- 출력 예: "10월 3일에 일일권을 앱에서 카드로 샀는데 두 번 결제됐어요. 환불해 주세요" → {"type":"fees","urgency":"normal","missing":[],"needs_human":true,"facts":{"summary":"일일권 중복 결제 환불 요청","reported":[{"key":"usage_date","value":"10월 3일","origin":"user"},{"key":"charge_detail","value":"일일권을 앱에서 카드로","origin":"user"}],"confirmed":[],"attempted_actions":[],"missing":[],"uncertainties":[],"evidence_refs":[]},"target_ticket_id":null}
 - 사용자가 직접 말한 사실만 reported에 적는다. 추측해서 채우지 않고 모르면 missing에 넣는다.
 - urgency=high는 부상·주행 위험 진술, 개인정보 노출·사칭 링크 입력 진술일 때만.
 - needs_human=true는 개별 요금 정정·환불 판단·현장 조치 요청·보안 침해 판단처럼 사람이 결정해야 할 때.
@@ -380,6 +381,9 @@ R03이 승인된 지식을 검색 가능한 상태로 준비한다. 색인·메�
 규칙:
 - cited_source_ids에는 이번 evidence에 있는 chunk_id만 그대로 적는다. 새 출처를 만들지 않는다.
 - 근거에 없는 금액, 환불 가능 여부, 안전 판단, 처리 완료 약속을 쓰지 않는다.
+- 모든 문장은 인용한 근거에 있는 내용만 쓴다. 인사말, 맺음말, 근거에 없는 권유·연락처·해결 방법을 덧붙이지 않는다.
+- 질문에 답하는 데 필요한 내용만 쓴다. 질문과 무관한 근거는 인용하지 않는다.
+- 근거 앞의 [실제 안내] 표기는 답변에 쓰지 않는다. [가상 설정] 근거를 쓸 때는 "시연용 가상 기준입니다"를 함께 밝힌다.
 - 근거가 질문에 답하기에 부족하면 answer를 빈 문자열로 두고 cited_source_ids를 []로 둔다.
 - 연락처·카드번호 등 개인정보를 답에 쓰지 않는다.
 ```
@@ -391,8 +395,10 @@ R03이 승인된 지식을 검색 가능한 상태로 준비한다. 색인·메�
 입력: writer JSON, writer가 받은 것과 같은 evidence.
 아래 JSON 하나만 출력한다.
 {"grounded":true|false,"policy_ok":true|false,"issues":["문제 설명"]}
+- answer를 문장별로 나눠 각 문장을 evidence와 대조한다. 내용이 evidence에 없는 문장이 하나라도 있으면 grounded=false다.
+- 연락처·번호·기간·금액·해결 방법이 evidence에 없으면 grounded=false다. 일반 상식이어도 evidence에 없으면 통과시키지 않는다.
 - grounded: answer의 모든 주장이 인용한 chunk의 text로 뒷받침되면 true.
-- policy_ok: 금액·환불·안전 확정, 처리 완료 약속, 개인정보 노출, 제한 문서 내용이 없으면 true.
+- policy_ok: 금액·환불·안전 확정, 접수·처리·환불을 이미 했다는 주장이나 완료 약속, 개인정보 노출, 제한 문서 내용이 없으면 true.
 - 하나라도 의심되면 false로 두고 issues에 적는다. 확신이 없으면 false.
 ```
 
@@ -402,10 +408,10 @@ R03이 승인된 지식을 검색 가능한 상태로 준비한다. 색인·메�
 
 | 구조 | 어디 (노드) | 목적 | 기준값 · 최대 횟수 | 확인한 시나리오 |
 | --- | --- | --- | --- | --- |
-| 분기 | B12/B18 | 보완·안내·조회·이관·긴급 | 허용 enum·아래 우선순위 | S1~S5,미실행 |
-| 병렬 | B13→B14/B15→B16 | RAG·본인 조회 | 각 봉투1개,Append,실제 직렬 실행 가능·시간 합산 측정 | WF12,미실행 |
-| 루프 | 요청 사이 보완 | 같은 티켓 보완 | attempt1/2,3 이관 | WF02/02b,미실행 |
-| 루프 | B30→B13→B24→B26 false | 긴급 우선전달 뒤 안내 | retrieval_done으로1회,티켓 재처리0 | WF12,미실행 |
+| 분기 | B12/B18 | 보완·안내·조회·이관·긴급 | 허용 enum·아래 우선순위 | S1~S5,mock 로컬 확인·공식 미실행 |
+| 병렬 | B13→B14/B15→B16 | RAG·본인 조회 | 각 봉투1개,Append,실제 직렬 실행 가능·시간 합산 측정 | WF12,mock 로컬 확인·공식 미실행 |
+| 루프 | 요청 사이 보완 | 같은 티켓 보완 | attempt1/2,3 이관 | WF02/02b,mock 로컬 확인·공식 미실행 |
+| 루프 | B30→B13→B24→B26 false | 긴급 우선전달 뒤 안내 | retrieval_done으로1회,티켓 재처리0 | WF12,mock 로컬 확인·공식 미실행 |
 
 B11은 긴급→분류 파싱/정책 판정 실패→attempt>=3→필수정보 부족→사람 판단→검색·조회 순이다. 일반 사람 판단 건은 필수 맥락이 없으면 먼저 보완하고,한도 도달 또는 정보가 갖춰지면 이관한다. 긴급은 보완을 기다리지 않는다. B17/B18은 긴급 후속 또는 조회거절이면 fixed,그 외 필요한 검색/조회 실패·근거 없음이면 handoff,본인 상태 단독 성공이면 fixed,나머지 유효 근거는 write다. B21 검증 실패는 handoff이며 일반 신규 티켓 생성보다 먼저 판단한다.
 
@@ -501,7 +507,9 @@ B28은 먼저 error_code=null && state_saved=true && 최신 state_ref를 확인�
 
 R05 PR #13 문장 대조(2026-11-04): 실제 모델·mock 하위 기능으로 사례별 3회 [경로를 확인](../../runs/public/20261104-141023-local-n8n-p19-r05-routes/summary.json)했다. WF-01은 2/3로 불안정하고 첫 실행이 8.1초였으며, TC04는 0/3으로 보완 질문이 나왔다. WF-05는 이관이 나와 R05 기대값과 달랐고 TC09a·b는 mock 근거로 검증 실패 이관이라 실제 지식 재시험이 필요하다. 이후 L01 프롬프트와 B11 사실 대조를 고쳐 다시 3회 실행했다. [1차 수정](../../runs/public/20261104-141603-local-n8n-p19-r05-routes-prompt2/summary.json)은 WF-01 3/3, TC04 0/3이었고 [2차 수정](../../runs/public/20261104-141856-local-n8n-p19-r05-routes-prompt3/summary.json)은 WF-01·TC04 3/3이다. WF-05는 기대값 조율이 남았다. TC09a·b는 mock 근거에서 검증 실패 이관이라 실제 지식 재시험이 필요하다. 같은 문장으로 조정한 결과라 새 문장에서 재확인해야 한다. [회귀 Webhook 18/18](../../runs/public/20261104-142053-local-n8n-p19-after-prompt3/summary.json), [로컬 Code 95/95](../../runs/public/20261104-142216-local-p19-flow-prompt3/summary.json).
 
-남은 한계: 실제 search·state·handoff·dlq·Jira, VM, R05 실행 도구, 공통 WF 공식 판정은 미실행이다. 동시 실행 중복은 mock에서 검증하지 않았다. 표본 답변에 근거 문장에 없는 부가 안내가 포함됐는데 L03이 통과시켰다. 실제 지식으로 R03·R05와 답변 품질을 확인하고 L02·L03을 조정해야 한다.
+품질·시간 보강(2026-11-04): 승인 전 지식을 쓰는 시험용 검색(`build_knowledge_search_mock.py`)으로 R05 사례를 3회 실행해 [WF-05 외 모두 통과](../../runs/public/20261104-150036-local-n8n-p19-r05-final2/summary.json)했다. L03은 일부러 넣은 근거 밖 문장 5종을 [수정 전 2종](../../runs/public/20261104-144342-local-n8n-p19-l03-before/summary.json)에서 [수정 후 5종 모두 거절](../../runs/public/20261104-144531-local-n8n-p19-l03-after/summary.json)했다. B21은 없는 조치 주장과 인용 근거에 없는 번호를 Code로도 거절한다. 조정에 쓰지 않은 새 문장은 [첫 묶음 40/54](../../runs/public/20261104-144726-local-n8n-p19-holdout/summary.json), 규칙 보강 뒤 [다른 새 묶음 30/36](../../runs/public/20261104-145044-local-n8n-p19-holdout2-new/summary.json)이다. 남은 실패는 문의 분류의 흔들림과 시험용 검색의 한계이며 추가 조정 없이 기록한다. B11·B17은 `deadline_at`을 검사해 `deadline_exceeded`로 이관하고 LLM 모델은 8초·재시도 1회로 제한했다. [조회 8초 지연은 2.7초에 이관](../../runs/public/20261104-145844-local-n8n-p19-time-regression/summary.json)했고 [잘못된 모델 사본은 HTTP 200 이관](../../runs/public/20261104-150028-local-n8n-p19-llm-down/summary.json)을 확인했다. 시간 값은 D05 실측 전 초기값이다. 로컬 Code [107/107](../../runs/public/20261104-150355-local-p19-flow-quality/summary.json).
+
+남은 한계: 실제 search·state·handoff·dlq·Jira, VM, R05 실행 도구, 공통 WF 공식 판정은 미실행이다. 동시 실행 중복은 mock에서 검증하지 않았다. B27 8초 제한은 티켓 API까지 느려지면 WF-11 6초를 넘을 수 있어 R04와 정해야 한다. 지식은 승인 전이고 시험용 검색은 실제 벡터 검색이 아니므로 답변 품질은 R03 구현 뒤 다시 평가한다.
 
 ### 4.5. P11 골격 구현 상태
 
@@ -600,7 +608,7 @@ StateRef·BeginRequest/BeginResult·StateCommand/StateResult·SaveResult·Recove
 
 ### 6.2. 정상 엣지
 
-Ctx는 기존 필드 보존. B05 통과 actor 필수,B08 proceed support 필수·ticket null 가능,B28 생성확인 뒤 known ID 필수,B17 이후 Evidence 출처·권한 필수. AI 자원 포트는 업무 JSON과 구분한다. 실제 실행 예시는 아직 없다.
+Ctx는 기존 필드 보존. B05 통과 actor 필수,B08 proceed support 필수·ticket null 가능,B28 생성확인 뒤 known ID 필수,B17 이후 Evidence 출처·권한 필수. AI 자원 포트는 업무 JSON과 구분한다. 실행 예시는 P19 mock 로컬 결과이며 실연동 예시는 아직 없다. P19 구현은 E006·E040·E110·E097·E098을 각각 B07a·B37a·B32a·X06a·X03a를 거쳐 연결한다.
 
 | 엣지 ID·연결선 | 포트 | 필수 필드 | 선택 필드 | 변환 로직 | 예시·검증 상태 |
 | --- | --- | --- | --- | --- | --- |
@@ -648,6 +656,11 @@ Ctx는 기존 필드 보존. B05 통과 actor 필수,B08 proceed support 필수�
 | E042 B33 → B34 | main:0 | Ctx (6.1/저장계약 필수) | Ctx 선택 | 동일 컨텍스트 유지 | 6.3/저장소6.1 가상 예시·실행 전 |
 | E043 B34 → B35 | true:0 | Ctx (6.1/저장계약 필수) | Ctx 선택 | 동일 컨텍스트 유지 | 6.3/저장소6.1 가상 예시·실행 전 |
 | E044 B35 → B36 | main:0 | Raw (6.1/저장계약 필수) | Raw 선택 | 응답은 B33 참조 | 6.3/저장소6.1 가상 예시·실행 전 |
+| E127 B07a → B07 | main:0 | BeginRequest (6.1/저장계약 필수) | BeginRequest 선택 | BeginRequest만 전달 | P19 mock 로컬 실행 |
+| E128 B37a → B37 | main:0 | StateCommand (6.1/저장계약 필수) | StateCommand 선택 | prepare 명령만 전달 | P19 mock 로컬 실행 |
+| E129 B32a → B32 | main:0 | SaveRequest (6.1/저장계약 필수) | SaveRequest 선택 | SaveRequest만 전달 | P19 mock 로컬 실행 |
+| E130 X06a → X06 | main:0 | StateCommand (6.1/저장계약 필수) | StateCommand 선택 | fail 명령만 전달 | P19 mock 로컬 실행 |
+| E131 X03a → X03 | main:0 | DlqWriteRequest (6.1/저장계약 필수) | DlqWriteRequest 선택 | DLQ 요청만 전달 | P19 mock 로컬 실행 |
 | E045 L01 → B10 | ai_languageModel:0 | LanguageModel (6.1/저장계약 필수) | LanguageModel 선택 | 동일 컨텍스트 유지 | 6.3/저장소6.1 가상 예시·실행 전 |
 | E046 L02 → B19 | ai_languageModel:0 | LanguageModel (6.1/저장계약 필수) | LanguageModel 선택 | 동일 컨텍스트 유지 | 6.3/저장소6.1 가상 예시·실행 전 |
 | E047 L03 → B20 | ai_languageModel:0 | LanguageModel (6.1/저장계약 필수) | LanguageModel 선택 | 동일 컨텍스트 유지 | 6.3/저장소6.1 가상 예시·실행 전 |
