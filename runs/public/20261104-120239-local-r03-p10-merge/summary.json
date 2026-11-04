@@ -1,0 +1,21 @@
+{
+  "executed_at": "2026-11-04T12:02:39.952319+09:00",
+  "environment": "local pre-merge review",
+  "task": "P10/P16 PR6 preparation-tool merge",
+  "version": "RAG v0.8",
+  "configuration": "PR4 merged main; raw source excluded from latest tracked tree",
+  "case_ids": [],
+  "checks": {
+    "unit_tests": "33 passed, offline/fake-server tool tests",
+    "ruff": "check/format passed",
+    "project_docs": "20 docs,355 links,42 anchors;passed",
+    "public_files": "70 candidates before evidence;375 links;passed",
+    "diff_check": "passed",
+    "implementation": "R03 knowledge/dev implementation unchanged"
+  },
+  "limits": [
+    "No real n8n/vector/auth enforcement/restart or citizen service cases",
+    "Knowledge remains approval pending; --demo is local educational preparation",
+    "Historical raw source commits not rewritten"
+  ]
+}

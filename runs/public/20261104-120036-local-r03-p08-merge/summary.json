@@ -1,0 +1,21 @@
+{
+  "executed_at": "2026-11-04T12:00:36.615967+09:00",
+  "environment": "local pre-merge review",
+  "task": "P08 PR4 draft merge readiness",
+  "version": "RAG v0.7; other designs remain their existing versions",
+  "configuration": "existing main publication policy retained",
+  "case_ids": [],
+  "checks": {
+    "unit_tests": "24 passed",
+    "ruff": "check/format passed",
+    "project_docs": "20 docs,351 links,42 anchors;passed",
+    "public_files": "62 candidates before evidence;368 links;passed",
+    "diff_check": "passed",
+    "knowledge_preserved": "8 documents and manifest unchanged",
+    "raw_source_retained": "HTML remains on disk, excluded from latest index"
+  },
+  "limits": [
+    "No knowledge approval, actual vector search or service test",
+    "Historical raw HTML remains in remote branch/commit history; no rewrite performed"
+  ]
+}
