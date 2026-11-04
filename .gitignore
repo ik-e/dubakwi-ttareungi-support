@@ -23,6 +23,8 @@
 !/docs/DEVELOPMENT-PLAN.md
 !/docs/PRESENTATION-PLAN.md
 !/docs/TEAM-START.md
+!/docs/rag-knowledge/
+!/docs/rag-knowledge/*.md
 !/docs/project/
 /docs/project/*
 !/docs/project/README.md
