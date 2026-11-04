@@ -1,0 +1,127 @@
+{
+  "schema_status": "proposed_not_approved",
+  "description": "P08 검토용 목록. 모든 항목은 승인 대기이며 색인 비활성화. 권한 집행은 구현 전.",
+  "documents": [
+    {
+      "doc_id": "breakdown-report",
+      "path": "knowledge/public/breakdown-report.md",
+      "access_level": "public",
+      "source_type": "mixed_official_user_and_simulation",
+      "source_checked_at": "2026-11-04",
+      "version": "draft-1",
+      "approval_status": "pending_review",
+      "index_enabled": false,
+      "sha256": "bdef07fc5d45935f918ddc58ccfca835588063b9b1aaf65a03b6cccdf126e696",
+      "sources": [
+        "docs/rag-knowledge/breakdown-report.md"
+      ],
+      "note": "시연 가상 설정 포함; 실제 적용 여부 미확인"
+    },
+    {
+      "doc_id": "fees-refund-guide",
+      "path": "knowledge/public/fees-refund-guide.md",
+      "access_level": "public",
+      "source_type": "mixed_official_user_and_simulation",
+      "source_checked_at": "2026-11-04",
+      "version": "draft-1",
+      "approval_status": "pending_review",
+      "index_enabled": false,
+      "sha256": "39ddba5b5a2ff594053675862f42bff8b2d3c625e6ce896b0d688bd2b8bba9bc",
+      "sources": [
+        "docs/rag-knowledge/fees-refund-guide.md"
+      ],
+      "note": "시연 가상 설정 포함; 실제 적용 여부 미확인"
+    },
+    {
+      "doc_id": "privacy-security-guide",
+      "path": "knowledge/public/privacy-security-guide.md",
+      "access_level": "public",
+      "source_type": "mixed_official_user_and_simulation",
+      "source_checked_at": "2026-11-04",
+      "version": "draft-1",
+      "approval_status": "pending_review",
+      "index_enabled": false,
+      "sha256": "d5bf6db8042c24e2515a15f8ffeb0732f1b5090220eecc7e509074a35f4979b1",
+      "sources": [
+        "docs/rag-knowledge/privacy-security-guide.md"
+      ],
+      "note": "시연 가상 설정 포함; 실제 적용 여부 미확인"
+    },
+    {
+      "doc_id": "rental-guide",
+      "path": "knowledge/public/rental-guide.md",
+      "access_level": "public",
+      "source_type": "mixed_official_user_and_simulation",
+      "source_checked_at": "2026-11-04",
+      "version": "draft-1",
+      "approval_status": "pending_review",
+      "index_enabled": false,
+      "sha256": "3fb74401b5d78a612bd429393a78801af99be026949684d08b07ca9be49115f2",
+      "sources": [
+        "docs/rag-knowledge/rental-guide.md"
+      ],
+      "note": "시연 가상 설정 포함; 실제 적용 여부 미확인"
+    },
+    {
+      "doc_id": "return-guide",
+      "path": "knowledge/public/return-guide.md",
+      "access_level": "public",
+      "source_type": "mixed_official_user_and_simulation",
+      "source_checked_at": "2026-11-04",
+      "version": "draft-1",
+      "approval_status": "pending_review",
+      "index_enabled": false,
+      "sha256": "04d63e87a570c7757ddfddc3bfa108be9df9751951e1ed697b712888e8a809f3",
+      "sources": [
+        "docs/rag-knowledge/return-guide.md"
+      ],
+      "note": "시연 가상 설정 포함; 실제 적용 여부 미확인"
+    },
+    {
+      "doc_id": "support-followup",
+      "path": "knowledge/public/support-followup.md",
+      "access_level": "public",
+      "source_type": "mixed_official_user_and_simulation",
+      "source_checked_at": "2026-11-04",
+      "version": "draft-1",
+      "approval_status": "pending_review",
+      "index_enabled": false,
+      "sha256": "72af1fd115f46962be94920e237563a338781472d2e2ae87d8e3eb9b4ccca6e6",
+      "sources": [
+        "docs/rag-knowledge/support-followup.md"
+      ],
+      "note": "시연 가상 설정 포함; 실제 적용 여부 미확인"
+    },
+    {
+      "doc_id": "handoff-policy",
+      "path": "knowledge/restricted/handoff-policy.md",
+      "access_level": "restricted",
+      "source_type": "simulation",
+      "source_checked_at": "2026-11-04",
+      "version": "draft-1",
+      "approval_status": "pending_review",
+      "index_enabled": false,
+      "sha256": "79d8ebd120dc8dc78fc496aa32ea139cb0d3532248614d8345c7bba49d7afa87",
+      "sources": [
+        "docs/project/TOPIC.md"
+      ],
+      "note": "두바퀴 전용 가상 정책"
+    },
+    {
+      "doc_id": "ticket-lifecycle",
+      "path": "knowledge/restricted/ticket-lifecycle.md",
+      "access_level": "restricted",
+      "source_type": "simulation",
+      "source_checked_at": "2026-11-04",
+      "version": "draft-1",
+      "approval_status": "pending_review",
+      "index_enabled": false,
+      "sha256": "7d870401b661480c4c91ec677d9d6ea080662b6921df51e6440f00705bd84552",
+      "sources": [
+        "docs/project/TOPIC.md"
+      ],
+      "note": "두바퀴 전용 가상 정책"
+    }
+  ],
+  "sha256_method": "SHA-256 of UTF-8 bytes after CRLF and CR are normalized to LF; no other normalization."
+}
