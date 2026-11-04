@@ -22,7 +22,7 @@ P11 support 골격의 Code 노드 로컬 시험은 `node scripts/test/support-sk
 
 `mocks/`의 state·dlq·search·handoff 워크플로우는 로컬 시험 전용이며 실제 저장·Jira를 호출하지 않는다. TC08은 `uv run --locked python scripts/test/make_verifier_fault.py --output <새 파일>`로 만든 사본을 시험 환경에만 게시한다.
 
-R05 사례 문장의 분류 경로는 `support_route_compare.py`로 3회씩 대조한다. mock 하위 기능과 과정 data-api 직원을 쓰므로 sources·티켓·저장 판정과 공식 판정을 대신하지 않는다.
+R05 사례 문장의 분류 경로는 `support_route_compare.py`로 3회씩 대조한다. 실행마다 `--search-source`에 실제 검색 구성을 적는다. mock 하위 기능과 과정 data-api 직원을 쓰므로 sources·티켓·저장 판정과 공식 판정을 대신하지 않는다.
 
 `build_knowledge_search_mock.py`는 승인 전 지식으로 답하는 시험용 search를 만든다. 산출물은 커밋하지 않고 실제 검색 평가에 쓰지 않는다.
 

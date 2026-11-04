@@ -132,6 +132,11 @@ def main() -> None:
     parser.add_argument("--git-ref", required=True)
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--label", default="route-compare")
+    parser.add_argument(
+        "--search-source",
+        required=True,
+        help="이번 실행의 실제 검색 구성. 예: mock, knowledge-mock, r03:<커밋>",
+    )
     parser.add_argument("--settle-seconds", type=int, default=0)
     parser.add_argument(
         "--raw-output", type=Path, help="답변 원문 저장 경로. 공개 경로에 두지 않는다"
@@ -153,12 +158,13 @@ def main() -> None:
     ).stdout.strip()
     summary = {
         "label": args.label,
-        "scope": "경로·응답 대조. search·state·handoff·dlq는 mock이며 공식 판정이 아니다.",
+        "scope": "경로·응답 대조. state·handoff·dlq는 mock이며 공식 판정이 아니다.",
+        "search_source": args.search_source,
         "environment": "local n8n 2.42.6, course data-api, gpt-4.1-mini",
         "cases_commit": commit,
         "user_substitution": USERS,
         "skipped": SKIPPED,
-        "not_executed": ["실제 지식 검색", "Jira", "VM", "flow.py", "run_cases.py"],
+        "not_executed": ["실제 state·handoff·dlq", "Jira", "VM", "flow.py", "run_cases.py"],
         "results": results,
     }
     if args.raw_output:
