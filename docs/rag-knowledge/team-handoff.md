@@ -85,3 +85,10 @@ PR #11에서 제안한 `public`·`restricted`는 RAG manifest와 일치한다. �
 ## R04 권한 연결 인계 계획 수신 (2026-11-04)
 
 사용자 전달에 따르면 R04는 시민·담당자 모의 계정, B05 검증 및 Discord ID 매핑을 우선 구현하고 실제 JSON·시험 결과를 순차 공유할 계획이다. R03은 전달된 서버 역할·허용 범위를 기준으로 검색 전 partition을 선택하는 연결을 준비한다. 미등록·조회 오류와 권한 불일치는 R04/R02 계약대로 처리하며, 아직 실제 공급·RAG 권한 통합은 검증되지 않았다. TC10 조회만 실패하는 고장 주입은 R04 준비 예정으로 기록한다.
+
+## R02·R04 연결 기준 업데이트
+
+- R02 제안: 검색 내부 경로 `POST /webhook/dubakwi-search`, Header Auth `X-Internal-Key`, 별도 Credential `dubakwi-internal-key`. 시민 입구 `X-Team-Key`와 분리한다. 서버 발급 권한만 신뢰하고 검색 전에 partition을 제한한다. 실제 키는 기록하지 않는다.
+- SearchResult는 `request_id`를 요청과 동일하게 유지하며 `ok`/`empty`/`skipped`/`error`. Evidence 필수 doc·section·chunk_id·text·score·access_level·version을 충족한다. text의 실제/가상 표시를 시민 답변에도 표시하는 것이 사용자 결정에 맞는 R03 기본안이다.
+- R04 `r04/p09-fixtures`의 citizen-a/b/c는 public, support-demo/security-demo는 public+restricted로 현재 RAG 기준에 부합한다. 실제 서버 연동 및 권한 차단은 미완료다.
+- R02 WF09 제안은 첫·두 번째 ticket_id, priority, route, answer를 같게 두고 duplicate만 false/true로 따로 시험한다. 가이드의 ticket 전체 동일 요구와 충돌할 수 있어 강사/공통 도구 확인 전 통과를 확정하지 않는다.

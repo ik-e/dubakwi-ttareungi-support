@@ -60,3 +60,11 @@ R02 보고에 따르면 P11의 로컬 Code 및 n8n Webhook 시험은 통과했�
 2026-11-04 사용자 전달: R04가 P09 모의 시민·담당자 계정, B05 서버 사용자 검증, 시민 public·등록 담당자 허용 restricted, 미등록 400·조회 장애 503, Discord ID 연결을 최우선으로 준비한다고 공유했다. 실제 JSON·응답 예시·시행 결과와 통합 준비 완료는 아직 전달되지 않았다. R03은 등록 역할을 클라이언트 자칭과 분리해 받은 `access_levels`로 검색 전 범위를 선택하고, R04 실제 계약·인증 및 오류와 대조한다. 사용자 확인 실패나 오류를 성공적인 시민 조회 또는 담당자 권한으로 가정하지 않는다.
 
 R04는 TC10 조회 전용 고장, 생성 응답 유실·저장 실패와 수동 복구 시험 경로도 준비 예정이라고 했다. R03은 실제 호출·실패 결과 수신 전 관련 검색·이관을 통과했다고 표시하지 않는다. R04 개인 Jira 기존 티켓 조회가 확인되었다는 공유는 팀 VM 연동·신규 생성 완료를 뜻하지 않는다.
+
+### R02 검색 연결·R04 fixture 공유 반영
+
+2026-11-04 R02가 검색 호출 계약을 공유했다. 내부 검색은 POST `/webhook/dubakwi-search`, Header Auth의 `X-Internal-Key`를 사용하며 시민 입구 `X-Team-Key`와 구분한다. 내부 인증 Credential 명칭 `dubakwi-internal-key`는 설정 이름이고 값은 비공개다. 요청의 `request_id`를 응답에 유지하고 status는 `ok`·`empty`·`skipped`·`error`다. Evidence 필수 필드 `doc`, `section`, `chunk_id`, `text`, `score`, `access_level`, `version`을 유지하고 text 안에 `[실제 안내]`·`[가상 설정]`을 넣는다. 사용자 결정에 따라 시민 답변에도 해당 표시를 보여 주는 것을 기본안으로 하되 최종 답변 생성은 R02 담당이며 실제 연결은 미구현이다. Request.user는 Discord ID가 아니라 어댑터가 서버 등록 사용자로 바꾼 값이라는 R02 설명을 따른다.
+
+R04의 `r04/p09-fixtures` 사용자 5명은 citizen-a/b/c에 public, support-demo·security-demo에 public과 restricted를 부여해 R03 기준과 일치한다. 파일의 fixture만 확인했으며 실제 서버에서 사용자 공급·인증·RAG 검색 전 차단이 동작한다는 뜻은 아니다. R04 P12는 상태 저장/Jira 미연결 시 성공 처리하지 않는 비활성 골격으로 실제 저장·생성은 미완료다. 두 브랜치는 R04 소유이며 임의 병합하지 않았다.
+
+로컬 n8n DB에서 Credential 종류·개수만 읽어 `openAiApi` 1개 등록을 확인했다. 키 값·개인 식별 정보는 읽지 않았고, 실제 모델 API 호출 성공·과금은 미확인이다.
