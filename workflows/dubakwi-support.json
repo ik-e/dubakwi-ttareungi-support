@@ -1283,7 +1283,7 @@
     {
       "parameters": {
         "mode": "raw",
-        "jsonOutput": "={{ JSON.stringify({ op: 'fail', state_ref: $json.state_ref, args: { status: $json.fail_status, current_step: $json.failed_node_id, error_code: $json.error_code } }) }}",
+        "jsonOutput": "={{ JSON.stringify({ op: 'fail', scope: 'dubakwi-dev', execution_id: String($execution.id), state_ref: $json.state_ref, args: { status: $json.fail_status, current_step: $json.failed_node_id, error_code: $json.error_code } }) }}",
         "options": {}
       },
       "id": "767b8391-b7c3-58fa-81aa-f2e671ae584e",
