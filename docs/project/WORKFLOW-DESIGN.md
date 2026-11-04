@@ -346,9 +346,13 @@ R03이 승인된 지식을 검색 가능한 상태로 준비한다. 색인·메�
 필수 항목 키: rental=app_or_qr,symptom,attempted_actions(방법 문의면 없음) / return=bike_id,station_or_place,returned_at,lock_state / breakdown=bike_id_or_place,symptom(신고 방법 문의면 없음) / fees=usage_date,charge_detail(일반 기준 문의면 없음) / followup=target_ticket_id / security=exposure_detail.
 규칙:
 - 방법·절차·기준을 묻는 일반 문의는 개인 사건이 아니므로 missing을 []로 둔다. 예: "QR로 대여하는 방법 알려주세요", "반납 방법을 다시 알려주세요", "비밀번호 찾는 방법".
+- 증상을 말하더라도 마지막에 해결 방법·절차를 다시 알려 달라고 요청하면 일반 문의다. missing을 []로 둔다. 예: "앱 로그인이 안 돼요. 비회원으로 대여하는 방법을 알려주세요", "대여가 끊겼대요. 대여 방법을 다시 알려주세요".
+- 방법을 묻지 않고 문제만 말하거나 환불·정정 같은 개별 처리를 요청하면 개별 사건이다.
 - 필수 항목은 이용자의 개별 사건을 확인해야 할 때만 missing에 넣는다. 예: "반납했는데 앱에 이용 중으로 나와요"는 return의 누락 항목을 묻는다.
 - type=security는 개인정보 노출·사칭 링크 입력·계정 도용 진술일 때만 쓴다. 비밀번호 찾기 같은 일반 방법 문의는 unknown이다.
 - 질문에 문의 번호가 있으면 target_ticket_id에 그대로 적고 missing에 넣지 않는다. 본인 문의 상태 조회는 needs_human=false다.
+- 필수 항목과 같은 뜻의 내용이 질문에 있으면 표현이 달라도 있는 것으로 본다. 그 항목 키로 reported에 적고 missing에서 뺀다. reported의 value는 질문 원문 일부를 그대로 옮긴다.
+- 항목 대응: 날짜·요일·시각 표현은 usage_date 또는 returned_at, 이용권 종류·금액·결제 수단은 charge_detail, 대여소·지명은 station_or_place, 앱·QR 언급은 app_or_qr. 예: "10월 3일에 일일권을 앱에서 카드로 샀어요"는 usage_date="10월 3일", charge_detail="일일권을 앱에서 카드로" 이다.
 - 사용자가 직접 말한 사실만 reported에 적는다. 추측해서 채우지 않고 모르면 missing에 넣는다.
 - urgency=high는 부상·주행 위험 진술, 개인정보 노출·사칭 링크 입력 진술일 때만.
 - needs_human=true는 개별 요금 정정·환불 판단·현장 조치 요청·보안 침해 판단처럼 사람이 결정해야 할 때.
@@ -495,7 +499,7 @@ B28은 먼저 error_code=null && state_saved=true && 최신 state_ref를 확인�
 
 로컬 확인(2026-11-04): Code 시험 [89/89](../../runs/public/20261104-113327-local-p19-flow/summary.json). 로컬 n8n 2.42.6에서 `scripts/test/mocks/`의 mock과 실제 gpt-4.1-mini로 Webhook 18개를 3회 실행해 모두 18/18 통과했다([1회](../../runs/public/20261104-113005-local-n8n-p19-mock-run1/summary.json), [2회](../../runs/public/20261104-113036-local-n8n-p19-mock-run2/summary.json), [3회](../../runs/public/20261104-113113-local-n8n-p19-mock-run3/summary.json)). 이 저장 결과 전에 Credential 권한 오류(2/18)와 분류 프롬프트 문제(12/18)가 있었고 수정했다. 해당 시도의 결과 파일은 남기지 않았다. TC08 grounded=false 사본도 이관을 1회 확인했다.
 
-R05 PR #13 문장 대조(2026-11-04): 실제 모델·mock 하위 기능으로 사례별 3회 [경로를 확인](../../runs/public/20261104-141023-local-n8n-p19-r05-routes/summary.json)했다. WF-01은 2/3로 불안정하고 첫 실행이 8.1초였으며, TC04는 0/3으로 보완 질문이 나왔다. WF-05는 이관이 나와 R05 기대값과 달랐고 TC09a·b는 mock 근거로 검증 실패 이관이라 실제 지식 재시험이 필요하다. 프롬프트 수정은 아직 하지 않았다.
+R05 PR #13 문장 대조(2026-11-04): 실제 모델·mock 하위 기능으로 사례별 3회 [경로를 확인](../../runs/public/20261104-141023-local-n8n-p19-r05-routes/summary.json)했다. WF-01은 2/3로 불안정하고 첫 실행이 8.1초였으며, TC04는 0/3으로 보완 질문이 나왔다. WF-05는 이관이 나와 R05 기대값과 달랐고 TC09a·b는 mock 근거로 검증 실패 이관이라 실제 지식 재시험이 필요하다. 이후 L01 프롬프트와 B11 사실 대조를 고쳐 다시 3회 실행했다. [1차 수정](../../runs/public/20261104-141603-local-n8n-p19-r05-routes-prompt2/summary.json)은 WF-01 3/3, TC04 0/3이었고 [2차 수정](../../runs/public/20261104-141856-local-n8n-p19-r05-routes-prompt3/summary.json)은 WF-01·TC04 3/3이다. WF-05는 기대값 조율이 남았다. TC09a·b는 mock 근거에서 검증 실패 이관이라 실제 지식 재시험이 필요하다. 같은 문장으로 조정한 결과라 새 문장에서 재확인해야 한다. [회귀 Webhook 18/18](../../runs/public/20261104-142053-local-n8n-p19-after-prompt3/summary.json), [로컬 Code 95/95](../../runs/public/20261104-142216-local-p19-flow-prompt3/summary.json).
 
 남은 한계: 실제 search·state·handoff·dlq·Jira, VM, R05 실행 도구, 공통 WF 공식 판정은 미실행이다. 동시 실행 중복은 mock에서 검증하지 않았다. 표본 답변에 근거 문장에 없는 부가 안내가 포함됐는데 L03이 통과시켰다. 실제 지식으로 R03·R05와 답변 품질을 확인하고 L02·L03을 조정해야 한다.
 

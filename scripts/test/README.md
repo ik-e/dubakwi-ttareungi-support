@@ -22,6 +22,8 @@ P11 support 골격의 Code 노드 로컬 시험은 `node scripts/test/support-sk
 
 `mocks/`의 state·dlq·search·handoff 워크플로우는 로컬 시험 전용이며 실제 저장·Jira를 호출하지 않는다. TC08은 `uv run --locked python scripts/test/make_verifier_fault.py --output <새 파일>`로 만든 사본을 시험 환경에만 게시한다.
 
+R05 사례 문장의 분류 경로는 `support_route_compare.py`로 3회씩 대조한다. mock 하위 기능과 과정 data-api 직원을 쓰므로 sources·티켓·저장 판정과 공식 판정을 대신하지 않는다.
+
 게시된 n8n의 Webhook 호출은 `SUPPORT_TEAM_KEY=<시험 키> uv run --locked python scripts/test/support_skeleton_live.py --url <Webhook URL> [--output runs/public/<실행묶음ID>/summary.json]`로 확인한다. 키는 결과에 남기지 않는다. n8n 게시 직후 결과가 이전 버전으로 나올 수 있어 실패하면 잠시 뒤 다시 확인하고 최초 결과를 보존한다. VM·공식 판정을 대신하지 않는다.
 ## 서비스 사례 실행 도구
 
