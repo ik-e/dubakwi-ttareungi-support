@@ -50,6 +50,7 @@ def prepare(root, manifest, *, allow_demo=False):
                     access == "restricted"
                     or "가상 설정" in section
                     or "**가상" in paragraph
+                    or "**충돌 판단" in paragraph
                     or citation.startswith("출처: 두바퀴")
                 ):
                     kind = "simulation"

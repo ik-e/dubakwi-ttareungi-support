@@ -61,6 +61,28 @@ class PrepareChunksTest(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "invalid document path"):
             MODULE.prepare(self.root, self.manifest, allow_demo=True)
 
+    def test_conflict_decision_is_not_labeled_as_real(self):
+        path = self.root / self.entry["path"]
+        path.write_text(
+            "# Example\n\n## Policy\n\n**충돌 판단 — 두바퀴 시연 설정:** example.\n\n출처: example\n",
+            encoding="utf-8",
+        )
+        self.entry["sha256"] = hashlib.sha256(MODULE.normalize(path.read_bytes())).hexdigest()
+        self.write_manifest()
+        chunks = MODULE.prepare(self.root, self.manifest, allow_demo=True)
+        self.assertEqual(chunks[0]["type"], "simulation")
+
+    def test_real_corpus_security_and_restricted_canaries(self):
+        chunks = MODULE.prepare(MODULE.ROOT, MODULE.MANIFEST, allow_demo=True)
+        safety = [c for c in chunks if c["section"] == "계정 노출·침해 의심 시 공개 초동 안내"]
+        self.assertEqual(len(safety), 1)
+        self.assertEqual(safety[0]["type"], "actual_guidance")
+        self.assertIn("msg_seq=8836", safety[0]["source"])
+        for token in ("DUBAKWI-RESTRICTED-CANARY-01", "DUBAKWI-RESTRICTED-CANARY-02"):
+            hits = [c for c in chunks if token in c["text"]]
+            self.assertEqual(len(hits), 1)
+            self.assertEqual(hits[0]["access_level"], "restricted")
+
 
 if __name__ == "__main__":
     unittest.main()

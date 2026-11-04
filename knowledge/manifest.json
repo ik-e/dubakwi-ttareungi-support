@@ -26,7 +26,7 @@
       "version": "draft-1",
       "approval_status": "pending_review",
       "index_enabled": false,
-      "sha256": "39ddba5b5a2ff594053675862f42bff8b2d3c625e6ce896b0d688bd2b8bba9bc",
+      "sha256": "df5195901c3b2548326bce490222e7d7b73507e41802088bf0bf902543085e16",
       "sources": [
         "docs/rag-knowledge/fees-refund-guide.md"
       ],
@@ -41,7 +41,7 @@
       "version": "draft-1",
       "approval_status": "pending_review",
       "index_enabled": false,
-      "sha256": "d5bf6db8042c24e2515a15f8ffeb0732f1b5090220eecc7e509074a35f4979b1",
+      "sha256": "7abcfb0f9d2b6ba2d37aabe7c11993b07c3c2c93c422061bdf4bdeaeaaff031d",
       "sources": [
         "docs/rag-knowledge/privacy-security-guide.md"
       ],
@@ -56,7 +56,7 @@
       "version": "draft-1",
       "approval_status": "pending_review",
       "index_enabled": false,
-      "sha256": "3fb74401b5d78a612bd429393a78801af99be026949684d08b07ca9be49115f2",
+      "sha256": "b70577df2a2499a8f326c825f163b8f2af82cf2857f47d284cf72b96cd81228e",
       "sources": [
         "docs/rag-knowledge/rental-guide.md"
       ],
@@ -101,7 +101,7 @@
       "version": "draft-1",
       "approval_status": "pending_review",
       "index_enabled": false,
-      "sha256": "79d8ebd120dc8dc78fc496aa32ea139cb0d3532248614d8345c7bba49d7afa87",
+      "sha256": "ca85dc918f675d537df4955f075b1e98a70b66ebae332dd7549551a35cd4085e",
       "sources": [
         "docs/project/TOPIC.md"
       ],
@@ -116,7 +116,7 @@
       "version": "draft-1",
       "approval_status": "pending_review",
       "index_enabled": false,
-      "sha256": "7d870401b661480c4c91ec677d9d6ea080662b6921df51e6440f00705bd84552",
+      "sha256": "2d4ad0f5847b150cd72fde43abe3f67b2fb23d303fd8a0ef284d6a892bdfe52d",
       "sources": [
         "docs/project/TOPIC.md"
       ],
