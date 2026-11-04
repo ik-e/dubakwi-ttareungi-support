@@ -438,9 +438,19 @@ Python 환경/품질 원본은 PYTHON-DEVELOPMENT·pyproject/uv.lock, 공개 정
 
 - 공통14유형과 팀10사례는 모두 not_run을 유지한다. R02/R03/R04 검토 결과를 기존 R05 요청에 따라 취합한다. 도구의 auto_pass_unverified는 서비스 완전 통과로 세지 않는다.
 - 가이드 설명 원문은 WF07에 가림·masked>=1, WF13에 HTTP400·codes를 요구한다. WF07의 자동 답변 route는 팀 본인 조회 설계의 추가 기대값이다. 설명 원문은 WF13 세부 codes를 고정하지 않는다. 사례의 invalid_input/unknown_user 기대는 R02 tk의 4b3d3b7 구현과 정적으로 대응함을 확인했으나 해당 브랜치는 main 미병합이며 실제 공통 fixture·n8n 시험은 미확인이다.
-- WF09 응답 비교, WF11 한도, 필수 정보·권한·미확인 효과/복구 판정은 합의/실행 전이다. 자체 JSON과 과정 flow.py의 호환을 주장하지 않는다. 지식·모의 데이터·고장 주입 준비 후 사례별로 실행한다.
+- WF09 응답 비교, WF11 한도, 필수 정보·권한·미확인 효과/복구 판정은 합의/실행 전이다. PR #7 당시 자체 JSON이었다. 후속 r05/p06-flow-cases는 가이드 형식 전환 후보이며 실제 키트의 확장 칸·contains 해석 등 호환 검증은 미완료다. 지식·모의 데이터·고장 주입 준비 후 사례별로 실행한다.
 - Webhook 공통 기준은 기존 dubakwi-support 경로와 가이드 X-Team-Key다. 실제 VM URL·Credential 연결은 미완료이며 키는 비공개로 주입한다. R01 최종 후보 비밀 검사와 도구 시험은 서비스 시험을 대신하지 않는다.
 
 ### P04 VM 준비 기록 (2026-11-04 KST)
 
 R01이 기존 VM을 읽기 점검하고 Git 밖 deploy/backups/evidence 경로를 권한700으로 만들었다. infra/vm-preflight.md와 .env.example·운영/시스템/책임 문서를 동기화한다. 사용자 지시 범위에서 R01 담당 경로만 편집하며 R02/R04 배포본과 실제 연결 인계를 기다린다. P04는 진행을 유지하고 P13 실제 시험·서비스 DB·백업/복원 완료를 주장하지 않는다. 가린 요약은 runs/public의 새 local-vm-preparation 실행묶음에, 원시 서버 식별자·화면은 Git 제외 경로에 보존한다.
+
+### P04/P13 R05 검토 반영 (2026-11-04 KST)
+
+사용자가 전달한 R05 검토를 반영해 PR #12의 vm-preflight v0.2에 운영 Webhook 활성화(게시)·실행 기록 화면/API 접근을 첫 시험 인계 조건으로 추가했다. 관측/미실행 구분에는 수정 의견이 없었다. R04 저장/복구 검토는 별도 미완료다. 검토된 골격과 인증·실행 기록 접근이 준비되면 WF08·WF13 빈 질문/501자는 사용자 조회 인계 전 부분 시험 가능하며, 미등록 사용자는 정상 data-api가 필요하다. B35 로그 저장 실패는 입력 응답과 분리하며 실행 노드 목록을 골격 증거로 사용하고 최종 기능 연결 후 호출0을 재시험한다. 실제 VM 시험은 아직 미실행이다.
+
+R05 병합 후보는 r05/p06-flow-cases로 변경됐고 r05/p06-flow-format은 사용 종료다. 새 형식 전환과 team-extended.json 책임/참조·현재 flow.py 호환 한계 문구 갱신은 해당 변경 검토 단위에서 처리한다. 과거 PR #7 당시 자체 형식·검증 결과와 기존 실행 증거는 보존한다.
+
+R05 신규 후보의 가짜 Webhook/도구 시험34개·Ruff·문서/공개 검사는 통과했다. 파일 수준 before /tickets-reset 실패(가짜503) 후에도 Webhook 전송이 계속되고 auto_pass_unverified가 나오는 것을 모의 재현했다. --no-hooks로 선택 입력 시험에서는 reset을 피할 수 있으나 전체 시험의 사전 초기화 실패 중단과 고장 해제 실패 후 다음 사례 오염 방지는 R05 보완이 필요하다. 실제 VM에서 reset·hook·사례 전송은 하지 않았다.
+
+R05 형식 전환 후보는 [PR #13](https://github.com/ik-e/dubakwi-ttareungi-support/pull/13)으로 정리했다. 사전 hook 실패 처리 보완·R02/R04 계약 검토 전 초안이며 PR #12와 공통 문서 편집을 분리한다.

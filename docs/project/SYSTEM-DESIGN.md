@@ -256,7 +256,8 @@ proj_team2/
 ├─ data/
 │  ├─ users.json / records.json     # 모의 입력 작성 시 생성
 │  └─ research/                     # 기존 수집·분석 원본 유지
-├─ cases/common.json / team.json    # 시험 명세 작성 시 생성
+├─ cases/common.json / team.json    # 검토 전 시험 명세
+│  └─ team-extended.json            # R05 새 형식 후보, 다단계/운영자 시험
 ├─ requests/                        # 개별/시연 입력 작성 시 생성
 ├─ runs/public/<실행묶음ID>/summary.json   # 실제 시험 시 생성
 ├─ scripts/
