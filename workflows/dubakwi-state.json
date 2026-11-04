@@ -1,0 +1,31 @@
+{
+  "name": "dubakwi-state · P12 fail-closed skeleton",
+  "nodes": [
+    {
+      "name": "S01 상태 명령 수신",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "parameters": {},
+      "position": [0, 0]
+    },
+    {
+      "name": "S02 계약 검사와 안전 차단",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "parameters": {
+        "jsCode": "// P12 로컬 골격: STORAGE-DESIGN 6.1 계약만 검사한다.\n// 물리 저장소가 합의·연결되기 전에는 성공 StateRef를 만들거나 상태를 변경하지 않는다.\nconst input = $json;\nconst isObj = (v) => v !== null && typeof v === 'object' && !Array.isArray(v);\nconst isText = (v) => typeof v === 'string' && v.trim().length > 0;\nconst isStateRef = (v) => isObj(v) && isText(v.scope) && isText(v.request_id) && isText(v.owner_id) && isText(v.input_hash) && isText(v.execution_id) && Number.isInteger(v.state_revision) && v.state_revision >= 0;\nconst requestId = isObj(input.state_ref) && isText(input.state_ref.request_id) ? input.state_ref.request_id : (isObj(input.request) && isText(input.request.request_id) ? input.request.request_id : null);\n\nif (!isObj(input) || !isText(input.op)) {\n  return [{ json: { request_id: requestId, ok: false, skipped: false, state_ref: null, error_code: 'invalid_state_request' } }];\n}\n\nif (input.op === 'begin') {\n  const valid = isText(input.scope) && isText(input.execution_id) && isText(input.input_hash) && isObj(input.actor) && isText(input.actor.id) && isObj(input.request) && isText(input.request.request_id);\n  return [{ json: {\n    request_id: requestId,\n    mode: 'error',\n    state_ref: null,\n    support: null,\n    facts: null,\n    response: null,\n    http_status: valid ? 503 : 400,\n    error_code: valid ? 'state_backend_unconfigured' : 'invalid_state_request'\n  } }];\n}\n\nif (input.op === 'save') {\n  const valid = isStateRef(input.state_ref) && isText(input.case_id) && isText(input.first_request_id) && Number.isInteger(input.attempt) && input.attempt >= 1 && isText(input.ticket_id) && isObj(input.response);\n  return [{ json: {\n    request_id: requestId,\n    ok: false,\n    state_ref: null,\n    error_code: valid ? 'state_backend_unconfigured' : 'invalid_state_request',\n    recovery: { version: 1, mode: 'manual_required', action: 'finish', args: null, reference: null, reason: valid ? '물리 저장소 미연결' : '저장 요청 계약 오류' }\n  } }];\n}\n\nconst allowed = new Set(['prepare', 'bind', 'finish', 'fail']);\nconst valid = allowed.has(input.op) && isStateRef(input.state_ref) && isObj(input.args);\nreturn [{ json: {\n  request_id: requestId,\n  ok: false,\n  skipped: false,\n  state_ref: null,\n  error_code: valid ? 'state_backend_unconfigured' : 'invalid_state_request'\n} }];"
+      },
+      "position": [280, 0]
+    }
+  ],
+  "connections": {
+    "S01 상태 명령 수신": {
+      "main": [[{"node": "S02 계약 검사와 안전 차단", "type": "main", "index": 0}]]
+    }
+  },
+  "active": false,
+  "settings": {"executionOrder": "v1"},
+  "pinData": {},
+  "meta": {"templateCredsSetupCompleted": false},
+  "tags": []
+}
