@@ -13,7 +13,7 @@
 - Docker Compose를 배포 방식으로 채택했습니다. 경로 용도는 [시스템 설계 9절](project/SYSTEM-DESIGN.md#9-프로젝트-경로와-배포-구조), 경로별 주 담당/검토자는 [헌장](project/TEAM-CHARTER.md), 작업 절차는 [AGENTS](../AGENTS.md), 환경/복구는 [infra 안내](../infra/README.md)가 원본입니다. compose·DB·이미지·VM 설정은 아직 확인/구현 전입니다.
 
 - 조사·문제 정의 v1.2·시나리오 후보 v0.2는 작성되어 있습니다. 조사 결과가 실제 직원 수요나 내부 권한을 증명하지는 않습니다.
-- 서비스용 `workflows/`, `knowledge/`, `cases/`, `requests/`와 제출용 결과 문서는 아직 없습니다. `runs/public/`의 공유 전 점검은 개발 도구/문서 검사이며 서비스 실행 결과가 아닙니다. 시스템 v0.8·워크플로우 v0.13·RAG v0.6·저장소 v0.4 설계 초안을 작성했습니다. [주제 제안서 v0.7](project/TOPIC.md)은 작성했으며 팀 검토·강사 승인 전입니다. `scripts/research`는 기존 조사 도구, `scripts/dev`·`test`는 개발/공개/문서 검사 도구입니다. 실습 결과물의 확보·실행·재사용 가능 여부도 미확인입니다.
+- 서비스용 워크플로우는 P11 골격 `workflows/dubakwi-support.json`(B07~B32 mock, n8n 실행 전)만 있고 `knowledge/`, `cases/`, `requests/`와 제출용 결과 문서는 아직 없습니다. `runs/public/`의 공유 전 점검은 개발 도구/문서 검사이며 서비스 실행 결과가 아닙니다. 시스템 v0.8·워크플로우 v0.14·RAG v0.6·저장소 v0.4 설계 초안을 작성했습니다. [주제 제안서 v0.7](project/TOPIC.md)은 작성했으며 팀 검토·강사 승인 전입니다. `scripts/research`는 기존 조사 도구, `scripts/dev`·`test`는 개발/공개/문서 검사 도구입니다. 실습 결과물의 확보·실행·재사용 가능 여부도 미확인입니다.
 - 현재 개발 기준은 **Discord 이용자 입구 + 공통 시험용 팀 Webhook + n8n 본체·하위 기능 + Jira + 최소 처리 상태·실행 기록·DLQ**입니다. Jira는 채택했으며 실제 계정·필드·전환·물리 저장은 D01에서 확인합니다. A/B/C 조합 표기와 주제 적합성의 강사 확인은 남아 있지만 이미 정한 Jira 선택을 다시 미정으로 두지 않습니다.
 - 범위는 시민 문의 6유형과 시스템 설계 S1~S8입니다. 직원은 Jira 티켓을 받는 담당자이며 별도 직원 업무·조직 협업 서비스는 개발하지 않습니다. 조사 후보 100개 전체 구현과 기관 내부 절차 확정은 전제하지 않습니다.
 - 실제 기관 계정·거래 대신 모의 사용자·기록·가상 정책을 사용합니다. 실제 티켓 관리는 Jira 어댑터로 연결하고 과정 data-api는 공통 판정·고장 주입의 검증 경로로 구분합니다. 두 경로의 데이터·소유권·기대 결과를 명시하며 data-api 통과를 Jira 연동 완료로 대신하지 않습니다. 실제 환불·요금 변경·강제 반납·원격 잠금 해제는 범위 밖입니다.
@@ -174,13 +174,13 @@ flowchart LR
 | [ ] | P02 | `docs/project/TOPIC.md`: 시민 문의 6유형·대표 사례·Webhook/Jira 조합·제외 범위·승인 결과 | R01 / 전원·강사 | P01 자료 목록 초안(전체 실행 불필요) | 진행 | [v0.7 초안](project/TOPIC.md): 시민·전체 정상 신규 티켓·Jira·최소 저장 반영. 조합 표기·주제 적합성·팀/강사 확인 필요 | 2026-11-03 |
 | [ ] | P03 | `docs/project/TEAM-CHARTER.md`: 역할 ID·7개 실행 파일과 문서 소유권·계약 변경·배포 규칙 | R01 / 전원 | P02 초안 | 진행 | [v0.10 초안](project/TEAM-CHARTER.md): 두바퀴/dubakwi·GitHub 공개 저장소 주소 반영. 실제 팀 권한·발표 ID·팀 검토 남음 | 2026-11-03 |
 | [ ] | P04 | README·AGENTS·Python/uv/Ruff/CI·공개 정책/도구·infra 안내·compose·.env.example: 경로/규칙·Docker 환경/실행/복구·비밀 제외. 실제 compose 검증·VM 재현까지 확인 | R01 / R04·R05·R02/R03 연결 | P02/P03 초안·D01/D03 실제 환경 확인(설정/배포 부분) | 진행 | [AGENTS](../AGENTS.md)·[infra 안내](../infra/README.md)·[.gitignore](../.gitignore) 작성. [구조/책임](project/SYSTEM-DESIGN.md) 명시. Python 설정/잠금·품질 CI·공개 도구 추가. 실제 compose/이미지/설정·VM 배포와 원격 CI는 미완료 | 2026-11-03 |
-| [ ] | P05 | `SYSTEM-DESIGN.md`와 워크플로우·RAG·저장소 설계 초안: 구성·상태/전이·S1~S8·기능F01~F10·공개 계약·담당 경계 공동 검토 | R01 전체 취합·R02 업무 / R03·R04 상세·R05 판정 | P02·P03 초안 | 진행 | [시스템 v0.8](project/SYSTEM-DESIGN.md)·[워크플로우 v0.13](project/WORKFLOW-DESIGN.md)·[RAG v0.6](project/RAG-ARCHITECTURE.md)·[저장소 v0.4](project/STORAGE-DESIGN.md). 문서 보완 반영, 공동 검토·D01~D07 실제 확인은 미완료 | 2026-11-03 |
+| [ ] | P05 | `SYSTEM-DESIGN.md`와 워크플로우·RAG·저장소 설계 초안: 구성·상태/전이·S1~S8·기능F01~F10·공개 계약·담당 경계 공동 검토 | R01 전체 취합·R02 업무 / R03·R04 상세·R05 판정 | P02·P03 초안 | 진행 | [시스템 v0.8](project/SYSTEM-DESIGN.md)·[워크플로우 v0.14](project/WORKFLOW-DESIGN.md)·[RAG v0.6](project/RAG-ARCHITECTURE.md)·[저장소 v0.4](project/STORAGE-DESIGN.md). 문서 보완 반영, 공동 검토·D01~D07 실제 확인은 미완료 | 2026-11-03 |
 | [ ] | P06 | `cases/common.json`: WF-01~13과 WF-02b의 14유형을 따릉이로 변환. 조건·판정 유지, 5교시 점검 | ⑤ / ②③④·강사 | P05 초안 | 대기 | 변환 파일 없음 | 2026-11-02 |
 | [ ] | P07 | `cases/team.json`: 5개 이상, S1~S8·기능ID·상태/효과와 연결한 기대 결과. case_ref 왕복·저장/ID 바인딩 실패·효과 미확인·재처리·오탐 포함 | R05 / R02·R03·R04 | P05 초안 | 대기 | 후보100개와 시험 사례 구분. 한 사례가 여러 경계를 검증할 수 있으며 부족하면 추가 | 2026-11-03 |
 | [ ] | P08 | `knowledge/public/*.md·restricted/*.md·manifest.json`: 공개 안내6개+제한 모의 정책2개 제안, 각 문서 ##절3개 이상. 출처·확인일·적용 범위·권한·가상 정책 구분 | R03 / R04·R05 | P05 초안·D04 지식/권한 초안 | 진행 | [PR #2](https://github.com/ik-e/dubakwi-ttareungi-support/pull/2): 검토 전 초안6개 작성. 승인·knowledge 이관·manifest·제한 정책2개·색인/검색 검증 미완료. 조사 원문 전체 색인·제한 정책 노출 금지 | 2026-11-03 |
 | [ ] | P09 | `data/users.json`·`data/records.json`: 모의 사용자 5명 이상·서로 다른 소유자의 기록 4건 이상, API 공급 방식·권한 확인 | ④ / ③⑤ | P05 초안 | 대기 | 모의 서비스 데이터 없음 | 2026-11-02 |
 | [ ] | P10 | `workflows/dubakwi-index.json`·`docs/project/RAG-ARCHITECTURE.md` 1~2절: 색인 실행·권한 메타데이터·청크 분포 측정 | ③ / ⑤ | P08 | 진행 | [RAG v0.6](project/RAG-ARCHITECTURE.md) 1~2절 초안과 기존 색인 명세 이관. 지식 파일·색인 실행·청크 측정은 미완료 | 2026-11-03 |
-| [ ] | P11 | `workflows/dubakwi-support.json` 골격: Header Auth·입력 검사·주입 차단·공통 응답. WF-08의 LLM 호출 0·WF-13의 400 확인 | ② / ④⑤ | P04 환경/규칙 초안(최종 배포 완료 불필요)·P05·P06 초안 | 진행 | `tk` 브랜치에 [골격 JSON](../workflows/dubakwi-support.json) 작성(B01~B06·B33·B35·B36, B07~B32는 mock). Code 로직 로컬 12/12 확인, n8n 가져오기·VM·WF-08/13 공식 판정 미실행. 웹훅 경로·codes·user_lookup_error는 팀 합의 필요([설계 4.5절](project/WORKFLOW-DESIGN.md#45-p11-골격-구현-상태)) | 2026-11-03 |
+| [ ] | P11 | `workflows/dubakwi-support.json` 골격: Header Auth·입력 검사·주입 차단·공통 응답. WF-08의 LLM 호출 0·WF-13의 400 확인 | ② / ④⑤ | P04 환경/규칙 초안(최종 배포 완료 불필요)·P05·P06 초안 | 진행 | `tk` 브랜치에 [골격 JSON](../workflows/dubakwi-support.json) 작성(B01~B06·B33·B35·B36, B07~B32는 mock). [로컬 Code 시험 36/36](../runs/public/20261104-090407-local-p11-skeleton/summary.json) ([보완 전 8/36](../runs/public/20261104-090315-local-p11-before-fix/summary.json)). n8n 가져오기·VM·WF-08/13 공식 판정 미실행. 웹훅 경로·codes·B05 권한 조합·user_lookup_error는 R04·R05 검토 필요([설계 4.5절](project/WORKFLOW-DESIGN.md#45-p11-골격-구현-상태)) | 2026-11-04 |
 | [ ] | P12 | `workflows/dubakwi-handoff.json`·`dubakwi-state.json` 기본: Jira 조회/생성·종료·알림과 begin/prepare/bind/save/finish 고정 계약의 작은 연결 검증. 생성 ID 즉시 저장·최종 저장 확인 | R04 / R02·R05 | P09·P05 계약·D01/D03 해당 연결 확인 | 대기 | Jira/물리 저장 실제 지원 확인 전. R01 환경 준비·R05 계약/기대값 지원. DLQ 계약과 D07 Discord 앱/SDK·defer/사용자 매핑 준비도 병행 | 2026-11-03 |
 | [ ] | P13 | `runs/public/<실행묶음ID>/summary.json`: R01 첫 VM 배포, R05 입력/차단 공통 회귀·WF-08/13 증거. 모의 기능과 실제 연결을 보고서에 구분 | R05·R01 / R02·R04 | P11·P06 해당 사례·P04 compose/VM 준비; P12 미완료도 입구 시험 가능 | 대기 | 첫 배포를 전체 연동 완료로 표시하지 않음. 실제 종단 연결은 P19/P22에서 확인 | 2026-11-03 |
 | [ ] | P14 | `docs/project/daily/DAY80.md`: 당일 작업 번호·통과 수·보고서·발표① 피드백·다음 목표 | ① / 전원 | P13/P10의 당일 진행·실패·미완료 증거(완료 대기 불필요) | 대기 | 당일 기록 예정 | 2026-11-02 |
@@ -310,6 +310,7 @@ P29는 같은 발표 파일의 틀·초안·최종 편집 및 연습 단계를 �
 
 | 날짜 | 내용 |
 | --- | --- |
+| 2026-11-04 | P11 보완: B05 사용자 응답 구조·ID·권한 조합 검증과 user_lookup_error 제안(R04·R05 검토 대기), mock 문구 수정, 최신 main 병합, 워크플로우 v0.14 참조 동기화, 로컬 Code 시험 증거 추가. n8n·VM·WF-08/13 공식 시험 미실행 |
 | 2026-11-03 | 사용자 결정으로 팀 이름 두바퀴 확정. dubakwi 파일/웹훅/색인 접두사와 현재 문서 버전·착수 안내 동기화. 실제 역할/환경·원격은 미확정 |
 | 2026-11-03 | 팀 공유 전 점검: 첫 실행/PR·가린 runs/public/데일리/발표 메모 공유, 보완 횟수/재전송 계약, D05/데일리의 부분 인계·버전 참조 보완. 도구 검사와 서비스 실행 구분 |
 | 2026-11-03 | Discord 이용자 채널·Gateway 봇 기본안·R04 구현/R01 배포/R02 계약/R05 시험과 D07 추가. 본체7개 흐름·Webhook 공통 시험 유지, 실연결 미구현 |
@@ -336,7 +337,7 @@ P29는 같은 발표 파일의 틀·초안·최종 편집 및 연습 단계를 �
 
 ## 10. 공통 설계 결정과 역할별 구현 인계
 
-전체 기준은 [SYSTEM-DESIGN v0.8](project/SYSTEM-DESIGN.md)의 구성·상태·시나리오·기능 관계이며, 실행 상세 기준은 [WORKFLOW-DESIGN v0.13](project/WORKFLOW-DESIGN.md)의 해당 노드·엣지·스키마 ID다. 아래는 작업 배정·확인 시점이며 설계 계약의 사본이 아니다. D 항목의 확인 결과는 워크플로우 설계 5.3절과 RAG·저장소 설계의 영향받는 명세를 함께 갱신하고 실제 작업의 상태·완료 증거는 P01~P31 원장에서 관리한다. 공통 논리 계약은 워크플로우6.4~6.5/7.4와 저장소6.1의 단일 원본을 작업 기준으로 삼는다. case_ref·저장 명령/봉투·버전 의미·복구 캡슐은 이번 보완에서 구체화했다. D01~D07의 실제 API·환경·측정·공동 확인은 미완료다.
+전체 기준은 [SYSTEM-DESIGN v0.8](project/SYSTEM-DESIGN.md)의 구성·상태·시나리오·기능 관계이며, 실행 상세 기준은 [WORKFLOW-DESIGN v0.14](project/WORKFLOW-DESIGN.md)의 해당 노드·엣지·스키마 ID다. 아래는 작업 배정·확인 시점이며 설계 계약의 사본이 아니다. D 항목의 확인 결과는 워크플로우 설계 5.3절과 RAG·저장소 설계의 영향받는 명세를 함께 갱신하고 실제 작업의 상태·완료 증거는 P01~P31 원장에서 관리한다. 공통 논리 계약은 워크플로우6.4~6.5/7.4와 저장소6.1의 단일 원본을 작업 기준으로 삼는다. case_ref·저장 명령/봉투·버전 의미·복구 캡슐은 이번 보완에서 구체화했다. D01~D07의 실제 API·환경·측정·공동 확인은 미완료다.
 
 | 결정 ID | 확인·결정할 작업 | 담당 / 검토 | 확인 시점·연결 작업 |
 | --- | --- | --- | --- |
