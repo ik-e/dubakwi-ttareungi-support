@@ -495,6 +495,8 @@ B28은 먼저 error_code=null && state_saved=true && 최신 state_ref를 확인�
 
 로컬 확인(2026-11-04): Code 시험 [89/89](../../runs/public/20261104-113327-local-p19-flow/summary.json). 로컬 n8n 2.42.6에서 `scripts/test/mocks/`의 mock과 실제 gpt-4.1-mini로 Webhook 18개를 3회 실행해 모두 18/18 통과했다([1회](../../runs/public/20261104-113005-local-n8n-p19-mock-run1/summary.json), [2회](../../runs/public/20261104-113036-local-n8n-p19-mock-run2/summary.json), [3회](../../runs/public/20261104-113113-local-n8n-p19-mock-run3/summary.json)). 이 저장 결과 전에 Credential 권한 오류(2/18)와 분류 프롬프트 문제(12/18)가 있었고 수정했다. 해당 시도의 결과 파일은 남기지 않았다. TC08 grounded=false 사본도 이관을 1회 확인했다.
 
+R05 PR #13 문장 대조(2026-11-04): 실제 모델·mock 하위 기능으로 사례별 3회 [경로를 확인](../../runs/public/20261104-141023-local-n8n-p19-r05-routes/summary.json)했다. WF-01은 2/3로 불안정하고 첫 실행이 8.1초였으며, TC04는 0/3으로 보완 질문이 나왔다. WF-05는 이관이 나와 R05 기대값과 달랐고 TC09a·b는 mock 근거로 검증 실패 이관이라 실제 지식 재시험이 필요하다. 프롬프트 수정은 아직 하지 않았다.
+
 남은 한계: 실제 search·state·handoff·dlq·Jira, VM, R05 실행 도구, 공통 WF 공식 판정은 미실행이다. 동시 실행 중복은 mock에서 검증하지 않았다. 표본 답변에 근거 문장에 없는 부가 안내가 포함됐는데 L03이 통과시켰다. 실제 지식으로 R03·R05와 답변 품질을 확인하고 L02·L03을 조정해야 한다.
 
 ### 4.5. P11 골격 구현 상태
