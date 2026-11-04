@@ -108,3 +108,7 @@ R04의 `r04/p09-fixtures` 사용자 5명은 citizen-a/b/c에 public, support-dem
 - 원격 d7fd654의 `runs/public/20261104-161649-local-n8n-p19-r03-search-l03/summary.json`은 실제 R03 검색 근거를 활용한 답변 시험으로 기재한다. 한편 `runs/public/20261104-161956-local-n8n-p19-r03-regression/summary.json`의 19개 사례는 search/state/handoff/dlq가 mock이라고 명시하며, 일부 3회 사례 요약에도 실제 지식 검색 미실행이라 적혀 있다. 어떤 실행이 전체 실제 검색 연결 19개·3회에 대응하는지는 R02 확인 전 단정하지 않는다.
 - R02의 R04 S01 `inputSource: passthrough` 수정 요청과 R04의 수정·실호출 시험 계획을 수신했다. 원격 R04 `dbb41f9`에서 P12 파일 수정은 확인했으나 R03이 실행 결과를 재검증하지 않았고, 이는 RAG 검색 권한 승인이나 실제 state·handoff 연동 완료를 뜻하지 않는다.
 - R01은 PR #10 `7ad9eda`의 세 기술 보완과 CI 통과를 재확인하고 기존 변경 요청을 정리했다. 최종 병합 승인은 아니며 R04 권한·R05 검색 평가 검토 결과가 PR에 연결될 때까지 초안 유지다. #1 지식 승인과 #5 팀 통합은 별도 열린 작업이다.
+
+## R02 실행 범위 정정 확인
+
+R02 `r02/p19-support-flow`의 `95e9512` 정정 문서에 따라 위의 19개 사례 3회 실행의 검색 mock 여부에 대한 의문을 해소한다. [정정 원문](https://github.com/ik-e/dubakwi-ttareungi-support/blob/95e9512/runs/public/20261104-161508-local-n8n-p19-r03-search-r05/CORRECTION.md)에 따르면 `161508`, `162058 ... first/second`의 mock 검색 표기는 시험 도구의 고정 문구 오류이며 해당 세 실행에 R03 `25a178a` 검색이 사용됐다. 반면 `161956 ... r03-regression`의 mock 검색 표기는 정확하다. 27개 중 19개를 3회 실행했고 실제 저장·고장 주입이 필요한 사례는 제외했다. state·handoff·dlq mock, 사용자 대체, Webhook 색인 사본, 비공식 판정이라는 제한을 유지한다. 개별 인용 문서는 요약에 남지 않았으므로 문서·절 정확성 판정에는 별도 기록이 필요하다. 이 정정은 R04·R05의 PR 검토 승인을 뜻하지 않는다.

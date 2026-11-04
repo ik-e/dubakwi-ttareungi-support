@@ -52,3 +52,5 @@
 ### R02의 P19 로컬 연결 공유 (2026-11-04)
 
 R02는 n8n 2.42.6에서 P19 d7fd654와 R03 25a178a의 로컬 연결 및 19개 사례 3회 통과를 공유했다. state·handoff는 mock이고 사용자 대체값을 사용한 비공식 시험이며, 색인은 Webhook 사본이다. `runs/public/20261104-161649-local-n8n-p19-r03-search-l03/summary.json`은 R02 브랜치에서 실제 R03 검색 근거 활용을 보고한다. 같은 커밋의 19개 회귀·일부 3회 요약은 search mock/실제 지식 검색 미실행으로 표기돼 있어, 19개 3회 결과가 실제 검색 연결의 어떤 실행인지 R02 확인이 필요하다. 이 보고는 R04 서버 인가, 실제 state/Jira, R05 공식 판정 또는 VM 성공을 뜻하지 않는다.
+
+R02 `95e9512` 정정에 따라 19개 사례 3회 실행의 검색은 R03 `25a178a`로 확인됐다. 기존 요약의 검색 mock 문구는 해당 실행에 한해 오류이며 `161956` 회귀는 mock이 맞다. 개별 인용 문서 기록은 없어 R05 평가에 필요한 문서·절 증거를 별도로 확보한다. [R02 정정 기록](https://github.com/ik-e/dubakwi-ttareungi-support/blob/95e9512/runs/public/20261104-161508-local-n8n-p19-r03-search-r05/CORRECTION.md).
