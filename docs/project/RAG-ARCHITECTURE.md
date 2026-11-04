@@ -76,6 +76,12 @@ R03이 `knowledge/public/` 시민용 6개, `knowledge/restricted/` 교육용 가
 
 2026-11-04 `main`의 P13 공통14·팀10 사례 및 도구 초안을 병합했다. 사례는 실제 서비스 실행 전이다. R03의 독립 구현 기본안은 [역할별 인계 문서](../rag-knowledge/team-handoff.md)의 2026-11-04 항목을 따른다. 과정 Simple Vector Store와 text-embedding-3-large는 시연 초기 후보이며 실환경 노드·재시작·권한·비용 검증 전이다. 팀원이 동의하거나 구현했다고 기록하지 않는다.
 
+### 1.8 로컬 검색 평가와 역할 전달 기본안
+
+`scripts/dev/rag_local_evaluation.py`는 준비된 청크를 2글자 중복도로 찾는 오프라인 비교 도구다. `--role`은 시험용 가상 값이며 실제 인증·서버 권한·벡터 검색을 제공하지 않는다. 시민 fixture는 public만, 담당자 fixture는 두 범위를 사용하도록 필터를 시험한다. 의미 검색 품질이나 n8n 서비스 성능 근거로 사용하지 않는다.
+
+R03 기본안은 Discord가 검증한 ID → 인증된 어댑터 → 메인 B05의 서버 사용자 조회 → 서버가 결정한 access_levels → 인증된 내부 검색 호출 → 검색 전 권한 partition 선택이다. 실제 구현·서버 신뢰 경계는 미검증이며 [역할별 인계](../rag-knowledge/team-handoff.md)를 참조한다. R05의 새 flow.py 형식 브랜치는 별도로 확인했으며 해당 사례 변경은 아직 기본 브랜치에 병합되지 않았다.
+
 ## 2. 전처리 및 청킹
 
 | 항목 | 우리 선택 | 비교한 다른 선택 | 근거 (숫자) |
