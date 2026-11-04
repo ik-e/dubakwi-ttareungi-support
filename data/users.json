@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "users": [
+    {
+      "id": "citizen-a",
+      "role": "citizen",
+      "access_levels": ["public"],
+      "contact": {
+        "phone": "010-0000-0001",
+        "email": "citizen-a@example.invalid"
+      }
+    },
+    {
+      "id": "citizen-b",
+      "role": "citizen",
+      "access_levels": ["public"],
+      "contact": {
+        "phone": "010-0000-0002",
+        "email": "citizen-b@example.invalid"
+      }
+    },
+    {
+      "id": "citizen-c",
+      "role": "citizen",
+      "access_levels": ["public"],
+      "contact": {
+        "phone": "010-0000-0003",
+        "email": "citizen-c@example.invalid"
+      }
+    },
+    {
+      "id": "support-demo",
+      "role": "support",
+      "access_levels": ["public", "restricted"],
+      "contact": {
+        "email": "support@example.invalid"
+      }
+    },
+    {
+      "id": "security-demo",
+      "role": "security",
+      "access_levels": ["public", "restricted"],
+      "contact": {
+        "email": "security@example.invalid"
+      }
+    }
+  ]
+}

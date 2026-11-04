@@ -1,0 +1,49 @@
+{
+  "schema_version": 1,
+  "records": [
+    {
+      "ticket_id": "T-DEMO-01",
+      "case_id": "case-a-open",
+      "owner_id": "citizen-a",
+      "status": "waiting_info",
+      "summary": "가상 반납 확인 문의",
+      "contact": {
+        "phone": "010-0000-0001",
+        "email": "citizen-a@example.invalid"
+      }
+    },
+    {
+      "ticket_id": "T-DEMO-02",
+      "case_id": "case-b-open",
+      "owner_id": "citizen-b",
+      "status": "handed_off",
+      "summary": "가상 반납 처리 문의",
+      "contact": {
+        "phone": "010-0000-0002",
+        "email": "citizen-b@example.invalid"
+      }
+    },
+    {
+      "ticket_id": "T-DEMO-03",
+      "case_id": "case-a-closed",
+      "owner_id": "citizen-a",
+      "status": "closed_guidance",
+      "summary": "가상 QR 대여 안내 완료",
+      "contact": {
+        "phone": "010-0000-0001",
+        "email": "citizen-a@example.invalid"
+      }
+    },
+    {
+      "ticket_id": "T-DEMO-04",
+      "case_id": "case-c-open",
+      "owner_id": "citizen-c",
+      "status": "received",
+      "summary": "가상 이용권 확인 문의",
+      "contact": {
+        "phone": "010-0000-0003",
+        "email": "citizen-c@example.invalid"
+      }
+    }
+  ]
+}
