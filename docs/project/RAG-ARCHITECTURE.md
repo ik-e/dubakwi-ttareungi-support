@@ -82,6 +82,12 @@ R03이 `knowledge/public/` 시민용 6개, `knowledge/restricted/` 교육용 가
 
 R03 기본안은 Discord가 검증한 ID → 인증된 어댑터 → 메인 B05의 서버 사용자 조회 → 서버가 결정한 access_levels → 인증된 내부 검색 호출 → 검색 전 권한 partition 선택이다. 실제 구현·서버 신뢰 경계는 미검증이며 [역할별 인계](../rag-knowledge/team-handoff.md)를 참조한다. R05의 새 flow.py 형식 브랜치는 별도로 확인했으며 해당 사례 변경은 아직 기본 브랜치에 병합되지 않았다.
 
+### 1.9 로컬 개발 시작 기준
+
+2026-11-04 사용자 결정: 로컬 n8n에서 `text-embedding-3-large`와 Simple Vector Store를 시작 구성으로 사용한다. 사용자 소유 OpenAI API 키는 사용자가 로컬 n8n Credential에 직접 등록하며 실제 키·환경 비밀은 저장소에 넣지 않는다. 모델 접근·과금·Credential과 n8n 실제 실행은 미확인이다. 팀 VM 동일 구성은 로컬 개발 후 별도로 확인한다.
+
+Simple Vector Store는 재시작 시 데이터가 사라질 수 있고 인스턴스의 다른 사용자도 키로 접근할 수 있으므로 교육용 모의 정책만 취급한다. public/restricted 키 분리는 실제 인가를 대체하지 않는다. 승인 대기 문서는 명시된 로컬 교육용 시연에만 사용하며 서비스 승인과 구분한다. 상세 절차는 [로컬 개발 계획](../rag-knowledge/RAG-개발계획.md)을 따른다.
+
 ## 2. 전처리 및 청킹
 
 | 항목 | 우리 선택 | 비교한 다른 선택 | 근거 (숫자) |
