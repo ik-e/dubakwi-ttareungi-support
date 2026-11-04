@@ -81,6 +81,29 @@ class LocalRagHttpTest(unittest.TestCase):
         result = call("wf03", query, ["public"])
         self.assertEqual((result["status"], result["evidence"]), ("empty", []))
 
+    def test_rental_failure_and_lost_item_retrieval(self):
+        cases = [
+            (
+                "rental-failure",
+                "\ub300\uc5ec\uac00 \uc548 \ub3fc\uc694",
+                "rental-guide",
+                "\uc5f0\uacb0\uacfc \ub300\uc5ec \uc2e4\ud328",
+            ),
+            (
+                "lost-property",
+                "\ubc14\uad6c\ub2c8\uc5d0 \ubb3c\uac74\uc744 \ub193\uace0 \uc654\uc5b4\uc694",
+                "support-followup",
+                "\ubd84\uc2e4\ubb3c\xb7\uc2b5\ub4dd\ubb3c",
+            ),
+        ]
+        for case, query, doc, section in cases:
+            with self.subTest(case=case):
+                result = call(case, query, ["public"])
+                self.assertEqual(result["status"], "ok")
+                self.assertEqual(
+                    (result["evidence"][0]["doc"], result["evidence"][0]["section"]), (doc, section)
+                )
+
     def test_topics(self):
         cases = [
             (
