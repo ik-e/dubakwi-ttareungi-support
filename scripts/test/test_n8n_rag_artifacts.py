@@ -31,4 +31,24 @@ def test_search_requires_internal_auth_and_has_separate_partitions():
     assert nodes['Search restricted']['parameters']['memoryKey']['value'] == 'dubakwi-demo-restricted'
     route = flow['connections']['Is staff']['main']
     assert route[0][0]['node'] == 'Search restricted'
-    assert route[1][0]['node'] == 'Citizen result'
+    assert route[1][0]['node'] == 'Final readiness citizen'
+
+
+def test_index_marks_building_before_inserts_and_ready_after_loop():
+    flow = load('dubakwi-index.json')
+    c = flow['connections']
+    assert c['Manual']['main'][0][0]['node'] == 'Start marker'
+    assert c['Start marker']['main'][0][0]['node'] == 'Mark building'
+    assert c['Mark building']['main'][0][0]['node'] == 'Prepare chunks'
+    assert c['One chunk']['main'][0][0]['node'] == 'Finish marker'
+    assert c['Finish marker']['main'][0][0]['node'] == 'Mark ready'
+
+
+def test_search_checks_generation_before_and_after_retrieval():
+    flow = load('dubakwi-search.json')
+    c = flow['connections']
+    assert c['Valid and enabled']['main'][0][0]['node'] == 'Read readiness'
+    assert c['Is index ready']['main'][1][0]['node'] == 'Index unavailable'
+    for name in ('Citizen result', 'Staff result'):
+        code = next(n for n in flow['nodes'] if n['name'] == name)['parameters']['jsCode']
+        assert "fm.generation !== $('Initial readiness').first().json.generation" in code

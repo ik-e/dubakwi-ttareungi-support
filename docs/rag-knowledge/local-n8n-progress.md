@@ -88,3 +88,14 @@ R04의 `r04/p09-fixtures` 사용자 5명은 citizen-a/b/c에 public, support-dem
 - **미완료**: 검색 Webhook Header Auth Credential 연결 및 실제 요청 시험, 시민·담당자 API 권한/누출 시험, 오류·시간 초과·빈 결과, 반복 색인과 재시작 복구, R02/R04/R05 통합. 코드에 있는 역할 판정은 인증된 내부 호출자가 제공한 access_levels를 신뢰하며, 최종 사용자 확인은 R02/R04의 책임이다.
 - 현재 색인은 기존 컬렉션을 먼저 비우므로 도중에 실패하면 부분 색인이 남을 수 있다. 준비 상태 감지와 실패한 후보의 격리도 아직 없어 서비스에 연결하거나 배포하지 않는다. 승인 대기 자료와 가상 문서만 교육용으로 사용한다. 이슈 #9와 PR #10은 완료 조건 미달로 열린 상태를 유지한다.
 - 로컬 자동 검사: `python -m pytest scripts/test/test_prepare_rag_chunks.py scripts/test/test_rag_local_evaluation.py scripts/test/test_n8n_rag_artifacts.py -q` → 11건 통과. 이 중 워크플로우 검사는 JSON 구조만 확인하며 실행 시험의 대체물이 아니다.
+
+## 2026-11-04: 로컬 HTTP 검색·복구 시험 갱신
+
+이 절은 위 초안 단계의 미완료 기록을 갱신한다. 정확한 절차와 제한은 [로컬 n8n 실행 및 인계](local-n8n-runbook.md)를 참조한다.
+
+- 로컬에서 Header Auth를 연결한 실제 Webhook으로 인증 누락 403, skipped, 잘못된 권한 및 만료 오류를 확인했다. 실제 사용자 인증은 아직 R04 연동 전이다.
+- 공개·제한 컬렉션을 이용한 citizen/staff 요청, 응답 필수 필드와 실제/가상 표기, 시민의 제한 canary 비노출, QR/반납/환불/보안 질문 및 WF03 empty를 로컬 HTTP 시험했다. `scripts/test/test_n8n_rag_http.py` 6건 통과. 점수 0.30은 이 제한된 사례에 맞춘 임시 기준이다.
+- 색인 준비 마커와 세대 비교를 구현했다. 재시작 직후 `index_not_ready`, 재색인 후 정상 검색, 재색인 중 동시 요청의 `index_not_ready`를 확인했다. 동시 색인 잠금 및 멀티 프로세스 공유는 미구현이다.
+- R02 브랜치 `r02/p19-support-flow`의 B14 호출 노드를 로컬에서 분리 시험했다. `localhost`가 ::1로 해석돼 실패했고 시험 URL을 127.0.0.1로 바꾸자 HTTP 200, 동일 요청 ID, ok와 근거 5건을 받았다. 전체 상담 흐름과 VM 시험은 아니다.
+- 자료는 승인 전 교육용이며 로컬 워크플로우에만 시험 Credential을 연결했다. Git에는 키·Credential ID가 없다. R02 전체 흐름, R04 실제 사용자 조회, R05 공식 시험과 VM 연결은 별도로 남아 있다.
+- 로컬 전용 색인 시험본에서 building 직후 강제 실패를 일으켰을 때 검색은 `index_not_ready`였고, 정상 재색인 뒤 HTTP 시험 6건이 다시 통과했다. 실패한 시험 Webhook이 HTTP 200을 반환한 한계는 runbook에 명시했다.
