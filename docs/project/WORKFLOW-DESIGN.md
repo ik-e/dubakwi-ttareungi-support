@@ -3,7 +3,7 @@
 전체 구성·상태 관계·기능/시나리오 추적은 [최상위 시스템 설계서](SYSTEM-DESIGN.md)를 먼저 읽는다. 이 문서는 노드·엣지와 업무 계약의 상세 원본이다.
 
 - 작성: 2026-11-02 / 개정: 2026-11-04 KST
-- 버전·상태: **v0.14 / P11 support 골격 JSON·역할 프롬프트 초안·B05 사용자 응답 검증 추가**, 공동 검토 전. 골격은 로컬 Code 시험과 로컬 n8n Webhook 호출까지 확인했고 VM 실행·공식 판정은 전.
+- 버전·상태: **v0.14 / P11 support 골격 JSON·역할 프롬프트 초안·B05 사용자 응답 검증, P19 mock 연결 추가**, 공동 검토 전. P19 작업 브랜치는 mock 하위 기능으로 로컬 Code·n8n 호출까지 확인했고 실연동·VM 실행·공식 판정은 전.
 - [공식 템플릿 — 공개본 제외 자료](../../docs/PUBLIC-SOURCES.md)의 8개 절 유지. 범위는 [TOPIC](TOPIC.md), 역할은 [팀 헌장](TEAM-CHARTER.md), 배정·구현 순서는 [개발 계획](../DEVELOPMENT-PLAN.md).
 - **티켓 최초 생성 위치를 뒤로 이동**했다. 일반 안내는 답변·검증 후 생성/종료, 정보 부족은 보완 질문 준비 후 생성/대기, 긴급은 분류 직후 생성/이관한다.
 
@@ -328,7 +328,7 @@ R03이 승인된 지식을 검색 가능한 상태로 준비한다. 색인·메�
 
 #### 4.1.1. 역할 프롬프트 초안 (R02 내부 구현)
 
-6.5절에 따라 프롬프트 문구는 R02가 정한다. 출력 형식은 6.4.2절 공통 출력이 원본이며 아래 문구가 이를 바꾸지 않는다. 실제 모델·JSON 출력 방식은 D03 확인 전이다. 아직 support.json에 넣지 않았고 P19에서 B10/B19/B20에 연결한다.
+6.5절에 따라 프롬프트 문구는 R02가 정한다. 출력 형식은 6.4.2절 공통 출력이 원본이며 아래 문구가 이를 바꾸지 않는다. P19 작업 브랜치에서 B10/B19/B20에 연결했다. 로컬 n8n에서 gpt-4.1-mini로 실행했으며 Basic LLM Chain의 역할 인정 여부는 D03에서 확인한다.
 
 **L01 triage (B10)** 시스템 지시:
 
@@ -343,7 +343,12 @@ R03이 승인된 지식을 검색 가능한 상태로 준비한다. 색인·메�
  "facts":{"summary":"한 문장 요약","reported":[{"key":"","value":"","origin":"user"}],
           "confirmed":[],"attempted_actions":[],"missing":[],"uncertainties":[],"evidence_refs":[]},
  "target_ticket_id":"질문에 적힌 기존 문의 번호 또는 null"}
+필수 항목 키: rental=app_or_qr,symptom,attempted_actions(방법 문의면 없음) / return=bike_id,station_or_place,returned_at,lock_state / breakdown=bike_id_or_place,symptom(신고 방법 문의면 없음) / fees=usage_date,charge_detail(일반 기준 문의면 없음) / followup=target_ticket_id / security=exposure_detail.
 규칙:
+- 방법·절차·기준을 묻는 일반 문의는 개인 사건이 아니므로 missing을 []로 둔다. 예: "QR로 대여하는 방법 알려주세요", "반납 방법을 다시 알려주세요", "비밀번호 찾는 방법".
+- 필수 항목은 이용자의 개별 사건을 확인해야 할 때만 missing에 넣는다. 예: "반납했는데 앱에 이용 중으로 나와요"는 return의 누락 항목을 묻는다.
+- type=security는 개인정보 노출·사칭 링크 입력·계정 도용 진술일 때만 쓴다. 비밀번호 찾기 같은 일반 방법 문의는 unknown이다.
+- 질문에 문의 번호가 있으면 target_ticket_id에 그대로 적고 missing에 넣지 않는다. 본인 문의 상태 조회는 needs_human=false다.
 - 사용자가 직접 말한 사실만 reported에 적는다. 추측해서 채우지 않고 모르면 missing에 넣는다.
 - urgency=high는 부상·주행 위험 진술, 개인정보 노출·사칭 링크 입력 진술일 때만.
 - needs_human=true는 개별 요금 정정·환불 판단·현장 조치 요청·보안 침해 판단처럼 사람이 결정해야 할 때.
@@ -473,6 +478,24 @@ B28은 먼저 error_code=null && state_saved=true && 최신 state_ref를 확인�
 | H18 연결 저장 판정 | Code | StateResult + H06.ToolCtx | ToolCtx | ok=true·skipped=false·유효한 새 StateRef만 현재 state_ref 교체·H07 정상 action 허용. 실패는 action=failed,state_error,known Jira ID 보존 |
 | H19 알림 의도 저장 | Execute Sub-workflow | StateCommand.prepare + 최신 state_ref | StateResult | current_step=H11 기록. H17 반환 revision 사용,알림 대상·가린 복구 인자 유지 |
 | H20 알림 실행 허용 | If | ok=true && skipped=false && 유효 state_ref | StateResult | true H11,false state_error로 H12. 성공한 담당 지정은 유지하고 알림 호출0 |
+
+### 4.4.1. P19 mock 연결 구현 상태
+
+원본 파일: [`workflows/dubakwi-support.json`](../../workflows/dubakwi-support.json). 2026-11-04 R02 작성, 팀 검토 전. B01~B39, L01~L03, X01~X07을 연결했다. **search·state·handoff·dlq는 mock이므로 실제 S1 통과가 아니다.**
+
+| 구분 | 구현 | 설계와 다른 점·남은 확인 |
+| --- | --- | --- |
+| 저장 호출 | B07a·B37a·B32a·X06a·X03a Set 노드로 고정 명령만 만들어 하위 워크플로우에 전달 | 설계표에 없는 내부 노드. `input_hash`는 B07a에서 SHA-256으로 계산 |
+| 하위 ID | `dubakwi-state`=`dubakwiState01`, `dubakwi-dlq`=`dubakwiDlq0001` | R04 구현 ID와 맞추거나 R01 배포 때 교체 필요 |
+| 내부 호출 | B14·B15·B27은 `dubakwi-internal-key` Header Auth로 `localhost:5678/webhook/dubakwi-search`·`dubakwi-handoff` 호출 | R03·R04 인증 설정 확인 필요 |
+| scope | `dubakwi-dev` 고정 | R01 환경 설정 값으로 교체 필요 |
+| LLM Credential | 과정 공통 ID `openAiCourse0001` 사용 | 이름만으로는 로컬 n8n에서 권한 오류가 나서 ID를 넣음. 비밀값은 없음 |
+| TC08 | 운영 JSON에는 스위치를 넣지 않음. [`make_verifier_fault.py`](../../scripts/test/make_verifier_fault.py)로 시험 사본 생성 | 시험 뒤 원본을 다시 게시해야 함 |
+| B05 | 과정 data-api 형식은 `citizen`/`public` 최소 권한 유지 | `citizen-a` 공급과 `dept` 매핑은 R04 P09·D04 |
+
+로컬 확인(2026-11-04): Code 시험 [89/89](../../runs/public/20261104-113327-local-p19-flow/summary.json). 로컬 n8n 2.42.6에서 `scripts/test/mocks/`의 mock과 실제 gpt-4.1-mini로 Webhook 18개를 3회 실행해 모두 18/18 통과했다([1회](../../runs/public/20261104-113005-local-n8n-p19-mock-run1/summary.json), [2회](../../runs/public/20261104-113036-local-n8n-p19-mock-run2/summary.json), [3회](../../runs/public/20261104-113113-local-n8n-p19-mock-run3/summary.json)). 이 저장 결과 전에 Credential 권한 오류(2/18)와 분류 프롬프트 문제(12/18)가 있었고 수정했다. 해당 시도의 결과 파일은 남기지 않았다. TC08 grounded=false 사본도 이관을 1회 확인했다.
+
+남은 한계: 실제 search·state·handoff·dlq·Jira, VM, R05 실행 도구, 공통 WF 공식 판정은 미실행이다. 동시 실행 중복은 mock에서 검증하지 않았다. 표본 답변에 근거 문장에 없는 부가 안내가 포함됐는데 L03이 통과시켰다. 실제 지식으로 R03·R05와 답변 품질을 확인하고 L02·L03을 조정해야 한다.
 
 ### 4.5. P11 골격 구현 상태
 

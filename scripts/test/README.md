@@ -20,6 +20,8 @@ Windows에서 `python`이 Microsoft Store 별칭이면 같은 명령의 실행�
 
 P11 support 골격의 Code 노드 로컬 시험은 `node scripts/test/support-skeleton-cases.js [--workflow <json>] [--label <이름>] [--output runs/public/<실행묶음ID>/summary.json]`로 실행한다. JSON의 jsCode를 Node.js에서 실행하고 connections를 따라 진행하며 B04·B35 HTTP는 대체값을 쓴다. 실패 시 종료 코드 1이고 기존 출력 파일은 덮어쓰지 않는다. unittest의 `test_support_skeleton.py`도 같은 시험을 실행한다. n8n 가져오기·Webhook·data-api 실호출·VM·WF-08/13 공식 판정을 대신하지 않는다.
 
+`mocks/`의 state·dlq·search·handoff 워크플로우는 로컬 시험 전용이며 실제 저장·Jira를 호출하지 않는다. TC08은 `uv run --locked python scripts/test/make_verifier_fault.py --output <새 파일>`로 만든 사본을 시험 환경에만 게시한다.
+
 게시된 n8n의 Webhook 호출은 `SUPPORT_TEAM_KEY=<시험 키> uv run --locked python scripts/test/support_skeleton_live.py --url <Webhook URL> [--output runs/public/<실행묶음ID>/summary.json]`로 확인한다. 키는 결과에 남기지 않는다. n8n 게시 직후 결과가 이전 버전으로 나올 수 있어 실패하면 잠시 뒤 다시 확인하고 최초 결과를 보존한다. VM·공식 판정을 대신하지 않는다.
 ## 서비스 사례 실행 도구
 

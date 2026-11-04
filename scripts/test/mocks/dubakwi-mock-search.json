@@ -1,0 +1,86 @@
+{
+  "id": "dubakwiSearch01",
+  "name": "dubakwi-mock-search",
+  "active": false,
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "dubakwi-search",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "f99ec29c-a4a6-5357-9086-c1426ebae72d",
+      "name": "Mock 입력",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        0
+      ],
+      "webhookId": "3fc54920-77fe-5bf8-9d78-0d8f06f18682"
+    },
+    {
+      "parameters": {
+        "jsCode": "// 시험 전용 mock 검색. 가상 근거 1개를 돌려주며 RAG 품질과 무관하다.\nconst r = $json.body;\nif (!r.enabled) return { json: { request_id: r.request_id, status: 'skipped', evidence: [], error_code: null } };\nif (r.query.includes('화성')) return { json: { request_id: r.request_id, status: 'empty', evidence: [], error_code: null } };\nreturn { json: { request_id: r.request_id, status: 'ok', error_code: null, evidence: [{ doc: 'mock-rental-guide', section: 'QR 대여', chunk_id: 'mock-c1', text: '따릉이 앱을 열고 대여소 자전거의 QR을 스캔하면 대여가 시작됩니다.', score: 0.9, access_level: 'public', version: 'mock-1' }] } };\n"
+      },
+      "id": "2a90bd4c-727c-5fc1-bafd-62cf7a2496f7",
+      "name": "Mock 처리",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        250,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify($json) }}",
+        "options": {
+          "responseCode": "={{ $json.__status ?? 200 }}"
+        }
+      },
+      "id": "529f0243-1b2c-5081-967d-4b933e9364a5",
+      "name": "Mock 응답",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        500,
+        0
+      ]
+    }
+  ],
+  "connections": {
+    "Mock 입력": {
+      "main": [
+        [
+          {
+            "node": "Mock 처리",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mock 처리": {
+      "main": [
+        [
+          {
+            "node": "Mock 응답",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": false
+  },
+  "tags": []
+}
