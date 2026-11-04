@@ -113,6 +113,12 @@ def run_case(url: str, key: str, case: dict, raw: list | None = None) -> dict:
                 "reason": payload.get("reason"),
                 "priority": (payload.get("ticket") or {}).get("priority"),
                 "has_sources": bool(payload.get("sources")),
+                "source_docs": [item.get("doc") for item in payload.get("sources") or []],
+                "labels": [
+                    label
+                    for label in ("[실제 안내]", "[가상 설정]")
+                    if label in str(payload.get("answer", ""))
+                ],
                 "seconds": seconds,
                 "problems": judge(expect, status, payload, seconds),
             }
