@@ -1,0 +1,63 @@
+{
+  "executed_at": "2026-11-04T10:26:52.060013+09:00",
+  "environment": "local Windows; fake Webhook only",
+  "pr": "https://github.com/ik-e/dubakwi-ttareungi-support/pull/7",
+  "reviewed_source_commit": "b3addd6ae62e143d175b3087dd4ec0441161fa25",
+  "integration_scope": "R01 ledger and documentation changes in this evidence commit",
+  "workflow_version": "no workflow added by this PR; R02 tk 4b3d3b7 inspected separately, not executed",
+  "configuration": "pyproject.toml and uv.lock hashes below",
+  "case_ids": [
+    "WF01",
+    "WF02",
+    "WF02b",
+    "WF03",
+    "WF04",
+    "WF05",
+    "WF06",
+    "WF07",
+    "WF08",
+    "WF09",
+    "WF10",
+    "WF11",
+    "WF12",
+    "WF13",
+    "TC01",
+    "TC02",
+    "TC03",
+    "TC04",
+    "TC05",
+    "TC06",
+    "TC07",
+    "TC08",
+    "TC09",
+    "TC10"
+  ],
+  "service_cases_executed": false,
+  "checks": {
+    "ruff_check": "passed",
+    "ruff_format": "14 files already formatted",
+    "project_docs": "20 documents, 349 links, 42 anchors; no errors",
+    "public_files": "48 candidates before evidence addition; 359 links; no errors",
+    "unit_tests": "24 passed, fake Webhook; not service cases",
+    "diff_check": "passed"
+  },
+  "security": {
+    "tscan": "unavailable; not executed",
+    "substitute": "public-file scanner; Gitleaks scan performed on final Git candidate outside this summary to avoid self-reference"
+  },
+  "sha256": {
+    "cases/common.json": "95868ef45419db92608937f8dfd971d0eb73f53e52e84480413d615b070f13a6",
+    "cases/team.json": "1398896c9071e7541fd17e707c1fa453341fd342e534af45d36dfa53b0a09042",
+    "scripts/test/run_cases.py": "c379b02896269a127c6c66ffc5ab474ea422f87e22f0bca864e4ccaf9c3091db",
+    "scripts/test/test_run_cases.py": "a41f9c4de0217281c5568cdb36888e0bff3d9726491a6a810d26c2441d9294af",
+    "scripts/test/README.md": "9cca61b693a2c5c97876ea74b68b44b78445be32f98f1749fccc8e3863f3b075",
+    "docs/DEVELOPMENT-PLAN.md": "1376088a30ab9351b445399b9938029dddf3d3a9af4cdfea3b86450e1dde31fb",
+    "pyproject.toml": "151cc9b6f27e91ce8ed96826a36a0d61bdb9ecd3fcde949bcc7e0c8e54074b91",
+    "uv.lock": "4129378ecbfd70cfe6dd00ad2f327663090f8f7312264a70524a1b99cf45090c"
+  },
+  "limitations": [
+    "Cases remain draft/not_run; role reviews and actual n8n/VM/Jira/RAG tests remain pending",
+    "Official flow.py schema and fixture compatibility not verified",
+    "WF09, WF11 and external effect inspection/fault injection still require agreement or preparation"
+  ]
+}
