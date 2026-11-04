@@ -62,12 +62,7 @@ def audit(root=ROOT):
         if not path.is_file() or path.is_symlink() or not path.resolve().is_relative_to(root):
             errors.append({"file": name, "issue": "missing or unsafe candidate path"})
             continue
-        max_size = (
-            8 * 1024 * 1024
-            if name == "docs/rag-knowledge/chatbot-original.html"
-            else 5 * 1024 * 1024
-        )
-        if path.stat().st_size > max_size:
+        if path.stat().st_size > 5 * 1024 * 1024:
             errors.append({"file": name, "issue": "large candidate requires review"})
             continue
         try:
