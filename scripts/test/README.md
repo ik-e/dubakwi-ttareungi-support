@@ -34,8 +34,9 @@ Windows에서 `python`이 Microsoft Store 별칭이면 같은 명령의 실행�
 # 요청만 만들어 확인(전송·파일 생성 없음)
 uv run --locked python scripts/test/run_cases.py --env local --desc p13-entry --path mock --dry-run
 # 첫 VM 입구 시험 예(P11 골격의 mock 경로). 인증값은 flow.py와 같은 환경변수에만 둔다
+# VM에 data-api가 없으므로 --no-hooks로 파일 앞 tickets-reset을 건너뛴다(세 사례는 자체 고장 설정이 없어 그대로 전송)
 $env:FLOW_WEBHOOK_KEY = "<팀 키>"
-uv run --locked python scripts/test/run_cases.py --base-url <n8n 주소> --env vm --desc p13-entry --path mock --case WF08 WF13a WF13c --auth-required --workflow-version <커밋 또는 내보내기 버전>
+uv run --locked python scripts/test/run_cases.py --base-url <n8n 주소> --env vm --desc p13-entry --path mock --case WF08 WF13a WF13c --no-hooks --auth-required --workflow-version <커밋 또는 내보내기 버전>
 # WF13b(미등록 사용자)는 사용자 조회용 data-api 준비 후 같은 방식으로 실행한다
 ```
 
