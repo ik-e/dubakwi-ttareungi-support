@@ -383,7 +383,7 @@ R03이 승인된 지식을 검색 가능한 상태로 준비한다. 색인·메�
 - 근거에 없는 금액, 환불 가능 여부, 안전 판단, 처리 완료 약속을 쓰지 않는다.
 - 모든 문장은 인용한 근거에 있는 내용만 쓴다. 인사말, 맺음말, 근거에 없는 권유·연락처·해결 방법을 덧붙이지 않는다.
 - 질문에 답하는 데 필요한 내용만 쓴다. 질문과 무관한 근거는 인용하지 않는다.
-- 근거 앞의 [실제 안내] 표기는 답변에 쓰지 않는다. [가상 설정] 근거를 쓸 때는 "시연용 가상 기준입니다"를 함께 밝힌다.
+- 근거 text 앞의 [실제 안내] 또는 [가상 설정] 표시를 답변에 그대로 보존한다. 각 문장 맨 앞에 그 문장의 근거 표시를 쓰고, 두 종류를 한 문장에 섞지 않는다. 표시를 바꾸거나 새로 만들지 않는다. 근거 text에 표시가 없으면 답변에도 쓰지 않는다. 예: "[실제 안내] 앱에서 QR을 스캔합니다. [가상 설정] 시연에서는 담당자가 확인합니다."
 - 근거가 질문에 답하기에 부족하면 answer를 빈 문자열로 두고 cited_source_ids를 []로 둔다.
 - 연락처·카드번호 등 개인정보를 답에 쓰지 않는다.
 ```
@@ -395,6 +395,8 @@ R03이 승인된 지식을 검색 가능한 상태로 준비한다. 색인·메�
 입력: writer JSON, writer가 받은 것과 같은 evidence.
 아래 JSON 하나만 출력한다.
 {"grounded":true|false,"policy_ok":true|false,"issues":["문제 설명"]}
+- 표시가 해당 근거의 표시와 다르면 grounded=false다. [실제 안내]가 붙어 있어도 문장 내용이 evidence에 없으면 grounded=false다.
+- "항상", "어떤 경우에도", "반드시" 같은 단정이나 안전 보장이 evidence에 없으면 grounded=false이고 policy_ok=false다.
 - answer를 문장별로 나눠 각 문장을 evidence와 대조한다. 내용이 evidence에 없는 문장이 하나라도 있으면 grounded=false다.
 - 연락처·번호·기간·금액·해결 방법이 evidence에 없으면 grounded=false다. 일반 상식이어도 evidence에 없으면 통과시키지 않는다.
 - grounded: answer의 모든 주장이 인용한 chunk의 text로 뒷받침되면 true.
@@ -497,7 +499,8 @@ B28은 먼저 error_code=null && state_saved=true && 최신 state_ref를 확인�
 | --- | --- | --- |
 | 저장 호출 | B07a·B37a·B32a·X06a·X03a Set 노드로 고정 명령만 만들어 하위 워크플로우에 전달 | 설계표에 없는 내부 노드. `input_hash`는 B07a에서 SHA-256으로 계산 |
 | 하위 ID | `dubakwi-state`=`dubakwiState01`, `dubakwi-dlq`=`dubakwiDlq0001` | R04 구현 ID와 맞추거나 R01 배포 때 교체 필요 |
-| 내부 호출 | B14·B15·B27은 `dubakwi-internal-key` Header Auth로 `localhost:5678/webhook/dubakwi-search`·`dubakwi-handoff` 호출 | R03·R04 인증 설정 확인 필요 |
+| 내부 호출 | B14·B15·B27은 `dubakwi-internal-key` Header Auth(`X-Internal-Key`)로 `localhost:5678/webhook/dubakwi-search`·`dubakwi-handoff` 호출 | 검색 경로·헤더·응답 필드는 R03 확인(2026-11-04), 실제 `dubakwi-search` 구현 전. handoff는 R04 확인 필요 |
+| 근거 표시 | R03 기본안에 따라 시민 답변에 `[실제 안내]`·`[가상 설정]`을 보존. Evidence.text 앞 표시를 쓰고 전용 필드는 추가하지 않음. B21이 인용 근거와 답변의 표시 일치를 검사 | 표시 없는 근거에는 요구하지 않음 |
 | scope | `dubakwi-dev` 고정 | R01 환경 설정 값으로 교체 필요 |
 | LLM Credential | 과정 공통 ID `openAiCourse0001` 사용 | 이름만으로는 로컬 n8n에서 권한 오류가 나서 ID를 넣음. 비밀값은 없음 |
 | TC08 | 운영 JSON에는 스위치를 넣지 않음. [`make_verifier_fault.py`](../../scripts/test/make_verifier_fault.py)로 시험 사본 생성 | 시험 뒤 원본을 다시 게시해야 함 |
@@ -508,6 +511,8 @@ B28은 먼저 error_code=null && state_saved=true && 최신 state_ref를 확인�
 R05 PR #13 문장 대조(2026-11-04): 실제 모델·mock 하위 기능으로 사례별 3회 [경로를 확인](../../runs/public/20261104-141023-local-n8n-p19-r05-routes/summary.json)했다. WF-01은 2/3로 불안정하고 첫 실행이 8.1초였으며, TC04는 0/3으로 보완 질문이 나왔다. WF-05는 이관이 나와 R05 기대값과 달랐고 TC09a·b는 mock 근거로 검증 실패 이관이라 실제 지식 재시험이 필요하다. 이후 L01 프롬프트와 B11 사실 대조를 고쳐 다시 3회 실행했다. [1차 수정](../../runs/public/20261104-141603-local-n8n-p19-r05-routes-prompt2/summary.json)은 WF-01 3/3, TC04 0/3이었고 [2차 수정](../../runs/public/20261104-141856-local-n8n-p19-r05-routes-prompt3/summary.json)은 WF-01·TC04 3/3이다. WF-05는 기대값 조율이 남았다. TC09a·b는 mock 근거에서 검증 실패 이관이라 실제 지식 재시험이 필요하다. 같은 문장으로 조정한 결과라 새 문장에서 재확인해야 한다. [회귀 Webhook 18/18](../../runs/public/20261104-142053-local-n8n-p19-after-prompt3/summary.json), [로컬 Code 95/95](../../runs/public/20261104-142216-local-p19-flow-prompt3/summary.json).
 
 품질·시간 보강(2026-11-04): 승인 전 지식을 쓰는 시험용 검색(`build_knowledge_search_mock.py`)으로 R05 사례를 3회 실행해 [WF-05 외 모두 통과](../../runs/public/20261104-150036-local-n8n-p19-r05-final2/summary.json)했다. L03은 일부러 넣은 근거 밖 문장 5종을 [수정 전 2종](../../runs/public/20261104-144342-local-n8n-p19-l03-before/summary.json)에서 [수정 후 5종 모두 거절](../../runs/public/20261104-144531-local-n8n-p19-l03-after/summary.json)했다. B21은 없는 조치 주장과 인용 근거에 없는 번호를 Code로도 거절한다. 조정에 쓰지 않은 새 문장은 [첫 묶음 40/54](../../runs/public/20261104-144726-local-n8n-p19-holdout/summary.json), 규칙 보강 뒤 [다른 새 묶음 30/36](../../runs/public/20261104-145044-local-n8n-p19-holdout2-new/summary.json)이다. 남은 실패는 문의 분류의 흔들림과 시험용 검색의 한계이며 추가 조정 없이 기록한다. B11·B17은 `deadline_at`을 검사해 `deadline_exceeded`로 이관하고 LLM 모델은 8초·재시도 1회로 제한했다. [조회 8초 지연은 2.7초에 이관](../../runs/public/20261104-145844-local-n8n-p19-time-regression/summary.json)했고 [잘못된 모델 사본은 HTTP 200 이관](../../runs/public/20261104-150028-local-n8n-p19-llm-down/summary.json)을 확인했다. 시간 값은 D05 실측 전 초기값이다. 로컬 Code [107/107](../../runs/public/20261104-150355-local-p19-flow-quality/summary.json).
+
+근거 표시 반영(2026-11-04): R03 기본안에 따라 시민 답변에 표시를 보존했다. [R05 사례 3회](../../runs/public/20261104-154004-local-n8n-p19-labels-r05/summary.json)는 WF-05 외 통과이며, TC09c 1회는 LLM 8초 제한으로 `llm_down` 이관 후 재시도 없이 기록했다(응답 11.0초). L03은 표시 추가 직후 [단정 문장 1종을 통과](../../runs/public/20261104-154449-local-n8n-p19-labels-l03-first/summary.json)시켜 고쳤고 [수정 후 5종 모두 거절](../../runs/public/20261104-153724-local-n8n-p19-labels-l03/summary.json)했다. 표시 없는 시험 근거에서 [회귀 17/19](../../runs/public/20261104-153857-local-n8n-p19-labels-regression/summary.json)가 나와 mock을 합의 형식으로 고친 뒤 [19/19](../../runs/public/20261104-154307-local-n8n-p19-labels-regression-fixed/summary.json)를 확인했다. 표시 없는 근거에 모델이 표시를 붙이면 이관되므로 R03 결과는 표시를 포함해야 한다. 로컬 Code [111/111](../../runs/public/20261104-154449-local-p19-flow-labels/summary.json).
 
 남은 한계: 실제 search·state·handoff·dlq·Jira, VM, R05 실행 도구, 공통 WF 공식 판정은 미실행이다. 동시 실행 중복은 mock에서 검증하지 않았다. B27 8초 제한은 티켓 API까지 느려지면 WF-11 6초를 넘을 수 있어 R04와 정해야 한다. 지식은 승인 전이고 시험용 검색은 실제 벡터 검색이 아니므로 답변 품질은 R03 구현 뒤 다시 평가한다.
 

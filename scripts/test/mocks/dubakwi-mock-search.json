@@ -22,7 +22,7 @@
     },
     {
       "parameters": {
-        "jsCode": "// 시험 전용 mock 검색. 가상 근거 1개를 돌려주며 RAG 품질과 무관하다.\nconst r = $json.body;\nif (!r.enabled) return { json: { request_id: r.request_id, status: 'skipped', evidence: [], error_code: null } };\nif (r.query.includes('화성')) return { json: { request_id: r.request_id, status: 'empty', evidence: [], error_code: null } };\nreturn { json: { request_id: r.request_id, status: 'ok', error_code: null, evidence: [{ doc: 'mock-rental-guide', section: 'QR 대여', chunk_id: 'mock-c1', text: '따릉이 앱을 열고 대여소 자전거의 QR을 스캔하면 대여가 시작됩니다.', score: 0.9, access_level: 'public', version: 'mock-1' }] } };\n"
+        "jsCode": "// 시험 전용 mock 검색. 가상 근거 1개를 돌려주며 RAG 품질과 무관하다.\nconst r = $json.body;\nif (!r.enabled) return { json: { request_id: r.request_id, status: 'skipped', evidence: [], error_code: null } };\nif (r.query.includes('화성')) return { json: { request_id: r.request_id, status: 'empty', evidence: [], error_code: null } };\nreturn { json: { request_id: r.request_id, status: 'ok', error_code: null, evidence: [{ doc: 'mock-rental-guide', section: 'QR 대여', chunk_id: 'mock-c1', text: '[실제 안내] 따릉이 앱을 열고 대여소 자전거의 QR을 스캔하면 대여가 시작됩니다.', score: 0.9, access_level: 'public', version: 'mock-1' }] } };\n"
       },
       "id": "2a90bd4c-727c-5fc1-bafd-62cf7a2496f7",
       "name": "Mock 처리",
