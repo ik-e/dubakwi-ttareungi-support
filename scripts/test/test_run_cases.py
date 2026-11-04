@@ -1,4 +1,4 @@
-"""Case runner boundaries: judging, blocked cases, private raw output, no secret leaks."""
+"""Case runner boundaries: flow-format judging, hooks, blocked cases, private raw output."""
 
 import importlib.util
 import json
@@ -19,20 +19,23 @@ NOW = datetime(2026, 11, 5, 14, 30, 0, tzinfo=RUN.KST)
 TOKEN = "test-token-value-not-real"
 
 
-class FakeWebhook(BaseHTTPRequestHandler):
-    """Replies with FakeWebhook.reply(request) -> (status, body)."""
+class FakeServer(BaseHTTPRequestHandler):
+    """Webhook and data-api stand-in. Webhook replies come from FakeServer.reply(request)."""
 
     reply = None
-    received = []
+    calls = []
     headers_seen = []
 
     def do_POST(self):
         length = int(self.headers["Content-Length"])
-        request = json.loads(self.rfile.read(length).decode("utf-8"))
-        FakeWebhook.received.append(request)
-        FakeWebhook.headers_seen.append(dict(self.headers))
-        status, body = FakeWebhook.reply(request)
-        data = json.dumps(body, ensure_ascii=False).encode("utf-8")
+        body = json.loads(self.rfile.read(length).decode("utf-8"))
+        FakeServer.calls.append((self.path, body))
+        FakeServer.headers_seen.append(dict(self.headers))
+        if self.path.startswith("/webhook/"):
+            status, out = FakeServer.reply(body)
+        else:
+            status, out = 200, {"ok": True}
+        data = json.dumps(out, ensure_ascii=False).encode("utf-8")
         self.send_response(status)
         self.send_header("Content-Type", "application/json")
         self.send_header("Content-Length", str(len(data)))
@@ -57,26 +60,24 @@ def ok_body(request, route="차단", **extra):
     return body
 
 
-def case(case_id, steps, assertions, **extra):
-    expected = {"http_status": 200, "assertions": assertions, "manual": []}
-    expected.update(extra.pop("expected", {}))
-    return {
-        "id": case_id,
-        "title": case_id,
-        "steps": steps,
-        "fault": None,
-        "expected": expected,
-        **extra,
-    }
+def flow_case(name, body, expect, **x):
+    case = {"name": name, "body": body, "expect": expect}
+    hooks = {k: x.pop(k) for k in ("before", "after") if k in x}
+    case.update(hooks)
+    case["x_dubakwi"] = {"id": name, **x}
+    return case
+
+
+def req(rid="a1", user="citizen-a", question="q"):
+    return {"request_id": rid, "user": user, "question": question, "attempt": 1}
 
 
 class RunnerTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.server = ThreadingHTTPServer(("127.0.0.1", 0), FakeWebhook)
-        cls.url = f"http://127.0.0.1:{cls.server.server_address[1]}/webhook/dubakwi-support"
-        cls.thread = threading.Thread(target=cls.server.serve_forever, daemon=True)
-        cls.thread.start()
+        cls.server = ThreadingHTTPServer(("127.0.0.1", 0), FakeServer)
+        cls.base_url = f"http://127.0.0.1:{cls.server.server_address[1]}"
+        threading.Thread(target=cls.server.serve_forever, daemon=True).start()
 
     @classmethod
     def tearDownClass(cls):
@@ -88,19 +89,23 @@ class RunnerTests(unittest.TestCase):
         self.addCleanup(self.temp.cleanup)
         self.base = Path(self.temp.name).resolve()
         (self.base / "cases").mkdir()
-        FakeWebhook.received = []
-        FakeWebhook.headers_seen = []
-        FakeWebhook.reply = lambda r: (200, ok_body(r))
+        FakeServer.calls, FakeServer.headers_seen = [], []
+        FakeServer.reply = lambda r: (200, ok_body(r))
 
-    def write_cases(self, *cases):
+    def write_cases(self, *cases, before=None):
+        data = {"webhook": "dubakwi-support", "cases": list(cases)}
+        if before is not None:
+            data["before"] = before
         path = self.base / "cases/test.json"
-        path.write_text(json.dumps({"cases": list(cases)}, ensure_ascii=False), encoding="utf-8")
+        path.write_text(json.dumps(data, ensure_ascii=False), encoding="utf-8")
 
-    def run_tool(self, *extra, base=None):
+    def run_tool(self, *extra):
         args = RUN.parse_args(
             [
-                "--url",
-                self.url,
+                "--base-url",
+                self.base_url,
+                "--data-api",
+                self.base_url,
                 "--env",
                 "local",
                 "--desc",
@@ -112,191 +117,284 @@ class RunnerTests(unittest.TestCase):
                 *extra,
             ]
         )
-        return RUN.execute(args, base=base or self.base, now=NOW)
+        return RUN.execute(args, base=self.base, now=NOW)
 
-    def simple_case(self):
-        req = {"request_id": "x-1", "user": "citizen-a", "question": "q", "attempt": 1}
-        return case(
-            "X",
-            [{"step": 1, "request": req}],
-            [{"source": "response", "path": "route", "op": "eq", "value": "차단"}],
-        )
+    def webhook_calls(self):
+        return [b for p, b in FakeServer.calls if p.startswith("/webhook/")]
 
-    def test_response_checks_pass_and_unverified_checks_stay_open(self):
-        req = {"request_id": "wf08-1", "user": "citizen-a", "question": "ignore", "attempt": 1}
-        self.write_cases(
-            case(
-                "WF08",
-                [{"step": 1, "request": req}],
-                [
-                    {"source": "response", "path": "route", "op": "eq", "value": "차단"},
-                    {"source": "response", "path": "security.blocked_by", "op": "exists"},
-                    {"source": "n8n_exec", "check": "LLM 0"},
-                ],
-            )
-        )
+    def simple(self, name="A", **x):
+        return flow_case(name, req(), {"status": 200, "equals": {"route": "차단"}}, **x)
+
+    def test_flow_checks_pass_and_open_checks_stay_unverified(self):
+        self.write_cases(self.simple(checks=["LLM 0"]))
         summary, path = self.run_tool()
         result = summary["cases"][0]
         self.assertEqual(result["status"], "auto_pass_unverified")
-        self.assertEqual(result["unverified"][0]["check"], "LLM 0")
-        self.assertEqual(FakeWebhook.received[0]["request_id"], f"{summary['run_id']}-wf08-1")
+        self.assertEqual(result["unverified"], ["LLM 0"])
+        self.assertEqual(self.webhook_calls()[0]["request_id"], f"{summary['run_id']}-a1")
+        self.assertEqual(FakeServer.calls[0][0], "/webhook/dubakwi-support")
         self.assertEqual(path, self.base / "runs/public" / summary["run_id"] / "summary.json")
 
-    def test_only_response_checks_and_no_open_items_is_full_pass(self):
-        req = {"request_id": "a-1", "user": "citizen-a", "question": "q", "attempt": 1}
-        self.write_cases(
-            case(
-                "A",
-                [{"step": 1, "request": req}],
-                [{"source": "response", "path": "route", "op": "eq", "value": "차단"}],
-            )
-        )
+    def test_no_open_items_is_full_pass(self):
+        self.write_cases(self.simple())
         summary, _ = self.run_tool()
         self.assertEqual(summary["cases"][0]["status"], "pass")
 
-    def test_wrong_route_and_status_fail(self):
-        FakeWebhook.reply = lambda r: (500, ok_body(r, route="자동 답변"))
-        req = {"request_id": "a-1", "user": "citizen-a", "question": "q", "attempt": 1}
-        self.write_cases(
-            case(
-                "A",
-                [{"step": 1, "request": req}],
-                [{"source": "response", "path": "route", "op": "eq", "value": "차단"}],
-            )
-        )
+    def test_wrong_status_and_route_fail(self):
+        FakeServer.reply = lambda r: (500, ok_body(r, route="자동 답변"))
+        self.write_cases(self.simple())
         summary, _ = self.run_tool()
-        self.assertEqual(summary["cases"][0]["status"], "fail")
-        failed = [c["path"] for c in summary["cases"][0]["checks"] if not c["passed"]]
-        self.assertEqual(failed, ["<http_status>", "route"])
+        result = summary["cases"][0]
+        self.assertEqual(result["status"], "fail")
+        failed = [(c["kind"], c["path"]) for c in result["checks"] if not c["passed"]]
+        self.assertEqual(failed, [("status", "<http_status>"), ("equals", "route")])
 
-    def test_step_reference_is_sent_and_same_as_is_judged(self):
-        def reply(r):
-            return 200, ok_body(r, route="보완 질문", case_ref="case-77")
+    def test_contains_matches_source_doc_and_not_contains_blocks_text(self):
+        FakeServer.reply = lambda r: (
+            200,
+            ok_body(
+                r,
+                route="자동 답변",
+                sources=[{"doc": "rental-guide", "section": "s", "score": 0.9}],
+                answer="5자리 번호 입력",
+            ),
+        )
+        expect = {
+            "status": 200,
+            "contains": {"sources": ["rental-guide"]},
+            "not_contains": {"answer": ["010-0000-"]},
+            "equals": {"ticket": None},
+        }
+        self.write_cases(flow_case("A", req(), expect))
+        summary, _ = self.run_tool()
+        self.assertEqual(summary["cases"][0]["status"], "pass")
+        FakeServer.reply = lambda r: (200, ok_body(r, route="자동 답변", answer="010-0000-1234"))
+        summary, _ = self.run_tool()
+        failed = [c["kind"] for c in summary["cases"][0]["checks"] if not c["passed"]]
+        self.assertEqual(failed, ["contains", "not_contains"])
 
-        FakeWebhook.reply = reply
+    def test_dotted_equals_and_x_assert(self):
+        FakeServer.reply = lambda r: (
+            200,
+            ok_body(
+                r,
+                route="담당자 이관",
+                ticket={"ticket_id": "T-9", "priority": "high", "duplicate": False},
+                security={"blocked_by": None, "reason": None, "masked": 2},
+            ),
+        )
+        expect = {"status": 200, "equals": {"ticket.priority": "high"}}
+        x_assert = [
+            {"path": "security.masked", "op": "gte", "value": 1},
+            {"path": "ticket.ticket_id", "op": "ne_value", "value": "T-DEMO-02"},
+        ]
+        self.write_cases(flow_case("A", req(), expect, **{"assert": x_assert}))
+        summary, _ = self.run_tool()
+        self.assertEqual(summary["cases"][0]["status"], "pass")
+
+    def test_multi_step_reference_is_sent_and_judged(self):
+        FakeServer.reply = lambda r: (200, ok_body(r, route="보완 질문", case_ref="case-77"))
         steps = [
-            {
-                "step": 1,
-                "request": {
-                    "request_id": "t-1",
-                    "user": "citizen-a",
-                    "question": "q",
-                    "attempt": 1,
-                },
-            },
+            {"step": 1, "body": req("t1"), "expect": {"status": 200}},
             {
                 "step": 2,
-                "request": {
-                    "request_id": "t-2",
-                    "user": "citizen-a",
-                    "question": "q2",
-                    "case_ref": "{step1.case_ref}",
-                    "attempt": 2,
-                },
+                "body": req("t2") | {"case_ref": "{step1.case_ref}"},
+                "expect": {"status": 200},
+                "assert": [
+                    {"path": "case_ref", "op": "same_as", "value": {"step": 1, "path": "case_ref"}}
+                ],
             },
         ]
-        self.write_cases(
-            case(
-                "T",
-                steps,
-                [
-                    {
-                        "step": 2,
-                        "source": "response",
-                        "path": "case_ref",
-                        "op": "same_as",
-                        "value": {"step": 1, "path": "case_ref"},
-                    }
-                ],
-            )
-        )
+        self.write_cases({"name": "T", "x_dubakwi": {"id": "T", "steps": steps}})
         summary, _ = self.run_tool()
-        self.assertEqual(FakeWebhook.received[1]["case_ref"], "case-77")
+        self.assertEqual(self.webhook_calls()[1]["case_ref"], "case-77")
         self.assertEqual(summary["cases"][0]["status"], "pass")
 
-    def test_fault_precondition_and_operator_cases_are_blocked_and_not_sent(self):
-        faulty = self.simple_case() | {"id": "F", "fault": {"target": "llm"}}
-        pre = self.simple_case() | {"id": "P", "precondition": "prepare"}
-        op = self.simple_case() | {"id": "O", "steps": [{"step": 1, "action": "operator"}]}
-        self.write_cases(faulty, pre, op)
+    def test_same_as_across_cases_compares_earlier_case_response(self):
+        tickets = iter(
+            [
+                {"ticket_id": "T-1", "priority": "normal", "duplicate": False},
+                {"ticket_id": "T-1", "priority": "normal", "duplicate": True},
+            ]
+        )
+        FakeServer.reply = lambda r: (200, ok_body(r, route="담당자 이관", ticket=next(tickets)))
+        first = flow_case("D 1/2", req("d"), {"status": 200})
+        second = flow_case(
+            "D 2/2",
+            req("d"),
+            {"status": 200, "equals": {"ticket.duplicate": True}},
+            **{
+                "assert": [
+                    {
+                        "path": "ticket",
+                        "op": "same_as",
+                        "value": {"case": "D 1/2", "path": "ticket"},
+                    }
+                ]
+            },
+        )
+        self.write_cases(first, second)
         summary, _ = self.run_tool()
-        self.assertEqual([c["status"] for c in summary["cases"]], ["blocked"] * 3)
-        self.assertEqual(FakeWebhook.received, [])
+        self.assertEqual(summary["cases"][1]["status"], "fail")
+        failed = [c["kind"] for c in summary["cases"][1]["checks"] if not c["passed"]]
+        self.assertEqual(failed, ["x:same_as"])
+
+    def test_requires_operator_manual_fault_and_disabled_hooks_are_blocked(self):
+        hooked = self.simple(
+            "H", before=[{"url": "http://localhost:8800/admin/fault", "body": {"tickets": "error"}}]
+        )
+        self.write_cases(
+            self.simple("R", requires="R04 switch"),
+            {"name": "O", "x_dubakwi": {"id": "O", "steps": []}},
+            self.simple("M", manual_fault={"before": "llm down", "after": "llm up"}),
+            hooked,
+        )
+        summary, _ = self.run_tool("--no-hooks")
+        self.assertEqual([c["status"] for c in summary["cases"]], ["blocked"] * 4)
+        self.assertEqual(FakeServer.calls, [])
+
+    def test_manual_fault_ready_sends_case(self):
+        self.write_cases(self.simple("M", manual_fault={"before": "llm down", "after": "llm up"}))
+        summary, _ = self.run_tool("--manual-fault-ready")
+        self.assertEqual(summary["cases"][0]["status"], "pass")
+
+    def test_hooks_run_in_order_and_after_always_runs(self):
+        fault_on = {"url": "http://localhost:8800/admin/fault", "body": {"tickets": "error"}}
+        fault_off = {"url": "http://localhost:8800/admin/fault", "body": {"tickets": "ok"}}
+        FakeServer.reply = lambda r: (500, ok_body(r))
+        reset = [{"url": "http://localhost:8800/tickets-reset", "body": {}}]
+        self.write_cases(self.simple("H", before=[fault_on], after=[fault_off]), before=reset)
+        summary, _ = self.run_tool()
+        paths = [(p, b) for p, b in FakeServer.calls]
+        self.assertEqual(paths[0], ("/tickets-reset", {}))
+        self.assertEqual(paths[1], ("/admin/fault", {"tickets": "error"}))
+        self.assertTrue(paths[2][0].startswith("/webhook/"))
+        self.assertEqual(paths[3], ("/admin/fault", {"tickets": "ok"}))
+        self.assertEqual(summary["cases"][0]["status"], "fail")
+        self.assertTrue(summary["cases"][0]["hooks"]["after"][0]["ok"])
 
     def test_public_summary_hides_answer_url_and_token_raw_keeps_detail(self):
         os.environ["UNIT_TOKEN"] = TOKEN
         self.addCleanup(os.environ.pop, "UNIT_TOKEN")
-        self.write_cases(self.simple_case())
-        summary, path = self.run_tool(
-            "--auth-header", "X-Dubakwi-Auth", "--auth-token-env", "UNIT_TOKEN"
-        )
+        self.write_cases(self.simple())
+        summary, path = self.run_tool("--auth-token-env", "UNIT_TOKEN")
         public_text = path.read_text(encoding="utf-8")
         raw_text = (self.base / "runs" / summary["run_id"] / "raw.json").read_text(encoding="utf-8")
-        self.assertEqual(FakeWebhook.headers_seen[0]["X-Dubakwi-Auth"], TOKEN)
-        for hidden in [TOKEN, "SECRET-ANSWER-TEXT", self.url]:
+        self.assertEqual(FakeServer.headers_seen[0]["X-Team-Key"], TOKEN)
+        self.assertTrue(summary["auth_header_sent"])
+        for hidden in [TOKEN, "SECRET-ANSWER-TEXT", self.base_url]:
             self.assertNotIn(hidden, public_text)
         self.assertNotIn(TOKEN, raw_text)
         self.assertIn("SECRET-ANSWER-TEXT", raw_text)
 
-    def test_missing_token_env_stops_before_sending(self):
-        self.write_cases(self.simple_case())
+    def test_auth_required_without_token_stops_before_sending(self):
+        self.write_cases(self.simple())
         with self.assertRaisesRegex(ValueError, "NOT_SET_TOKEN"):
-            self.run_tool("--auth-header", "X-A", "--auth-token-env", "NOT_SET_TOKEN")
-        self.assertEqual(FakeWebhook.received, [])
+            self.run_tool("--auth-token-env", "NOT_SET_TOKEN", "--auth-required")
+        self.assertEqual(FakeServer.calls, [])
 
     def test_contact_pattern_in_response_fails_global_check(self):
-        FakeWebhook.reply = lambda r: (200, ok_body(r, answer="연락처 010-1234-5678"))
-        self.write_cases(self.simple_case())
+        FakeServer.reply = lambda r: (200, ok_body(r, answer="연락처 010-1234-5678"))
+        self.write_cases(self.simple())
         summary, _ = self.run_tool()
         self.assertEqual(summary["cases"][0]["status"], "fail")
         g03 = [g for g in summary["cases"][0]["global_checks"] if g["id"] == "G03"]
         self.assertFalse(g03[0]["passed"])
 
-    def test_existing_run_directory_gets_suffix_and_is_not_overwritten(self):
-        self.write_cases(self.simple_case())
+    def test_existing_run_directory_gets_suffix(self):
+        self.write_cases(self.simple())
         first, _ = self.run_tool()
         second, _ = self.run_tool()
         self.assertEqual(second["run_id"], first["run_id"] + "-2")
         self.assertTrue((self.base / "runs/public" / first["run_id"] / "summary.json").exists())
 
     def test_too_long_request_id_is_rejected(self):
-        req = {"request_id": "x" * 40, "user": "citizen-a", "question": "q", "attempt": 1}
-        self.write_cases(case("L", [{"step": 1, "request": req}], []))
+        self.write_cases(flow_case("L", req("x" * 40), {"status": 200}))
         with self.assertRaisesRegex(ValueError, "longer than 64"):
             self.run_tool()
 
     def test_invalid_env_label_is_rejected(self):
-        self.write_cases(self.simple_case())
+        self.write_cases(self.simple())
         args = RUN.parse_args(
-            [
-                "--url",
-                self.url,
-                "--env",
-                "VM/1",
-                "--desc",
-                "x",
-                "--path",
-                "mock",
-                "--cases-file",
-                "cases/test.json",
-            ]
+            ["--env", "VM/1", "--desc", "x", "--path", "mock", "--cases-file", "cases/test.json"]
         )
         with self.assertRaises(ValueError):
             RUN.execute(args, base=self.base, now=NOW)
 
     def test_repository_cases_dry_run_resolves_without_sending_or_writing(self):
         args = RUN.parse_args(
-            ["--url", self.url, "--env", "local", "--desc", "dry", "--path", "mock", "--dry-run"]
+            [
+                "--base-url",
+                self.base_url,
+                "--env",
+                "local",
+                "--desc",
+                "dry",
+                "--path",
+                "mock",
+                "--dry-run",
+            ]
         )
         summary, path = RUN.execute(args, base=ROOT, now=NOW)
         self.assertIsNone(path)
-        self.assertEqual(FakeWebhook.received, [])
+        self.assertEqual(FakeServer.calls, [])
         self.assertFalse((ROOT / "runs/public" / summary["run_id"]).exists())
-        statuses = {c["id"]: c["status"] for c in summary["cases"]}
-        self.assertEqual(statuses["WF08"], "dry_run")
-        self.assertEqual(statuses["WF04"], "blocked")
-        wf13 = next(c for c in summary["cases"] if c["id"] == "WF13")
-        self.assertEqual(len(wf13["requests"][3]["question"]), 501)
+        by_id = {c["id"]: c for c in summary["cases"]}
+        self.assertEqual(by_id["WF08"]["status"], "dry_run")
+        self.assertEqual(by_id["WF04"]["status"], "dry_run")
+        self.assertEqual(by_id["WF10"]["status"], "blocked")
+        self.assertEqual(by_id["TC05"]["status"], "blocked")
+        self.assertEqual(len(by_id["WF13c"]["requests"][1]["question"]), 501)
+        self.assertEqual(len(by_id["TC09c"]["requests"][1]["question"]), 500)
+
+
+class CaseFileTests(unittest.TestCase):
+    """Repository case files keep the flow.py shape and the 14 shared types."""
+
+    def load(self, name):
+        return json.loads((ROOT / name).read_text(encoding="utf-8"))
+
+    def test_common_cases_cover_14_types_with_flow_fields(self):
+        data = self.load("cases/common.json")
+        self.assertEqual(data["webhook"], "dubakwi-support")
+        names = [c["name"] for c in data["cases"]]
+        for wf in [
+            "01",
+            "02",
+            "02b",
+            "03",
+            "04",
+            "05",
+            "06",
+            "07",
+            "08",
+            "09",
+            "10",
+            "11",
+            "12",
+            "13",
+        ]:
+            self.assertTrue(any(n.startswith(f"WF-{wf} ") for n in names), wf)
+        for case in data["cases"]:
+            with self.subTest(case=case["name"]):
+                self.assertIn("body", case)
+                self.assertIn("status", case["expect"])
+
+    def test_fault_cases_switch_fault_off_after(self):
+        data = self.load("cases/common.json")
+        for case in data["cases"]:
+            if case.get("before"):
+                with self.subTest(case=case["name"]):
+                    self.assertTrue(case.get("after"))
+
+    def test_team_cases_are_single_send_flow_cases(self):
+        data = self.load("cases/team.json")
+        self.assertGreaterEqual(len({c["x_dubakwi"]["id"].rstrip("abc") for c in data["cases"]}), 5)
+        for case in data["cases"]:
+            with self.subTest(case=case["name"]):
+                self.assertIn("body", case)
+                self.assertNotIn("steps", case["x_dubakwi"])
+                self.assertNotIn("requires", case["x_dubakwi"])
 
 
 class CheckOpTests(unittest.TestCase):
@@ -316,7 +414,7 @@ class CheckOpTests(unittest.TestCase):
             ("len_eq", "sources", 0, False),
             ("gte", "security.masked", 1, True),
             ("contains_any", "sources[*].doc", ["rental-guide"], True),
-            ("not_contains", "sources[*].doc", "restricted:", True),
+            ("not_contains", "sources[*].doc", "restricted", True),
             ("not_contains", "$", "자동", False),
             ("exists", "route", None, True),
             ("ne_value", "route", "차단", True),
@@ -324,6 +422,13 @@ class CheckOpTests(unittest.TestCase):
         for op, path, value, want in cases:
             with self.subTest(op=op, path=path):
                 self.assertEqual(RUN.check(op, RUN.resolve(body, path), value), want)
+
+    def test_flow_contains(self):
+        self.assertTrue(RUN.flow_contains([{"doc": "a"}], "a"))
+        self.assertTrue(RUN.flow_contains(["invalid_input"], "invalid_input"))
+        self.assertTrue(RUN.flow_contains("010-0000-1234", "010-0000-"))
+        self.assertFalse(RUN.flow_contains([{"doc": "ab"}], "a"))
+        self.assertFalse(RUN.flow_contains(RUN.MISSING, "a"))
 
 
 if __name__ == "__main__":
