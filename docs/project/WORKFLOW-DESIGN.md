@@ -480,7 +480,7 @@ B28은 먼저 error_code=null && state_saved=true && 최신 state_ref를 확인�
 
 | 노드 | 구현 | 설계와 다른 점·미확정 |
 | --- | --- | --- |
-| B01 문의 수신 | Webhook POST `dubakwi-support`, Header Auth, responseNode | Credential 이름 `dubakwi-team-key`만 넣고 ID·값은 넣지 않음. VM에서 연결. 경로는 과정 공통 계약(`team2-support`)과 다름, R01 확인 필요 |
+| B01 문의 수신 | Webhook POST `dubakwi-support`, Header Auth, responseNode | Credential 이름 `dubakwi-team-key`만 넣고 ID·값은 넣지 않음. VM에서 연결. 경로는 팀 헌장의 `POST /webhook/dubakwi-support`를 유지 |
 | B02 입력 검사 | 본문 객체, request_id/user 1~64자, question trim 1~500자, attempt 정수≥1, channel/context/case_ref 문자열 검사. 명백한 주입 정규식 차단(question+context) | codes 이름(`question_empty`, `question_too_long` 등)은 R02 초안. 과정 WF-13 판정 codes와 대조 필요(R05). 주입 패턴은 초기 목록. 타인 기록 요청은 권한 문제라 여기서 막지 않음 |
 | B03 입력 통과 | If input_ok. false → B33(E087) | 없음 |
 | B04 사용자 확인 | GET `http://localhost:8800/employees/<user>`, full response·neverError·timeout 1.5초 | 주소는 과정 data-api 기준이며 실호출 전. 시민 사용자 공급(R04 P09) 형식은 6.4.1 제안 기준으로 R04 확인 필요 |

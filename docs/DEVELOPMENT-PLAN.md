@@ -180,7 +180,7 @@ flowchart LR
 | [ ] | P08 | `knowledge/public/*.md·restricted/*.md·manifest.json`: 공개 안내6개+제한 모의 정책2개 제안, 각 문서 ##절3개 이상. 출처·확인일·적용 범위·권한·가상 정책 구분 | R03 / R04·R05 | P05 초안·D04 지식/권한 초안 | 진행 | [PR #2](https://github.com/ik-e/dubakwi-ttareungi-support/pull/2): 검토 전 초안6개 작성. 승인·knowledge 이관·manifest·제한 정책2개·색인/검색 검증 미완료. 조사 원문 전체 색인·제한 정책 노출 금지 | 2026-11-03 |
 | [ ] | P09 | `data/users.json`·`data/records.json`: 모의 사용자 5명 이상·서로 다른 소유자의 기록 4건 이상, API 공급 방식·권한 확인 | ④ / ③⑤ | P05 초안 | 대기 | 모의 서비스 데이터 없음 | 2026-11-02 |
 | [ ] | P10 | `workflows/dubakwi-index.json`·`docs/project/RAG-ARCHITECTURE.md` 1~2절: 색인 실행·권한 메타데이터·청크 분포 측정 | ③ / ⑤ | P08 | 진행 | [RAG v0.6](project/RAG-ARCHITECTURE.md) 1~2절 초안과 기존 색인 명세 이관. 지식 파일·색인 실행·청크 측정은 미완료 | 2026-11-03 |
-| [ ] | P11 | `workflows/dubakwi-support.json` 골격: Header Auth·입력 검사·주입 차단·공통 응답. WF-08의 LLM 호출 0·WF-13의 400 확인 | ② / ④⑤ | P04 환경/규칙 초안(최종 배포 완료 불필요)·P05·P06 초안 | 진행 | `tk` 브랜치에 [골격 JSON](../workflows/dubakwi-support.json) 작성(B01~B06·B33·B35·B36, B07~B32는 mock). [로컬 Code 시험 36/36](../runs/public/20261104-090407-local-p11-skeleton/summary.json) ([보완 전 8/36](../runs/public/20261104-090315-local-p11-before-fix/summary.json)). n8n 가져오기·VM·WF-08/13 공식 판정 미실행. 웹훅 경로·codes·B05 권한 조합·user_lookup_error는 R04·R05 검토 필요([설계 4.5절](project/WORKFLOW-DESIGN.md#45-p11-골격-구현-상태)) | 2026-11-04 |
+| [ ] | P11 | `workflows/dubakwi-support.json` 골격: Header Auth·입력 검사·주입 차단·공통 응답. WF-08의 LLM 호출 0·WF-13의 400 확인 | ② / ④⑤ | P04 환경/규칙 초안(최종 배포 완료 불필요)·P05·P06 초안 | 진행 | `tk` 브랜치에 [골격 JSON](../workflows/dubakwi-support.json) 작성(B01~B06·B33·B35·B36, B07~B32는 mock). [로컬 Code 시험 36/36](../runs/public/20261104-090407-local-p11-skeleton/summary.json) ([보완 전 8/36](../runs/public/20261104-090315-local-p11-before-fix/summary.json)). n8n 가져오기·VM·WF-08/13 공식 판정 미실행. 웹훅 경로는 `dubakwi-support` 유지. codes·B05 권한 조합·user_lookup_error는 R04·R05 검토 필요([설계 4.5절](project/WORKFLOW-DESIGN.md#45-p11-골격-구현-상태)) | 2026-11-04 |
 | [ ] | P12 | `workflows/dubakwi-handoff.json`·`dubakwi-state.json` 기본: Jira 조회/생성·종료·알림과 begin/prepare/bind/save/finish 고정 계약의 작은 연결 검증. 생성 ID 즉시 저장·최종 저장 확인 | R04 / R02·R05 | P09·P05 계약·D01/D03 해당 연결 확인 | 대기 | Jira/물리 저장 실제 지원 확인 전. R01 환경 준비·R05 계약/기대값 지원. DLQ 계약과 D07 Discord 앱/SDK·defer/사용자 매핑 준비도 병행 | 2026-11-03 |
 | [ ] | P13 | `runs/public/<실행묶음ID>/summary.json`: R01 첫 VM 배포, R05 입력/차단 공통 회귀·WF-08/13 증거. 모의 기능과 실제 연결을 보고서에 구분 | R05·R01 / R02·R04 | P11·P06 해당 사례·P04 compose/VM 준비; P12 미완료도 입구 시험 가능 | 대기 | 첫 배포를 전체 연동 완료로 표시하지 않음. 실제 종단 연결은 P19/P22에서 확인 | 2026-11-03 |
 | [ ] | P14 | `docs/project/daily/DAY80.md`: 당일 작업 번호·통과 수·보고서·발표① 피드백·다음 목표 | ① / 전원 | P13/P10의 당일 진행·실패·미완료 증거(완료 대기 불필요) | 대기 | 당일 기록 예정 | 2026-11-02 |
@@ -310,6 +310,7 @@ P29는 같은 발표 파일의 틀·초안·최종 편집 및 연습 단계를 �
 
 | 날짜 | 내용 |
 | --- | --- |
+| 2026-11-04 | R01 협의로 웹훅 경로 `dubakwi-support` 유지. `team2-support` 고정 요구는 확인되지 않아 경로 결정 필요 표시 정리 |
 | 2026-11-04 | P11 보완: B05 사용자 응답 구조·ID·권한 조합 검증과 user_lookup_error 제안(R04·R05 검토 대기), mock 문구 수정, 최신 main 병합, 워크플로우 v0.14 참조 동기화, 로컬 Code 시험 증거 추가. n8n·VM·WF-08/13 공식 시험 미실행 |
 | 2026-11-03 | 사용자 결정으로 팀 이름 두바퀴 확정. dubakwi 파일/웹훅/색인 접두사와 현재 문서 버전·착수 안내 동기화. 실제 역할/환경·원격은 미확정 |
 | 2026-11-03 | 팀 공유 전 점검: 첫 실행/PR·가린 runs/public/데일리/발표 메모 공유, 보완 횟수/재전송 계약, D05/데일리의 부분 인계·버전 참조 보완. 도구 검사와 서비스 실행 구분 |
