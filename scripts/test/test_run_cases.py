@@ -9,6 +9,7 @@ import unittest
 from datetime import datetime
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
+from unittest import mock
 
 ROOT = Path(__file__).resolve().parents[2]
 SPEC = importlib.util.spec_from_file_location("run_cases", ROOT / "scripts/test/run_cases.py")
@@ -292,6 +293,24 @@ class RunnerTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "NOT_SET_TOKEN"):
             self.run_tool("--auth-token-env", "NOT_SET_TOKEN", "--auth-required")
         self.assertEqual(FakeServer.calls, [])
+
+    def test_default_token_env_prefers_flow_key_then_env_example_name(self):
+        self.write_cases(self.simple())
+        cleared = {name: "" for name in RUN.DEFAULT_TOKEN_ENVS}
+        with mock.patch.dict(os.environ, cleared | {"DUBAKWI_WEBHOOK_TOKEN": TOKEN}):
+            summary, _ = self.run_tool()
+        self.assertEqual(summary["auth_token_env"], "DUBAKWI_WEBHOOK_TOKEN")
+        self.assertEqual(FakeServer.headers_seen[-1]["X-Team-Key"], TOKEN)
+        both = {"FLOW_WEBHOOK_KEY": "flow-key-not-real", "DUBAKWI_WEBHOOK_TOKEN": TOKEN}
+        with mock.patch.dict(os.environ, both):
+            summary, _ = self.run_tool()
+        self.assertEqual(summary["auth_token_env"], "FLOW_WEBHOOK_KEY")
+        self.assertEqual(FakeServer.headers_seen[-1]["X-Team-Key"], "flow-key-not-real")
+        with (
+            mock.patch.dict(os.environ, cleared),
+            self.assertRaisesRegex(ValueError, "FLOW_WEBHOOK_KEY or DUBAKWI_WEBHOOK_TOKEN"),
+        ):
+            self.run_tool("--auth-required")
 
     def test_contact_pattern_in_response_fails_global_check(self):
         FakeServer.reply = lambda r: (200, ok_body(r, answer="연락처 010-1234-5678"))

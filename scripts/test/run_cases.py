@@ -27,6 +27,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_CASE_FILES = ["cases/common.json", "cases/team.json", "cases/team-extended.json"]
 DEFAULT_DATA_API = "http://localhost:8800"
+DEFAULT_TOKEN_ENVS = ["FLOW_WEBHOOK_KEY", "DUBAKWI_WEBHOOK_TOKEN"]
 KST = timezone(timedelta(hours=9))
 ROUTES = {"자동 답변", "보완 질문", "담당자 이관", "권한 없음", "차단"}
 HANDOFF = "담당자 이관"
@@ -492,11 +493,13 @@ def execute(args, base=ROOT, now=None):
     files = args.cases_file or DEFAULT_CASE_FILES
     loaded = load_cases(base, files, args.case)
     run_id = make_run_id(args.env, args.desc, now, base)
-    headers, token = {}, os.environ.get(args.auth_token_env)
-    if token:
-        headers[args.auth_header] = token
+    headers = {}
+    names = [args.auth_token_env] if args.auth_token_env else DEFAULT_TOKEN_ENVS
+    token_env = next((n for n in names if os.environ.get(n)), None)
+    if token_env:
+        headers[args.auth_header] = os.environ[token_env]
     elif args.auth_required:
-        raise ValueError(f"environment variable {args.auth_token_env} is not set")
+        raise ValueError(f"environment variable {' or '.join(names)} is not set")
 
     ctx = {
         "opts": args,
@@ -529,6 +532,7 @@ def execute(args, base=ROOT, now=None):
         "runner": "scripts/test/run_cases.py (not the kit flow.py)",
         "path": args.path,
         "auth_header_sent": bool(headers),
+        "auth_token_env": token_env,
         "versions": {
             "git": git_info(base),
             "workflow": args.workflow_version,
@@ -588,8 +592,9 @@ def parse_args(argv):
     p.add_argument("--auth-header", default="X-Team-Key", help="webhook Header Auth name")
     p.add_argument(
         "--auth-token-env",
-        default="FLOW_WEBHOOK_KEY",
-        help="environment variable holding the header value (same as flow.py)",
+        default=None,
+        help="environment variable holding the header value "
+        "(default: FLOW_WEBHOOK_KEY as in flow.py, then DUBAKWI_WEBHOOK_TOKEN from .env.example)",
     )
     p.add_argument(
         "--auth-required", action="store_true", help="stop if the token variable is not set"
