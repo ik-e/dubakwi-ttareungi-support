@@ -1,0 +1,31 @@
+{
+  "name": "dubakwi-errors · P20 fail-closed skeleton",
+  "nodes": [
+    {
+      "name": "E01 예상 밖 오류 수신",
+      "type": "n8n-nodes-base.errorTrigger",
+      "typeVersion": 1,
+      "parameters": {},
+      "position": [0, 0]
+    },
+    {
+      "name": "E02 오류 가림과 안전 차단",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "parameters": {
+        "jsCode": "// P20 로컬 골격: WORKFLOW-DESIGN 6.1과 7절의 예상 밖 오류를 가린 ErrorCtx로 정규화한다.\n// 원 오류 메시지·stack·URL·입력·Credential은 출력하지 않고, DLQ/알림 드라이버 연결 전에는 외부 호출하지 않는다.\nconst input = $json;\nconst isObj = (v) => v !== null && typeof v === 'object' && !Array.isArray(v);\nconst safeLabel = (value, fallback) => {\n  if (typeof value !== 'string') return fallback;\n  const cleaned = value.replace(/[\\u0000-\\u001f\\u007f]/g, ' ').replace(/\\s+/g, ' ').trim();\n  return cleaned.length > 0 ? cleaned.slice(0, 128) : fallback;\n};\n\nconst execution = isObj(input) && isObj(input.execution) ? input.execution : {};\nconst workflow = isObj(input) && isObj(input.workflow) ? input.workflow : {};\nconst nodeFromError = isObj(execution.error) && isObj(execution.error.node) ? execution.error.node.name : null;\nconst failedNode = safeLabel(execution.lastNodeExecuted ?? nodeFromError, 'unknown');\nconst hasExecutionRef = typeof execution.id === 'string' && execution.id.trim().length > 0;\nconst hasWorkflowRef = (typeof workflow.id === 'string' && workflow.id.trim().length > 0) || (typeof workflow.name === 'string' && workflow.name.trim().length > 0);\nconst canRecord = hasExecutionRef && hasWorkflowRef && failedNode !== 'unknown';\n\nreturn [{ json: {\n  state_ref: null,\n  recovery: {\n    version: 1,\n    mode: 'manual_required',\n    action: 'inspect_only',\n    args: null,\n    reference: null,\n    reason: canRecord ? '예상 밖 중단: 원 실행과 외부 효과를 운영자가 확인해야 함' : '실행 참조 부족: 자동 복구 금지'\n  },\n  ctx: null,\n  failed_node_id: failedNode,\n  error_code: 'workflow_runtime_error',\n  known_ticket_id: null,\n  effect: canRecord ? 'unknown' : 'none',\n  effect_plan: canRecord ? 'dlq_alert' : 'none'\n} }];"
+      },
+      "position": [300, 0]
+    }
+  ],
+  "connections": {
+    "E01 예상 밖 오류 수신": {
+      "main": [[{"node": "E02 오류 가림과 안전 차단", "type": "main", "index": 0}]]
+    }
+  },
+  "active": false,
+  "settings": {"executionOrder": "v1"},
+  "pinData": {},
+  "meta": {"templateCredsSetupCompleted": false},
+  "tags": []
+}
