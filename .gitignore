@@ -25,6 +25,7 @@
 !/docs/TEAM-START.md
 !/docs/rag-knowledge/
 !/docs/rag-knowledge/*.md
+!/docs/rag-knowledge/chatbot-original.html
 !/docs/project/
 /docs/project/*
 !/docs/project/README.md
