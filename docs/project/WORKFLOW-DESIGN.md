@@ -397,6 +397,7 @@ R03이 승인된 지식을 검색 가능한 상태로 준비한다. 색인·메�
 {"grounded":true|false,"policy_ok":true|false,"issues":["문제 설명"]}
 - 표시가 해당 근거의 표시와 다르면 grounded=false다. [실제 안내]가 붙어 있어도 문장 내용이 evidence에 없으면 grounded=false다.
 - "항상", "어떤 경우에도", "반드시" 같은 단정이나 안전 보장이 evidence에 없으면 grounded=false이고 policy_ok=false다.
+- 요약·말 바꿈·일부 생략은 문제가 아니다. evidence의 일부만 옮겼거나 번호를 빼고 "고객센터"로만 적은 것은 grounded=true다. 근거에 없는 사실이 추가된 경우만 false다.
 - answer를 문장별로 나눠 각 문장을 evidence와 대조한다. 내용이 evidence에 없는 문장이 하나라도 있으면 grounded=false다.
 - 연락처·번호·기간·금액·해결 방법이 evidence에 없으면 grounded=false다. 일반 상식이어도 evidence에 없으면 통과시키지 않는다.
 - grounded: answer의 모든 주장이 인용한 chunk의 text로 뒷받침되면 true.
@@ -499,7 +500,7 @@ B28은 먼저 error_code=null && state_saved=true && 최신 state_ref를 확인�
 | --- | --- | --- |
 | 저장 호출 | B07a·B37a·B32a·X06a·X03a Set 노드로 고정 명령만 만들어 하위 워크플로우에 전달 | 설계표에 없는 내부 노드. `input_hash`는 B07a에서 SHA-256으로 계산 |
 | 하위 ID | `dubakwi-state`=`dubakwiState01`, `dubakwi-dlq`=`dubakwiDlq0001` | R04 구현 ID와 맞추거나 R01 배포 때 교체 필요 |
-| 내부 호출 | B14·B15·B27은 `dubakwi-internal-key` Header Auth(`X-Internal-Key`)로 `localhost:5678/webhook/dubakwi-search`·`dubakwi-handoff` 호출 | 검색 경로·헤더·응답 필드는 R03 확인(2026-11-04), 실제 `dubakwi-search` 구현 전. handoff는 R04 확인 필요 |
+| 내부 호출 | B14·B15·B27은 `dubakwi-internal-key` Header Auth(`X-Internal-Key`)로 `127.0.0.1:5678/webhook/dubakwi-search`·`dubakwi-handoff` 호출 | 검색 경로·헤더·응답 필드는 R03 확인(2026-11-04), 로컬 연결 확인. handoff는 R04 확인 필요 |
 | 근거 표시 | R03 기본안에 따라 시민 답변에 `[실제 안내]`·`[가상 설정]`을 보존. Evidence.text 앞 표시를 쓰고 전용 필드는 추가하지 않음. B21이 인용 근거와 답변의 표시 일치를 검사 | 표시 없는 근거에는 요구하지 않음 |
 | scope | `dubakwi-dev` 고정 | R01 환경 설정 값으로 교체 필요 |
 | LLM Credential | 과정 공통 ID `openAiCourse0001` 사용 | 이름만으로는 로컬 n8n에서 권한 오류가 나서 ID를 넣음. 비밀값은 없음 |
@@ -513,6 +514,10 @@ R05 PR #13 문장 대조(2026-11-04): 실제 모델·mock 하위 기능으로 �
 품질·시간 보강(2026-11-04): 승인 전 지식을 쓰는 시험용 검색(`build_knowledge_search_mock.py`)으로 R05 사례를 3회 실행해 [WF-05 외 모두 통과](../../runs/public/20261104-150036-local-n8n-p19-r05-final2/summary.json)했다. L03은 일부러 넣은 근거 밖 문장 5종을 [수정 전 2종](../../runs/public/20261104-144342-local-n8n-p19-l03-before/summary.json)에서 [수정 후 5종 모두 거절](../../runs/public/20261104-144531-local-n8n-p19-l03-after/summary.json)했다. B21은 없는 조치 주장과 인용 근거에 없는 번호를 Code로도 거절한다. 조정에 쓰지 않은 새 문장은 [첫 묶음 40/54](../../runs/public/20261104-144726-local-n8n-p19-holdout/summary.json), 규칙 보강 뒤 [다른 새 묶음 30/36](../../runs/public/20261104-145044-local-n8n-p19-holdout2-new/summary.json)이다. 남은 실패는 문의 분류의 흔들림과 시험용 검색의 한계이며 추가 조정 없이 기록한다. B11·B17은 `deadline_at`을 검사해 `deadline_exceeded`로 이관하고 LLM 모델은 8초·재시도 1회로 제한했다. [조회 8초 지연은 2.7초에 이관](../../runs/public/20261104-145844-local-n8n-p19-time-regression/summary.json)했고 [잘못된 모델 사본은 HTTP 200 이관](../../runs/public/20261104-150028-local-n8n-p19-llm-down/summary.json)을 확인했다. 시간 값은 D05 실측 전 초기값이다. 로컬 Code [107/107](../../runs/public/20261104-150355-local-p19-flow-quality/summary.json).
 
 근거 표시 반영(2026-11-04): R03 기본안에 따라 시민 답변에 표시를 보존했다. [R05 사례 3회](../../runs/public/20261104-154004-local-n8n-p19-labels-r05/summary.json)는 WF-05 외 통과이며, TC09c 1회는 LLM 8초 제한으로 `llm_down` 이관 후 재시도 없이 기록했다(응답 11.0초). L03은 표시 추가 직후 [단정 문장 1종을 통과](../../runs/public/20261104-154449-local-n8n-p19-labels-l03-first/summary.json)시켜 고쳤고 [수정 후 5종 모두 거절](../../runs/public/20261104-153724-local-n8n-p19-labels-l03/summary.json)했다. 표시 없는 시험 근거에서 [회귀 17/19](../../runs/public/20261104-153857-local-n8n-p19-labels-regression/summary.json)가 나와 mock을 합의 형식으로 고친 뒤 [19/19](../../runs/public/20261104-154307-local-n8n-p19-labels-regression-fixed/summary.json)를 확인했다. 표시 없는 근거에 모델이 표시를 붙이면 이관되므로 R03 결과는 표시를 포함해야 한다. 로컬 Code [111/111](../../runs/public/20261104-154449-local-p19-flow-labels/summary.json).
+
+R03 검색 연결(2026-11-04): R03 `25a178a`의 `dubakwi-search`와 색인을 로컬 n8n 2.42.6에 올려 전체 흐름으로 호출했다. state·handoff·dlq는 mock, 색인은 Webhook 트리거 사본, 사용자는 과정 data-api 직원이다. 수정 전 [1차](../../runs/public/20261104-162058-local-n8n-p19-r03-search-first/summary.json)·[2차](../../runs/public/20261104-162058-local-n8n-p19-r03-search-first-second/summary.json) 실패를 거쳐 R05 사례 3회가 [모두 통과](../../runs/public/20261104-161508-local-n8n-p19-r03-search-r05/summary.json)했고 제한 문서와 canary는 응답에 없었다. [근거 밖 문장 5종 거절](../../runs/public/20261104-161649-local-n8n-p19-r03-search-l03/summary.json), [회귀](../../runs/public/20261104-161956-local-n8n-p19-r03-regression/summary.json), [로컬 Code 115개](../../runs/public/20261104-162058-local-p19-flow-r03/summary.json)를 확인했다. 시민의 내부 자료 요청은 B11이 `restricted_access`로 검색 없이 거절하고, 긴급 검색어는 초동 안내를 우선한다. 내부 호출 주소는 `127.0.0.1:5678`이며 VM에서 R01이 확인한다.
+
+Credential 주의: 이름만 있는 Header Auth를 가져오면 n8n이 같은 종류의 다른 Credential에 연결하는 것을 로컬에서 확인했다(B14가 `dubakwi-team-key`로 연결되어 403). 가져온 뒤 B01·B14·B15·B27의 연결을 확인해야 한다. 78일차 `flow.py check`는 코스 Credential ID가 아닌 B01을 오류로 거절하므로 80일차 도구 확인이 필요하다.
 
 남은 한계: 실제 search·state·handoff·dlq·Jira, VM, R05 실행 도구, 공통 WF 공식 판정은 미실행이다. 동시 실행 중복은 mock에서 검증하지 않았다. B27 8초 제한은 티켓 API까지 느려지면 WF-11 6초를 넘을 수 있어 R04와 정해야 한다. 지식은 승인 전이고 시험용 검색은 실제 벡터 검색이 아니므로 답변 품질은 R03 구현 뒤 다시 평가한다.
 
