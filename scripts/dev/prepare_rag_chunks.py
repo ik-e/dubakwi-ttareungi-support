@@ -57,7 +57,11 @@ def prepare(root, manifest, *, allow_demo=False):
                 else:
                     kind = "actual_guidance"
                 # A mixed paragraph cannot be safely attributed to one category.
-                if "**가상" in paragraph and not paragraph.lstrip().startswith("**가상"):
+                if (
+                    access == "public"
+                    and "**가상" in paragraph
+                    and not paragraph.lstrip().startswith("**가상")
+                ):
                     actual, virtual = paragraph.split("**가상", 1)
                     parts = [
                         ("actual_guidance", actual.strip()),
@@ -72,21 +76,23 @@ def prepare(root, manifest, *, allow_demo=False):
                         f"{doc_id}\n{section}\n{part_kind}\n{text}".encode()
                     ).hexdigest()[:16]
                     label = "[가상 설정]" if part_kind == "simulation" else "[실제 안내]"
-                    chunks.append(
-                        {
-                            "doc": doc_id,
-                            "title": title,
-                            "section": section,
-                            "chunk_id": f"{doc_id}-{digest}",
-                            "access_level": access,
-                            "type": part_kind,
-                            "text": f"{label} {text}",
-                            "source": citation,
-                            "source_checked_at": doc["source_checked_at"],
-                            "version": doc["version"],
-                            "demo": allow_demo,
-                        }
-                    )
+                    chunk = {
+                        "doc": doc_id,
+                        "title": title,
+                        "section": section,
+                        "chunk_id": f"{doc_id}-{digest}",
+                        "access_level": access,
+                        "type": part_kind,
+                        "text": f"{label} {text}",
+                        "source": citation,
+                        "source_checked_at": doc["source_checked_at"],
+                        "version": doc["version"],
+                        "demo": allow_demo,
+                    }
+                    urls = re.findall(r"\]\((https?://[^\s)]+)\)", citation)
+                    if urls:
+                        chunk["source_url"] = urls[0]
+                    chunks.append(chunk)
     if not chunks:
         raise ValueError("no chunks produced")
     return chunks

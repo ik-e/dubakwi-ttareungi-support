@@ -72,6 +72,31 @@ class PrepareChunksTest(unittest.TestCase):
         chunks = MODULE.prepare(self.root, self.manifest, allow_demo=True)
         self.assertEqual(chunks[0]["type"], "simulation")
 
+    def test_restricted_mixed_paragraph_stays_simulated(self):
+        path = self.root / "knowledge/restricted/example.md"
+        path.parent.mkdir(parents=True)
+        path.write_text(
+            "# Example\n\n## Policy\n\nIntro. **가상 설정:** test.\n",
+            encoding="utf-8",
+        )
+        self.entry["path"] = "knowledge/restricted/example.md"
+        self.entry["access_level"] = "restricted"
+        self.entry["sha256"] = hashlib.sha256(MODULE.normalize(path.read_bytes())).hexdigest()
+        self.write_manifest()
+        chunks = MODULE.prepare(self.root, self.manifest, allow_demo=True)
+        self.assertTrue(all(c["type"] == "simulation" for c in chunks))
+
+    def test_source_url_is_retained(self):
+        path = self.root / self.entry["path"]
+        path.write_text(
+            "# Example\n\n## Policy\n\nActual notice.\n\n출처: [예시](https://example.org/a)\n",
+            encoding="utf-8",
+        )
+        self.entry["sha256"] = hashlib.sha256(MODULE.normalize(path.read_bytes())).hexdigest()
+        self.write_manifest()
+        chunks = MODULE.prepare(self.root, self.manifest, allow_demo=True)
+        self.assertEqual(chunks[0]["source_url"], "https://example.org/a")
+
     def test_real_corpus_security_and_restricted_canaries(self):
         chunks = MODULE.prepare(MODULE.ROOT, MODULE.MANIFEST, allow_demo=True)
         safety = [c for c in chunks if c["section"] == "계정 노출·침해 의심 시 공개 초동 안내"]
