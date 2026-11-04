@@ -99,3 +99,12 @@ R04의 `r04/p09-fixtures` 사용자 5명은 citizen-a/b/c에 public, support-dem
 - R02 브랜치 `r02/p19-support-flow`의 B14 호출 노드를 로컬에서 분리 시험했다. `localhost`가 ::1로 해석돼 실패했고 시험 URL을 127.0.0.1로 바꾸자 HTTP 200, 동일 요청 ID, ok와 근거 5건을 받았다. 전체 상담 흐름과 VM 시험은 아니다.
 - 자료는 승인 전 교육용이며 로컬 워크플로우에만 시험 Credential을 연결했다. Git에는 키·Credential ID가 없다. R02 전체 흐름, R04 실제 사용자 조회, R05 공식 시험과 VM 연결은 별도로 남아 있다.
 - 로컬 전용 색인 시험본에서 building 직후 강제 실패를 일으켰을 때 검색은 `index_not_ready`였고, 정상 재색인 뒤 HTTP 시험 6건이 다시 통과했다. 실패한 시험 Webhook이 HTTP 200을 반환한 한계는 runbook에 명시했다.
+
+## 2026-11-04 팀 공유 및 R01 재검토 반영
+
+- 사용자 전달에 따르면 R03은 R01·R02·R04·R05에게 교육용 로컬 RAG 결과, P08 보안 초동 안내·제한 문서 2개·각 canary·권한 기준과 담당별 연결 요청을 Discord로 공유했다. 이는 수신 확인이나 검토 승인을 의미하지 않는다. R04·R05의 PR #10 범위 검토는 별도로 요청했고 답변을 기다린다.
+- R04의 P09 공유: citizen-a는 T-DEMO-01과 case-a-closed, citizen-b는 T-DEMO-02와 case-b-open을 소유하며 unregistered-zz는 미등록이다. 시민은 public, 담당자는 public+restricted다. 사례 소유권의 최종 기대값은 R05 검토 후 확정한다.
+- R02 공유: `r02/p19-support-flow` d7fd654에서 R03 `25a178a`를 n8n 2.42.6 전체 상담 흐름에 연결했으며 19개 사례를 3회 통과했다고 보고했다. state·handoff는 mock, 사용자 대체값 사용, 공식 판정과 VM 시험은 아니다. 실제 색인은 수동 트리거 대신 Webhook 사본으로 실행했다고 했다. WF05는 시민의 내부 자료 요청을 권한 없음으로 처리하도록 기존 제안을 철회했다.
+- 원격 d7fd654의 `runs/public/20261104-161649-local-n8n-p19-r03-search-l03/summary.json`은 실제 R03 검색 근거를 활용한 답변 시험으로 기재한다. 한편 `runs/public/20261104-161956-local-n8n-p19-r03-regression/summary.json`의 19개 사례는 search/state/handoff/dlq가 mock이라고 명시하며, 일부 3회 사례 요약에도 실제 지식 검색 미실행이라 적혀 있다. 어떤 실행이 전체 실제 검색 연결 19개·3회에 대응하는지는 R02 확인 전 단정하지 않는다.
+- R02의 R04 S01 `inputSource: passthrough` 수정 요청과 R04의 수정·실호출 시험 계획을 수신했다. 원격 R04 `dbb41f9`에서 P12 파일 수정은 확인했으나 R03이 실행 결과를 재검증하지 않았고, 이는 RAG 검색 권한 승인이나 실제 state·handoff 연동 완료를 뜻하지 않는다.
+- R01은 PR #10 `7ad9eda`의 세 기술 보완과 CI 통과를 재확인하고 기존 변경 요청을 정리했다. 최종 병합 승인은 아니며 R04 권한·R05 검색 평가 검토 결과가 PR에 연결될 때까지 초안 유지다. #1 지식 승인과 #5 팀 통합은 별도 열린 작업이다.
