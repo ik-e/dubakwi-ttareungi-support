@@ -101,3 +101,7 @@ P08의 지식 8개 초안·manifest·충돌 검토·평가 질문 20개를 작�
 6. **팀 인계:** 로컬에서 동작한 워크플로우와 연결 절차, 테스트 결과를 정리한 뒤 R01에게 팀 VM의 같은 구성 사용 가능 여부를 요청한다. 실제 VM 설정·Credential은 별도로 결정한다.
 
 공식 참고: [n8n OpenAI Credential](https://docs.n8n.io/integrations/builtin/credentials/openai/), [Simple Vector Store](https://docs.n8n.io/integrations/builtin/cluster-nodes/root-nodes/n8n-nodes-langchain.vectorstoreinmemory/).
+
+## R01 VM 준비 안내 반영
+
+2026-11-04 R01 전달 및 PR #12 기준: 기존 팀 VM의 n8n·영속 볼륨·네트워크와 배포 자료 경로를 관측했으나 서비스 연결 및 시험은 별개다. 첫 WF08·WF13 입구 시험은 RAG 구현을 기다리지 않는다. R03은 로컬 n8n 색인·검색과 R05 기대 근거 대응을 병행한다. 사용자가 로컬 OpenAI Credential을 등록했다고 알렸으나 API 호출 성공은 미확인이다. 실제 VM 적용 및 키 전달은 로컬 개발 후 따로 확인하며, VM 데이터를 건드리지 않는다. 상세 [로컬 개발 기록](local-n8n-progress.md).
