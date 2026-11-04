@@ -1,0 +1,143 @@
+{
+  "webhook": "dubakwi-support",
+  "before": [{"url": "http://localhost:8800/tickets-reset", "body": {}}],
+  "x_dubakwi": {
+    "file": "cases/team-extended.json",
+    "task": "P07",
+    "schema_version": "0.2",
+    "status": "draft_not_run",
+    "owner": "R05",
+    "reviewers": ["R02", "R03", "R04"],
+    "updated": "2026-11-04",
+    "format": "flow.py test와 같은 칸(name·body·expect·before·after)을 쓰되 flow.py 한 번 전송으로 판정할 수 없는 팀 사례를 둔다. scripts/test/run_cases.py 전용이며 flow.py test로 돌리지 않는다",
+    "multi_step": "x_dubakwi.steps의 각 단계는 body·expect·assert를 가진다. '{stepN.path}'는 N단계 응답 값을 실행 도구가 대입한다",
+    "requires": "x_dubakwi.requires가 있으면 실행 도구가 보내지 않고 blocked로 기록한다(사전 준비·시험용 설정·운영자 조작 필요)",
+    "path_note": "이 파일은 헌장 경로 표에 아직 없다. R01에게 경로 추가(주 담당 R05, 검토 R02/R04) 요청 필요",
+    "notes": [
+      "구현 전 기대 결과다. 실행·통과 증거가 아니다.",
+      "R05는 DLQ·처리 상태를 직접 바꾸지 않는다. 재처리는 R04 또는 지정 운영 역할이 수행한다(STORAGE-DESIGN 4.2)."
+    ]
+  },
+  "cases": [
+    {
+      "name": "TC01 반납 미확인 보완 왕복 후 한도 이관",
+      "x_dubakwi": {
+        "id": "TC01", "scenario": ["S2", "S3"], "functions": ["F02", "F03", "F07", "F08"], "producers": ["R02", "R04"],
+        "boundary": "case_ref 왕복, 서버 보완 횟수 계산, 같은 티켓 재사용",
+        "steps": [
+          {"step": 1,
+           "body": {"request_id": "tc01-1", "user": "citizen-a", "question": "반납했는데 앱에 아직 이용 중으로 나와요.", "attempt": 1},
+           "expect": {"status": 200, "equals": {"route": "보완 질문", "ticket": null}},
+           "assert": [{"path": "case_ref", "op": "exists"}]},
+          {"step": 2,
+           "body": {"request_id": "tc01-2", "user": "citizen-a", "question": "따릉이 앱이고 자전거 번호는 잘 기억이 안 나요.", "case_ref": "{step1.case_ref}", "attempt": 2},
+           "expect": {"status": 200, "equals": {"route": "보완 질문"}},
+           "assert": [{"path": "case_ref", "op": "same_as", "value": {"step": 1, "path": "case_ref"}}]},
+          {"step": 3,
+           "body": {"request_id": "tc01-3", "user": "citizen-a", "question": "대여소 이름도 정확히 모르겠어요.", "case_ref": "{step1.case_ref}", "attempt": 3},
+           "expect": {"status": 200, "equals": {"route": "담당자 이관"}},
+           "assert": [{"path": "ticket.ticket_id", "op": "exists"}]}
+        ],
+        "checks": ["case 전체 티켓 1건(step1 생성, step2/3 재사용), 최종 handed_off·보완 횟수 3", "세 요청 모두 completed·같은 case_id·first_request_id=tc01-1", "담당 알림은 step3에서 1건"],
+        "manual": ["step3 이관 맥락에 step1~3 진술·missing 항목 유지"],
+        "variants": [{"id": "TC01-v1", "change": "step2 attempt를 1로 보냄", "expect": "서버 횟수 2로 계산"}],
+        "open_items": ["보완 한도 attempt 3 이관(R02 확정값)"],
+        "run_status": "not_run"
+      }
+    },
+    {
+      "name": "TC02 잘못된 case_ref 거절 3종",
+      "x_dubakwi": {
+        "id": "TC02", "scenario": ["S2", "S7"], "functions": ["F01", "F02"], "producers": ["R04", "R02"],
+        "requires": "사전 case 2건 준비: citizen-b의 열린 case, citizen-a의 종료된 case(준비 방법 R04)",
+        "steps": [
+          {"step": 1, "body": {"request_id": "tc02-1", "user": "citizen-a", "question": "앞의 문의 이어서 보완합니다.", "case_ref": "case-does-not-exist", "attempt": 2},
+           "expect": {"status": 400, "contains": {"codes": ["invalid_case_ref"]}}, "assert": []},
+          {"step": 2, "body": {"request_id": "tc02-2", "user": "citizen-a", "question": "앞의 문의 이어서 보완합니다.", "case_ref": "{precondition.case_b_open}", "attempt": 2},
+           "expect": {"status": 403, "contains": {"codes": ["case_access_denied"]}, "not_contains": {"error": ["citizen-b"]}}, "assert": []},
+          {"step": 3, "body": {"request_id": "tc02-3", "user": "citizen-a", "question": "앞의 문의 이어서 보완합니다.", "case_ref": "{precondition.case_a_closed}", "attempt": 2},
+           "expect": {"status": 409, "contains": {"codes": ["case_closed"]}}, "assert": []}
+        ],
+        "checks": ["LLM 실행 0", "기존 case 티켓 변경 0·새 티켓 0·종료 티켓 재개 0", "상태 쓰기 0"],
+        "manual": ["step3 응답에 새 문의 안내 포함"],
+        "open_items": ["사전 case 준비(R04)"],
+        "run_status": "not_run"
+      }
+    },
+    {
+      "name": "TC05 티켓 생성 응답 유실",
+      "body": {"request_id": "tc05", "user": "citizen-a", "question": "자전거 체인이 빠져서 이동이 어려워요. 현장 조치를 요청합니다. 가상대여소A 근처예요.", "attempt": 1},
+      "expect": {"status": 200, "equals": {"route": "담당자 이관"}},
+      "x_dubakwi": {
+        "id": "TC05", "scenario": ["S8"], "functions": ["F07", "F09"], "producers": ["R04", "R02"],
+        "requires": "R04 시험용 설정: 티켓 생성은 처리되지만 응답이 시간 초과로 유실",
+        "assert": [{"path": "reason", "op": "exists"}],
+        "checks": ["처리 상태 unknown, 생성 확인 전이면 jira_issue_id=null", "DLQ 1건 error_code=ticket_unknown·effects.created_or_reused=unknown·replay_status=pending", "운영 알림 1건", "새 key로 생성 재호출 0"],
+        "manual": ["'접수 완료'라고 답하지 않음", "ticket은 확인된 ID일 때만 채움"],
+        "follow_up": {"body": "같은 요청 재전송", "expect": "HTTP 409 request_requires_review, 자동 재실행 0"},
+        "open_items": ["data-api tickets 고장 스위치로는 '처리 후 응답 유실'을 만들 수 없음. R04 어댑터 시험 설정 필요"],
+        "run_status": "not_run"
+      }
+    },
+    {
+      "name": "TC06 생성 성공 후 ID 바인딩 저장 실패",
+      "body": {"request_id": "tc06", "user": "citizen-a", "question": "어제 정기권을 샀는데 앱에 이용권이 안 보여요. 결제는 됐어요.", "attempt": 1},
+      "expect": {"status": 200, "equals": {"route": "담당자 이관"}},
+      "x_dubakwi": {
+        "id": "TC06", "scenario": ["S8"], "functions": ["F07", "F08", "F09"], "producers": ["R04"],
+        "requires": "R04 시험용 설정: 티켓 생성 직후 state bind만 실패",
+        "assert": [{"path": "reason", "op": "exists"}],
+        "checks": ["티켓 정확히 1건 생성", "DLQ 1건 state_error·생성 ID 보존·recovery에 bind 최소 인자", "bind 실패 뒤 종료·배정 호출 0·생성 재호출 0·state_saved=false", "운영 알림 1건"],
+        "manual": ["안내 완료·접수 완료를 주장하지 않음"],
+        "variants": [{"id": "TC06-v1", "change": "finish만 실패", "expect": "DLQ state_error·가린 Response 보존·성공한 종료/알림 반복 0"}],
+        "open_items": ["저장 실패 시 응답 ticket_id 표시 여부(R02/R04 합의)"],
+        "run_status": "not_run"
+      }
+    },
+    {
+      "name": "TC07 DLQ 수동 재처리",
+      "x_dubakwi": {
+        "id": "TC07", "scenario": ["S8"], "functions": ["F09"], "producers": ["R04"],
+        "requires": "운영자 단계: TC05 또는 TC06 뒤 고장 해제, R04가 STORAGE-DESIGN 4.2 절차로 재처리. R05는 전후 상태만 기록",
+        "steps": [],
+        "checks": ["재처리 전후 티켓 수 변화 0(TC05는 기존 건 바인딩)", "요청 failed/unknown→processing→completed·새 execution_id·revision 증가", "DLQ pending→reprocessing→resolved·resolution·resolved_at", "미전송 담당 알림만 1건·성공 단계 재호출 0"],
+        "manual": ["재처리 후 같은 request_id 재전송이 replay"],
+        "variants": [
+          {"id": "TC07-v1", "change": "고장 해제 전 재처리", "expect": "pending 복귀·사유 기록"},
+          {"id": "TC07-v2", "change": "두 운영자 동시 재처리", "expect": "한쪽만 처리권 획득"}
+        ],
+        "open_items": ["재처리 명령·호출 방식(R04 P18)", "Jira 연결 식별자로 기존 건 찾는 방법"],
+        "run_status": "not_run"
+      }
+    },
+    {
+      "name": "TC08 답변 검증 실패 이관",
+      "body": {"request_id": "tc08", "user": "citizen-a", "question": "대여 신청했는데 자전거가 안 열려요. 취소는 어떻게 하나요?", "attempt": 1},
+      "expect": {"status": 200, "equals": {"route": "담당자 이관"}},
+      "x_dubakwi": {
+        "id": "TC08", "scenario": ["S6"], "functions": ["F05"], "producers": ["R02"],
+        "requires": "R02 시험용 설정: 검증 단계가 grounded=false 또는 파싱 불가 출력",
+        "assert": [{"path": "ticket", "op": "not_null"}, {"path": "reason", "op": "exists"}],
+        "checks": ["closed_guidance로 종료되지 않음·handed_off", "DLQ 증가 0"],
+        "manual": ["검증 실패 답변 문장을 보내지 않음"],
+        "variants": [{"id": "TC08-v1", "change": "이번 검색에 없는 chunk_id 인용", "expect": "Code 검사 실패·이관"}],
+        "open_items": ["고장 없이 재현되는 자연 입력이 있으면 team.json으로 이동"],
+        "run_status": "not_run"
+      }
+    },
+    {
+      "name": "TC10 긴급 이관 후 본인 조회 실패",
+      "body": {"request_id": "tc10", "user": "citizen-b", "question": "따릉이 사칭 문자 링크에 로그인했어요. 제 문의 T-DEMO-02 상태도 알려주세요.", "attempt": 1},
+      "expect": {"status": 200, "equals": {"route": "담당자 이관", "ticket.priority": "high"}},
+      "x_dubakwi": {
+        "id": "TC10", "scenario": ["S5"], "functions": ["F06", "F07"], "producers": ["R02", "R04"],
+        "requires": "조회만 실패하는 고장 필요. data-api 'tickets error'는 티켓 생성도 함께 막아 이 사례를 만들 수 없음(R04가 조회 전용 고장 방법 확인)",
+        "assert": [{"path": "ticket.ticket_id", "op": "ne_value", "value": "T-DEMO-02"}],
+        "checks": ["긴급 알림 정확히 1건(재알림 0)", "긴급 티켓 handed_off 유지·재생성 0", "조회 결과 error"],
+        "manual": ["T-DEMO-02 상태를 추측하지 않고 조회하지 못했다고 안내"],
+        "open_items": ["초동 근거 부족(R03)"],
+        "run_status": "not_run"
+      }
+    }
+  ]
+}
