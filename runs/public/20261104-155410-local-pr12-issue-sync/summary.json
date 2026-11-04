@@ -1,0 +1,42 @@
+{
+  "executed_at": "2026-11-04T15:54:10.236715+09:00",
+  "environment": "local documentation integration and GitHub issue metadata; no service execution",
+  "task": "P04 PR12 conflict resolution and R03 issue scope synchronization",
+  "base_commit": "c2d98dcbca1dc8c8065720888920a70c7025e728",
+  "previous_pr12_commit": "1fc6d01cce3a5352b17d211284aceb1191184779",
+  "configuration_version": "system0.9; workflow0.13; RAG0.8; storage0.4; charter0.11; vm-preflight0.2",
+  "case_ids": [],
+  "checks": {
+    "project_documents": {
+      "exit_code": 0,
+      "result": "{\"scope\": \"current project documents; local links/anchors/tables only; external URLs, Mermaid syntax, runtime and historic snapshots excluded\", \"files\": 20, \"local_links\": 362, \"anchor_links\": 42, \"errors\": []}"
+    },
+    "public_candidates": {
+      "exit_code": 0,
+      "result": "{\"scope\": \"Git candidate paths/current worktree bytes and public Markdown closure; no history/remote/PII/license guarantee\", \"files\": 75, \"tracked_files\": 75, \"ignored_tracked_files\": 0, \"public_local_links\": 386, \"errors\": []}"
+    },
+    "staged_whitespace": {
+      "exit_code": 0,
+      "result": "passed"
+    }
+  },
+  "issues": {
+    "1": "open; P08 knowledge review; assigned jasnok",
+    "5": "open; overall RAG integration; assigned jasnok",
+    "9": "open; local RAG implementation/handoff; assigned jasnok"
+  },
+  "sha256": {
+    "docs/DEVELOPMENT-PLAN.md": "222919c4df123cb22e6abe3fe27c2b7954e9f3ac5169d904738532d3cd132dcf",
+    "docs/project/SYSTEM-DESIGN.md": "f3f447fe91a9185e41585e385b080b23ec8a20e90659d88002747d0ea9a6b813",
+    "docs/project/README.md": "1423f0f2d28abc1b2ade25cd251aea6837bbe1e70dbc30f619ad6e408f1c4103",
+    "docs/PRESENTATION-PLAN.md": "877836294c4c84aa998eac1f9f29881600dc0d6c02e7dfe1a19e878fbc173b57",
+    "infra/vm-preflight.md": "8fe3595a328158b8ecd1f2d7952cc57bae1fc6d7f6f9cc79d8641a6a33bdaa74"
+  },
+  "limits": [
+    "Docs-only integration; no Python or service logic edited relative to main",
+    "No VM changes, workflow activation, credentials, live service tests or backup/restore",
+    "R05 feedback forwarded by user; R04 storage/recovery review pending; PR12 stays draft",
+    "tscan unavailable; public candidate checks and separate Gitleaks scan used; no historical or PII guarantee",
+    "Prior verification records preserved; issue status does not mark P08/P10/P16 complete"
+  ]
+}
