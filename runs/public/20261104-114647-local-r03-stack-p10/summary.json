@@ -1,0 +1,21 @@
+{
+  "executed_at": "2026-11-04T11:46:47.636763+09:00",
+  "environment": "local isolated integration checkout",
+  "task": "P10/P16 PR6 parent synchronization",
+  "configuration": "updated PR4 parent merged into PR6; original implementation unchanged",
+  "case_ids": [],
+  "original_r03_head": "93e06ab9e8b8c8e18cd8b640838cd7279a683d10",
+  "parent": "0907f32b08f5362821d9ec9dfadca6f55e2c643d",
+  "checks": {
+    "project_docs": "20 docs,355 links,42 anchors;passed",
+    "public_files": "69 candidates before evidence;375 links;passed",
+    "unit_tests": "33 passed; local tool/fake-server tests only",
+    "ruff": "check/format passed",
+    "diff_check": "passed",
+    "source_preservation": "knowledge/docs and dev/test implementations identical to original PR6 head"
+  },
+  "limits": [
+    "No real n8n/vector/permission test or knowledge approval",
+    "No PR merge into main; publication exception remains pending review"
+  ]
+}

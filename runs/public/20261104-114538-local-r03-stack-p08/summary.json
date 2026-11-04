@@ -1,0 +1,21 @@
+{
+  "executed_at": "2026-11-04T11:45:38.281267+09:00",
+  "environment": "local isolated integration checkout",
+  "task": "P08 PR4 stack conflict cleanup",
+  "configuration": "origin/main merged into existing R03 branch; no workflow deployment",
+  "case_ids": [],
+  "original_r03_head": "48a89e89b40e2cefc941f8bfa37e0bfb81ebd4b6",
+  "main_parent": "bad410c63c14bcf861f1a91502b39d32b278e8de",
+  "checks": {
+    "project_docs": "20 docs,351 links,42 anchors;passed",
+    "public_files": "62 candidates before evidence;368 links;passed",
+    "unit_tests": "24 passed; tool/fake-server tests, not service cases",
+    "diff_check": "passed",
+    "source_preservation": "knowledge and docs/rag-knowledge identical to original R03 head"
+  },
+  "limits": [
+    "No knowledge approval or service test",
+    "Existing R03 raw HTML publication exception retained for separate content/publication review",
+    "Stack cleanup does not merge PR4 into main; parent changes will be propagated to PR6/10"
+  ]
+}

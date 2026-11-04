@@ -174,19 +174,19 @@ flowchart LR
 | [ ] | P02 | `docs/project/TOPIC.md`: 시민 문의 6유형·대표 사례·Webhook/Jira 조합·제외 범위·승인 결과 | R01 / 전원·강사 | P01 자료 목록 초안(전체 실행 불필요) | 진행 | [v0.7 초안](project/TOPIC.md): 시민·전체 정상 신규 티켓·Jira·최소 저장 반영. 조합 표기·주제 적합성·팀/강사 확인 필요 | 2026-11-03 |
 | [ ] | P03 | `docs/project/TEAM-CHARTER.md`: 역할 ID·7개 실행 파일과 문서 소유권·계약 변경·배포 규칙 | R01 / 전원 | P02 초안 | 진행 | [v0.10 초안](project/TEAM-CHARTER.md): 두바퀴/dubakwi·GitHub 공개 저장소 주소 반영. 실제 팀 권한·발표 ID·팀 검토 남음 | 2026-11-03 |
 | [ ] | P04 | README·AGENTS·Python/uv/Ruff/CI·공개 정책/도구·infra 안내·compose·.env.example: 경로/규칙·Docker 환경/실행/복구·비밀 제외. 실제 compose 검증·VM 재현까지 확인 | R01 / R04·R05·R02/R03 연결 | P02/P03 초안·D01/D03 실제 환경 확인(설정/배포 부분) | 진행 | [AGENTS](../AGENTS.md)·[infra 안내](../infra/README.md)·[.gitignore](../.gitignore) 작성. [구조/책임](project/SYSTEM-DESIGN.md) 명시. Python 설정/잠금·품질 CI·공개 도구 추가. 실제 compose/이미지/설정·VM 배포와 원격 CI는 미완료 | 2026-11-03 |
-| [ ] | P05 | `SYSTEM-DESIGN.md`와 워크플로우·RAG·저장소 설계 초안: 구성·상태/전이·S1~S8·기능F01~F10·공개 계약·담당 경계 공동 검토 | R01 전체 취합·R02 업무 / R03·R04 상세·R05 판정 | P02·P03 초안 | 진행 | [시스템 v0.8](project/SYSTEM-DESIGN.md)·[워크플로우 v0.13](project/WORKFLOW-DESIGN.md)·[RAG v0.6](project/RAG-ARCHITECTURE.md)·[저장소 v0.4](project/STORAGE-DESIGN.md). 문서 보완 반영, 공동 검토·D01~D07 실제 확인은 미완료 | 2026-11-03 |
+| [ ] | P05 | `SYSTEM-DESIGN.md`와 워크플로우·RAG·저장소 설계 초안: 구성·상태/전이·S1~S8·기능F01~F10·공개 계약·담당 경계 공동 검토 | R01 전체 취합·R02 업무 / R03·R04 상세·R05 판정 | P02·P03 초안 | 진행 | [시스템 v0.8](project/SYSTEM-DESIGN.md)·[워크플로우 v0.13](project/WORKFLOW-DESIGN.md)·[RAG v0.8](project/RAG-ARCHITECTURE.md)·[저장소 v0.4](project/STORAGE-DESIGN.md). 문서 보완 반영, 공동 검토·D01~D07 실제 확인은 미완료 | 2026-11-03 |
 | [ ] | P06 | `cases/common.json`: WF-01~13과 WF-02b의 14유형을 따릉이로 변환. 조건·판정 유지, 5교시 점검 | ⑤ / ②③④·강사 | P05 초안 | 진행 | [PR #7](https://github.com/ik-e/dubakwi-ttareungi-support/pull/7): cases/common.json 공통14유형 기대 결과 초안, 모두 not_run. 가이드 설명 원문 일부 대조, 실제 공통 fixture/도구 대조·역할 검토·5교시 점검 미완료 | 2026-11-04 |
 | [ ] | P07 | `cases/team.json`: 5개 이상, S1~S8·기능ID·상태/효과와 연결한 기대 결과. case_ref 왕복·저장/ID 바인딩 실패·효과 미확인·재처리·오탐 포함 | R05 / R02·R03·R04 | P05 초안 | 진행 | [PR #7](https://github.com/ik-e/dubakwi-ttareungi-support/pull/7): cases/team.json TC01~TC10 초안, 모두 not_run. 보완·저장/바인딩·효과 미확인·수동 복구·오탐 포함. R02/R03/R04 검토·모의 데이터/고장 준비 미완료 | 2026-11-04 |
-| [ ] | P08 | `knowledge/public/*.md·restricted/*.md·manifest.json`: 공개 안내6개+제한 모의 정책2개 제안, 각 문서 ##절3개 이상. 출처·확인일·적용 범위·권한·가상 정책 구분 | R03 / R04·R05 | P05 초안·D04 지식/권한 초안 | 진행 | [PR #2](https://github.com/ik-e/dubakwi-ttareungi-support/pull/2): 검토 전 초안6개 작성. 2026-11-04 R03: knowledge 공개6개·제한 가상2개·manifest·평가질문 초안 작성. R04/R05 승인·색인/검색 검증 미완료. 조사 원문 전체 색인·제한 정책 노출 금지 | 2026-11-03 |
+| [ ] | P08 | `knowledge/public/*.md·restricted/*.md·manifest.json`: 공개 안내6개+제한 모의 정책2개 제안, 각 문서 ##절3개 이상. 출처·확인일·적용 범위·권한·가상 정책 구분 | R03 / R04·R05 | P05 초안·D04 지식/권한 초안 | 진행 | [PR #4](https://github.com/ik-e/dubakwi-ttareungi-support/pull/4) 병합: 공개6개·제한 가상2개·manifest·평가 초안 반영. 승인 대기·색인 비활성 유지. 원문은 최신 추적 제외·로컬 보존. 실제 지식 승인·색인/권한 시험 미완료 | 2026-11-04 |
 | [ ] | P09 | `data/users.json`·`data/records.json`: 모의 사용자 5명 이상·서로 다른 소유자의 기록 4건 이상, API 공급 방식·권한 확인 | ④ / ③⑤ | P05 초안 | 대기 | 모의 서비스 데이터 없음 | 2026-11-02 |
-| [ ] | P10 | `workflows/dubakwi-index.json`·`docs/project/RAG-ARCHITECTURE.md` 1~2절: 색인 실행·권한 메타데이터·청크 분포 측정 | ③ / ⑤ | P08 | 진행 | [RAG v0.6](project/RAG-ARCHITECTURE.md) 1~2절 초안과 기존 색인 명세 이관. 로컬 지식 준비 도구 초안 및 로컬 검증 진행. n8n 색인·청크 실측·실행은 미완료 | 2026-11-03 |
+| [ ] | P10 | `workflows/dubakwi-index.json`·`docs/project/RAG-ARCHITECTURE.md` 1~2절: 색인 실행·권한 메타데이터·청크 분포 측정 | ③ / ⑤ | P08 | 진행 | [PR #6](https://github.com/ik-e/dubakwi-ttareungi-support/pull/6) 병합: 청크 준비 도구·오프라인 시험 반영. 실제 n8n 색인·임베딩·삽입/재시작 검증은 PR #10에서 계속 | 2026-11-04 |
 | [ ] | P11 | `workflows/dubakwi-support.json` 골격: Header Auth·입력 검사·주입 차단·공통 응답. WF-08의 LLM 호출 0·WF-13의 400 확인 | ② / ④⑤ | P04 환경/규칙 초안(최종 배포 완료 불필요)·P05·P06 초안 | 대기 | VM 준비는 ①이 병렬 수행 | 2026-11-02 |
 | [ ] | P12 | `workflows/dubakwi-handoff.json`·`dubakwi-state.json` 기본: Jira 조회/생성·종료·알림과 begin/prepare/bind/save/finish 고정 계약의 작은 연결 검증. 생성 ID 즉시 저장·최종 저장 확인 | R04 / R02·R05 | P09·P05 계약·D01/D03 해당 연결 확인 | 대기 | Jira/물리 저장 실제 지원 확인 전. R01 환경 준비·R05 계약/기대값 지원. DLQ 계약과 D07 Discord 앱/SDK·defer/사용자 매핑 준비도 병행 | 2026-11-03 |
 | [ ] | P13 | `runs/public/<실행묶음ID>/summary.json`: R01 첫 VM 배포, R05 입력/차단 공통 회귀·WF-08/13 증거. 모의 기능과 실제 연결을 보고서에 구분 | R05·R01 / R02·R04 | P11·P06 해당 사례·P04 compose/VM 준비; P12 미완료도 입구 시험 가능 | 진행 | [PR #7](https://github.com/ik-e/dubakwi-ttareungi-support/pull/7): run_cases.py와 가짜 Webhook 기반 도구 시험 준비. 실제 n8n 연결·VM 배포·WF08/13 서비스 시험 미실행. 실제 종단 연결은 P19/P22에서 확인 | 2026-11-04 |
 | [ ] | P14 | `docs/project/daily/DAY80.md`: 당일 작업 번호·통과 수·보고서·발표① 피드백·다음 목표 | ① / 전원 | P13/P10의 당일 진행·실패·미완료 증거(완료 대기 불필요) | 대기 | 당일 기록 예정 | 2026-11-02 |
 | [ ] | P15 | `runs/public/<실행묶음ID>/summary.json`: VM의 아침 공통 시나리오 통과 수·실패 출발점 | ⑤ / ① | P13 | 대기 | 미실행 | 2026-11-02 |
-| [ ] | P16 | `workflows/dubakwi-search.json`: 검색 전 권한 필터·점수·문서/절 근거 반환·검색 없음 처리 | ③ / ②⑤ | P10·P05 계약 | 대기 | 메인 워크플로우 편집은 ②에게 요청 | 2026-11-02 |
-| [ ] | P17 | `docs/project/RAG-ARCHITECTURE.md` 완성: 3~5절·청킹/검색 비교·비용·복구·확장, 실측과 운영 설계 구분 | ③ / ⑤ | P16의 실행·측정 | 진행 | [RAG v0.6](project/RAG-ARCHITECTURE.md) 3~5절 초안·검색/색인 내부 노드·엣지 이관. 청킹/검색 비교·비용·복구 실행 증거 미완료 | 2026-11-03 |
+| [ ] | P16 | `workflows/dubakwi-search.json`: 검색 전 권한 필터·점수·문서/절 근거 반환·검색 없음 처리 | ③ / ②⑤ | P10·P05 계약 | 진행 | [PR #6](https://github.com/ik-e/dubakwi-ttareungi-support/pull/6)의 글자 일치 모의 검색·fixture 권한 시험만 반영. 실제 검색 JSON·서버 인가·점수 기준·벡터 검색/통합 시험 미완료. PR #10에서 계속 | 2026-11-04 |
+| [ ] | P17 | `docs/project/RAG-ARCHITECTURE.md` 완성: 3~5절·청킹/검색 비교·비용·복구·확장, 실측과 운영 설계 구분 | ③ / ⑤ | P16의 실행·측정 | 진행 | [RAG v0.8](project/RAG-ARCHITECTURE.md) 3~5절 초안·검색/색인 내부 노드·엣지 이관. 청킹/검색 비교·비용·복구 실행 증거 미완료 | 2026-11-03 |
 | [ ] | P18 | `workflows/dubakwi-handoff.json`·`dubakwi-state.json`·`dubakwi-dlq.json` 및 저장소 설계 갱신: 소유권·중복/동시성·조건부 갱신·case 연결·외부 효과/저장 실패·복구 캡슐·운영 재처리 | R04 / R02·R05 | P12 동작 가능한 부분·P06/P07 관련 기대값·D05의 시험/시간 계약 초안(전체 검증 완료 불필요) | 대기 | R01 배포/DB 환경 지원, R05 장애·동시·재시작·복구 시험 지원. Jira 성공 단계 반복 없이 복구 확인. D07 Discord 계약/전송·비공개 시험 연결은 core 우선 후 수행 | 2026-11-03 |
 | [ ] | P19 | `workflows/dubakwi-support.json`: S1 분류→RAG→답변→검증→Jira 생성/종료→최종 저장→응답 연결 후 S2/S3→S4/S5→S6~S8 확장. 보완 한도·권한·긴급 우선 유지 | R02 / R03·R04·R05 | P11·P16/P12/P18의 필요한 계약·동작 부분 | 대기 | 모의 종단 연결 먼저 가능. 실제 S1 통과는 외부 종료·최종 저장 증거까지 필요. 이후 Discord 어댑터 연결, 3초 ACK를 최종 SLA로 오인하지 않음 | 2026-11-03 |
 | [ ] | P20 | `workflows/dubakwi-errors.json`: 오류 기록·알림·게시·상위 지정, 업무상 실패 처리와 별도 확인 | ④ / ①⑤ | P12·P05 오류 계약 | 대기 | Error Workflow만으로 WF-04 충족 처리하지 않음 | 2026-11-02 |
@@ -440,3 +440,23 @@ Python 환경/품질 원본은 PYTHON-DEVELOPMENT·pyproject/uv.lock, 공개 정
 - 가이드 설명 원문은 WF07에 가림·masked>=1, WF13에 HTTP400·codes를 요구한다. WF07의 자동 답변 route는 팀 본인 조회 설계의 추가 기대값이다. 설명 원문은 WF13 세부 codes를 고정하지 않는다. 사례의 invalid_input/unknown_user 기대는 R02 tk의 4b3d3b7 구현과 정적으로 대응함을 확인했으나 해당 브랜치는 main 미병합이며 실제 공통 fixture·n8n 시험은 미확인이다.
 - WF09 응답 비교, WF11 한도, 필수 정보·권한·미확인 효과/복구 판정은 합의/실행 전이다. 자체 JSON과 과정 flow.py의 호환을 주장하지 않는다. 지식·모의 데이터·고장 주입 준비 후 사례별로 실행한다.
 - Webhook 공통 기준은 기존 dubakwi-support 경로와 가이드 X-Team-Key다. 실제 VM URL·Credential 연결은 미완료이며 키는 비공개로 주입한다. R01 최종 후보 비밀 검사와 도구 시험은 서비스 시험을 대신하지 않는다.
+
+### R03 PR 스택 충돌 정리 (2026-11-04 KST)
+
+사용자의 R03 작업 기반 정리 지시에 따라 R01이 PR #4에 최신 main을 병합하고 공통 원장을 취합한다. 지식 본문·manifest·승인 대기·접근권한·검색 계약은 R03 작업본을 유지한다. 원장은 main의 P06/P07/P13 상태·과거 검증 기록과 R03의 P08 진행 내용을 함께 보존한다. 새 지식 승인이나 서비스 통과를 뜻하지 않는다.
+
+PR #4→#6→#10 순서의 누적 브랜치는 부모의 정리 커밋을 자식에 순차 병합하며 강제 push·과거 증거 해시 변경은 하지 않는다. PR #4의 챗봇 원문 HTML/사진 공개 예외는 작성자가 제안한 기존 변경 그대로이며, 이 충돌 정리로 해당 공개 범위나 재배포 조건의 검토가 완료됐다고 간주하지 않는다. 실제 n8n 구현·Credential·VM 실행은 미완료다.
+
+PR #6은 정리된 #4 부모 커밋을 반영했다. P10/P16 상태·RAG 준비/모의 검색 코드·지식 및 해시는 R03 작업본을 유지하고 공통 원장의 main 기록을 보존한다. 실제 n8n/임베딩 검색 통과는 주장하지 않는다.
+
+### P08 초안 병합 준비 (2026-11-04 KST)
+
+사용자 지시에 따라 #4→#6을 준비/모의 구현으로 병합하고 #10을 최신 main 기준으로 맞춘다. 원문 HTML·사진은 최신 Git 추적에서 제외하고 로컬 보존한다. 지식 요약·서비스 후보8개와 manifest 해시는 유지한다. 원문용 공개 예외·용량 검사 완화는 채택하지 않는다. 지식 승인·색인·실제 권한/벡터/재시작 시험은 미완료이므로 P08/P10/P16 전체 완료를 체크하지 않는다.
+
+### P10/P16 준비 도구 통합 (2026-11-04 KST)
+
+사용자 지시로 PR #4 병합 main을 #6에 반영하고 base를 main으로 맞춘다. 청크 준비·오프라인 글자 일치 모의 검색·가짜 역할 fixture 시험만 반영한다. 실제 n8n 워크플로우·임베딩·서버 권한 강제·재시작 시험은 #10에서 계속하며 P08/P10/P16 전체 완료를 표시하지 않는다. PR #4 최종 범위에 따라 원문 HTML/사진 최신 추적 제외와 기존 공개 정책을 유지한다.
+
+### R03 병합 결과 원장 반영 (2026-11-04 KST)
+
+PR #4와 #6을 순서대로 main에 병합했다. P08/P10/P16은 초안·준비/모의 구현까지 진행으로 기록하며 전체 완료를 표시하지 않는다. 실제 n8n 구현·Credential·벡터/인가·재시작 시험은 열린 초안 PR #10에서 계속한다. 최신 main의 원문 HTML 추적 제외와 기존 공개 정책을 유지하며 과거 원격 커밋은 재작성하지 않는다.
