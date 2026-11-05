@@ -1,6 +1,6 @@
 # 기존 VM 배포 전 점검과 인계
 
-- 작성: 2026-11-04 KST / v0.8 / R01 data-api 진단·RAG VM 부분 검증 반영
+- 작성: 2026-11-04 KST / v0.9 / R01 data-api 진단·RAG VM 부분 검증 반영
 - 책임: [팀 헌장](../docs/project/TEAM-CHARTER.md). 원장: [P04/P13](../docs/DEVELOPMENT-PLAN.md#5-작업-원장). 운영 기준: [infra 안내](README.md).
 
 ## 0 현재 인계 상태 (2026-11-05 KST)
@@ -142,6 +142,9 @@ OpenAI/Jira/Discord는 계정 공급·실제 등록이 남아 있고 PostgreSQL/
 
 원시 결과·실행 입력/헤더·키·환경 식별자와 매니페스트는 VM 제한 경로에 유지한다. 키 값은 로컬이나 Git으로 복제하지 않았다. 임시 Credential 반입 파일은 권한600으로 유지하며 후속 정리 대상이다. [실행 요약](../runs/public/20261105-110022-vm-p11-publish/summary.json)·[부분 시험 보고서](../runs/public/20261105-110022-vm-p11-publish/report.md)를 따른다. 다음 단계는 R04 사용자 공급/data-api와 RAG·실제 저장/Jira 연결이며 OpenAI 노드 호출은 아직 시험하지 않았다.
 
+R05는 사용자 전달 답변에서 준비·관측 기록 범위 병합에 이견이 없다고 확인했다. LN06은 WF-08과 동일 문장 확인이 아닌 **WF-08 유형 주입 시험**으로 해석한다. 기존 elapsed_ms는 B35 타임아웃이 포함됐을 가능성이 있어 정상 서비스 응답시간 성능·SLA 또는 WF-11 판정 근거로 사용하지 않으며 data-api 연결 뒤 재측정한다. [R05 검토 취합과 해석 보완](pr12-r05-review.md)을 따른다. 기존 실행 증거는 보존하고 R04 영향 검토는 대기한다.
+
+
 ## 10 data-api 진단과 RAG VM 연결 (2026-11-05 KST)
 
 변경 전 백업을 새로 검증하고 main0e44fdb의 RAG JSON을 해시 확인해 가져왔다. 배포 사본의 name/id/versionId·기존 OpenAI/내부 Credential만 연결했으며 원본 수동 트리거·업무 로직은 유지했다. 최초 검색3건은 원본 webhookId 부재로404였다. n8n 등록 경로를 확인한 뒤 환경 webhookId만 추가해 재반입/게시했고 인증 없음403·disabled skipped·색인 전index_not_ready로 재시험됐다.
@@ -158,7 +161,8 @@ R04/강사님 인계물은 고정 버전의 실행 원본/이미지·Compose/실
 
 | 날짜 | 버전 | 내용 |
 | --- | --- | --- |
-| 2026-11-05 | v0.8 | data-api 부재/원본 인계 조건·RAG 환경 Webhook ID 보완·원본 Manual44청크와 실제 HTTP7/7·HTTPS검색·P11회귀5/5 기록 |
+| 2026-11-05 | v0.9 | data-api 부재/원본 인계 조건·RAG 환경 Webhook ID 보완·원본 Manual44청크와 실제 HTTP7/7·HTTPS검색·P11회귀5/5 기록 |
+| 2026-11-05 | v0.8 | 사용자 전달 R05 범위 동의 취합·LN06 유형 구분·elapsed_ms 성능 판정 제외 |
 | 2026-11-05 | v0.7 | 현재 인계 요약·과거 미실행 문구의 시점 구분, 실행 증거 정합성 재검토 |
 | 2026-11-05 | v0.6 | 기존 키 Header Auth 등록·P11 연결/게시·실제 VM 내부/HTTPS10건 통과·실행6건·B35 타임아웃 분리 기록 |
 | 2026-11-05 | v0.5 | main P11 원본/백업 검증·CLI 최초 ID 오류/환경 메타데이터 사본 재시험·비활성 반입과 미실행 경계 기록 |

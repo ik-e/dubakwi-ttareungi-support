@@ -203,5 +203,13 @@
     "public_candidates": "115 candidates,453 public local links;0 errors",
     "diff": "passed",
     "repository_tests": "not repeated: only docs/evidence changed; actual VM HTTP7/7,HTTPS probe and P11 subset5/5 executed separately"
+  },
+  "parent_review_integration": {
+    "parent_commit": "4a3a670",
+    "preserved": "PR12 R05 scope review and timing/wording limits; no new service test",
+    "docs": "20 documents,410 links,47 anchors;0 errors",
+    "public_candidates": "116 candidates,457 public local links;0 errors",
+    "diff": "passed",
+    "vm_preflight_version": "v0.9; preserve prior v0.8 R05 history"
   }
 }
