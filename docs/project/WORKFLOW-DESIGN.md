@@ -519,6 +519,8 @@ R03 검색 연결(2026-11-04): R03 `25a178a`의 `dubakwi-search`와 색인을 �
 
 최신 커밋 재시험(2026-11-04): R03 `7ad9eda`로 R05 사례 27개 중 19개를 3회 실행해 [모두 통과](../../runs/public/20261104-164309-local-n8n-p19-r03-7ad9eda-r05/summary.json)했고 인용 문서와 표시를 기록했다. R04 `dbb41f9`의 [state](../../runs/public/20261104-164547-local-n8n-p19-r04-dbb41f9-state/summary.json)와 [handoff](../../runs/public/20261104-164640-local-n8n-p19-r04-dbb41f9-handoff/summary.json) 골격은 사본에 ID·Credential을 지정해 호출했으며, 저장소·Jira 미연결로 안전 차단(`state_backend_unconfigured`)을 확인했다. 정상 업무 완료 시험이 아니다.
 
+main 반영 재시험(2026-11-05): main `0e44fdb`에 병합된 R03 `dubakwi-search`·색인으로 R05 `155da4c` 사례 27개 중 19개를 3회 실행해 [모두 통과](../../runs/public/20261105-101139-local-n8n-p19-main-0e44fdb-r05/summary.json)했고 제한 문서 인용은 없었다. [회귀 19/19](../../runs/public/20261105-101335-local-n8n-p19-main-regression/summary.json)와 [로컬 Code](../../runs/public/20261105-101530-local-p19-flow-main/summary.json)도 확인했다. state·handoff·dlq는 mock, 사용자는 대체값이며 공식 판정이 아니다.
+
 Credential 주의: 이름만 있는 Header Auth를 가져오면 n8n이 같은 종류의 다른 Credential에 연결하는 것을 로컬에서 확인했다(B14가 `dubakwi-team-key`로 연결되어 403). 가져온 뒤 B01·B14·B15·B27의 연결을 확인해야 한다. 78일차 `flow.py check`는 코스 Credential ID가 아닌 B01을 오류로 거절하므로 80일차 도구 확인이 필요하다.
 
 남은 한계: 실제 search·state·handoff·dlq·Jira, VM, R05 실행 도구, 공통 WF 공식 판정은 미실행이다. 동시 실행 중복은 mock에서 검증하지 않았다. B27 8초 제한은 티켓 API까지 느려지면 WF-11 6초를 넘을 수 있어 R04와 정해야 한다. 지식은 승인 전이고 시험용 검색은 실제 벡터 검색이 아니므로 답변 품질은 R03 구현 뒤 다시 평가한다.
