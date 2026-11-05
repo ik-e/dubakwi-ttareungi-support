@@ -64,12 +64,22 @@
       "name": "E04 오류 보관",
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.2,
+      "onError": "continueRegularOutput",
       "parameters": {
         "source": "database",
         "workflowId": {"__rl": true, "value": "dubakwiDlq0001", "mode": "list", "cachedResultName": "dubakwi-dlq"},
         "options": {"waitForSubWorkflow": true}
       },
       "position": [1320, -100]
+    },
+    {
+      "name": "E08 오류 경로 안전 종료",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "parameters": {
+        "jsCode": "const safe = $('E02 오류 가림과 안전 차단').item.json;\nconst dlq = $json;\nconst stored = dlq && dlq.ok === true;\nreturn [{json:{ok:false,skipped:false,state_ref:null,dlq_id:stored ? (dlq.dlq_id ?? null) : null,error_code:stored ? 'workflow_runtime_error' : 'error_storage_failed',execution_id:safe.execution_id}}];"
+      },
+      "position": [1580, -100]
     },
     {
       "name": "E07 설정 미완료 안전 종료",
@@ -91,7 +101,8 @@
       ]
     },
     "E05 중단 요청 상태 확인": {"main": [[{"node": "E06 DLQ 요청 구성", "type": "main", "index": 0}]]},
-    "E06 DLQ 요청 구성": {"main": [[{"node": "E04 오류 보관", "type": "main", "index": 0}]]}
+    "E06 DLQ 요청 구성": {"main": [[{"node": "E04 오류 보관", "type": "main", "index": 0}]]},
+    "E04 오류 보관": {"main": [[{"node": "E08 오류 경로 안전 종료", "type": "main", "index": 0}]]}
   },
   "active": false,
   "settings": {"executionOrder": "v1"},

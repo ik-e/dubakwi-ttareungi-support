@@ -77,6 +77,9 @@ if (nodes.get("E05 중단 요청 상태 확인")?.onError !== "continueRegularOu
 if (nodes.get("E04 오류 보관")?.parameters.workflowId?.value !== "dubakwiDlq0001") {
   throw new Error("DLQ workflow id is not pinned");
 }
+if (nodes.get("E04 오류 보관")?.onError !== "continueRegularOutput") {
+  throw new Error("DLQ failure must terminate safely without throwing recursively");
+}
 if (!nodes.has("E03 저장 설정 확인") || !nodes.has("E07 설정 미완료 안전 종료")) {
   throw new Error("fail-closed configuration branch is missing");
 }
@@ -123,4 +126,21 @@ if (!stateConnections.some((edge) => edge.node === "E06 DLQ 요청 구성")) {
   throw new Error("state failure continuation is not connected to the DLQ builder");
 }
 
-console.log("P20 error redaction/routing and state-failure injection: 12/12 passed");
+const safeEndCode = nodes.get("E08 오류 경로 안전 종료")?.parameters.jsCode;
+if (typeof safeEndCode !== "string") throw new Error("safe error-path terminator is missing");
+const safeEnd = new Function("$", "$json", safeEndCode);
+const bothFailed = safeEnd(() => ({item: {json: result}}), {
+  error: "DLQ postgres://private-host super-secret",
+})[0].json;
+if (bothFailed.error_code !== "error_storage_failed" || bothFailed.execution_id !== "execution-1") {
+  throw new Error(`state/DLQ double failure was not terminated safely: ${JSON.stringify(bothFailed)}`);
+}
+if (JSON.stringify(bothFailed).includes("private-host") || JSON.stringify(bothFailed).includes("super-secret")) {
+  throw new Error("DLQ failure detail leaked from the safe terminator");
+}
+const dlqConnections = workflow.connections["E04 오류 보관"]?.main?.[0] ?? [];
+if (!dlqConnections.some((edge) => edge.node === "E08 오류 경로 안전 종료")) {
+  throw new Error("DLQ failure is not connected to the safe terminator");
+}
+
+console.log("P20 state/DLQ double-failure and redaction: 16/16 passed");
