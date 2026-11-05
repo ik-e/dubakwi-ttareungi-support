@@ -1,2 +1,7 @@
 chatbot-original.html
 따릉이챗봇사진/
+
+# External originals remain internal; only authored summary and source links are public.
+chatbot_documents/*
+!chatbot_documents/README.md
+!chatbot_documents/source-index.md

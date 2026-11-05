@@ -2,7 +2,7 @@
 
 Docker Compose 채택: 2026-11-03 사용자 결정. 편집·배포 R01, 저장/영속성 검토 R04, 흐름 연결 R02/R03, VM 검증 R05. 책임 원본은 [팀 헌장](../docs/project/TEAM-CHARTER.md), 절차 규칙은 [AGENTS](../AGENTS.md)다.
 
-- 버전: v0.8 / 2026-11-05 P19 Credential·검색·모델 VM 부분 연결 반영
+- 버전: v0.9 / 2026-11-05 PostgreSQL 독립 배포 준비본·R04 검토 인계
 
 ## 1 구성과 현재 상태
 
@@ -11,6 +11,7 @@ Docker Compose 채택: 2026-11-03 사용자 결정. 편집·배포 R01, 저장/�
 | 경로·항목 | 용도·상태 | 선행 확인 |
 | --- | --- | --- |
 | `infra/compose.yaml` | 미작성. 현재는 기존 VM Compose를 유지하며 새 파일로 대체/기동하지 않음 | 기존 설치·데이터/비밀 보존·D01/D03·R04 연결 인계 |
+| [postgres-compose.yaml](postgres-compose.yaml)·[PostgreSQL 준비/검토](postgres-deployment.md) | R01 검토용 준비본. 기존 n8n과 별도 project, 공개 포트 없음·external 볼륨·파일 secrets | PR #23 수정은 재시험/병합 완료. R04 준비본 검토·D01 물리 DB 채택·실제 환경 확인 전 VM 미적용 |
 | Discord Gateway 봇 | R04 구현·R01 Compose 배포 예정. 외부 Gateway 연결과 내부 n8n 호출, 실제 SDK/토큰은 미준비 | D07,3초 defer·허용 계정 매핑·중복·전송 실패·토큰 만료 검증 |
 | [.env.example](../.env.example) | R05 도구의 확인된 Webhook 키 환경변수·빈 값 작성. VM Compose 설정과 별개 | 실제 키는 환경별 비공개 연결 |
 | `.env` | 환경별 비밀/설정, Git 제외 | 비밀 공급·접근권한·백업 방식 |
@@ -27,6 +28,8 @@ RAG 원본 수동 색인44청크·실제 HTTP7/7·HTTPS검색과 P11부분회귀
 ## 2 최초 준비와 배포 순서
 
 기존 VM은 [배포 전 점검](vm-preflight.md)을 먼저 따른다. 아래 compose 작성/기동은 향후 검토된 교체/확장 구성이 있을 때의 절차다. 현재 infra/compose.yaml이 없으므로 아래 up 명령을 실행하거나 같은 포트에 두 번째 n8n을 만들지 않는다.
+
+PostgreSQL만 추가하는 준비본은 별도 [배포/권한/복원·Credential 안내](postgres-deployment.md)를 따른다. 이 준비본의 문법 통과나 PR 생성은 VM DB 적용 완료가 아니다. PR #23 수정본은 main에 병합했으며 자동 초기화 대신 검토된 버전의 SQL을 명시적으로 적용한다.
 
 1. R01이 확정 접두사 dubakwi 적용·VM 자원·Docker Compose 사용 가능 여부·접속 URL/TLS·외부 포트·볼륨·백업 위치를 확인한다. R04는 Jira 및 저장 경계를 확인한다(D01/D03).
 2. R01이 실제 이미지 버전과 compose를 작성하고 R04가 영속성·DB 격리·비밀 주입을 검토한다. 외부 공개는 필요한 입구로 제한하고 내부 DB·관리 연결을 무조건 공개하지 않는다.
@@ -54,6 +57,7 @@ R01은 compose·배포 버전·환경 비밀/암호화 키의 안전한 복구 �
 
 | 날짜 | 버전 | 내용 |
 | --- | --- | --- |
+| 2026-11-05 | v0.9 | PostgreSQL16.15 digest 고정 독립 Compose·external 자원/파일 비밀·owner/runtime·복원/Credential 조건과 R04 검토 항목 준비, VM 미적용 |
 | 2026-11-05 | v0.8 | P19 Credential 연결·내부 검색/모델 부분 시험과 사본 비활성화·전체 서비스 미완료 연결 |
 | 2026-11-05 | v0.7 | 79일차 원본 메모리 data-api 내부망 기동·실제 로그18건·과정 도구 적용과 한계 연결 |
 | 2026-11-05 | v0.6 | 원본 수동 RAG VM 색인·검색과 data-api 실행 원본 인계 조건 연결 |
