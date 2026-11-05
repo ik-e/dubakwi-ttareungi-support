@@ -71,6 +71,9 @@ if (workflow.id !== "dubakwiErrors01") {
 if (nodes.get("E05 중단 요청 상태 확인")?.parameters.workflowId?.value !== "dubakwiState01") {
   throw new Error("state workflow id is not pinned");
 }
+if (nodes.get("E05 중단 요청 상태 확인")?.onError !== "continueRegularOutput") {
+  throw new Error("state failure must continue to the DLQ path");
+}
 if (nodes.get("E04 오류 보관")?.parameters.workflowId?.value !== "dubakwiDlq0001") {
   throw new Error("DLQ workflow id is not pinned");
 }
@@ -83,9 +86,15 @@ if (typeof dlqCode !== "string") {
   throw new Error("DLQ request builder is missing");
 }
 const buildDlq = new Function("$", "$json", dlqCode);
+// state 하위 실행이 throw한 뒤 continueRegularOutput으로 전달되는 오류 항목을 주입한다.
+// DLQ 요청은 이 항목의 원문이 아니라 E02에서 가린 원 문맥만 사용해야 한다.
+const injectedStateFailure = {
+  error: "state backend unavailable: postgres://private-host super-secret",
+  stack: "stack-private",
+};
 const dlqRequest = buildDlq(
   () => ({item: {json: result}}),
-  {ok: true, skipped: false},
+  injectedStateFailure,
 )[0].json;
 const expectedDlqKeys = [
   "attempts", "case_id", "effects", "error_code", "failed_step", "jira_issue_id",
@@ -102,5 +111,16 @@ if (
 ) {
   throw new Error(`unexpected DLQ request: ${JSON.stringify(dlqRequest)}`);
 }
+const serializedDlq = JSON.stringify(dlqRequest);
+for (const marker of ["private-host", "super-secret", "stack-private"]) {
+  if (serializedDlq.includes(marker)) {
+    throw new Error(`state failure detail leaked to DLQ: ${marker}`);
+  }
+}
 
-console.log("P20 error redaction/routing: 9/9 passed");
+const stateConnections = workflow.connections["E05 중단 요청 상태 확인"]?.main?.[0] ?? [];
+if (!stateConnections.some((edge) => edge.node === "E06 DLQ 요청 구성")) {
+  throw new Error("state failure continuation is not connected to the DLQ builder");
+}
+
+console.log("P20 error redaction/routing and state-failure injection: 12/12 passed");

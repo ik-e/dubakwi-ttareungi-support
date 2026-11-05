@@ -43,6 +43,7 @@
       "name": "E05 중단 요청 상태 확인",
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.2,
+      "onError": "continueRegularOutput",
       "parameters": {
         "source": "database",
         "workflowId": {"__rl": true, "value": "dubakwiState01", "mode": "list", "cachedResultName": "dubakwi-state"},
