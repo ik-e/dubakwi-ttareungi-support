@@ -2,7 +2,7 @@
 
 전체 구성과 요청·티켓·DLQ 상태의 관계는 [최상위 시스템 설계서](SYSTEM-DESIGN.md)를 참조한다. 저장 구조·계약·복구 상세의 원본은 이 문서다.
 
-- 작성: 2026-11-03 KST / 버전·상태: **v0.4 두바퀴 dubakwi 실행/예시 이름 동기화 초안·구현 전**.
+- 작성: 2026-11-03 KST / 버전·상태: **v0.5 PostgreSQL 저장 계약·검증 준비본, VM 연결 전**.
 - 편집 책임: R04 연동·안정성. 인터페이스 검토 R02, 환경·보존 정책 R01, 확인 항목 검토 R05.
 - 팀 보조 설계서다. 공식 워크플로우·RAG·실행 결과서 템플릿을 대체하지 않는다.
 - 범위의 원본: [TOPIC](TOPIC.md). 전체 동작·공개 페이로드·오류 분기는 [워크플로우 설계서](WORKFLOW-DESIGN.md), 지식·벡터 저장은 [RAG 설계서](RAG-ARCHITECTURE.md), 작업 배정·진행은 [개발 계획](../DEVELOPMENT-PLAN.md).
@@ -15,9 +15,9 @@
 | --- | --- |
 | Jira 티켓 관리 | 사용자 채택. 실제 계정·프로젝트·필드·연결은 확인 전 |
 | 최소 처리 상태·실행 기록·DLQ | 사용자 채택. 상세 구조는 이 문서의 작업 기준 초안 |
-| 물리 저장 | PostgreSQL의 request_state/dead_letters 2테이블 + n8n 기본 실행 기록을 제안. DB 제품·배포 방식은 아직 채택 전 |
+| 물리 저장 | PostgreSQL의 request_state/dead_letters 2테이블 + n8n 기본 실행 기록. 마이그레이션 준비본은 구현, VM 배포·채택 검증 전 |
 | 이전 3테이블 제안 | 제외. support_cases와 integration_events를 별도 구축하지 않음 |
-| 실제 구현 | SQL·마이그레이션·DB 배포·n8n 연결·재처리 실행 모두 미완료 |
+| 실제 구현 | SQL·권한 마이그레이션,state/DLQ 저장 함수·검증 SQL 준비. DB 배포·n8n 실제 연결·재처리 실행은 미완료 |
 
 PostgreSQL 제안 이유는 요청 고유키·조건부 갱신·DLQ 중복 제한을 관리하기 위해서다. 다른 저장 기능으로 같은 계약을 충족하면 물리 기술을 변경할 수 있다. 단순 GET 후 SET만 제공하는 저장소가 동시 요청까지 보장한다고 가정하지 않는다. 제공 data-api의 메모리 캐시·DLQ는 공통 시험에 사용 가능하지만 재시작 복구가 구현된 것으로 보지 않는다.
 
@@ -81,6 +81,7 @@ request_state는 **팀 범위의 요청ID당 1건**이다. 같은 문의의 보�
 | jira_issue_id,jira_issue_key | text, NULL 허용 | 생성 전 또는 생성 여부 불명은 null. 확인한 ID는 실패 시에도 유지 |
 | processing_status | processing/completed/failed/unknown, NOT NULL | 현재 요청 처리 상태 |
 | current_step | text, NOT NULL | 마지막 시작·확인 단계. 노드ID 또는 정해진 작업 코드 |
+| error_code | text, NULL 허용 | failed/unknown일 때 필수인 가린 오류 코드. processing/completed에서는 null |
 | response | JSON 객체, NULL 허용 | 공통 Response의 가린 최종 결과. completed일 때 필수 |
 | execution_id | text, NULL 허용 | 원래 n8n 실행과의 연결 |
 | revision | bigint, NOT NULL, 초기0 | 저장 레코드의 조건부 갱신·오래된 쓰기 거절용 |
@@ -89,7 +90,8 @@ request_state는 **팀 범위의 요청ID당 1건**이다. 같은 문의의 보�
 - 기본키는 (scope,request_id),status는 허용값만,revision은0이상이다. 같은 (scope,case_id)의 processing/failed/unknown은1건만 허용한다. PostgreSQL 채택 시 기존 request_state의 조건부 고유 인덱스로 구현하는 후보이며 새 테이블은 필요하지 않다. completed가 된 보완 응답 뒤 다음 요청이 처리권을 얻는다. 조회용 보조 인덱스는 (scope,case_id),(processing_status,updated_at)를 후보로 둔다.
 - input_hash는 owner_id,trim/정규화 question,context,attempt 기본값1,case_ref의 고정 순서 JSON으로 계산한다. 정규화 규칙은 R02/R04가 동일하게 적용한다. 원문·Credential·서버 생성 시각은 해시 비교 대상에 넣지 않는다.
 - Jira ID는 여러 보완 요청에서 같을 수 있으므로 request_state.jira_issue_id에 고유 제약을 두지 않는다. 생성·재사용의 기준은 first_request_id/기존 Jira 연결이다.
-- revision은 이 레코드의 버전이다. SupportCase.version/SaveRequest.expected_case_version이 뜻하는 같은 문의의 보완 충돌 검사와 혼동하지 않는다. case_version이 실제 제공되면 별도 비교한다. 없는 환경은 version=null로 반환하고 같은 case의 활성 요청 단독 처리권과 각 Jira 변경 직전 상태 재확인을 사용한다. 버전 지원을 확인하지 않고0을 임의 버전으로 사용하지 않는다.
+- revision은 이 레코드의 버전이며 공개 계약의 StateRef.state_revision으로 변환한다. SupportCase.version/SaveRequest.expected_case_version이 뜻하는 같은 문의의 보완 충돌 검사와 혼동하지 않는다. case_version이 실제 제공되면 별도 비교한다. 없는 환경은 version=null로 반환하고 같은 case의 활성 요청 단독 처리권과 각 Jira 변경 직전 상태 재확인을 사용한다. 버전 지원을 확인하지 않고0을 임의 버전으로 사용하지 않는다.
+- jira_issue_id는 Jira 내부 불변 ID,jira_issue_key는 실제 프로젝트 표시 키다. 둘 다 내부에 보존하고 시민 응답의 ticket_id에는 실제 key를 반환한다. 현재 프로젝트 예시는 JBYS-1이며 BIKE 같은 예시 접두사를 고정값으로 사용하지 않는다.
 - 물리 테이블은 Jira와 별개인 서비스 소유 영역에 두고 n8n 내부 테이블을 직접 수정하지 않는다. 같은 DB 서버를 쓰더라도 권한·스키마/DB 경계를 분리한다.
 
 ### 3.2. 최초 처리권·재전송 판정
@@ -120,6 +122,8 @@ replay의 저장 응답 원본은 바꾸지 않는다. B08이 반환용 복사�
 | 운영자가 확인 후 재처리 | failed/unknown→processing,새 execution 연결 | 성공 단계는 건너뛰고 실패 단계만 |
 
 completed는 Jira 티켓 종료 상태가 아니다. 분류·보완·이관 등 그 요청의 결과가 저장되어 재사용 가능하다는 뜻이다. 명확 실패 응답도 replay 가능하게 할지는 실패 상태의 현재는 failed/unknown을 pending으로 반환하고,외부 효과 미확인 요청을 completed로 위장하지 않는다.
+
+failed/unknown은 같은 case의 새 요청을 의도적으로 막는 활성 상태다. 운영자가 외부 효과와 known ID를 확인하기 전에는 자동 해제하지 않는다. 시험 재실행은 runtime 계정으로 행을 삭제하지 않고,R01 또는 지정 마이그레이션 운영자가 폐기 가능한 시험 DB만 재생성한다. 운영 DB 초기화는 시험 절차에 포함하지 않는다.
 
 오래된 processing이나 실행 기록의 삭제를 근거로 처리권을 자동 재발급하지 않는다. 원래 실행이 끝났는지와 Jira 효과를 확인한다. 재시작 시 처리 중 건은 확인 대상으로 남긴다. DB의 고유키·트랜잭션이 Jira 원격 생성을 원자적으로 보장하지는 않는다.
 
@@ -201,6 +205,8 @@ n8n 원시 노드 입출력에는 사용자 입력·외부 응답이 포함될 �
 
 물리 PostgreSQL 채택 시 R04는 SQL/저장 기능을 준비하고 R02는 본체에 연결한다. 기존 HTTP Request 노드는 논리 호출 위치를 나타내므로 실제로는 Postgres 노드·하위 워크플로우·HTTP 어댑터 중 선택해 명세를 갱신한다. 확인되지 않은 endpoint나 트랜잭션 경계를 구현 완료로 표시하지 않는다.
 
+현재 준비본은 parameterized JSON 1개만 받는 `dubakwi_service.state_apply`와 `dubakwi_service.dlq_apply` 함수로 상태 명령과 DLQ 갱신을 원자적으로 수행한다. 신규 요청의 begin은 DB에서 처리할 수 있지만,기존 case_ref의 소유자·열림 상태는 Jira가 원본이므로 Jira 확인 전에는 `case_verification_required`로 중단한다. 이 중단을 정상 처리나 저장 완료로 집계하지 않는다.
+
 공통 data-api 시험 모드와 Jira 실연동 모드는 티켓·상태·DLQ의 물리 저장을 어댑터로 구분한다. 공통 시험의 DLQ1건 판정과 실제 경로의 보존 여부를 각각 확인한다. 무조건 두 저장소에 이중 기록해 건수·소유권·원본을 혼동하지 않는다. 모의 시험 통과가 실제 Jira 종료·DB 복구의 증거는 아니다.
 
 <a id="storage-contract"></a>
@@ -244,7 +250,7 @@ SupportCase.version은 실제 Jira 문의 버전을 확인했을 때 그 값,지
 가상 bind 성공: prepare가 revision0→1을 반환한 후그1을 기대값으로 사용,bind는2를 반환한다.
 
 ```json
-{"op":"bind","state_ref":{"scope":"dubakwi-demo","request_id":"req-01","owner_id":"citizen-a","input_hash":"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa","execution_id":"exec-01","state_revision":1},"args":{"jira_issue_id":"10001","jira_issue_key":"BIKE-1","case_id":"case-01","first_request_id":"req-01","next_step":"H08"}}
+{"op":"bind","state_ref":{"scope":"dubakwi-demo","request_id":"req-01","owner_id":"citizen-a","input_hash":"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa","execution_id":"exec-01","state_revision":1},"args":{"jira_issue_id":"10001","jira_issue_key":"JBYS-1","case_id":"case-01","first_request_id":"req-01","next_step":"H08"}}
 ```
 
 ```json
@@ -254,7 +260,7 @@ SupportCase.version은 실제 Jira 문의 버전을 확인했을 때 그 값,지
 가상 DLQ 복구 캡슐. 실제 Jira 연결·권한·최신 상태 확인 없이는 replay하지 않는다.
 
 ```json
-{"version":1,"mode":"jira_ref","action":"close","args":null,"reference":{"jira_issue_id":"10001","jira_issue_key":"BIKE-1","case_id":"case-01","owner_id":"citizen-a","read_fields":["masked_answer","sources","target_close_status"]},"reason":"종료 전환 실패,필수값은 생성 시 Jira에 저장됨"}
+{"version":1,"mode":"jira_ref","action":"close","args":null,"reference":{"jira_issue_id":"10001","jira_issue_key":"JBYS-1","case_id":"case-01","owner_id":"citizen-a","read_fields":["masked_answer","sources","target_close_status"]},"reason":"종료 전환 실패,필수값은 생성 시 Jira에 저장됨"}
 ```
 
 RecoveryCapsule의 payload는 action별 허용 필드만 사용한다. create는 가린 TicketRequest,bind는Jira ID/key와원요청참조,next_step,finish는가린 SaveRequest/Response,close/context_update/assign/alert는대상과검증된가린변경값이다. n8n execution_id만 있는 reference는jira_ref가 아니며manual_required다. 비밀·임의 endpoint·임의 코드·전체 대화는허용하지않는다.

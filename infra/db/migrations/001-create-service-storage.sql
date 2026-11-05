@@ -14,13 +14,19 @@ CREATE TABLE dubakwi_service.request_state (
     processing_status text NOT NULL
         CHECK (processing_status IN ('processing', 'completed', 'failed', 'unknown')),
     current_step text NOT NULL CHECK (btrim(current_step) <> ''),
+    error_code text CHECK (error_code IS NULL OR btrim(error_code) <> ''),
     response jsonb CHECK (response IS NULL OR jsonb_typeof(response) = 'object'),
     execution_id text CHECK (execution_id IS NULL OR btrim(execution_id) <> ''),
     revision bigint NOT NULL DEFAULT 0 CHECK (revision >= 0),
     created_at timestamptz NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at timestamptz NOT NULL DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (scope, request_id),
-    CHECK (processing_status <> 'completed' OR response IS NOT NULL)
+    CHECK (processing_status <> 'completed' OR response IS NOT NULL),
+    CHECK (
+        (processing_status IN ('failed', 'unknown') AND error_code IS NOT NULL)
+        OR
+        (processing_status IN ('processing', 'completed') AND error_code IS NULL)
+    )
 );
 
 CREATE UNIQUE INDEX request_state_one_active_case_idx
