@@ -172,9 +172,9 @@ flowchart LR
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | [ ] | P01 | `docs/project/WORKFLOW-DESIGN.md` 8절: 제공 자료의 기능·위치·확인 수준·접근 가능 여부 목록. 재사용 결정·변경점은 설계/구현 시 누적하며 전체 자료 실행을 선행 조건으로 두지 않음 | R02 / 전원 | 없음 | 진행 | [8.1절 후보 목록](project/WORKFLOW-DESIGN.md#81-p01-실습-자료-후보-목록)에 64~79일차 실습 15개 후보의 기능·위치·노드·확인 수준 기록. 파일 읽기 수준이며 실행 안 함. 팀 검토 전, `Last3Mon/80`·단위 프로젝트 판 flow.py 미확인 | 2026-11-04 |
 | [ ] | P02 | `docs/project/TOPIC.md`: 시민 문의 6유형·대표 사례·Webhook/Jira 조합·제외 범위·승인 결과 | R01 / 전원·강사 | P01 자료 목록 초안(전체 실행 불필요) | 진행 | [v0.7 초안](project/TOPIC.md): 시민·전체 정상 신규 티켓·Jira·최소 저장 반영. 조합 표기·주제 적합성·팀/강사 확인 필요 | 2026-11-03 |
-| [ ] | P03 | `docs/project/TEAM-CHARTER.md`: 역할 ID·7개 실행 파일과 문서 소유권·계약 변경·배포 규칙 | R01 / 전원 | P02 초안 | 진행 | [v0.11 초안](project/TEAM-CHARTER.md): 두바퀴/dubakwi·GitHub 공개 저장소 주소 반영. 실제 팀 권한·발표 ID·팀 검토 남음 | 2026-11-03 |
+| [ ] | P03 | `docs/project/TEAM-CHARTER.md`: 역할 ID·7개 실행 파일과 문서 소유권·계약 변경·배포 규칙 | R01 / 전원 | P02 초안 | 진행 | [v0.12 초안](project/TEAM-CHARTER.md): PostgreSQL 준비본의 R01 편집·R04 저장/권한·R05 복원 검토 경로 반영. 실제 팀 권한·발표 ID·팀 검토 남음 | 2026-11-05 |
 | [ ] | P04 | README·AGENTS·Python/uv/Ruff/CI·공개 정책/도구·infra 안내·compose·.env.example: 경로/규칙·Docker 환경/실행/복구·비밀 제외. 실제 compose 검증·VM 재현까지 확인 | R01 / R04·R05·R02/R03 연결 | P02/P03 초안·D01/D03 실제 환경 확인(설정/배포 부분) | 진행 | [AGENTS](../AGENTS.md)·[infra 안내](../infra/README.md)·[.gitignore](../.gitignore) 작성. [구조/책임](project/SYSTEM-DESIGN.md) 명시. Python 설정/잠금·품질 CI·공개 도구 추가. [VM 점검](../infra/vm-preflight.md): 기존 n8n/볼륨/네트워크·healthz 확인, 운영 경로 준비·시험 .env.example 작성. 기존 설치 유지. 기준/변경 전 백업 검증·Header Auth 등록·P11 연결/게시·VM 입력 부분 시험10/10 완료. 79원본 data-api 기동·신규P11 22/22·로그18/18로B35실패 해소. 전체 복원·R05 공식 판정 미완료. [새 증거](../runs/public/20261105-114531-vm-course79-data-api/summary.json) | 2026-11-05 |
-| [ ] | P05 | `SYSTEM-DESIGN.md`와 워크플로우·RAG·저장소 설계 초안: 구성·상태/전이·S1~S8·기능F01~F10·공개 계약·담당 경계 공동 검토 | R01 전체 취합·R02 업무 / R03·R04 상세·R05 판정 | P02·P03 초안 | 진행 | [시스템 v0.11](project/SYSTEM-DESIGN.md)·[워크플로우 v0.14](project/WORKFLOW-DESIGN.md)·[RAG v0.10](project/RAG-ARCHITECTURE.md)·[저장소 v0.4](project/STORAGE-DESIGN.md). 문서 보완 반영, 공동 검토·D01~D07 실제 확인은 미완료 | 2026-11-05 |
+| [ ] | P05 | `SYSTEM-DESIGN.md`와 워크플로우·RAG·저장소 설계 초안: 구성·상태/전이·S1~S8·기능F01~F10·공개 계약·담당 경계 공동 검토 | R01 전체 취합·R02 업무 / R03·R04 상세·R05 판정 | P02·P03 초안 | 진행 | [시스템 v0.12](project/SYSTEM-DESIGN.md)·[워크플로우 v0.14](project/WORKFLOW-DESIGN.md)·[RAG v0.10](project/RAG-ARCHITECTURE.md)·[저장소 v0.4](project/STORAGE-DESIGN.md). 문서 보완 반영, 공동 검토·D01~D07 실제 확인은 미완료 | 2026-11-05 |
 | [ ] | P06 | `cases/common.json`: WF-01~13과 WF-02b의 14유형을 따릉이로 변환. 조건·판정 유지, 5교시 점검 | ⑤ / ②③④·강사 | P05 초안 | 진행 | [PR #7](https://github.com/ik-e/dubakwi-ttareungi-support/pull/7): cases/common.json 공통14유형 기대 결과 초안, 모두 not_run. 가이드 설명 원문 일부 대조, 실제 공통 fixture/도구 대조·역할 검토·5교시 점검 미완료 | 2026-11-04 |
 | [ ] | P07 | `cases/team.json`: 5개 이상, S1~S8·기능ID·상태/효과와 연결한 기대 결과. case_ref 왕복·저장/ID 바인딩 실패·효과 미확인·재처리·오탐 포함 | R05 / R02·R03·R04 | P05 초안 | 진행 | [PR #7](https://github.com/ik-e/dubakwi-ttareungi-support/pull/7): cases/team.json TC01~TC10 초안, 모두 not_run. 보완·저장/바인딩·효과 미확인·수동 복구·오탐 포함. R02/R03/R04 검토·모의 데이터/고장 준비 미완료 | 2026-11-04 |
 | [ ] | P08 | `knowledge/public/*.md·restricted/*.md·manifest.json`: 공개 안내6개+제한 모의 정책2개 제안, 각 문서 ##절3개 이상. 출처·확인일·적용 범위·권한·가상 정책 구분 | R03 / R04·R05 | P05 초안·D04 지식/권한 초안 | 진행 | [PR #4](https://github.com/ik-e/dubakwi-ttareungi-support/pull/4) 병합: 공개6개·제한 가상2개·manifest·평가 초안 반영. 승인 대기·색인 비활성 유지. 원문은 최신 추적 제외·로컬 보존. 실제 지식 승인·색인/권한 시험 미완료 | 2026-11-04 |
@@ -343,7 +343,7 @@ P29는 같은 발표 파일의 틀·초안·최종 편집 및 연습 단계를 �
 
 ## 10. 공통 설계 결정과 역할별 구현 인계
 
-전체 기준은 [SYSTEM-DESIGN v0.11](project/SYSTEM-DESIGN.md)의 구성·상태·시나리오·기능 관계이며, 실행 상세 기준은 [WORKFLOW-DESIGN v0.14](project/WORKFLOW-DESIGN.md)의 해당 노드·엣지·스키마 ID다. 아래는 작업 배정·확인 시점이며 설계 계약의 사본이 아니다. D 항목의 확인 결과는 워크플로우 설계 5.3절과 RAG·저장소 설계의 영향받는 명세를 함께 갱신하고 실제 작업의 상태·완료 증거는 P01~P31 원장에서 관리한다. 공통 논리 계약은 워크플로우6.4~6.5/7.4와 저장소6.1의 단일 원본을 작업 기준으로 삼는다. case_ref·저장 명령/봉투·버전 의미·복구 캡슐은 이번 보완에서 구체화했다. D01~D07의 실제 API·환경·측정·공동 확인은 미완료다.
+전체 기준은 [SYSTEM-DESIGN v0.12](project/SYSTEM-DESIGN.md)의 구성·상태·시나리오·기능 관계이며, 실행 상세 기준은 [WORKFLOW-DESIGN v0.14](project/WORKFLOW-DESIGN.md)의 해당 노드·엣지·스키마 ID다. 아래는 작업 배정·확인 시점이며 설계 계약의 사본이 아니다. D 항목의 확인 결과는 워크플로우 설계 5.3절과 RAG·저장소 설계의 영향받는 명세를 함께 갱신하고 실제 작업의 상태·완료 증거는 P01~P31 원장에서 관리한다. 공통 논리 계약은 워크플로우6.4~6.5/7.4와 저장소6.1의 단일 원본을 작업 기준으로 삼는다. case_ref·저장 명령/봉투·버전 의미·복구 캡슐은 이번 보완에서 구체화했다. D01~D07의 실제 API·환경·측정·공동 확인은 미완료다.
 
 | 결정 ID | 확인·결정할 작업 | 담당 / 검토 | 확인 시점·연결 작업 |
 | --- | --- | --- | --- |
@@ -558,3 +558,19 @@ R01 실제 결과: PR #16 329778c 원본54노드 비활성 사본의 Credential7
 PR #19에서는 R01이 기존 VM 증거와의 상태 정합성에 한해 R03 문서를 대리 동기화한다. 영향 경로는 RAG 상세/인계/템플릿/발표 대본과 공통 참조다. 수동44청크·실제HTTP7메서드와 후속B14 연결을 반영하고, 재시작/재색인·서버 인가·공식 판정은 미완료로 유지한다. R03 지식·검색 JSON·모델·권한 계약·과거 증거는 수정하지 않는다. 후속 기능 편집 소유권은 헌장대로 유지한다.
 
 [PR 통합 검토 증거](../runs/public/20261105-125100-local-pr-integration-review/report.md)에 후보별 범위·검사와 보류 사유를 기록했다. PR #13의 파일 before503 뒤요청2건/pass2건, 사례after503 뒤후속요청진행을 가짜 transport로 재현했다. R05 hook 중단 보완 전 병합하지 않는다. PR #16도 실제R04연결/전체VM/시간기준 미완료로 초안을 유지한다. 새 VM시험·DB적용·P19전체게시를 이번 PR정리에 포함하지 않았다.
+
+### P04/P18 PostgreSQL 배포 준비본·R04 검토 인계 진행 (2026-11-05 KST)
+
+사용자가 R01 배포 준비본 작성과 R04 검토 항목 전달을 지시했다. R01은 기존 n8n Compose·운영 P11·Credential을 유지한 독립 PostgreSQL Compose·비밀 없는 설정 예시·적용/백업/복원/Credential 연결 안내를 준비한다. 영향 경로는 infra·설정 예시·시스템 경로/헌장·원장·새 검증 증거다. PR #23은a2d8fca수정요청상태이며 SQL/워크플로우는 임의 변경하거나 VM에 배포하지 않는다. 이미지 다이제스트와 Compose 문법/필수값 차단을 확인하고 R04의 저장/권한/복원 검토 요청을 구체화한다. DB 채택·실제 VM 자원/아키텍처·비밀 주입·실행은 검토 후 적용 조건으로 남긴다.
+
+R01 준비 결과: [PostgreSQL 전용 Compose](../infra/postgres-compose.yaml)·[배포/검토 안내v0.1](../infra/postgres-deployment.md)·비밀없는설정이름을작성했다. 공식16.15-bookworm index digest조회/고정, 로컬Compose5.6.1문법·서비스1개·무공개포트·external볼륨/기존망·파일비밀3개·필수값누락5건차단을확인했다. [준비검증](../runs/public/20261105-141233-local-postgres-deploy-prep/report.md)을따른다. R04에게호환/권한/마이그레이션/복원/Credential6개항목검토를요청하며회신전승인으로쓰지않는다. VM/자원생성/DB기동/비밀생성/Credential등록/SQL·워크플로우변경은0이며실제서비스완료는아니다.
+
+### P18 PR #23 재시험·병합과 PR #25 후속 정리 (2026-11-05 KST)
+
+사용자의 두 PR 완료 요청에 따라 R01이 PR #23 수정본365c419를 실제 격리 PostgreSQL16.15에서 재시험했다. 원본001~004·제약/함수(owner/runtime)·runtime권한거절과 기존세실패경계가통과했고원본n8n Code/IF전달·정규화도대조했다. [재시험증거](../runs/public/20261105-143415-local-pr23-storage-retest/report.md)에첫harness정상거절문구오분류와수정후통과를보존했다. SQL/JSON은수정하지않고저장/안전실패범위로승인해PR #23을main95479d5에병합했다. 실제Jira save는미준비실패를유지하며S1통과가아니다.
+
+PR #25에최신main과재시험증거·현재적용조건을반영했다. Compose필수값5개차단·문서20개/링크438개/앵커50개·공개후보146개/링크514개·JSON/diff를확인했다. R01준비는완료했지만R04준비본검토요청은회신전이다. 기존VM/P11/Credential은유지했고DB기동·비밀등록·실제n8n/Postgres연결·백업/복원은하지않았다. 역할검토를받은것으로만들지않으며R04검토·D01/실제환경조건확인후적용한다.
+
+### P04/P18 R04 배포 검토 취합 (2026-11-05 KST)
+
+사용자가 전달한 R04의 PR25 여섯 항목 조건부 동의·준비본 병합 이견 없음을 취합했다. PostgreSQL16.15/fresh001~004/계정분리/복원후권한재적용을 적용 기준으로 하며 실제망/TLS/권한/복원·Jira정보는 미확인으로 남긴다. 사용자 적용 지시에 따라 준비본 병합 후 환경 실측을 진행한다. D01 전체 완료·GitHub 정식리뷰·VM 적용 완료로 표시하지 않는다. 원본SQL·워크플로우는 수정하지 않았다. 웹SSH와 sudo Docker 읽기 권한은 사용자 인증 후 확인했으며 기존 서비스는 보존한다.
