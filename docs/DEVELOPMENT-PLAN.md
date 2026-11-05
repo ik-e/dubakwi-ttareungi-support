@@ -319,6 +319,7 @@ P29는 같은 발표 파일의 틀·초안·최종 편집 및 연습 단계를 �
 | 2026-11-06 | R04 PR #16 검토 반영: 원본 B04를 팀 사용자 API `dubakwi-user-api:8801`·`dubakwi-internal-key`로 변경, VM 사본의 scope를 필수 `--scope` 치환으로 바꾸고 원본 값이 남으면 생성 중단. 로컬 Code 125/125, unittest 통과. 원본 B04의 VM 호출·실제 Jira·전체 S1 미실행 |
 | 2026-11-06 | R04 PR #27 `e0ff365`(알림 시도·성공 표식) 소비 확인: support 로컬 Code 125/125, R04 반복 시험 4/4, support 수정 불필요. `alert_marker` 복구 정보가 DLQ 허용 action에 없어 R04에 확인 요청. 가짜 Jira 종단·실제 Jira·동시성 미실행 |
 | 2026-11-06 | R04 PR #27 `f306778` 소비 확인: `alert_marker` DLQ 허용, 같은 case는 같은 `dlq_id`·`deduplicated: true`(임시 PostgreSQL `001`~`007`), support 로컬 Code 127/127(새 사례는 #27 병합 뒤 반영). 시도 표식 `alert`는 요청마다 새 DLQ라 확인 요청. 실제 Jira·VM 미실행 |
+| 2026-11-06 | R04 PR #27 `15e3c5a` 소비 확인: 시도 표식만 남은 문의도 `alert_marker`로 같은 case DLQ에 합쳐짐. support 로컬 Code 127/127, R04 시험 5/5·4/4·8/8. support 수정 불필요. 실제 Jira·VM·동시 요청 미실행 |
 | 2026-11-05 | R01 확정: 다음 시험 support `5e0026c`, state·DLQ·handoff `168c79c`, errors `ff19178`. 병합 순서 PR #27 → #16. 재배정·재알림 반복은 독립 결함으로 기록. 실제 Jira S1은 게시 후 새 증거로 확인 |
 | 2026-11-05 | R04 `168c79c` 기준 변경: 키 재사용 검증·완료 이슈 재종료 반영본을 가짜 Jira로 재확인. support 변경 없음. 실제 Jira·VM·공식 판정 미실행 |
 | 2026-11-05 | R04 `fdd0be1` 연결: B15 2.5초 적용, 가짜 Jira로 S1·보완 한도·이관·긴급·조회 로컬 확인. support를 통한 실제 Jira·VM·공식 판정 미실행 |
