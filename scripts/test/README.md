@@ -41,10 +41,6 @@ uv run --locked python scripts/test/run_cases.py --url <webhook-url> --env vm --
 
 [도구 목록](../README.md) · [작업 규칙](../../AGENTS.md)
 
-## P12 state 골격 단독 안전 시험
-
-`node scripts/test/p12-state-cases.js` 또는 unittest의 `test_p12_state.py`로 고정 워크플로우 ID, 처리권이 없는 `fail`의 `ok:true, skipped:true` 종료, 잘못된 args의 거절을 확인한다. 실제 상태 저장·PostgreSQL·Jira·n8n 하위 호출 시험은 아니다.
-
 ## P06/P07/P13 통합 검토 기준 (2026-11-04)
 
 [PR #7](https://github.com/ik-e/dubakwi-ttareungi-support/pull/7)은 사례·실행 도구 초안 공유다. 모든 사례는 not_run을 유지하며 도구 단위시험 결과를 서비스 통과 수로 쓰지 않는다. 가이드 설명 원문 일부 대조와 실제 공통 fixture·실행 검증은 구분한다. R01의 이번 안내 대리 편집 범위는 개발 원장에 기록한다.
