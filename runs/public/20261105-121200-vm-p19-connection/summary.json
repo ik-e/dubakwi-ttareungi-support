@@ -1,0 +1,96 @@
+{
+  "run_id": "20261105-121200-vm-p19-connection",
+  "execution_date": "2026-11-05",
+  "timezone": "Asia/Seoul",
+  "environment": "existing team VM n8n 2.42.6; no service restart",
+  "tasks": ["P04", "P19"],
+  "owner": "R01",
+  "source": {
+    "repository": "https://github.com/ik-e/dubakwi-ttareungi-support",
+    "pull_request": 16,
+    "commit": "329778c0de476bc950ad2da866833ce5244f4b07",
+    "path": "workflows/dubakwi-support.json",
+    "sha256": "0613a7a97b1346efd7c913c100788118a37cb56ee613241a6f0288f8fc0204ed",
+    "source_modified": false
+  },
+  "configuration_version": "P19 staged environment copy and isolated connection probe, 20261105-121200; actual IDs and derived JSON retained privately on VM",
+  "backup": {
+    "method": "online SQLite backup plus n8n config copy",
+    "integrity_check": "ok",
+    "baseline_workflows": 3,
+    "baseline_credentials": 3,
+    "baseline_executions": 44,
+    "restore_tested": false
+  },
+  "staged_copy": {
+    "name": "dubakwi-support-p19-staged",
+    "nodes": 54,
+    "active": false,
+    "active_version_null": true,
+    "credential_nodes_checked": 7,
+    "all_bindings_match": true,
+    "bindings": {
+      "B01": "dubakwi-team-key / X-Team-Key",
+      "B14_B15_B27": "dubakwi-internal-key / X-Internal-Key",
+      "L01_L02_L03": "dubakwi-openai / openAiApi"
+    },
+    "environment_changes": ["workflow name/id/versionId", "separate webhook path/id", "explicit existing Credential IDs"]
+  },
+  "probe": {
+    "name": "dubakwi-p19-connection-probe",
+    "nodes": 14,
+    "reused_original_nodes": ["B01", "B10", "B13", "B14", "B19", "B20", "L01", "L02", "L03"],
+    "fixture_context": true,
+    "fixture_scope": "public citizen context; synthetic triage/search adapters; no real state, lookup or Jira effects; stop after verifier",
+    "internal_search_url": "http://127.0.0.1:5678/webhook/dubakwi-search",
+    "credential_nodes_checked": 5,
+    "all_bindings_match": true,
+    "cases": [
+      {"id": "P19-CONN-AUTH-01", "description": "missing team key", "http": 403, "pass": true},
+      {
+        "id": "P19-CONN-QR-01",
+        "request_id": "p19-probe-qr-01",
+        "description": "real triage, B14 search, writer and verifier using synthetic public context",
+        "http": 200,
+        "elapsed_seconds": 10.228,
+        "triage_type": "rental",
+        "search_http": 200,
+        "search_status": "ok",
+        "evidence_count": 5,
+        "evidence_public_only": true,
+        "writer_json": true,
+        "writer_answer_nonempty": true,
+        "writer_citations_present": true,
+        "verifier_json": true,
+        "grounded": true,
+        "policy_ok": true,
+        "issues_count": 0,
+        "pass": true
+      }
+    ],
+    "execution_audit": {
+      "execution_id": 45,
+      "status": "success",
+      "executed_nodes_confirmed": ["B10", "B14", "B19", "B20", "L01", "L02", "L03"]
+    },
+    "cleanup": {"unpublished": true, "active_version_null": true, "route_closed_http": 404}
+  },
+  "preservation_audit": {
+    "p11_workflow_and_published_version_unchanged": true,
+    "index_workflow_unchanged": true,
+    "search_workflow_and_published_version_unchanged": true,
+    "all_existing_credential_rows_unchanged": true,
+    "n8n_health_http": 200,
+    "p11_tests_repeated": false
+  },
+  "limits": [
+    "Isolated connection test, not full P19 or S1 acceptance.",
+    "P19 staged copy remains inactive; real state/DLQ workflow IDs and Error Workflow not connected.",
+    "B15/B27 Credential references were audited but their handoff HTTP calls were not executed.",
+    "Team user/authorization fixtures, actual Jira, durable state/DLQ and R05 official regression remain pending.",
+    "Single probe duration 10.228 seconds is not WF-11 latency acceptance and exceeds the 6-second target; real time-budget verification remains pending.",
+    "No restore, restart, concurrent-request or repeated quality test performed.",
+    "Raw executions, derived deployment JSON, backups, environment IDs and secrets remain private on VM."
+  ],
+  "references": {"report": "report.md", "private_vm_evidence": ["baseline.private.json", "p19.source.json", "p19.staged.json", "p19.probe.json", "probe-results.json", "final-audit.json"]}
+}

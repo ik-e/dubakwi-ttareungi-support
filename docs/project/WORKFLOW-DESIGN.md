@@ -1003,8 +1003,36 @@ Jira에는 가린 facts,최소 상태에는 가린 최종 응답을 두고 감�
 | 과정 data-api의 `POST /logs` (가이드 인용) | B35 메타 기록 | P11 골격에서 채택. 원문 대신 가린 메타만 전송 |
 | 과정 data-api의 `/tickets`, `/alerts`, `/dlq`, 고장 스위치 (가이드 인용) | H 노드·X 노드 (R04) | 미채택. 공통 판정용 경로로 R04가 확인 |
 | `tools/flow.py` check·push·call·test·bench·fault (가이드 인용) | R05 시험, R01 배포 | 미채택. 실제 명령 확인은 P06·P13 |
-| 64~79일차 실습 워크플로우 JSON (Webhook·Header Auth·LLM Chain·Switch·Merge 예제) | B01~B36, L01~L03 후보 | **미확인.** 실습 파일을 아직 열지 않았음. 일차·파일 경로·노드 확인 후 행 추가 |
+| 64~79일차 실습 워크플로우 JSON | B01~B36, L01~L03 후보 | 아래 8.1 후보 목록. 코드·노드를 그대로 복사해 채택한 것은 아직 없음 |
 
-확인 수준: 위 표의 "가이드 인용"은 과정 안내 문서 기준이며 파일 실행 확인이 아니다. 2026-11-04 R02 갱신.
+확인 수준: 위 표의 "가이드 인용"은 과정 안내 문서 기준이며 파일 실행 확인이 아니다. 단, data-api의 `/employees`·`/logs`는 P11 로컬 n8n에서 실호출했다. 2026-11-04 R02 갱신.
+
+### 8.1. P01 실습 자료 후보 목록
+
+위치는 과정 저장소의 `Last3Mon/` 기준이며 R02의 로컬 사본에서 읽었다. 확인 수준은 **주요 노드 읽음**(노드 설정·Code 일부를 읽음, 실행 안 함)과 **구성만 확인**(노드 종류·개수·호출 주소만 확인, 실행 안 함)으로 나눈다. 재사용 확정이 아니며 채택하면 위 표에 변경점을 기록한다.
+
+| 일차 · 파일 | 기능 | 우리 노드 후보 | 확인 수준 |
+| --- | --- | --- | --- |
+| 65 · `n8n/workflows/02-webhook-router.json` | Webhook 입력 판정, 400 응답, Switch 분기 | B01·B03·B12·B36 | 주요 노드 읽음 |
+| 66 · `reference/lab03-example2-parallel.json` | LLM 2개 병렬, Merge 입력 2개로 합침 | B13~B16 | 주요 노드 읽음 |
+| 67 · `reference/lab03-example2-check.json` | Agent 결과 검사 뒤 경로 분기 | B21 | 구성만 확인 |
+| 68 · `reference/lab02-example2-router.json` | Agent 작업 분해, Code 파싱, Switch 라우팅 | B10~B12 | 주요 노드 읽음 |
+| 69 · `reference/lab03-example2-failsafe.json` | 작성·검토 하위 호출과 실패 대비 분기 | B19~B21 | 구성만 확인 |
+| 70 · `reference/lab02-example1-rule-check.json` | 하위 워크플로우로 분리한 규칙 검사 | 하위 호출 구조 참고 | 구성만 확인 |
+| 71 · `reference/lab02-example2-qa.json` | 벡터 검색(topK 3), 근거 번호 기반 답변 | B14·B19, R03 검색 | 주요 노드 읽음 |
+| 72 · `reference/lab03-example1-resilient.json` | HTTP timeout·재시도 2회·오류 출력 분기, 캐시 | B14·B15, D05 | 주요 노드 읽음 |
+| 72 · `reference/lab03-example3-ticket-down.json` | 티켓 API 장애 대체 경로 | B28·B29, R04 | 구성만 확인 |
+| 73 · `reference/lab01-example2-input.json` | `/employees` 확인, 입력 codes, 주입 규칙 | B02·B04·B05 | 주요 노드 읽음 |
+| 73 · `reference/lab03-example1-filter.json` | 출력 필터 Agent·Code | B20·B21·B33 | 구성만 확인 |
+| 76 · `reference/lab01-example2-intake.json` | 티켓 POST 재시도 3회, 항목별 결과 표시 | R04 handoff | 주요 노드 읽음 |
+| 76 · `reference/lab02-example2-error-handler.json` | Error Trigger, `/alerts` 알림 | R04 errors | 주요 노드 읽음 |
+| 76 · `reference/lab03-example1-replay.json` | DLQ 수동 재처리 | R04 dlq | 구성만 확인 |
+| 77 · `reference/helpdesk-live.json` | 경로별 `POST /logs` 기록 | B35 | 주요 노드 읽음 |
+
+- 64일차는 실습 안내 문서만 있고 워크플로우 JSON은 찾지 못했다. 74·75·78·79일차의 버전·비용·품질·운영 실습은 P11 입구 범위와 직접 맞지 않아 후보에서 뺐다. 전체 파일을 다 읽은 것은 아니다.
+- 65일차와 66~79일차 `reference` JSON의 Webhook에는 Header Auth 설정 예가 없다. B01 설정은 과정 안내의 `X-Team-Key` 기준이다.
+- 같은 JSON의 LLM 노드는 Agent와 OpenAI Chat Model 조합이고 Basic LLM Chain은 없다. D03의 역할 구현 검토 자료로 넘긴다.
+- 73일차 입력 코드 이름(`question_required`, `too_long`)은 우리 B02(`invalid_input` + 세부 사유)와 다르다. 가이드 WF-13 조건은 HTTP 400과 `codes`이며 실제 공통 판정 대조는 D02에서 한다.
+- 가이드의 `Last3Mon/80`과 단위 프로젝트 판 `flow.py`는 로컬 사본에 없어 확인하지 못했다.
 
 P01은 자료 기능·위치·제공여부 목록이며 전체 선행 실행·재사용 확정이 아니다. [공식 저장소](https://gl.isitsoft.kr/publicproj/aio-01d4-stu/-/tree/main/Last3Mon)·[참조 구조 — 공개본 제외 자료](../../docs/PUBLIC-SOURCES.md)·[공통 판정 — 공개본 제외 자료](../../docs/PUBLIC-SOURCES.md)·[RAG 가이드 — 공개본 제외 자료](../../docs/PUBLIC-SOURCES.md)를 적용하며 채택은 구현 때 판단한다. [v0.2 검토 — 공개본 제외 자료](../../docs/PUBLIC-SOURCES.md)는 이전 이력이며 현 버전 검증 완료 근거가 아니다.

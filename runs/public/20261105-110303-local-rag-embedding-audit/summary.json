@@ -1,0 +1,13 @@
+{
+  "recorded_at_kst": "2026-11-05T11:03:03+09:00",
+  "source": "2026-11-04 local n8n CLI execution dubakwi-local-44-final-validation; temporary original",
+  "model": "text-embedding-3-large",
+  "measured_sample_vectors": 1,
+  "dimensions": 3072,
+  "method": "len(response[0])",
+  "limitations": [
+    "Retrospective check of locally retained execution output; not a new API call.",
+    "Original vector values are omitted; original log is temporary and not shared.",
+    "Other samples and VM execution were not measured."
+  ]
+}
