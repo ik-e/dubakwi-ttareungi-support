@@ -16,6 +16,7 @@
 
 !/docs/
 /docs/*
+!/docs/output/
 !/docs/README.md
 !/docs/PUBLICATION.md
 !/docs/PUBLIC-SOURCES.md
