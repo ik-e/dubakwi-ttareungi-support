@@ -457,7 +457,7 @@ B28은 먼저 error_code=null && state_saved=true && 최신 state_ref를 확인�
 | H02 고정 기능 검사 | Code | WebhookBody.body | ToolCtx | kind=process/lookup, actor·owner·key·역할·action 검사. disabled 조회는 skip |
 | H03 기능 분기 | Switch | ToolCtx.kind | ToolCtx | out0 lookup;out1 skip;out2 process→H14 생성 계획 저장;fallback invalid |
 | H04 본인 대상 조회 | HTTP Request | actor_id,target_ticket_id | Raw | GET http://dubakwi-user-api:8801/records/<id>?requester=<actor> (내부 Header Auth, full response·neverError·timeout 1.5초, 네트워크 오류 포함 총 2회). 서버가 owner를 판정하며 requester는 서버 확인 actor만 사용 |
-| H05 티켓 생성·재사용 | HTTP Request | TicketRequest | Raw | H15 저장 확인 뒤 H23~H25가 label `dubakwi-<first_request_id>`로 기존 건을 먼저 찾고 없을 때만 POST /rest/api/2/issue(프로젝트 JBYS·유형 10006·가린 요약/설명). 주소는 n8n 변수 DUBAKWI_JIRA_BASE, 인증은 n8n Jira Credential. 중복 조회 실패면 생성하지 않는다. 쓰기 timeout 3.5초·재시도 없음 |
+| H05 티켓 생성·재사용 | HTTP Request | TicketRequest | Raw | H15 저장 확인 뒤 H23~H25가 label `dubakwi-<first_request_id>`로 기존 건을 먼저 찾고 없을 때만 POST /rest/api/2/issue(프로젝트 JBYS·유형 10006·가린 요약/설명). 주소는 자리표시자 __JIRA_BASE_URL__(가져올 때 환경 값으로 치환, 변수 기능은 라이선스 없음), 인증은 n8n Jira Credential. 중복 조회 실패면 생성하지 않는다. 쓰기 timeout 3.5초·재시도 없음 |
 | H06 티켓 식별 확인 | Code | Raw+H02.ToolCtx | ToolCtx | 생성/조회 결과를 created/failed/unknown으로 분리,알려진 Jira ID/key 보존·has_ticket 판정. state_ref는 H14의 현재 값 복원 |
 | H07 티켓 결과 분기 | Switch | ToolCtx.action | ToolCtx | H18 저장결과 검증 후 out0 close;out1 wait;out2 handoff;fallback failed. 다음 외부 동작 준비가 저장되지 않으면 fallback |
 | H08 안내·거절 종료 | HTTP Request | ticket_id,answer,facts,status,attempt | Raw | H17 bind(next_step=H08) 저장 뒤 H31~H33이 전환 목록을 읽어 이름(Resolved/완료)으로 전환을 고르고(전환 ID 고정 금지) 필요한 Resolution을 허용 값에서 고른다. 맥락 댓글과 종료를 한 번의 POST로 보낸다. Resolution 값이 없거나 전환이 없으면 호출 없이 closed=failed·partial_effect·recovery(close,jira_ref) |

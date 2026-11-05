@@ -44,7 +44,7 @@ for (const node of workflow.nodes.filter((n) => n.type === "n8n-nodes-base.httpR
   const url = String(node.parameters.url ?? "");
   const isUserApi = node.name === "H04 본인 기록 조회" && url.startsWith("=http://dubakwi-user-api:8801/records/");
   const isAlert = node.name === "H11 담당 알림" && node.parameters.url === "={{ $json.req.url }}";
-  const isJira = url === "={{ $vars.DUBAKWI_JIRA_BASE + $json.req.path }}" &&
+  const isJira = url === "={{ '__JIRA_BASE_URL__' + $json.req.path }}" &&
     node.parameters.nodeCredentialType === "jiraSoftwareCloudApi" &&
     node.credentials?.jiraSoftwareCloudApi?.name === "dubakwi-Jira SW Cloud account";
   if (!isUserApi && !isAlert && !isJira) throw new Error(`unexpected HTTP node: ${node.name}`);

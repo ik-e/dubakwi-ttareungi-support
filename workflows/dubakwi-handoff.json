@@ -248,7 +248,7 @@
       "onError": "continueRegularOutput",
       "parameters": {
         "method": "GET",
-        "url": "={{ $vars.DUBAKWI_JIRA_BASE + $json.req.path }}",
+        "url": "={{ '__JIRA_BASE_URL__' + $json.req.path }}",
         "authentication": "predefinedCredentialType",
         "nodeCredentialType": "jiraSoftwareCloudApi",
         "options": {
@@ -322,7 +322,7 @@
       "onError": "continueRegularOutput",
       "parameters": {
         "method": "={{ $json.req.method }}",
-        "url": "={{ $vars.DUBAKWI_JIRA_BASE + $json.req.path }}",
+        "url": "={{ '__JIRA_BASE_URL__' + $json.req.path }}",
         "authentication": "predefinedCredentialType",
         "nodeCredentialType": "jiraSoftwareCloudApi",
         "options": {
@@ -521,7 +521,7 @@
       "onError": "continueRegularOutput",
       "parameters": {
         "method": "GET",
-        "url": "={{ $vars.DUBAKWI_JIRA_BASE + $json.req.path }}",
+        "url": "={{ '__JIRA_BASE_URL__' + $json.req.path }}",
         "authentication": "predefinedCredentialType",
         "nodeCredentialType": "jiraSoftwareCloudApi",
         "options": {
@@ -595,7 +595,7 @@
       "onError": "continueRegularOutput",
       "parameters": {
         "method": "={{ $json.req.method }}",
-        "url": "={{ $vars.DUBAKWI_JIRA_BASE + $json.req.path }}",
+        "url": "={{ '__JIRA_BASE_URL__' + $json.req.path }}",
         "authentication": "predefinedCredentialType",
         "nodeCredentialType": "jiraSoftwareCloudApi",
         "options": {
@@ -653,7 +653,7 @@
       "onError": "continueRegularOutput",
       "parameters": {
         "method": "GET",
-        "url": "={{ $vars.DUBAKWI_JIRA_BASE + $json.req.path }}",
+        "url": "={{ '__JIRA_BASE_URL__' + $json.req.path }}",
         "authentication": "predefinedCredentialType",
         "nodeCredentialType": "jiraSoftwareCloudApi",
         "options": {
@@ -727,7 +727,7 @@
       "onError": "continueRegularOutput",
       "parameters": {
         "method": "={{ $json.req.method }}",
-        "url": "={{ $vars.DUBAKWI_JIRA_BASE + $json.req.path }}",
+        "url": "={{ '__JIRA_BASE_URL__' + $json.req.path }}",
         "authentication": "predefinedCredentialType",
         "nodeCredentialType": "jiraSoftwareCloudApi",
         "options": {
