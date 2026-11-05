@@ -2,7 +2,7 @@
 
 R02가 준비하고 R01이 환경 값을 연결해 게시하는 시험이다. 첫 목표는 실제 사용자 조회 → 분류·검색·답변 검증 → Jira 생성·종료 → 최종 저장 → 응답의 S1 한 건이다. mock 시험은 [VM P19 mock 시험](vm-p19-mock-test.md)에 따로 둔다.
 
-**현재 상태:** 묶음과 대응표는 준비됐지만 실제 S1은 통과할 수 없다. PR #27 handoff가 Jira를 호출하지 않고 `tickets_down`으로 끝나고, main의 `save`는 성공 경로가 없다.
+**현재 상태:** 묶음과 대응표는 준비됐지만 실제 S1은 통과할 수 없다. R04 보고(2026-11-05) 기준 Jira 생성·배정·bind는 팀 n8n에서 연결됐지만, Jira 종료(JBYS의 Resolution 값 없음), save 성공, `case_ref`, `/records`는 미완료다. 저장소의 PR #27 `e273daa`는 아직 Jira 없는 버전이라 이 묶음의 handoff 기준은 R04 새 커밋으로 바꿔야 한다.
 
 ## 파일 만들기
 
@@ -36,7 +36,7 @@ uv run --locked python scripts/test/make_vm_p19_real_bundle.py --output-dir <새
 | `dubakwi-internal-key` | B04, B14, B15, B27, 검색과 handoff의 Webhook, 사용자 API | `X-Internal-Key` |
 | `dubakwi-openai` | L01~L03 | OpenAI |
 | `dubakwi-postgres` | S04, D04 | PostgreSQL |
-| Jira SW Cloud API | handoff의 Jira 노드 | R04 PR 후 확정 |
+| Jira SW Cloud API | handoff의 Jira 노드 | R04 연결 완료 보고. 노드 이름은 새 커밋 확인 후 기록 |
 
 ## 게시와 종료
 
