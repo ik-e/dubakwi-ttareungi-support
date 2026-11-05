@@ -39,8 +39,62 @@ for (const nodeName of ["H14 Jira 전 상태 저장", "H17 Jira 미연결 상태
     throw new Error(`${nodeName} does not pin dubakwiState01`);
   }
 }
-if (workflow.nodes.some((node) => node.type === "n8n-nodes-base.httpRequest")) {
-  throw new Error("Jira HTTP must remain blocked before D01 fields and credentials are confirmed");
+// Jira HTTP는 D01 필드·Credential 확인 전까지 막는다. 허용하는 HTTP는 사용자 API 본인 기록 조회 하나뿐이다.
+const httpNodes = workflow.nodes.filter((node) => node.type === "n8n-nodes-base.httpRequest");
+for (const node of httpNodes) {
+  const url = String(node.parameters.url ?? "");
+  if (node.name !== "H04 본인 기록 조회" || !url.startsWith("=http://dubakwi-user-api:8801/records/")) {
+    throw new Error(`unexpected HTTP node before Jira fields are confirmed: ${node.name}`);
+  }
+  if (node.parameters.method !== "GET") throw new Error("lookup must be GET");
 }
 
-console.log("P12 handoff state gate: 6/6 passed");
+// 본인/타인 조회: H02 → H21 → H04 → H22 → H13 연결과 결과 판정.
+const lookupRoute = execute({body: {
+  kind: "lookup", request_id: "req-4", enabled: true, actor_id: "citizen-a", target_ticket_id: "T-1001",
+}})[0].json;
+if (lookupRoute.route !== "lookup" || lookupRoute.request.target_ticket_id !== "T-1001") {
+  throw new Error(`enabled lookup was not routed: ${JSON.stringify(lookupRoute)}`);
+}
+const noTarget = execute({body: {
+  kind: "lookup", request_id: "req-5", enabled: true, actor_id: "citizen-a", target_ticket_id: null,
+}})[0].json;
+if (noTarget.http_status !== 400 || noTarget.body.error_code !== "invalid_tool_request") {
+  throw new Error(`lookup without target was not rejected: ${JSON.stringify(noTarget)}`);
+}
+const lookupJson = {request: {request_id: "req-4", actor_id: "citizen-a", target_ticket_id: "T-1001"}};
+const normalize = (raw) => new Function("$json", "$", nodes.get("H22 조회 결과 정규화").parameters.jsCode)(
+  raw, () => ({item: {json: lookupJson}}),
+)[0].json.body;
+const okBody = normalize({statusCode: 200, body: {
+  ticket_id: "T-1001", owner_id: "citizen-a", status: "open", summary: "x",
+  contact: {phone: "***-****-1234", email: "a***@example.com"},
+}});
+if (okBody.status !== "ok" || okBody.masked !== 2 || okBody.record.masked_phone !== "***-****-1234" || "summary" in okBody.record) {
+  throw new Error(`own record was not returned masked: ${JSON.stringify(okBody)}`);
+}
+for (const code of [403, 404]) {
+  const denied = normalize({statusCode: code, body: {error: "x"}});
+  if (denied.status !== "denied" || denied.record !== null || denied.masked !== 0 || denied.error_code !== null) {
+    throw new Error(`${code} was not an empty denied: ${JSON.stringify(denied)}`);
+  }
+}
+const otherOwner = normalize({statusCode: 200, body: {ticket_id: "T-1001", owner_id: "citizen-b", status: "open", contact: {phone: "010-1111-2222"}}});
+if (otherOwner.status !== "denied" || otherOwner.record !== null) {
+  throw new Error(`other owner's record leaked: ${JSON.stringify(otherOwner)}`);
+}
+for (const raw of [{statusCode: 401, body: {}}, {statusCode: 503, body: {}}, {error: "timeout"}]) {
+  const failed = normalize(raw);
+  if (failed.status !== "error" || failed.record !== null || failed.error_code !== "lookup_error") {
+    throw new Error(`lookup failure was not an error: ${JSON.stringify(failed)}`);
+  }
+}
+const edges = workflow.connections;
+const next = (from, branch = 0) => edges[from].main[branch].map((edge) => edge.node);
+if (next("H03 저장 준비 필요", 1)[0] !== "H21 조회 실행 여부" || next("H21 조회 실행 여부")[0] !== "H04 본인 기록 조회" ||
+    next("H04 본인 기록 조회")[0] !== "H22 조회 결과 정규화" || next("H22 조회 결과 정규화")[0] !== "H13 도구 응답" ||
+    next("H21 조회 실행 여부", 1)[0] !== "H13 도구 응답") {
+  throw new Error("lookup branch is not wired H03→H21→H04→H22→H13");
+}
+
+console.log("P12 handoff state gate and lookup: all checks passed");

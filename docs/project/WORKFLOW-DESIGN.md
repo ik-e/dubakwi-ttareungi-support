@@ -456,7 +456,7 @@ B28은 먼저 error_code=null && state_saved=true && 최신 state_ref를 확인�
 | H01 도구 요청 | Webhook | TicketRequest/LookupRequest | WebhookBody | 내부 Header Auth, responseNode |
 | H02 고정 기능 검사 | Code | WebhookBody.body | ToolCtx | kind=process/lookup, actor·owner·key·역할·action 검사. disabled 조회는 skip |
 | H03 기능 분기 | Switch | ToolCtx.kind | ToolCtx | out0 lookup;out1 skip;out2 process→H14 생성 계획 저장;fallback invalid |
-| H04 본인 대상 조회 | HTTP Request | actor_id,target_ticket_id | Raw | GET /tickets/<id>?requester=<actor>, 서버 owner 판정 |
+| H04 본인 대상 조회 | HTTP Request | actor_id,target_ticket_id | Raw | GET http://dubakwi-user-api:8801/records/<id>?requester=<actor> (내부 Header Auth, full response·neverError·timeout 1.5초, 네트워크 오류 포함 총 2회). 서버가 owner를 판정하며 requester는 서버 확인 actor만 사용 |
 | H05 티켓 생성·재사용 | HTTP Request | TicketRequest | Raw | H15 저장 확인 후에만 Jira 생성/기존 건 확인. 신규 correlation_key=first_request_id,생성 시 가린 context/answer/sources·attempt와 연결 ID도 저장. 종료·담당 전환은 하지 않음. 생성 원시 응답은 다음 H06 |
 | H06 티켓 식별 확인 | Code | Raw+H02.ToolCtx | ToolCtx | 생성/조회 결과를 created/failed/unknown으로 분리,알려진 Jira ID/key 보존·has_ticket 판정. state_ref는 H14의 현재 값 복원 |
 | H07 티켓 결과 분기 | Switch | ToolCtx.action | ToolCtx | H18 저장결과 검증 후 out0 close;out1 wait;out2 handoff;fallback failed. 다음 외부 동작 준비가 저장되지 않으면 fallback |
@@ -473,6 +473,8 @@ B28은 먼저 error_code=null && state_saved=true && 최신 state_ref를 확인�
 | H18 연결 저장 판정 | Code | StateResult + H06.ToolCtx | ToolCtx | ok=true·skipped=false·유효한 새 StateRef만 현재 state_ref 교체·H07 정상 action 허용. 실패는 action=failed,state_error,known Jira ID 보존 |
 | H19 알림 의도 저장 | Execute Sub-workflow | StateCommand.prepare + 최신 state_ref | StateResult | current_step=H11 기록. H17 반환 revision 사용,알림 대상·가린 복구 인자 유지 |
 | H20 알림 실행 허용 | If | ok=true && skipped=false && 유효 state_ref | StateResult | true H11,false state_error로 H12. 성공한 담당 지정은 유지하고 알림 호출0 |
+| H21 조회 실행 여부 | If | H02 결과 | ToolCtx | route=lookup이면 H04,아니면 H13. enabled=false 조회는 H02가 skipped로 종료 |
+| H22 조회 결과 정규화 | Code | H04 Raw+H02 요청 | LookupResult | 200+owner 일치만 ok(가린 연락처만 masked_phone/masked_email,masked=가린 필드 수). 403·404·owner 불일치는 같은 denied(record=null,error_code=null,존재 여부 미노출). 401·5xx·시간 초과·형식 오류는 error(lookup_error). enabled=true인데 target_ticket_id=null이면 H02가 400 invalid_tool_request |
 
 ### 4.5. P11 골격 구현 상태
 

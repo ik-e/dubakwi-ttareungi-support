@@ -6,31 +6,82 @@
       "name": "H01 도구 요청",
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 2,
-      "parameters": {"httpMethod": "POST", "path": "dubakwi-handoff", "authentication": "headerAuth", "responseMode": "responseNode", "options": {}},
-      "position": [0, 0]
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "dubakwi-handoff",
+        "authentication": "headerAuth",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "position": [
+        0,
+        0
+      ]
     },
     {
       "name": "H02 요청 계약 검사",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "parameters": {
-        "jsCode": "const input = $json.body ?? $json;\nconst isObj = (v) => v !== null && typeof v === 'object' && !Array.isArray(v);\nconst isText = (v) => typeof v === 'string' && v.trim().length > 0;\nconst hasOwn = (v, key) => Object.prototype.hasOwnProperty.call(v, key);\nconst isNullableVersion = (v) => v === null || (Number.isInteger(v) && v >= 0);\nconst isStateRef = (v) => isObj(v) && isText(v.scope) && isText(v.request_id) && isText(v.owner_id) && /^[0-9a-f]{64}$/.test(v.input_hash) && isText(v.execution_id) && Number.isInteger(v.state_revision) && v.state_revision >= 0;\nconst isSource = (v) => isObj(v) && isText(v.doc) && isText(v.section) && typeof v.score === 'number' && Number.isFinite(v.score);\nconst isFact = (v) => isObj(v) && isText(v.key) && typeof v.value === 'string' && ['user','document','api'].includes(v.origin) && (!hasOwn(v,'reference') || typeof v.reference === 'string');\nconst isFacts = (v) => isObj(v) && typeof v.summary === 'string' && Array.isArray(v.reported) && v.reported.every(isFact) && Array.isArray(v.confirmed) && v.confirmed.every(isFact) && Array.isArray(v.attempted_actions) && v.attempted_actions.every((x) => typeof x === 'string') && Array.isArray(v.missing) && v.missing.every((x) => typeof x === 'string') && Array.isArray(v.uncertainties) && v.uncertainties.every((x) => typeof x === 'string') && Array.isArray(v.evidence_refs) && v.evidence_refs.every(isSource);\nconst effect = () => ({status:'none'});\nconst effects = () => ({created_or_reused:effect(),context_saved:effect(),closed:effect(),assigned:effect(),alert:effect()});\nconst respond = (body, http_status) => ({route:'respond',body,http_status});\nif (!isObj(input) || !isText(input.request_id) || !['lookup','process'].includes(input.kind)) return [{json:respond({request_id:isObj(input)&&isText(input.request_id)?input.request_id:null,status:'error',record:null,masked:0,error_code:'invalid_tool_request'},400)}];\nif (input.kind === 'lookup') {\n  const valid = typeof input.enabled === 'boolean' && isText(input.actor_id) && (input.target_ticket_id === null || isText(input.target_ticket_id));\n  if (!valid) return [{json:respond({request_id:input.request_id,status:'error',record:null,masked:0,error_code:'invalid_tool_request'},400)}];\n  if (!input.enabled) return [{json:respond({request_id:input.request_id,status:'skipped',record:null,masked:0,error_code:null},200)}];\n  return [{json:respond({request_id:input.request_id,status:'error',record:null,masked:0,error_code:'handoff_backend_unconfigured'},200)}];\n}\nconst valid = isStateRef(input.state_ref) && hasOwn(input,'expected_case_version') && isNullableVersion(input.expected_case_version) && isText(input.case_id) && isText(input.actor_id) && isText(input.first_request_id) && Number.isInteger(input.attempt) && input.attempt >= 1 && (input.ticket_id === null || isText(input.ticket_id)) && isText(input.title) && isText(input.category) && ['close','wait','handoff'].includes(input.action) && ['normal','high'].includes(input.priority) && hasOwn(input,'assignee_role') && (input.assignee_role === null || isText(input.assignee_role)) && isFacts(input.context) && typeof input.answer === 'string' && Array.isArray(input.sources) && input.sources.every(isSource) && hasOwn(input,'close_status') && (input.close_status === null || ['closed_guidance','closed_rejected'].includes(input.close_status)) && isText(input.transition_key);\nif (!valid) return [{json:respond({request_id:input.request_id,ticket_id:input.ticket_id??null,case_version:null,state_saved:false,state_ref:null,recovery:{version:1,mode:'manual_required',action:'inspect_only',args:null,reference:null,reason:'티켓 요청 계약 오류'},effects:effects(),error_code:'invalid_tool_request'},400)}];\nreturn [{json:{route:'prepare',op:'prepare',state_ref:input.state_ref,args:{current_step:'H05'},request:input}}];"
+        "jsCode": "const input = $json.body ?? $json;\nconst isObj = (v) => v !== null && typeof v === 'object' && !Array.isArray(v);\nconst isText = (v) => typeof v === 'string' && v.trim().length > 0;\nconst hasOwn = (v, key) => Object.prototype.hasOwnProperty.call(v, key);\nconst isNullableVersion = (v) => v === null || (Number.isInteger(v) && v >= 0);\nconst isStateRef = (v) => isObj(v) && isText(v.scope) && isText(v.request_id) && isText(v.owner_id) && /^[0-9a-f]{64}$/.test(v.input_hash) && isText(v.execution_id) && Number.isInteger(v.state_revision) && v.state_revision >= 0;\nconst isSource = (v) => isObj(v) && isText(v.doc) && isText(v.section) && typeof v.score === 'number' && Number.isFinite(v.score);\nconst isFact = (v) => isObj(v) && isText(v.key) && typeof v.value === 'string' && ['user','document','api'].includes(v.origin) && (!hasOwn(v,'reference') || typeof v.reference === 'string');\nconst isFacts = (v) => isObj(v) && typeof v.summary === 'string' && Array.isArray(v.reported) && v.reported.every(isFact) && Array.isArray(v.confirmed) && v.confirmed.every(isFact) && Array.isArray(v.attempted_actions) && v.attempted_actions.every((x) => typeof x === 'string') && Array.isArray(v.missing) && v.missing.every((x) => typeof x === 'string') && Array.isArray(v.uncertainties) && v.uncertainties.every((x) => typeof x === 'string') && Array.isArray(v.evidence_refs) && v.evidence_refs.every(isSource);\nconst effect = () => ({status:'none'});\nconst effects = () => ({created_or_reused:effect(),context_saved:effect(),closed:effect(),assigned:effect(),alert:effect()});\nconst respond = (body, http_status) => ({route:'respond',body,http_status});\nif (!isObj(input) || !isText(input.request_id) || !['lookup','process'].includes(input.kind)) return [{json:respond({request_id:isObj(input)&&isText(input.request_id)?input.request_id:null,status:'error',record:null,masked:0,error_code:'invalid_tool_request'},400)}];\nif (input.kind === 'lookup') {\n  const valid = typeof input.enabled === 'boolean' && isText(input.actor_id) && (input.target_ticket_id === null || isText(input.target_ticket_id));\n  if (!valid) return [{json:respond({request_id:input.request_id,status:'error',record:null,masked:0,error_code:'invalid_tool_request'},400)}];\n  if (!input.enabled) return [{json:respond({request_id:input.request_id,status:'skipped',record:null,masked:0,error_code:null},200)}];\n  if (input.target_ticket_id === null) return [{json:respond({request_id:input.request_id,status:'error',record:null,masked:0,error_code:'invalid_tool_request'},400)}];\n  return [{json:{route:'lookup',request:{request_id:input.request_id,actor_id:input.actor_id,target_ticket_id:input.target_ticket_id}}}];\n}\nconst valid = isStateRef(input.state_ref) && hasOwn(input,'expected_case_version') && isNullableVersion(input.expected_case_version) && isText(input.case_id) && isText(input.actor_id) && isText(input.first_request_id) && Number.isInteger(input.attempt) && input.attempt >= 1 && (input.ticket_id === null || isText(input.ticket_id)) && isText(input.title) && isText(input.category) && ['close','wait','handoff'].includes(input.action) && ['normal','high'].includes(input.priority) && hasOwn(input,'assignee_role') && (input.assignee_role === null || isText(input.assignee_role)) && isFacts(input.context) && typeof input.answer === 'string' && Array.isArray(input.sources) && input.sources.every(isSource) && hasOwn(input,'close_status') && (input.close_status === null || ['closed_guidance','closed_rejected'].includes(input.close_status)) && isText(input.transition_key);\nif (!valid) return [{json:respond({request_id:input.request_id,ticket_id:input.ticket_id??null,case_version:null,state_saved:false,state_ref:null,recovery:{version:1,mode:'manual_required',action:'inspect_only',args:null,reference:null,reason:'티켓 요청 계약 오류'},effects:effects(),error_code:'invalid_tool_request'},400)}];\nreturn [{json:{route:'prepare',op:'prepare',state_ref:input.state_ref,args:{current_step:'H05'},request:input}}];"
       },
-      "position": [260, 0]
+      "position": [
+        260,
+        0
+      ]
     },
     {
       "name": "H03 저장 준비 필요",
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
-      "parameters": {"conditions": {"options": {"version": 2, "caseSensitive": true, "leftValue": ""}, "combinator": "and", "conditions": [{"id": "p12-prepare", "leftValue": "={{ $json.route === 'prepare' }}", "rightValue": "", "operator": {"type": "boolean", "operation": "true", "singleValue": true}}]}, "options": {}},
-      "position": [520, 0]
+      "parameters": {
+        "conditions": {
+          "options": {
+            "version": 2,
+            "caseSensitive": true,
+            "leftValue": ""
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "p12-prepare",
+              "leftValue": "={{ $json.route === 'prepare' }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "position": [
+        520,
+        0
+      ]
     },
     {
       "name": "H14 Jira 전 상태 저장",
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.2,
-      "parameters": {"source": "database", "workflowId": {"__rl": true, "value": "dubakwiState01", "mode": "list", "cachedResultName": "dubakwi-state"}, "options": {"waitForSubWorkflow": true}},
-      "position": [780, -100]
+      "parameters": {
+        "source": "database",
+        "workflowId": {
+          "__rl": true,
+          "value": "dubakwiState01",
+          "mode": "list",
+          "cachedResultName": "dubakwi-state"
+        },
+        "options": {
+          "waitForSubWorkflow": true
+        }
+      },
+      "position": [
+        780,
+        -100
+      ]
     },
     {
       "name": "H15 저장 결과 판정",
@@ -39,21 +90,63 @@
       "parameters": {
         "jsCode": "const original = $('H02 요청 계약 검사').item.json.request;\nconst state = $json;\nconst effect = () => ({status:'none'});\nconst effects = () => ({created_or_reused:effect(),context_saved:effect(),closed:effect(),assigned:effect(),alert:effect()});\nif (state.ok !== true || state.skipped === true || !state.state_ref) return [{json:{route:'respond',body:{request_id:original.request_id,ticket_id:original.ticket_id??null,case_version:null,state_saved:false,state_ref:null,recovery:{version:1,mode:'manual_required',action:'create',args:null,reference:null,reason:'Jira 실행 전 상태 저장 실패'},effects:effects(),error_code:'state_error'},http_status:200}}];\nreturn [{json:{route:'fail',op:'fail',state_ref:state.state_ref,args:{status:'failed',current_step:'H05',error_code:'tickets_down'},request:original}}];"
       },
-      "position": [1040, -100]
+      "position": [
+        1040,
+        -100
+      ]
     },
     {
       "name": "H16 실패 상태 저장 필요",
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
-      "parameters": {"conditions": {"options": {"version": 2, "caseSensitive": true, "leftValue": ""}, "combinator": "and", "conditions": [{"id": "p12-fail", "leftValue": "={{ $json.route === 'fail' }}", "rightValue": "", "operator": {"type": "boolean", "operation": "true", "singleValue": true}}]}, "options": {}},
-      "position": [1300, -100]
+      "parameters": {
+        "conditions": {
+          "options": {
+            "version": 2,
+            "caseSensitive": true,
+            "leftValue": ""
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "p12-fail",
+              "leftValue": "={{ $json.route === 'fail' }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "position": [
+        1300,
+        -100
+      ]
     },
     {
       "name": "H17 Jira 미연결 상태 저장",
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.2,
-      "parameters": {"source": "database", "workflowId": {"__rl": true, "value": "dubakwiState01", "mode": "list", "cachedResultName": "dubakwi-state"}, "options": {"waitForSubWorkflow": true}},
-      "position": [1560, -180]
+      "parameters": {
+        "source": "database",
+        "workflowId": {
+          "__rl": true,
+          "value": "dubakwiState01",
+          "mode": "list",
+          "cachedResultName": "dubakwi-state"
+        },
+        "options": {
+          "waitForSubWorkflow": true
+        }
+      },
+      "position": [
+        1560,
+        -180
+      ]
     },
     {
       "name": "H18 안전 응답 구성",
@@ -62,29 +155,265 @@
       "parameters": {
         "jsCode": "const original = $('H02 요청 계약 검사').item.json.request;\nconst result = $json;\nconst effect = () => ({status:'none'});\nreturn [{json:{body:{request_id:original.request_id,ticket_id:original.ticket_id??null,case_version:null,state_saved:result.ok===true&&result.skipped!==true,state_ref:result.state_ref??null,recovery:{version:1,mode:'manual_required',action:'create',args:null,reference:null,reason:'Jira 어댑터 미연결로 외부 작업 차단'},effects:{created_or_reused:effect(),context_saved:effect(),closed:effect(),assigned:effect(),alert:effect()},error_code:'tickets_down'},http_status:200}}];"
       },
-      "position": [1820, -180]
+      "position": [
+        1820,
+        -180
+      ]
     },
     {
       "name": "H13 도구 응답",
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1.1,
-      "parameters": {"respondWith": "json", "responseBody": "={{ JSON.stringify($json.body) }}", "options": {"responseCode": "={{ $json.http_status }}"}},
-      "position": [2080, 0]
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify($json.body) }}",
+        "options": {
+          "responseCode": "={{ $json.http_status }}"
+        }
+      },
+      "position": [
+        2080,
+        0
+      ]
+    },
+    {
+      "name": "H21 조회 실행 여부",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "parameters": {
+        "conditions": {
+          "options": {
+            "version": 2,
+            "caseSensitive": true,
+            "leftValue": ""
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "p12-lookup",
+              "leftValue": "={{ $json.route === 'lookup' }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "position": [
+        780,
+        300
+      ]
+    },
+    {
+      "name": "H04 본인 기록 조회",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "onError": "continueRegularOutput",
+      "retryOnFail": true,
+      "maxTries": 2,
+      "waitBetweenTries": 300,
+      "parameters": {
+        "method": "GET",
+        "url": "=http://dubakwi-user-api:8801/records/{{ encodeURIComponent($json.request.target_ticket_id) }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "requester",
+              "value": "={{ $json.request.actor_id }}"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true,
+              "neverError": true
+            }
+          },
+          "timeout": 1500
+        }
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "name": "dubakwi-internal-key"
+        }
+      },
+      "position": [
+        1040,
+        300
+      ]
+    },
+    {
+      "name": "H22 조회 결과 정규화",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "parameters": {
+        "jsCode": "const req = $('H02 요청 계약 검사').item.json.request;\nconst raw = $json;\nconst statusCode = Number(raw.statusCode ?? 0);\nconst body = raw.body;\nconst isObj = (v) => v !== null && typeof v === 'object' && !Array.isArray(v);\nconst reply = (status, record, masked, error_code) => [{json:{route:'respond',http_status:200,body:{request_id:req.request_id,status,record,masked,error_code}}}];\n// 403/404는 같은 denied로 합쳐 타인 건의 존재 여부를 알리지 않는다.\nif (statusCode === 403 || statusCode === 404) return reply('denied', null, 0, null);\nif (statusCode !== 200 || !isObj(body) || typeof body.status !== 'string' || body.ticket_id !== req.target_ticket_id) return reply('error', null, 0, 'lookup_error');\n// 서버가 본인 건만 돌려주더라도 owner를 한 번 더 대조한다. 어긋나면 내용 없이 denied.\nif (body.owner_id !== req.actor_id) return reply('denied', null, 0, null);\nconst contact = isObj(body.contact) ? body.contact : {};\nconst record = { ticket_id: body.ticket_id, owner_id: body.owner_id, status: body.status, observed_at: new Date().toISOString() };\nlet masked = 0;\nif (typeof contact.phone === 'string') { record.masked_phone = contact.phone; masked += 1; }\nif (typeof contact.email === 'string') { record.masked_email = contact.email; masked += 1; }\nreturn reply('ok', record, masked, null);"
+      },
+      "position": [
+        1300,
+        300
+      ]
     }
   ],
   "connections": {
-    "H01 도구 요청": {"main": [[{"node": "H02 요청 계약 검사", "type": "main", "index": 0}]]},
-    "H02 요청 계약 검사": {"main": [[{"node": "H03 저장 준비 필요", "type": "main", "index": 0}]]},
-    "H03 저장 준비 필요": {"main": [[{"node": "H14 Jira 전 상태 저장", "type": "main", "index": 0}], [{"node": "H13 도구 응답", "type": "main", "index": 0}]]},
-    "H14 Jira 전 상태 저장": {"main": [[{"node": "H15 저장 결과 판정", "type": "main", "index": 0}]]},
-    "H15 저장 결과 판정": {"main": [[{"node": "H16 실패 상태 저장 필요", "type": "main", "index": 0}]]},
-    "H16 실패 상태 저장 필요": {"main": [[{"node": "H17 Jira 미연결 상태 저장", "type": "main", "index": 0}], [{"node": "H13 도구 응답", "type": "main", "index": 0}]]},
-    "H17 Jira 미연결 상태 저장": {"main": [[{"node": "H18 안전 응답 구성", "type": "main", "index": 0}]]},
-    "H18 안전 응답 구성": {"main": [[{"node": "H13 도구 응답", "type": "main", "index": 0}]]}
+    "H01 도구 요청": {
+      "main": [
+        [
+          {
+            "node": "H02 요청 계약 검사",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "H02 요청 계약 검사": {
+      "main": [
+        [
+          {
+            "node": "H03 저장 준비 필요",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "H03 저장 준비 필요": {
+      "main": [
+        [
+          {
+            "node": "H14 Jira 전 상태 저장",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "H21 조회 실행 여부",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "H14 Jira 전 상태 저장": {
+      "main": [
+        [
+          {
+            "node": "H15 저장 결과 판정",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "H15 저장 결과 판정": {
+      "main": [
+        [
+          {
+            "node": "H16 실패 상태 저장 필요",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "H16 실패 상태 저장 필요": {
+      "main": [
+        [
+          {
+            "node": "H17 Jira 미연결 상태 저장",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "H13 도구 응답",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "H17 Jira 미연결 상태 저장": {
+      "main": [
+        [
+          {
+            "node": "H18 안전 응답 구성",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "H18 안전 응답 구성": {
+      "main": [
+        [
+          {
+            "node": "H13 도구 응답",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "H21 조회 실행 여부": {
+      "main": [
+        [
+          {
+            "node": "H04 본인 기록 조회",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "H13 도구 응답",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "H04 본인 기록 조회": {
+      "main": [
+        [
+          {
+            "node": "H22 조회 결과 정규화",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "H22 조회 결과 정규화": {
+      "main": [
+        [
+          {
+            "node": "H13 도구 응답",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
   },
   "active": false,
-  "settings": {"executionOrder": "v1"},
+  "settings": {
+    "executionOrder": "v1"
+  },
   "pinData": {},
-  "meta": {"templateCredsSetupCompleted": false},
+  "meta": {
+    "templateCredsSetupCompleted": false
+  },
   "tags": []
 }
