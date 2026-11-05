@@ -47,6 +47,13 @@ def audit(root=ROOT):
         }:
             errors.append({"file": name, "issue": "private material in Git candidates"})
             continue
+        # Explicit user-approved presentation; other binary PDFs remain prohibited.
+        if name == "docs/output/pdf/두바퀴_RAG_발표자료.pdf":
+            if not path.is_file() or path.is_symlink() or path.stat().st_size > 5 * 1024 * 1024:
+                errors.append({"file": name, "issue": "unsafe or oversized presentation PDF"})
+            elif not path.read_bytes().startswith(b"%PDF-"):
+                errors.append({"file": name, "issue": "invalid presentation PDF"})
+            continue
         if path.suffix.lower() in {
             ".pem",
             ".key",
