@@ -1,0 +1,738 @@
+{
+  "model": "text-embedding-3-large",
+  "method": "isolated direct embeddings API and cosine in Python; query expansion follows search workflow; no n8n loader or end-to-end flow",
+  "threshold": 0.3,
+  "top_k": 5,
+  "query_count": 16,
+  "public_only": true,
+  "mixed_section_count": 3,
+  "usage": {
+    "prompt_tokens": 9599,
+    "total_tokens": 9599
+  },
+  "results": {
+    "paragraph": {
+      "count": 36,
+      "doc_hit3": 13,
+      "section_hit3": 13,
+      "cases": [
+        {
+          "id": "Q01",
+          "question": "QR로 대여하려면?",
+          "doc_rank": 1,
+          "section_rank": 1,
+          "status": "ok",
+          "top3": [
+            {
+              "doc": "rental-guide",
+              "section": "대여 준비와 시작",
+              "score": 0.47196
+            },
+            {
+              "doc": "rental-guide",
+              "section": "대여 취소",
+              "score": 0.400019
+            },
+            {
+              "doc": "return-guide",
+              "section": "반납 방법",
+              "score": 0.386711
+            }
+          ]
+        },
+        {
+          "id": "Q02",
+          "question": "대여가 안 돼요",
+          "doc_rank": 1,
+          "section_rank": 1,
+          "status": "ok",
+          "top3": [
+            {
+              "doc": "rental-guide",
+              "section": "연결과 대여 실패",
+              "score": 0.559693
+            },
+            {
+              "doc": "rental-guide",
+              "section": "QR 인식 또는 잠금 해제가 어려운 경우",
+              "score": 0.447824
+            },
+            {
+              "doc": "return-guide",
+              "section": "임시잠금",
+              "score": 0.437178
+            }
+          ]
+        },
+        {
+          "id": "Q03",
+          "question": "대여를 취소하려면?",
+          "doc_rank": 1,
+          "section_rank": 1,
+          "status": "ok",
+          "top3": [
+            {
+              "doc": "rental-guide",
+              "section": "대여 취소",
+              "score": 0.419981
+            },
+            {
+              "doc": "fees-refund-guide",
+              "section": "개별 요금·환불 문의 — 교육용 가상 설정",
+              "score": 0.403396
+            },
+            {
+              "doc": "fees-refund-guide",
+              "section": "미사용권 유효기간 — 충돌 판단과 교육용 가상 설정",
+              "score": 0.35963
+            }
+          ]
+        },
+        {
+          "id": "Q04",
+          "question": "반납 알림이 안 와요",
+          "doc_rank": 1,
+          "section_rank": 2,
+          "status": "ok",
+          "top3": [
+            {
+              "doc": "return-guide",
+              "section": "반납 상태 조회 — 교육용 가상 설정",
+              "score": 0.466807
+            },
+            {
+              "doc": "return-guide",
+              "section": "반납이 완료되지 않을 때",
+              "score": 0.45181
+            },
+            {
+              "doc": "support-followup",
+              "section": "분실물·습득물",
+              "score": 0.419466
+            }
+          ]
+        },
+        {
+          "id": "Q05",
+          "question": "임시잠금하면 시간이 멈추나요?",
+          "doc_rank": 2,
+          "section_rank": 2,
+          "status": "ok",
+          "top3": [
+            {
+              "doc": "fees-refund-guide",
+              "section": "기본 이용시간과 추가요금",
+              "score": 0.329377
+            },
+            {
+              "doc": "return-guide",
+              "section": "임시잠금",
+              "score": 0.300833
+            }
+          ]
+        },
+        {
+          "id": "Q06",
+          "question": "자전거 체인이 고장 났어요",
+          "doc_rank": 1,
+          "section_rank": 1,
+          "status": "ok",
+          "top3": [
+            {
+              "doc": "breakdown-report",
+              "section": "고장 신고",
+              "score": 0.448473
+            },
+            {
+              "doc": "breakdown-report",
+              "section": "방치·도난 신고",
+              "score": 0.381509
+            },
+            {
+              "doc": "return-guide",
+              "section": "반납이 완료되지 않을 때",
+              "score": 0.378695
+            }
+          ]
+        },
+        {
+          "id": "Q07",
+          "question": "방치 자전거는 어떻게 신고해요?",
+          "doc_rank": 1,
+          "section_rank": 1,
+          "status": "ok",
+          "top3": [
+            {
+              "doc": "breakdown-report",
+              "section": "방치·도난 신고",
+              "score": 0.595269
+            },
+            {
+              "doc": "support-followup",
+              "section": "분실물·습득물",
+              "score": 0.489326
+            },
+            {
+              "doc": "return-guide",
+              "section": "반납이 완료되지 않을 때",
+              "score": 0.478664
+            }
+          ]
+        },
+        {
+          "id": "Q08",
+          "question": "사고가 나면 보험으로 얼마를 받나요?",
+          "doc_rank": 1,
+          "section_rank": 1,
+          "status": "ok",
+          "top3": [
+            {
+              "doc": "breakdown-report",
+              "section": "사고·보험",
+              "score": 0.528476
+            },
+            {
+              "doc": "breakdown-report",
+              "section": "사고 상담 — 교육용 가상 설정",
+              "score": 0.370593
+            },
+            {
+              "doc": "breakdown-report",
+              "section": "고장 신고",
+              "score": 0.329733
+            }
+          ]
+        },
+        {
+          "id": "Q09",
+          "question": "미사용권 유효기간은 1년인가요, 3년인가요?",
+          "doc_rank": 1,
+          "section_rank": 1,
+          "status": "ok",
+          "top3": [
+            {
+              "doc": "fees-refund-guide",
+              "section": "미사용권 유효기간 — 충돌 판단과 교육용 가상 설정",
+              "score": 0.324859
+            },
+            {
+              "doc": "fees-refund-guide",
+              "section": "미사용권 유효기간 — 충돌 판단과 교육용 가상 설정",
+              "score": 0.305772
+            }
+          ]
+        },
+        {
+          "id": "Q10",
+          "question": "환불 신청은 어떻게 해요?",
+          "doc_rank": 1,
+          "section_rank": 1,
+          "status": "ok",
+          "top3": [
+            {
+              "doc": "fees-refund-guide",
+              "section": "환불 신청",
+              "score": 0.595637
+            },
+            {
+              "doc": "fees-refund-guide",
+              "section": "개별 요금·환불 문의 — 교육용 가상 설정",
+              "score": 0.514705
+            },
+            {
+              "doc": "fees-refund-guide",
+              "section": "결제 오류와 영수증",
+              "score": 0.418267
+            }
+          ]
+        },
+        {
+          "id": "Q11",
+          "question": "추가요금은 얼마인가요?",
+          "doc_rank": 1,
+          "section_rank": 1,
+          "status": "ok",
+          "top3": [
+            {
+              "doc": "fees-refund-guide",
+              "section": "기본 이용시간과 추가요금",
+              "score": 0.38195
+            },
+            {
+              "doc": "fees-refund-guide",
+              "section": "이용권 가격",
+              "score": 0.349757
+            }
+          ]
+        },
+        {
+          "id": "Q12",
+          "question": "아이디를 잊었어요",
+          "doc_rank": 1,
+          "section_rank": 2,
+          "status": "ok",
+          "top3": [
+            {
+              "doc": "privacy-security-guide",
+              "section": "개인정보와 계정 보호",
+              "score": 0.405227
+            },
+            {
+              "doc": "privacy-security-guide",
+              "section": "로그인과 계정 찾기",
+              "score": 0.398274
+            },
+            {
+              "doc": "privacy-security-guide",
+              "section": "계정 노출·침해 의심 시 공개 초동 안내",
+              "score": 0.326383
+            }
+          ]
+        },
+        {
+          "id": "Q13",
+          "question": "바구니에 물건을 놓고 왔어요",
+          "doc_rank": 1,
+          "section_rank": 1,
+          "status": "ok",
+          "top3": [
+            {
+              "doc": "support-followup",
+              "section": "분실물·습득물",
+              "score": 0.631121
+            },
+            {
+              "doc": "support-followup",
+              "section": "분실물 접수 — 교육용 가상 설정",
+              "score": 0.576772
+            },
+            {
+              "doc": "return-guide",
+              "section": "반납이 완료되지 않을 때",
+              "score": 0.527164
+            }
+          ]
+        },
+        {
+          "id": "SR-WF12",
+          "question": "따릉이 사칭 링크에 정보를 입력했어요. 제 반납 문의 T-DEMO-02도 어떻게 됐나요?",
+          "doc_rank": 1,
+          "section_rank": 1,
+          "status": "ok",
+          "top3": [
+            {
+              "doc": "privacy-security-guide",
+              "section": "계정 노출·침해 의심 시 공개 초동 안내",
+              "score": 0.476886
+            },
+            {
+              "doc": "privacy-security-guide",
+              "section": "개인정보와 계정 보호",
+              "score": 0.455881
+            },
+            {
+              "doc": "privacy-security-guide",
+              "section": "계정 침해 문의 — 교육용 가상 설정",
+              "score": 0.406034
+            }
+          ]
+        },
+        {
+          "id": "SR-TC04",
+          "question": "11월 2일 오후에 1시간권을 결제했는데 대여가 안 됐어요. 환불해 주세요. 따릉이 앱에서 카드로 결제했어요.",
+          "doc_rank": 1,
+          "section_rank": 5,
+          "status": "ok",
+          "top3": [
+            {
+              "doc": "fees-refund-guide",
+              "section": "기본 이용시간과 추가요금",
+              "score": 0.586446
+            },
+            {
+              "doc": "rental-guide",
+              "section": "대여 준비와 시작",
+              "score": 0.480494
+            },
+            {
+              "doc": "rental-guide",
+              "section": "가족권 등록과 어린이 이용",
+              "score": 0.46802
+            }
+          ]
+        },
+        {
+          "id": "WF03",
+          "question": "따릉이를 해외 여행에 가져가서 한 달 동안 써도 되나요?",
+          "doc_rank": null,
+          "section_rank": null,
+          "status": "empty",
+          "top3": []
+        }
+      ]
+    },
+    "section": {
+      "count": 33,
+      "doc_hit3": 13,
+      "section_hit3": 13,
+      "cases": [
+        {
+          "id": "Q01",
+          "question": "QR로 대여하려면?",
+          "doc_rank": 1,
+          "section_rank": 1,
+          "status": "ok",
+          "top3": [
+            {
+              "doc": "rental-guide",
+              "section": "대여 준비와 시작",
+              "score": 0.471367
+            },
+            {
+              "doc": "rental-guide",
+              "section": "대여 취소",
+              "score": 0.400019
+            },
+            {
+              "doc": "return-guide",
+              "section": "반납 방법",
+              "score": 0.386711
+            }
+          ]
+        },
+        {
+          "id": "Q02",
+          "question": "대여가 안 돼요",
+          "doc_rank": 1,
+          "section_rank": 1,
+          "status": "ok",
+          "top3": [
+            {
+              "doc": "rental-guide",
+              "section": "연결과 대여 실패",
+              "score": 0.559693
+            },
+            {
+              "doc": "rental-guide",
+              "section": "QR 인식 또는 잠금 해제가 어려운 경우",
+              "score": 0.449179
+            },
+            {
+              "doc": "return-guide",
+              "section": "임시잠금",
+              "score": 0.437178
+            }
+          ]
+        },
+        {
+          "id": "Q03",
+          "question": "대여를 취소하려면?",
+          "doc_rank": 1,
+          "section_rank": 1,
+          "status": "ok",
+          "top3": [
+            {
+              "doc": "rental-guide",
+              "section": "대여 취소",
+              "score": 0.419981
+            },
+            {
+              "doc": "fees-refund-guide",
+              "section": "개별 요금·환불 문의 — 교육용 가상 설정",
+              "score": 0.403396
+            },
+            {
+              "doc": "fees-refund-guide",
+              "section": "미사용권 유효기간 — 충돌 판단과 교육용 가상 설정",
+              "score": 0.356652
+            }
+          ]
+        },
+        {
+          "id": "Q04",
+          "question": "반납 알림이 안 와요",
+          "doc_rank": 1,
+          "section_rank": 2,
+          "status": "ok",
+          "top3": [
+            {
+              "doc": "return-guide",
+              "section": "반납 상태 조회 — 교육용 가상 설정",
+              "score": 0.463808
+            },
+            {
+              "doc": "return-guide",
+              "section": "반납이 완료되지 않을 때",
+              "score": 0.45181
+            },
+            {
+              "doc": "support-followup",
+              "section": "분실물·습득물",
+              "score": 0.419982
+            }
+          ]
+        },
+        {
+          "id": "Q05",
+          "question": "임시잠금하면 시간이 멈추나요?",
+          "doc_rank": 2,
+          "section_rank": 2,
+          "status": "ok",
+          "top3": [
+            {
+              "doc": "fees-refund-guide",
+              "section": "기본 이용시간과 추가요금",
+              "score": 0.329377
+            },
+            {
+              "doc": "return-guide",
+              "section": "임시잠금",
+              "score": 0.300833
+            }
+          ]
+        },
+        {
+          "id": "Q06",
+          "question": "자전거 체인이 고장 났어요",
+          "doc_rank": 1,
+          "section_rank": 1,
+          "status": "ok",
+          "top3": [
+            {
+              "doc": "breakdown-report",
+              "section": "고장 신고",
+              "score": 0.448473
+            },
+            {
+              "doc": "breakdown-report",
+              "section": "방치·도난 신고",
+              "score": 0.381509
+            },
+            {
+              "doc": "return-guide",
+              "section": "반납이 완료되지 않을 때",
+              "score": 0.378695
+            }
+          ]
+        },
+        {
+          "id": "Q07",
+          "question": "방치 자전거는 어떻게 신고해요?",
+          "doc_rank": 1,
+          "section_rank": 1,
+          "status": "ok",
+          "top3": [
+            {
+              "doc": "breakdown-report",
+              "section": "방치·도난 신고",
+              "score": 0.595269
+            },
+            {
+              "doc": "support-followup",
+              "section": "분실물·습득물",
+              "score": 0.489064
+            },
+            {
+              "doc": "return-guide",
+              "section": "반납이 완료되지 않을 때",
+              "score": 0.478664
+            }
+          ]
+        },
+        {
+          "id": "Q08",
+          "question": "사고가 나면 보험으로 얼마를 받나요?",
+          "doc_rank": 1,
+          "section_rank": 1,
+          "status": "ok",
+          "top3": [
+            {
+              "doc": "breakdown-report",
+              "section": "사고·보험",
+              "score": 0.528476
+            },
+            {
+              "doc": "breakdown-report",
+              "section": "사고 상담 — 교육용 가상 설정",
+              "score": 0.370593
+            },
+            {
+              "doc": "breakdown-report",
+              "section": "고장 신고",
+              "score": 0.329733
+            }
+          ]
+        },
+        {
+          "id": "Q09",
+          "question": "미사용권 유효기간은 1년인가요, 3년인가요?",
+          "doc_rank": 1,
+          "section_rank": 1,
+          "status": "ok",
+          "top3": [
+            {
+              "doc": "fees-refund-guide",
+              "section": "미사용권 유효기간 — 충돌 판단과 교육용 가상 설정",
+              "score": 0.359
+            }
+          ]
+        },
+        {
+          "id": "Q10",
+          "question": "환불 신청은 어떻게 해요?",
+          "doc_rank": 1,
+          "section_rank": 1,
+          "status": "ok",
+          "top3": [
+            {
+              "doc": "fees-refund-guide",
+              "section": "환불 신청",
+              "score": 0.595637
+            },
+            {
+              "doc": "fees-refund-guide",
+              "section": "개별 요금·환불 문의 — 교육용 가상 설정",
+              "score": 0.514705
+            },
+            {
+              "doc": "fees-refund-guide",
+              "section": "결제 오류와 영수증",
+              "score": 0.418267
+            }
+          ]
+        },
+        {
+          "id": "Q11",
+          "question": "추가요금은 얼마인가요?",
+          "doc_rank": 1,
+          "section_rank": 1,
+          "status": "ok",
+          "top3": [
+            {
+              "doc": "fees-refund-guide",
+              "section": "기본 이용시간과 추가요금",
+              "score": 0.38195
+            },
+            {
+              "doc": "fees-refund-guide",
+              "section": "이용권 가격",
+              "score": 0.349757
+            }
+          ]
+        },
+        {
+          "id": "Q12",
+          "question": "아이디를 잊었어요",
+          "doc_rank": 1,
+          "section_rank": 2,
+          "status": "ok",
+          "top3": [
+            {
+              "doc": "privacy-security-guide",
+              "section": "개인정보와 계정 보호",
+              "score": 0.405587
+            },
+            {
+              "doc": "privacy-security-guide",
+              "section": "로그인과 계정 찾기",
+              "score": 0.398178
+            },
+            {
+              "doc": "privacy-security-guide",
+              "section": "계정 노출·침해 의심 시 공개 초동 안내",
+              "score": 0.326796
+            }
+          ]
+        },
+        {
+          "id": "Q13",
+          "question": "바구니에 물건을 놓고 왔어요",
+          "doc_rank": 1,
+          "section_rank": 1,
+          "status": "ok",
+          "top3": [
+            {
+              "doc": "support-followup",
+              "section": "분실물·습득물",
+              "score": 0.631344
+            },
+            {
+              "doc": "support-followup",
+              "section": "분실물 접수 — 교육용 가상 설정",
+              "score": 0.580062
+            },
+            {
+              "doc": "return-guide",
+              "section": "반납이 완료되지 않을 때",
+              "score": 0.527164
+            }
+          ]
+        },
+        {
+          "id": "SR-WF12",
+          "question": "따릉이 사칭 링크에 정보를 입력했어요. 제 반납 문의 T-DEMO-02도 어떻게 됐나요?",
+          "doc_rank": 1,
+          "section_rank": 1,
+          "status": "ok",
+          "top3": [
+            {
+              "doc": "privacy-security-guide",
+              "section": "계정 노출·침해 의심 시 공개 초동 안내",
+              "score": 0.477401
+            },
+            {
+              "doc": "privacy-security-guide",
+              "section": "개인정보와 계정 보호",
+              "score": 0.455663
+            },
+            {
+              "doc": "privacy-security-guide",
+              "section": "계정 침해 문의 — 교육용 가상 설정",
+              "score": 0.405975
+            }
+          ]
+        },
+        {
+          "id": "SR-TC04",
+          "question": "11월 2일 오후에 1시간권을 결제했는데 대여가 안 됐어요. 환불해 주세요. 따릉이 앱에서 카드로 결제했어요.",
+          "doc_rank": 1,
+          "section_rank": 4,
+          "status": "ok",
+          "top3": [
+            {
+              "doc": "fees-refund-guide",
+              "section": "기본 이용시간과 추가요금",
+              "score": 0.586446
+            },
+            {
+              "doc": "rental-guide",
+              "section": "대여 준비와 시작",
+              "score": 0.480317
+            },
+            {
+              "doc": "fees-refund-guide",
+              "section": "결제 오류와 영수증",
+              "score": 0.459085
+            }
+          ]
+        },
+        {
+          "id": "WF03",
+          "question": "따릉이를 해외 여행에 가져가서 한 달 동안 써도 되나요?",
+          "doc_rank": null,
+          "section_rank": null,
+          "status": "empty",
+          "top3": []
+        }
+      ]
+    }
+  },
+  "limitations": [
+    "Education/demo data; direct embedding and cosine simulation; not n8n end-to-end or official R05 evaluation.",
+    "Section grouping mixes actual and simulated information; do not deploy as-is.",
+    "Only thirteen positive queries and one out-of-domain query.",
+    "Recorded timestamp is result-writing time; start time was not captured.",
+    "Public-only direct-vector test does not validate citizen-to-RAG authorization or restricted output."
+  ],
+  "recorded_at_kst": "2026-11-05T16:30:20+09:00"
+}
