@@ -222,8 +222,10 @@ connected before follow-up requests can proceed.
 
 Migration `007-deduplicate-alert-marker-dlq.sql` replaces only `dlq_apply`.
 For `recovery.action=alert_marker`, the workflow supplies a private case-based
-deduplication reference so later requests update the same active DLQ row while
-preserving each latest execution ID. Other failures retain the existing
+deduplication reference. Later requests update the same active DLQ row only
+when scope, case, failed step, and error code all match, while preserving the
+latest execution ID. A different step or error remains a separate recovery
+item even for the same case. Other failures retain the existing
 request/execution-based key. Apply 007 after 001~006 and rerun the function and
 runtime permission contracts before connecting the updated workflow.
 

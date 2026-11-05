@@ -150,7 +150,7 @@ dead_letters는 **처리하지 못했거나 성공 여부가 불명확해 확인
 | revision | bigint,NOT NULL,초기0 | 동시 재처리 방지용 조건부 갱신 |
 | created_at,updated_at,resolved_at | timestamptz,resolved_at만NULL 허용 | 생성·변경·해결 시각 |
 
-동일 (scope,failure_key)는 활성 실패1건으로 관리한다. 요청이 확인되면 failure_key는 request_id/failed_step의 고정 구조 해시,요청을 모르면 원래 workflow/execution/node/error_code의 고정 구조 해시로 만든다. 예상 실패와 Error Workflow가 같은 실패를 중복 기록하면 같은 항목을 갱신한다. resolved 뒤 같은 단계가 다시 실패하면 원 항목을 재개하고 시각·사유를 갱신한다. 상세 시도 이력은 n8n 실행 기록을 참조한다. replay_status/updated_at 조회 인덱스를 후보로 둔다. 요청·소유권이 확인되지 않은 항목은 기록 조회만 하고 업무 재실행하지 않는다.
+동일 (scope,failure_key)는 활성 실패1건으로 관리한다. 요청이 확인되면 failure_key는 request_id/failed_step의 고정 구조 해시,요청을 모르면 원래 workflow/execution/node/error_code의 고정 구조 해시로 만든다. `alert_marker`만 재요청 ID 대신 case 식별을 사용하되 **같은 scope·case·failed_step·error_code**일 때만 같은 항목을 갱신한다. 같은 case라도 실패 단계나 오류 코드가 다르면 확인·복구 작업이 다르므로 별도 DLQ로 보존한다. 따라서 이 계약은 “case당 무조건 하나”가 아니다. 예상 실패와 Error Workflow가 같은 실패를 중복 기록하면 같은 항목을 갱신한다. resolved 뒤 같은 단계가 다시 실패하면 원 항목을 재개하고 시각·사유를 갱신한다. 상세 시도 이력은 n8n 실행 기록을 참조한다. replay_status/updated_at 조회 인덱스를 후보로 둔다. 요청·소유권이 확인되지 않은 항목은 기록 조회만 하고 업무 재실행하지 않는다.
 
 DLQ 기록은 최소 상태 저장이 실패한 경우에도 시도할 수 있어야 하므로 request_state 행이 반드시 존재해야 하는 물리 외래키로 막지 않는다. 두 저장이 같은 DB 장애로 모두 실패하면 가능한 n8n 실행 기록·운영 알림에 남기고 접수 성공을 약속하지 않는다. 별도 저장소를 추가해 모든 장애를 감추는 구조는 범위에 넣지 않는다.
 
@@ -224,7 +224,7 @@ n8n 원시 노드 입출력에는 사용자 입력·외부 응답이 포함될 �
 | DlqWriteRequest | op:put,scope:string,request_id:string／null,case_id:string／null,failed_step:string,error_code:string,effects:object,recovery:RecoveryCapsule | 그 외4.1의 known ID/요약/시도/원 실행 포함. failure_key는 R04 서버가4.1 규칙으로 생성 |
 | DlqResult | ok:boolean,dlq_id:string／null,deduplicated:boolean,error_code:string／null | 실제 보관/기존 항목 갱신 확인만ok=true. 실패해도 호출자는 알림·최종 오류 응답으로 진행 |
 | SaveResult | request_id:string,ok:boolean,state_ref:StateRef／null,error_code:string／null,recovery:RecoveryCapsule | Jira 문맥 확인과 finish 저장이 모두 확인돼야ok=true. 둘 중 실패면후속응답은저장미확인·known ID 보존 |
-| RecoveryCapsule | version:1,mode:payload/jira_ref/manual_required,action:create/bind/context_update/close/assign/alert/finish/inspect_only,args:object／null,reference:object／null,reason:string／null | 실패 작업만. payload는허용가린인자,jira_ref는Jira ID/case/owner와읽을필드,manual_required는추정실행0 |
+| RecoveryCapsule | version:1,mode:payload/jira_ref/manual_required,action:create/bind/context_update/close/assign/alert/alert_marker/finish/inspect_only,args:object／null,reference:object／null,reason:string／null | 실패 작업만. payload는허용가린인자,jira_ref는Jira ID/case/owner와읽을필드,manual_required는추정실행0. alert_marker는 알림 성공 뒤 Jira 중복방지 표식 저장이 미확인인 상태로, 알림을 다시 보내지 않고 표식과 실제 효과를 확인하는 작업 |
 
 | 명령 | args와 후조건 | 실패·미확인 |
 | --- | --- | --- |
@@ -263,7 +263,7 @@ SupportCase.version은 실제 Jira 문의 버전을 확인했을 때 그 값,지
 {"version":1,"mode":"jira_ref","action":"close","args":null,"reference":{"jira_issue_id":"10001","jira_issue_key":"JBYS-1","case_id":"case-01","owner_id":"citizen-a","read_fields":["masked_answer","sources","target_close_status"]},"reason":"종료 전환 실패,필수값은 생성 시 Jira에 저장됨"}
 ```
 
-RecoveryCapsule의 payload는 action별 허용 필드만 사용한다. create는 가린 TicketRequest,bind는Jira ID/key와원요청참조,next_step,finish는가린 SaveRequest/Response,close/context_update/assign/alert는대상과검증된가린변경값이다. n8n execution_id만 있는 reference는jira_ref가 아니며manual_required다. 비밀·임의 endpoint·임의 코드·전체 대화는허용하지않는다.
+RecoveryCapsule의 payload는 action별 허용 필드만 사용한다. create는 가린 TicketRequest,bind는Jira ID/key와원요청참조,next_step,finish는가린 SaveRequest/Response,close/context_update/assign/alert는대상과검증된가린변경값이다. alert_marker는 알림 재전송 지시가 아니라 Jira의 attempted/sent 표식과 알림 효과를 확인·보정하기 위한 jira_ref다. 같은 case·failed_step·error_code의 활성 항목만 중복 제거하고 단계나 오류가 달라지면 별도 확인 항목으로 남긴다. n8n execution_id만 있는 reference는jira_ref가 아니며manual_required다. 비밀·임의 endpoint·임의 코드·전체 대화는허용하지않는다.
 
 ## 7. 보존·복구·권한
 

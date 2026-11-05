@@ -11,7 +11,7 @@ if (!planNode) throw new Error("H39 node missing");
 const request = {assignee_role: "support", case_id: "case-1", priority: "normal", context: {summary: "문의", confirmed: [], missing: []}, attempt: 3};
 const base = (labels, assigneeId = "acct-support") => ({
   request,
-  state_ref: {owner_id: "citizen-a"},
+  state_ref: {owner_id: "citizen-a", input_hash: "a".repeat(64)},
   ticket: {id: "10001", key: "JBYS-1", reused: true, labels, assignee_id: assigneeId},
   effects: {created_or_reused: {status: "confirmed"}, context_saved: {status: "none"}, closed: {status: "none"}, assigned: {status: "none"}, alert: {status: "none"}},
   error_code: null,
@@ -22,9 +22,14 @@ const execute = (ctx) => {
   return new Function("$", "$json", code)(() => ({item: {json: {ctx}}}), users)[0].json;
 };
 
-let out = execute(base(["dubakwi-alert-sent-support"]));
+let out = execute(base(["dubakwi-alert-sent-support", "dubakwi-context-" + "a".repeat(40)]));
 if (out.route !== "done" || out.ctx.effects.assigned.status !== "confirmed" || out.ctx.effects.alert.status !== "confirmed") {
   throw new Error(`sent marker must suppress repeat assignment and alert: ${JSON.stringify(out)}`);
+}
+
+out = execute(base(["dubakwi-alert-sent-support"]));
+if (out.route !== "context" || out.ctx.context_label !== "dubakwi-context-" + "a".repeat(40) || out.ctx.effects.assigned.status !== "confirmed" || out.ctx.effects.alert.status !== "confirmed") {
+  throw new Error(`new supplement must route to context-only update: ${JSON.stringify(out)}`);
 }
 
 out = execute(base(["dubakwi-alert-attempted-support"]));
@@ -46,8 +51,8 @@ if (dlqResult.error_code !== "dlq_backend_unconfigured" || dlqResult.payload._de
 
 out = execute(base([]));
 const labelAdds = out.req?.body?.update?.labels ?? [];
-if (out.route !== "assign" || !labelAdds.some((item) => item.add === "dubakwi-alert-attempted-support")) {
-  throw new Error(`first assignment must persist the attempt marker: ${JSON.stringify(out)}`);
+if (out.route !== "assign" || !labelAdds.some((item) => item.add === "dubakwi-alert-attempted-support") || !labelAdds.some((item) => item.add === "dubakwi-context-" + "a".repeat(40))) {
+  throw new Error(`first assignment must persist attempt and context markers: ${JSON.stringify(out)}`);
 }
 
 if (nodes.get("H50 Jira 알림 성공 표식")?.parameters?.options?.timeout !== 2000) {
@@ -58,4 +63,4 @@ if (markerEdges[0]?.[0]?.node !== "H50 Jira 알림 성공 표식" || markerEdges
   throw new Error("alert marker routing is incomplete");
 }
 
-console.log("P12 repeated assignment/alert suppression and DLQ handoff: 5/5 passed");
+console.log("P12 repeated assignment/alert suppression and DLQ handoff: 6/6 passed");

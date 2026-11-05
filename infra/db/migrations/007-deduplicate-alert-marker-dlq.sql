@@ -1,4 +1,4 @@
--- 기존 001~006 적용 환경에서 alert_marker DLQ를 case 단위로 중복 제거한다.
+-- 기존 001~006 적용 환경에서 alert_marker DLQ를 같은 case·실패 단계·오류 단위로 중복 제거한다.
 BEGIN;
 
 CREATE OR REPLACE FUNCTION dubakwi_service.dlq_apply(payload jsonb)

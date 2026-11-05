@@ -53,7 +53,7 @@ function run(action, jira, opts = {}) {
       json = jira(current, json.req) ?? {statusCode: 0};
     } else if (node.type === "n8n-nodes-base.executeWorkflow") {
       calls.push({node: current, op: json.op});
-      json = opts.state ? opts.state(current, json) : {ok: true, skipped: false, error_code: null, state_ref: stateRef(json.state_ref.state_revision + 1)};
+      json = opts.state ? opts.state(current, json) : {ok: true, skipped: false, error_code: null, state_ref: {...json.state_ref, state_revision: json.state_ref.state_revision + 1}};
     } else if (node.type === "n8n-nodes-base.webhook") {
       json = {body: {...baseRequest(action), ...(opts.req ?? {})}};
     } else if (node.type === "n8n-nodes-base.respondToWebhook") {
@@ -77,7 +77,7 @@ const happy = (name, req) => {
   if (name === "H09 Jira 맥락 저장·배정") return {statusCode: 204, body: ""};
   if (name === "H11 담당 알림") return {statusCode: 200, body: {ok: true}};
   if (name === "H50 Jira 알림 성공 표식") return {statusCode: 204, body: ""};
-  if (name === "H46 Jira 보완 횟수 저장") return {statusCode: 201, body: {id: "1"}};
+  if (name === "H46 Jira 보완 횟수 저장") return {statusCode: 204, body: ""};
   throw new Error(`unexpected call ${name}`);
 };
 const withJira = (over) => (name, req) => (name in over ? over[name] : happy(name, req));
@@ -155,8 +155,8 @@ for (const map of ["{}", "__ASSIGNEE_MAP_JSON__", "not json", '{"security":"acct
 const existing = {"H29 Jira 기존 건 조회": {statusCode: 200, body: {id: "10004", key: "JBYS-2", fields: linkFields()}}};
 r = run("wait", withJira(existing), {req: {ticket_id: "JBYS-2", attempt: 3}});
 const note = r.calls.find((c) => c.node === "H46 Jira 보완 횟수 저장");
-expect(r.body.error_code === null && r.body.effects.context_saved.status === "confirmed" && note && /보완 횟수: 3/.test(note.req.body.body), "attempt must be saved on reuse", r);
-expect(note.req.path === "/rest/api/2/issue/JBYS-2/comment" && !/010-1234-5678|a@b\.com/.test(JSON.stringify(note.req)), "attempt note path and masking", note.req);
+expect(r.body.error_code === null && r.body.effects.context_saved.status === "confirmed" && note && /보완 횟수: 3/.test(note.req.body.update.comment[0].add.body), "attempt must be saved on reuse", r);
+expect(note.req.method === "PUT" && note.req.path === "/rest/api/2/issue/JBYS-2" && !/010-1234-5678|a@b\.com/.test(JSON.stringify(note.req)), "attempt note path and masking", note.req);
 r = run("wait", happy);
 expect(!r.calls.some((c) => c.node === "H46 Jira 보완 횟수 저장") && r.body.error_code === null, "new issue already carries attempt", r.calls);
 for (const bad of [{statusCode: 403, body: {}}, {statusCode: 503, body: {}}, undefined]) {
@@ -218,4 +218,19 @@ for (const [scope, owner, rid] of [
 }
 expect(seen.size === 5, "five distinct labels", [...seen]);
 
-console.log("P12 handoff Jira flow: 17 scenarios passed");
+// 18. 같은 이관 요청의 완전 재전송은 문맥·배정·알림을 다시 쓰지 않는다.
+const contextLabel = "dubakwi-context-" + "a".repeat(40);
+const completedHandoff = {"H29 Jira 기존 건 조회": {statusCode: 200, body: {id: "10004", key: "JBYS-2", fields: linkFields({labels: [labelFor("dubakwi-team", "citizen-a", "req-1"), "dubakwi-alert-sent-support", contextLabel], assignee: {accountId: "acct"}})}}};
+r = run("handoff", withJira(completedHandoff), {req: {ticket_id: "JBYS-2"}});
+expect(r.body.error_code === null && r.body.effects.context_saved.status === "confirmed" && r.body.effects.assigned.status === "confirmed" && r.body.effects.alert.status === "confirmed", "completed handoff replay", r.body);
+expect(!r.calls.some((c) => ["H09 Jira 맥락 저장·배정", "H11 담당 알림", "H46 Jira 보완 횟수 저장"].includes(c.node)), "completed replay must not write Jira or alert", r.calls);
+
+// 19. 같은 담당자·알림 완료 뒤 새 보완은 문맥과 횟수만 저장하고 배정·알림은 반복하지 않는다.
+const supplementHash = "b".repeat(64);
+r = run("handoff", withJira(completedHandoff), {req: {request_id: "req-2", ticket_id: "JBYS-2", attempt: 2, state_ref: {...stateRef(2), request_id: "req-2", input_hash: supplementHash}, context: {...baseRequest("handoff").context, summary: "새 보완 내용"}}});
+const contextUpdate = r.calls.find((c) => c.node === "H46 Jira 보완 횟수 저장");
+expect(r.body.error_code === null && r.body.effects.context_saved.status === "confirmed" && r.body.effects.assigned.status === "confirmed" && r.body.effects.alert.status === "confirmed", "new supplement on completed handoff", r.body);
+expect(contextUpdate && contextUpdate.req.body.update.labels[0].add === "dubakwi-context-" + supplementHash.slice(0, 40) && /보완 횟수: 2/.test(contextUpdate.req.body.update.comment[0].add.body), "new supplement context and attempt must be stored", contextUpdate);
+expect(!r.calls.some((c) => ["H09 Jira 맥락 저장·배정", "H11 담당 알림"].includes(c.node)), "new supplement must not repeat assignment or alert", r.calls);
+
+console.log("P12 handoff Jira flow: 19 scenarios passed");

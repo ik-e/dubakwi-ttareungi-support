@@ -22,5 +22,9 @@ if (result.payload._dedupe_ref !== "case:case-1:alert_marker") throw new Error(`
 if (result.payload.last_execution_id !== "exec-2" || result.payload.request_id !== "req-2") throw new Error("latest request/execution references were lost");
 const query = nodes.get("D04 PostgreSQL DLQ 저장")?.parameters?.options?.queryReplacement ?? "";
 if (!query.includes("D02 계약 검사와 안전 차단") || !query.includes("payload")) throw new Error("normalized DLQ payload is not sent to PostgreSQL");
+const migration = fs.readFileSync(path.join(root, "infra", "db", "migrations", "007-deduplicate-alert-marker-dlq.sql"), "utf8");
+for (const fragment of ["payload ->> '_dedupe_ref'", "payload ->> 'failed_step'", "payload ->> 'error_code'"]) {
+  if (!migration.includes(fragment)) throw new Error(`alert_marker failure key contract missing: ${fragment}`);
+}
 
-console.log("P18 alert_marker validation and case deduplication: 4/4 passed");
+console.log("P18 alert_marker validation and scoped deduplication: 7/7 passed");
