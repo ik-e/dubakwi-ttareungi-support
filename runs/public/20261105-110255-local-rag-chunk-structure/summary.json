@@ -1,0 +1,24 @@
+{
+  "started_at_kst": "2026-11-05T11:02:55+09:00",
+  "source_commit": "0e44fdb",
+  "manifest_sha256": "4d27524bfbf7d9d32c44bc846f5a649f7cf7b4ba7980377a5c46c60b9623999c",
+  "method": "prepare(...allow_demo=True); compare emitted paragraphs with concatenation grouped by (doc, section); Python character lengths include labels and separators",
+  "paragraph_chunks": {
+    "count": 44,
+    "min_chars": 61,
+    "median_chars": 124.5,
+    "max_chars": 251
+  },
+  "section_grouped_chunks": {
+    "count": 41,
+    "min_chars": 61,
+    "median_chars": 123,
+    "max_chars": 364
+  },
+  "mixed_actual_simulation_sections": 3,
+  "limitations": [
+    "Structural statistics only; no alternative embedding, retrieval, hit@k or answer-quality comparison.",
+    "Sections formed by concatenating prepared chunks for measurement; not safe production chunks where actual and simulation labels mix.",
+    "Counts are Python characters, not tokens."
+  ]
+}
