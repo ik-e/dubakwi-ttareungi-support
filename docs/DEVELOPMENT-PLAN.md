@@ -484,3 +484,7 @@ R01이 PR #12에 최신 main을 반영했다. main의 지식/준비 도구·P08/
 ### P04/P11 R01 배포 전 검토 (2026-11-04 KST)
 
 사용자의 3가지 점검 지시에 따라 R01이 P11 코드·계약, 공식 과정 도구, 기존 VM을 읽기 점검했다. P11 e48a66f의 Code 시험50건·Python34건·Ruff·문서/공개 검사를 확인했으며 관련 역할 검토와 VM 공식 판정은 남아 있다. 공식 main eb6937f에는80일차 도구가 없고78/79 check는 팀 Header Auth를 거절했다. 기존 push는 게시/재시작을 포함하므로 실행하지 않았다. VM 이미지 ID·SQLite WAL·운영 경로와 빈 워크플로우/Credential/실행 목록, 로그인 후 실행 목록 접근을 확인했다. data-api 연결·팀 Credential·배포 전 백업/복구와 가져오기 방법은 미완료다. 직접 업무/지식 계약과 실행 JSON은 수정하지 않았다. 공개 절차는 [VM 점검 v0.3](../infra/vm-preflight.md), 새 증거는 [20261104-165003-local-p11-vm-preflight](../runs/public/20261104-165003-local-p11-vm-preflight/summary.json)다. 기존 P04 진행을 유지하며 P11/P13 완료·배포·서비스 통과를 선언하지 않는다.
+
+### P04 VM 기준 백업·키 후보 준비 (2026-11-05 KST)
+
+사용자 지시로 R01이 기존 VM의 운영/비밀 경로를 권한700으로 준비하고 SQLite online backup·설정/구성 사본의 기준 백업을 생성했다. 무결성 ok와 체크섬을 확인했으나 전체 복원을 시험하지 않았다. 서로 다른 입구/내부 키 후보와 등록 준비 파일은 VM 권한600 파일에만 저장했다. n8n Credential 실제 등록·JSON 가져오기/게시·DB/data-api 기동·네트워크/포트 변경·서비스 재시작·외부 API 호출은 하지 않았다. healthz200을 재확인했다. P04는 진행 유지이며 P11/P13 서비스 완료를 뜻하지 않는다. 소유 경로는 infra 안내·점검/이 원장·문서 목록·새 가린 증거이며 R04 저장 스키마/실행 JSON은 편집하지 않았다. [새 증거](../runs/public/20261105-101747-vm-baseline-preparation/summary.json)와 [VM 점검 v0.4](../infra/vm-preflight.md)를 참조한다.
