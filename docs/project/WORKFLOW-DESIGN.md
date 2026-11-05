@@ -504,7 +504,7 @@ B28은 먼저 error_code=null && state_saved=true && 최신 state_ref를 확인�
 | 근거 표시 | R03 기본안에 따라 시민 답변에 `[실제 안내]`·`[가상 설정]`을 보존. Evidence.text 앞 표시를 쓰고 전용 필드는 추가하지 않음. B21이 인용 근거와 답변의 표시 일치를 검사 | 표시 없는 근거에는 요구하지 않음 |
 | scope | `dubakwi-dev` 고정 | R01 환경 설정 값으로 교체 필요 |
 | LLM Credential | 과정 공통 ID `openAiCourse0001` 사용 | 이름만으로는 로컬 n8n에서 권한 오류가 나서 ID를 넣음. 비밀값은 없음 |
-| TC08 | 운영 JSON에는 스위치를 넣지 않음. [`make_verifier_fault.py`](../../scripts/test/make_verifier_fault.py)가 경로 `dubakwi-support-tc08`, 별도 ID·webhookId의 사본 생성 | [원본과 동시 게시 확인](../../runs/public/20261105-104900-local-n8n-p19-tc08-parallel/summary.json). 모드 2종은 같은 경로라 하나만 게시 |
+| TC08 | 운영 JSON에는 스위치를 넣지 않음. [`make_verifier_fault.py`](../../scripts/test/make_verifier_fault.py)가 경로 `dubakwi-support-tc08`, 별도 ID·webhookId의 사본 생성 | [원본과 동시 게시 확인](../../runs/public/20261105-104900-local-n8n-p19-tc08-parallel/summary.json). 모드 3종(`grounded`, `unparsable`, TC08-v1용 [`unknown_chunk`](../../runs/public/20261105-112427-local-n8n-p19-tc08-unknown-chunk/summary.json))은 같은 경로라 하나만 게시 |
 | B05 | 과정 data-api 형식은 `citizen`/`public` 최소 권한 유지 | `citizen-a` 공급과 `dept` 매핑은 R04 P09·D04 |
 
 로컬 확인(2026-11-04): Code 시험 [89/89](../../runs/public/20261104-113327-local-p19-flow/summary.json). 로컬 n8n 2.42.6에서 `scripts/test/mocks/`의 mock과 실제 gpt-4.1-mini로 Webhook 18개를 3회 실행해 모두 18/18 통과했다([1회](../../runs/public/20261104-113005-local-n8n-p19-mock-run1/summary.json), [2회](../../runs/public/20261104-113036-local-n8n-p19-mock-run2/summary.json), [3회](../../runs/public/20261104-113113-local-n8n-p19-mock-run3/summary.json)). 이 저장 결과 전에 Credential 권한 오류(2/18)와 분류 프롬프트 문제(12/18)가 있었고 수정했다. 해당 시도의 결과 파일은 남기지 않았다. TC08 grounded=false 사본도 이관을 1회 확인했다.

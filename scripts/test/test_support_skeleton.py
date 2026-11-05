@@ -6,7 +6,7 @@ import subprocess
 import unittest
 from pathlib import Path
 
-from make_verifier_fault import MODEL, SOURCE, VERIFIER, build
+from make_verifier_fault import MODEL, SOURCE, VERIFIER, WRITER, WRITER_MODEL, build
 
 ROOT = Path(__file__).resolve().parents[2]
 SCRIPT = ROOT / "scripts" / "test" / "support-skeleton-cases.js"
@@ -41,6 +41,18 @@ class SupportSkeletonTest(unittest.TestCase):
         self.assertEqual(copy["id"], "dubakwiSupportTc08")
         source = next(item for item in workflow["nodes"] if item["name"] == VERIFIER)
         self.assertTrue(source["type"].endswith("chainLlm"))
+
+    def test_unknown_chunk_copy_changes_writer_only_for_citation(self) -> None:
+        workflow = json.loads(SOURCE.read_text(encoding="utf-8"))
+        copy = build(workflow, "unknown_chunk")
+        nodes = {item["name"]: item for item in copy["nodes"]}
+        self.assertIn("tc08-unknown-chunk", nodes[WRITER]["parameters"]["jsCode"])
+        self.assertIn("grounded", nodes[VERIFIER]["parameters"]["jsCode"])
+        self.assertNotIn(WRITER_MODEL, nodes)
+        self.assertNotIn(MODEL, nodes)
+        self.assertNotIn(WRITER_MODEL, copy["connections"])
+        source = {item["name"]: item for item in workflow["nodes"]}
+        self.assertTrue(source[WRITER]["type"].endswith("chainLlm"))
 
 
 if __name__ == "__main__":
