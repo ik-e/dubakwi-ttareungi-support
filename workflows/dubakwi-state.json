@@ -66,7 +66,7 @@
         "operation": "executeQuery",
         "query": "SELECT dubakwi_service.state_apply($1::jsonb) AS result;",
         "options": {
-          "queryReplacement": "={{ JSON.stringify($('S01 상태 명령 수신').item.json) }}"
+          "queryReplacement": "={{ JSON.stringify($json.finish_payload ?? $('S01 상태 명령 수신').item.json) }}"
         }
       },
       "credentials": {
@@ -101,6 +101,124 @@
         760,
         140
       ]
+    },
+    {
+      "name": "S07 저장 요청 여부",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "parameters": {
+        "conditions": {
+          "options": {
+            "version": 2,
+            "caseSensitive": true,
+            "leftValue": ""
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "save-op",
+              "leftValue": "={{ $('S01 상태 명령 수신').item.json.op === 'save' }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "position": [
+        760,
+        300
+      ]
+    },
+    {
+      "name": "S08 Jira 문맥 확인 요청 구성",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "parameters": {
+        "jsCode": "const input = $('S01 상태 명령 수신').item.json;\nreturn [{json:{req:{method:'GET', path:'/rest/api/2/issue/' + encodeURIComponent(input.ticket_id) + '?fields=labels,status'}}}];"
+      },
+      "position": [
+        1000,
+        300
+      ]
+    },
+    {
+      "name": "S09 Jira 문맥 확인",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "onError": "continueRegularOutput",
+      "parameters": {
+        "method": "GET",
+        "url": "={{ '__JIRA_BASE_URL__' + $json.req.path }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "jiraSoftwareCloudApi",
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true,
+              "neverError": true
+            }
+          },
+          "timeout": 2000
+        }
+      },
+      "credentials": {
+        "jiraSoftwareCloudApi": {
+          "name": "dubakwi-Jira SW Cloud account"
+        }
+      },
+      "position": [
+        1240,
+        300
+      ]
+    },
+    {
+      "name": "S10 문맥 확인 판정",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "parameters": {
+        "jsCode": "const input = $('S01 상태 명령 수신').item.json;\nconst sc = Number($json.statusCode ?? 0);\nconst body = $json.body;\n// save는 Jira 문맥을 확인한 뒤에만 finish로 저장한다. 확인하지 못하면 SQL을 호출하지 않는다.\nconst fail = (code, reason) => [{json:{request_id:input.state_ref.request_id, ok:false, state_ref:input.state_ref, error_code:code, recovery:{version:1, mode:'manual_required', action:'finish', args:null, reference:null, reason}}}];\nif (input.expected_case_version !== null) return fail('tickets_down', 'Jira 문의 버전 확인 미지원');\nif (sc !== 200 || !body || body.key !== input.ticket_id) return fail('tickets_down', sc === 404 ? 'Jira 티켓을 찾지 못함' : 'Jira 문맥 확인 실패');\nconst label = 'dubakwi-' + String(input.first_request_id).replace(/[^A-Za-z0-9_-]/g, '_').slice(0, 80);\nconst labels = body.fields && Array.isArray(body.fields.labels) ? body.fields.labels : [];\nif (!labels.includes(label)) return fail('state_error', 'Jira 티켓이 이 문의와 연결되지 않음');\nreturn [{json:{route:'finish', finish_payload:{op:'finish', state_ref:input.state_ref, args:{response:input.response, current_step:'respond'}}}}];"
+      },
+      "position": [
+        1480,
+        300
+      ]
+    },
+    {
+      "name": "S11 확인 통과 여부",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "parameters": {
+        "conditions": {
+          "options": {
+            "version": 2,
+            "caseSensitive": true,
+            "leftValue": ""
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "save-verified",
+              "leftValue": "={{ $json.route === 'finish' }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "position": [
+        1720,
+        300
+      ]
     }
   ],
   "connections": {
@@ -130,7 +248,7 @@
       "main": [
         [
           {
-            "node": "S04 PostgreSQL 상태 저장",
+            "node": "S07 저장 요청 여부",
             "type": "main",
             "index": 0
           }
@@ -149,6 +267,75 @@
         [
           {
             "node": "S05 저장 결과 정규화",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "S07 저장 요청 여부": {
+      "main": [
+        [
+          {
+            "node": "S08 Jira 문맥 확인 요청 구성",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "S04 PostgreSQL 상태 저장",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "S08 Jira 문맥 확인 요청 구성": {
+      "main": [
+        [
+          {
+            "node": "S09 Jira 문맥 확인",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "S09 Jira 문맥 확인": {
+      "main": [
+        [
+          {
+            "node": "S10 문맥 확인 판정",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "S10 문맥 확인 판정": {
+      "main": [
+        [
+          {
+            "node": "S11 확인 통과 여부",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "S11 확인 통과 여부": {
+      "main": [
+        [
+          {
+            "node": "S04 PostgreSQL 상태 저장",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "S06 계약 거절 반환",
             "type": "main",
             "index": 0
           }

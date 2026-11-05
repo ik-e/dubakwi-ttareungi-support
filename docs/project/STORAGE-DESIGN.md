@@ -205,7 +205,7 @@ n8n 원시 노드 입출력에는 사용자 입력·외부 응답이 포함될 �
 
 물리 PostgreSQL 채택 시 R04는 SQL/저장 기능을 준비하고 R02는 본체에 연결한다. 기존 HTTP Request 노드는 논리 호출 위치를 나타내므로 실제로는 Postgres 노드·하위 워크플로우·HTTP 어댑터 중 선택해 명세를 갱신한다. 확인되지 않은 endpoint나 트랜잭션 경계를 구현 완료로 표시하지 않는다.
 
-현재 준비본은 parameterized JSON 1개만 받는 `dubakwi_service.state_apply`와 `dubakwi_service.dlq_apply` 함수로 상태 명령과 DLQ 갱신을 원자적으로 수행한다. 신규 요청의 begin은 DB에서 처리할 수 있지만,기존 case_ref의 소유자·열림 상태는 Jira가 원본이므로 Jira 확인 전에는 `case_verification_required`로 중단한다. 이 중단을 정상 처리나 저장 완료로 집계하지 않는다.
+현재 준비본은 parameterized JSON 1개만 받는 `dubakwi_service.state_apply`와 `dubakwi_service.dlq_apply` 함수로 상태 명령과 DLQ 갱신을 원자적으로 수행한다. 신규 요청의 begin은 DB에서 처리할 수 있지만,기존 case_ref의 소유자·열림 상태는 Jira가 원본이므로 Jira 확인 전에는 `case_verification_required`로 중단한다. 이 중단을 정상 처리나 저장 완료로 집계하지 않는다. save는 dubakwi-state의 S07~S11이 Jira 이슈(ticket_id)를 조회해 key와 문의 label(dubakwi-<first_request_id>)이 일치할 때만 같은 워크플로우에서 finish로 저장하고 ok:true를 반환한다. 조회 실패·불일치·expected_case_version 제공(버전 확인 미지원)은 SQL 호출 없이 ok:false(tickets_down/state_error)와 finish 복구 정보로 끝난다. DB의 save 분기는 계속 fail-closed 방어선으로 남긴다.
 
 공통 data-api 시험 모드와 Jira 실연동 모드는 티켓·상태·DLQ의 물리 저장을 어댑터로 구분한다. 공통 시험의 DLQ1건 판정과 실제 경로의 보존 여부를 각각 확인한다. 무조건 두 저장소에 이중 기록해 건수·소유권·원본을 혼동하지 않는다. 모의 시험 통과가 실제 Jira 종료·DB 복구의 증거는 아니다.
 

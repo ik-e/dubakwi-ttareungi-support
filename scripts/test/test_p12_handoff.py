@@ -9,6 +9,7 @@ ROOT = Path(__file__).resolve().parents[2]
 SCRIPTS = [
     ROOT / "scripts" / "test" / "p12-handoff-cases.js",
     ROOT / "scripts" / "test" / "p12-jira-flow-cases.js",
+    ROOT / "scripts" / "test" / "p12-save-cases.js",
 ]
 
 
