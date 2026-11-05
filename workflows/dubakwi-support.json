@@ -1434,7 +1434,7 @@
     {
       "parameters": {
         "mode": "raw",
-        "jsonOutput": "={{ JSON.stringify({ op: 'put', scope: 'dubakwi-dev', request_id: $json.request?.request_id ?? null, case_id: $json.support?.case_id ?? null, failed_step: $json.failed_node_id, error_code: $json.error_code, effects: $json.ticket_result?.effects ?? {}, recovery: $json.recovery, known_ticket_id: $json.known_ticket_id, execution_id: String($execution.id) }) }}",
+        "jsonOutput": "={{ JSON.stringify({ op: 'put', scope: 'dubakwi-dev', request_id: $json.request?.request_id ?? null, case_id: $json.support?.case_id ?? null, failed_step: $json.failed_node_id, error_code: $json.error_code, summary: `${$json.error_code} at ${$json.failed_node_id}`, attempts: 1, effects: $json.ticket_result?.effects ?? {}, recovery: $json.recovery, known_ticket_id: $json.known_ticket_id, execution_id: String($execution.id) }) }}",
         "options": {}
       },
       "id": "ede2ed2d-4234-58e9-b2cc-8edc3ce8fcd3",

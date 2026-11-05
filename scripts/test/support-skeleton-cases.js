@@ -77,7 +77,7 @@ function runWorkflow(workflow, webhookItem, b04Response, overrides = {}) {
   const outputs = new Map();
   const visited = [];
   const calls = { llm: 0, search: 0, lookup: 0, process: 0, saves: 0, prepares: 0, fails: 0, dlq: 0, alerts: 0, begin: 0 };
-  const sent = { process: [], search: [], begin: null, fail: null, logs: [] };
+  const sent = { process: [], search: [], begin: null, fail: null, dlq: null, logs: [] };
   const merges = new Map();
   const first = workflow.nodes.find((node) => node.type === 'n8n-nodes-base.webhook').name;
   const queue = [{ name: first, json: webhookItem, from: null }];
@@ -137,7 +137,7 @@ function runWorkflow(workflow, webhookItem, b04Response, overrides = {}) {
         else if (input.op === 'prepare') { calls.prepares += 1; json = env.prepare(input); }
         else if (input.op === 'save') { calls.saves += 1; json = env.save(input); }
         else if (input.op === 'fail') { calls.fails += 1; sent.fail = input; json = env.fail(input); }
-        else if (input.op === 'put') { calls.dlq += 1; json = env.dlq(input); }
+        else if (input.op === 'put') { calls.dlq += 1; sent.dlq = input; json = env.dlq(input); }
         else throw new Error(`허용되지 않은 하위 호출: ${input.op}`);
         break;
       }
@@ -322,6 +322,7 @@ const FLOWS = [
   ['FL63', 'S5', '긴급 검색어는 초동 안내 우선·조회 번호 제외', ask({ question: '사칭 링크 눌렀어요. 제 문의 T-9도 봐주세요.' }), { triage: { text: triage({ type: 'security', urgency: 'high', target_ticket_id: 'T-9' }) }, ...lookupOk() }, flow({ route: '담당자 이관', queryHas: '초동 안내', queryNot: 'T-9' })],
   ['FL64', 'S1', '담당자 일반 표현은 거절하지 않음', ask({ question: '담당자에게 연결되려면 어떻게 하나요?' }), {}, flow({ route: '자동 답변' })],
   ['FL65', '계약', 'begin 실패의 fail 명령에 scope·실행 ID 포함', ask(), begin('error', { error_code: 'state_error' }), handoff('state_error', { failShape: { state_ref: null } })],
+  ['FL66', '계약', 'DLQ 요청이 저장 필수 칸을 채움', ask({ question: `제 번호 ${FAKE_PHONE}인데 대여가 안 돼요` }), { process: () => ({ statusCode: 500, body: {} }) }, handoff('tickets_down', { dlq: 1, dlqShape: true })],
   ['FL41', '계약', 'BeginRequest 서버 값', ask({ role: 'security' }), {}, flow({ route: '자동 답변', beginShape: true })],
 ];
 
@@ -358,6 +359,14 @@ function evaluate(workflow, [id, group, title, body, second, expected], flowCase
   if (e.queryNoContact && JSON.stringify(result.sent.search).includes(FAKE_PHONE)) failures.push('검색어에 연락처 포함');
   if (e.queryHas && !JSON.stringify(result.sent.search).includes(e.queryHas)) failures.push(`검색어에 ${e.queryHas} 없음`);
   if (e.queryNot && JSON.stringify(result.sent.search.map((x) => x.query)).includes(e.queryNot)) failures.push(`검색어에 ${e.queryNot} 포함`);
+  if (e.dlqShape) {
+    const r = result.sent.dlq ?? {};
+    for (const key of ['scope', 'failed_step', 'error_code', 'summary']) if (typeof r[key] !== 'string' || !r[key].trim()) failures.push(`dlq ${key} 누락`);
+    if (!Number.isInteger(r.attempts) || r.attempts < 0) failures.push('dlq attempts 누락');
+    if (typeof r.effects !== 'object' || r.effects === null || Array.isArray(r.effects)) failures.push('dlq effects 형식');
+    if (typeof r.recovery !== 'object' || r.recovery === null) failures.push('dlq recovery 형식');
+    if (JSON.stringify(r).includes(FAKE_PHONE)) failures.push('dlq 연락처 포함');
+  }
   if (e.failShape) {
     const r = result.sent.fail;
     check('fail_scope', r?.scope, 'dubakwi-dev');
