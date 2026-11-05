@@ -467,6 +467,25 @@ class CaseFileTests(unittest.TestCase):
         self.assertEqual(tc08["x_dubakwi"]["test_copy"]["webhook"], "dubakwi-support-tc08")
         self.assertEqual(tc08["x_dubakwi"]["test_copy"]["modes"], ["grounded", "unparsable"])
 
+    def test_demo_requests_reuse_case_questions_and_turn_faults_off(self):
+        demo = self.load("requests/demo-sequence.json")
+        cases = {}
+        for name in ("cases/common.json", "cases/team.json"):
+            for case in self.load(name)["cases"]:
+                cases[case["x_dubakwi"]["id"]] = case
+        sent = [s for s in demo["steps"] if s["request"]]
+        self.assertEqual([s["step"] for s in demo["steps"]], list(range(1, 8)))
+        for step in sent:
+            with self.subTest(step=step["step"]):
+                body = self.load(step["request"])
+                case_body = cases[step["case"]]["body"]
+                self.assertEqual(body["question"], case_body["question"])
+                self.assertEqual(body["user"], case_body["user"])
+                self.assertRegex(body["request_id"], r"^demo-\d-r\d+$")
+                if "fault_on" in step:
+                    self.assertIn("fault_off", step)
+        self.assertEqual(len({self.load(s["request"])["request_id"] for s in sent}), len(sent))
+
     def test_fault_cases_switch_fault_off_after(self):
         data = self.load("cases/common.json")
         for case in data["cases"]:
