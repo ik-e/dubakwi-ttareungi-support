@@ -1,0 +1,60 @@
+{
+  "recorded_at": "2026-11-04T16:50:03.946662+09:00",
+  "task": "R01 P11 code/contract review, course tool verification and read-only VM preparation",
+  "environment": "local source review plus existing team VM read-only SSH/n8n UI",
+  "p11_commit": "e48a66f91307c7ce3081c473cda4d6df48af34c7",
+  "configuration": "P11 skeleton; WORKFLOW-DESIGN v0.14; existing VM n8n 2.42.6; no configuration change",
+  "case_ids": [
+    "LC01-LC50"
+  ],
+  "checks": {
+    "code_cases": "50/50 passed, substitute HTTP responses; no live service execution",
+    "python_unittest": "34 passed",
+    "ruff": "check and format passed",
+    "project_documents": "20 files,377 links,44 anchors;0 errors",
+    "public_files_p11": "85 files,397 links;0 errors",
+    "diff_check": "one existing trailing space in WORKFLOW-DESIGN line494; not changed by reviewer",
+    "github_ci": "latest P11 quality checks SUCCESS",
+    "course_flow_78": "reproduced one credential course-id validation error after UTF-8 retry",
+    "course_flow_79": "reproduced same one credential course-id validation error"
+  },
+  "course_source": {
+    "repository": "https://gl.isitsoft.kr/publicproj/aio-01d4-stu",
+    "commit": "eb6937fcb2103af66ccc542ff32fde95b21813a9",
+    "main_tree": "Last3Mon contains days64-79; day80/tools/flow.py unavailable at observation",
+    "tool_sha256": {
+      "78": "669fbb8097d8d7bbfdf0670474548e579fd986432651cf8daf3682458a21c00b",
+      "79": "6b0059cb3af135b08954559d0e6b757991fc2fc42a0624244d129e618284fb6f"
+    },
+    "push_behavior": "78/79 implementation unpublishes conflicting webhook workflows, imports/publishes and restarts n8n; not run"
+  },
+  "vm_observed": {
+    "n8n_image_tag": "2.42.6",
+    "immutable_image_id": "recorded privately",
+    "compose_version": "5.6.1",
+    "n8n_storage": "existing named volume; SQLite WAL; config exists mode600",
+    "workflow_count": 0,
+    "credential_count": 0,
+    "execution_count": 0,
+    "data_api_dns": "EAI_AGAIN; not resolvable at check",
+    "data_api_container": "not seen in current Docker context",
+    "healthz": 200,
+    "operations_directories": "owner-only mode700; existing preparation preserved",
+    "deployment_backup": "no deployment backup evidence; no backup/restore performed",
+    "execution_ui": "logged-in owner can open executions list; empty; individual run/node access and actual save behavior not tested",
+    "execution_save_env_overrides": "selected save/prune environment settings not explicitly set; effective defaults not inferred"
+  },
+  "decision": {
+    "code_review": "no new blocking logic issue found in P11 scope; owner/consumer review still pending",
+    "deployment": "not ready; credential, backup and tool/method confirmation needed",
+    "first_partial_tests": "WF08 and WF13 empty/501 do not require user lookup but B35 may fail independently",
+    "full_user_tests": "require data-api user supply and network"
+  },
+  "limits": [
+    "No import, publication, credential creation, service restart, backup/restore or actual workflow execution",
+    "No secrets read/exported; only credential name/type metadata queried",
+    "78 first attempt failed on local Windows encoding before workflow validation; UTF-8 retry used",
+    "80 tool availability checked only current public main and bounded VM home search",
+    "P11/P13 and RAG/Jira/VM service success are not declared complete"
+  ]
+}

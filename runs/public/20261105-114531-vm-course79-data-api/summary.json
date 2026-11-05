@@ -1,0 +1,161 @@
+{
+  "recorded_at": "2026-11-05T11:55:57.141994+09:00",
+  "task": "R01 P04/P09/P13 reuse existing GitLab79 data-api and flow tool",
+  "environment": "existing team VM; additional course mock data-api on existing n8n network, host8800 loopback only",
+  "code_versions": {
+    "team_workflow": "main0e44fdb P11 unchanged",
+    "course_repository": "https://gl.isitsoft.kr/publicproj/aio-01d4-stu",
+    "course_commit": "eb6937fcb2103af66ccc542ff32fde95b21813a9",
+    "course_paths": [
+      "Last3Mon/79/data-api",
+      "Last3Mon/79/tools/flow.py"
+    ]
+  },
+  "source_hashes": {
+    "server.py": "62b9d5f59adeeac1de7b5f82c4c0027d4b3dea026ac8fae8bebd5d1953d75805",
+    "flow.py": "6b0059cb3af135b08954559d0e6b757991fc2fc42a0624244d129e618284fb6f"
+  },
+  "source_verification": {
+    "files": 25,
+    "data_api_files": 24,
+    "all_data_api_git_blob_sha1_verified": true,
+    "sha256_manifest_retained_privately": true,
+    "server_data_and_flow_unmodified": true
+  },
+  "configuration_version": "derived VM Compose only: pinned python3.12-slim digest, read-only source/data mounts, existing network alias data-api,127.0.0.1:8800,healthcheck; original compose retained",
+  "image": {
+    "source_tag": "python:3.12-slim",
+    "deployment_uses_digest": true,
+    "runtime_image_matches_pinned_image": true,
+    "exact_digest_and_image_id": "recorded in private VM deployment manifest"
+  },
+  "backup": {
+    "online_sqlite_and_config_before_change": true,
+    "integrity": "ok",
+    "checksums_verified": true,
+    "workflow_count": 3,
+    "credential_count": 3,
+    "execution_count": 25,
+    "full_restore_tested": false
+  },
+  "service": {
+    "health": "healthy",
+    "host_health_status": "ok",
+    "n8n_to_data_api_http_status": 200,
+    "host_port_binding": "127.0.0.1:8800 only",
+    "employees_mock_count": 6,
+    "n8n_restarted": false,
+    "existing_n8n_compose_modified": false,
+    "new_service_compose_validated": true
+  },
+  "case_ids": [
+    "LN01",
+    "LN02",
+    "LN03",
+    "LN04",
+    "LN05",
+    "LN06",
+    "LN07",
+    "LN08",
+    "LN09",
+    "LN10",
+    "LN11",
+    "rag-smoke"
+  ],
+  "p11_actual_tests": {
+    "paths": [
+      "VM loopback",
+      "existing HTTPS"
+    ],
+    "cases_per_path": 11,
+    "total": 22,
+    "passed": 22,
+    "failed": 0,
+    "covers": [
+      "missing/wrong authentication",
+      "empty/501-character input",
+      "unknown employee",
+      "prompt injection type",
+      "normal mock branch",
+      "benign wording false-positive checks",
+      "legacy IT employee",
+      "citizen-a absent in unmodified course fixtures"
+    ],
+    "normal_branch_is_skeleton_mock": true
+  },
+  "log_verification": {
+    "before_live_count": 0,
+    "expected_new_logs": 18,
+    "matched_new_logs": 18,
+    "all_expected_request_ids_present": true,
+    "new_support_executions": 18,
+    "all_status_success": true,
+    "B35_output_stored_one_count": 18,
+    "B35_error_count": 0,
+    "B04_lookup_executions": 12,
+    "M01_mock_executions": 8,
+    "first_timeout_evidence_preserved": true
+  },
+  "course_tools": {
+    "source_unmodified": true,
+    "ops": {
+      "exit_code": 0,
+      "fault_switch": "all ok",
+      "live_logs": 18
+    },
+    "doctor": {
+      "exit_code": 1,
+      "data_api_and_n8n_connection_checks_passed": true,
+      "remaining_items": 1,
+      "remaining_item": "expected course OpenAI credential id openAiCourse0001 is absent; existing project OpenAI credential retained"
+    },
+    "check_p11_source": {
+      "exit_code": 1,
+      "errors": 1,
+      "reason": "original tool allows only course OpenAI credential ID and rejects team httpHeaderAuth source reference"
+    },
+    "not_run": [
+      "push: restarts n8n and current check rejects team auth",
+      "call/test: original HTTP helper has no team Header Auth parameter",
+      "fault/reset/llm credential drills"
+    ]
+  },
+  "rag_smoke": {
+    "status": "ok",
+    "expected_rental_guide_present": true,
+    "n8n_health": 200,
+    "existing_memory_index_preserved": true
+  },
+  "correction": "The80/data-api path is absent, but this does not mean no reusable data-api source exists. Reviewed79 source is available and now deployed; earlier external-supply requirement was too broad.",
+  "private_evidence": {
+    "bundle": "deploy/20261105-114531-vm-course79-data-api",
+    "files": [
+      "deployment-manifest.json",
+      "course-source/source-manifest.json",
+      "compose.vm.json",
+      "compose-up.log",
+      "course-tool-results.json",
+      "flow-doctor.log",
+      "flow-ops.log",
+      "flow-check-p11.log",
+      "p11-full-source-tests.json",
+      "execution-log-audit.json",
+      "final-verification.json"
+    ],
+    "public_summary_method": "Masked terminal observations; raw/private identifiers and original third-party source retained outside Git"
+  },
+  "limits": [
+    "course demo data and in-memory API, not actual Jira or durable state/DLQ implementation",
+    "R04 citizen/support/security fixtures and records remain separate pending integration; course employees normalize to citizen/public in current B05",
+    "P11 mock success is not S1 business completion or official common14/team-case acceptance",
+    "flow doctor/check limitations preserved; no claimed ready/check pass or auth bypass",
+    "no new DB adoption, external backend write, fault reset, n8n restart or knowledge approval",
+    "tscan/Gitleaks unavailable; public candidate scan is partial substitute"
+  ],
+  "local_checks": {
+    "docs": "20 documents,417 links,48 anchors;0 errors",
+    "public_candidates": "118 candidates,467 public local links;0 errors",
+    "diff": "passed",
+    "repository_tests": "not repeated for docs/evidence-only changes; actual VM P11 22/22 and RAG smoke executed"
+  }
+}

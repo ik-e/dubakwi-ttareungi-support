@@ -35,6 +35,36 @@ Jira 업무 상태와 request_state.processing_status는 다르다. 예를 들�
 
 SupportCase/CaseFacts는 워크플로우가 조합하는 논리 객체다. 별도 테이블 생성을 뜻하지 않는다. 보완 요청은 최소 연결 정보를 확인하고 Jira에서 현재 소유권·맥락·횟수·상태를 읽어 처리한다. Jira reporter가 서비스 계정이면 시민 소유권의 근거로 사용하지 않는다.
 
+### 2.1. P09 모의 사용자 공급과 data-api 경계
+
+`data/users.json`은 팀 형식 사용자·권한의 원본이고 `data/records.json`은 소유권 시험 자료다. `unregistered-zz`는 미등록 시험을 위해 어느 사용자 공급 파일에도 넣지 않는다. 강의 data-api의 `{name,dept}` 형식은 dept를 역할로 승격하지 않고 citizen/public으로만 처리한다.
+
+최종 팀 연동의 계약은 `{id,role,access_levels}` 형식이다. 다만 이 PR은 `users.json` fixture와 공급 계약만 준비하며, 그 파일을 실제 HTTP로 제공하는 팀 API 서버·컨테이너·n8n 어댑터는 포함하지 않는다. 실제 공급 구현의 위치, VM 내부 주소, 네트워크 별칭, Header Auth 적용 여부와 Credential 이름/ID는 R01의 배포 조건과 R02의 B05 소비 검토 뒤 확정한다. 등록 사용자는 HTTP 200에 팀 형식을, 미등록 사용자는 404를 반환해야 하며 임의 role/access_levels 입력은 받지 않는다.
+
+현재 강의 원본의 `GET /employees/<name>`에는 별도 인증과 직원 조회 고장 스위치가 없다. 강의 API 호환 방식은 시민 정상·미등록 시험을 먼저 가능하게 하는 보조 경로일 뿐, 담당자의 restricted 권한 공급이나 최종 팀 API 구현이 아니다. 실제 조회→B05→RAG·소유권 종단 시험은 VM 공급과 R02/R03 연결 후 수행하며, fixture 정적 확인과 구분한다.
+
+강의 data-api 호환 모드는 R01이 VM의 기존 `employees.json`을 저장소 밖에 백업한 뒤, `users.json`에서 role이 citizen인 세 ID를 아래 형식으로 기존 배열에 병합하고 `/data/employees.json`에 읽기 전용 마운트한다. 기존 강의 직원은 덮어쓰지 않는다. 이 형식은 담당자 권한을 표현할 수 없으므로 support/security는 넣지 않으며 시민·미등록 시험에만 사용한다.
+
+```json
+[{"name":"citizen-a","dept":"시민"},{"name":"citizen-b","dept":"시민"},{"name":"citizen-c","dept":"시민"}]
+```
+
+확인은 n8n 내부에서 `GET http://data-api:8800/employees/citizen-a`가 200과 `{name:"citizen-a",dept:"시민"}`을, `unregistered-zz`가 404를 반환하는지 본다. 팀 형식 모드는 `users.json`을 읽는 서버 경계가 200에 `{id,role,access_levels}`를 반환하도록 한다. 두 방식 모두 외부 공개 포트·사용자 입력 role/access_levels·저장소의 인증값은 허용하지 않는다. VM Header Auth가 필요하면 R01이 비공개 Credential로 주입한다.
+
+### 2.2. P09 로컬 검증 기록 (2026-11-05)
+
+아래 결과는 연락처·URL·Credential·원문 요청을 포함하지 않은 가린 요약이다. 공식 `runs/public/` 증거와 팀 판정은 R05 검토 뒤 별도로 연결한다.
+
+| 확인 | 실행·결과 | 증명하지 않는 것 |
+| --- | --- | --- |
+| fixture 정적 검사 | 사용자 5명, 기록 4건, 사용자 ID 중복 0, `unregistered-zz` 공급 0, 모든 owner 참조 연결 확인 | HTTP 공급·VM 연결 |
+| 강의 API 호환 확인 | 강의 `server.py` 로컬 실행에서 `citizen-a` 200, `unregistered-zz` 404 | 팀 형식 API·담당자 restricted 공급 |
+| P11 B02/B05 Code 검사 | `node scripts/test/support-skeleton-cases.js --label p09-data-api-supply` → 50/50 | 실제 n8n·RAG·Jira 호출 |
+| Python 공통 회귀 | `uv run --locked python -m unittest discover -s scripts/test -p 'test_*.py'` → 총 45개 중 38개 통과, HTTP 환경 의존 7개 생략 | 생략된 HTTP 시험 통과 |
+| 코드·공개 후보 | Ruff check/format 통과, 공개 파일 105개 검사 오류 0, staged 비밀 패턴 0 | 실제 개인정보·운영 비밀의 서버 측 관리 |
+
+검증 당시 기준 커밋은 `80c2153`, 기준 main은 `0e44fdb`다. 이 기록은 fixture와 계약의 로컬 검증 근거이며 실제 팀 API·B05→RAG·소유권 종단 성공으로 확대하지 않는다.
+
 ## 3. 최소 처리 상태 설계
 
 ### 3.1. 논리 구조와 제약
