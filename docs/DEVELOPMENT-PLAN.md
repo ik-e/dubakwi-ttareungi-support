@@ -620,3 +620,7 @@ R01 수정 후 검증: 공통 unittest67건 중60통과·실제HTTP7생략(실�
 ### 2026-11-06 R01 P18 제한 실연동 결과·P19 반입 준비
 
 상태: R01제한검증완료·R02/R05검토/병합/서비스적용대기. [실제결과](../runs/public/20261106-054257-vm-integration-progress/summary.json): 인증Webhook 생성240/bind rev2, known키재사용245/문맥rev4, 저장전용249/내부finish rev5 completed/응답저장·replay251을확인했다. 245의R01helper표현식실패를보존하고Jira쓰기재실행없이저장만재시험했다. 새열린시험건1/scope행1/DLQ0, 미인증403·수신종료404, 기존데이터해시/보호workflow5개불변·새helper4개미게시다. 서비스DB백업customarchive목록검사를완료했으나이번복원은안했다. R02 6a963c6의privatebundle/manifest 준비·LF해시대조는끝났지만반입/게시는안했다. 원본·공용P11/P19·Credential·서비스005~006변경은0이다. R01검토승인과다른역할승인/전체S1/공식판정은구분한다.
+
+### 2026-11-06 R01 최신 marker/P20 검토
+
+상태: 새기능검토/보완요청. [15e3c5a·fc776e2 검증](../runs/public/20261106-081647-local-r04-refresh/summary.json)에서R04최신marker/007/P20을검토했다. #27 83중76통과·HTTP7생략,#28 76중69통과·HTTP7생략,Ruff/문서/공개검사통과다. 반복이관에서새문맥없이context_saved확정하는P1을재현했다. 007로컬기존DBupgrade·SQL4계약은통과했으나동일case의실패단계가다르면활성DLQ2개여서중복범위정의/수정이필요하다. 공개action계약에alert_marker도미반영이다. #28기존코드의실패지속경로수정은확인했으나VM/공식판정은별도다. VM/서비스DB/Jira·R04원본변경은0이며이전1b승인은당시범위로보존한다.
