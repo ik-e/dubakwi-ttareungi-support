@@ -30,7 +30,7 @@ Credential은 이름만 들어 있다. 실제 ID는 게시 사본에서 연결�
 
 | 파일 (ID를 넘기지 않은 경우) | SHA-256 |
 | --- | --- |
-| `dubakwi-support-p19-mock.json` | `da87a0093e4d44f198e1de4b74917c3301ccd161f1d4c6a651a93fd3749913e3` |
+| `dubakwi-support-p19-mock.json` | `e1dde6744829ce308910cf3212efa3543788b88ee5ee3e6def538e188353984a` |
 | `dubakwi-p19-mock-state.json` | `749928db5072cbf43d43880d1aa300ffb226aa42c1878e883e87a055c5a92f95` |
 | `dubakwi-p19-mock-dlq.json` | `598e87c6bd4991f3878e7ee8d8a8390cec96ef62249642946bf5a6a5e1634cd0` |
 | `dubakwi-p19-mock-handoff.json` | `7ee40e17cd9012dea231b974c167023eb589d051c33a5145286e26ef7d04b51a` |

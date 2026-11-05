@@ -515,7 +515,7 @@ B28은 먼저 error_code=null && state_saved=true && 최신 state_ref를 확인�
 | B04·B05 사용자 조회 | 현재 B04는 과정 data-api 호출, B05는 data-api 형식과 팀 형식 `{id,role,access_levels}`을 모두 처리 | R04 PR #26 계약: `http://dubakwi-user-api:8801/employees/<id>`, `X-Internal-Key`. VM 배포 후 B04를 바꾼다. [임시 API 로컬 확인](../../runs/public/20261105-150536-local-n8n-p19-user-api/summary.json), VM 미실행 |
 | 시민 ticket_id | Jira 키(예: `JBYS-1`)를 그대로 응답 | R04 동의(2026-11-05). 실제 Jira 생성은 미실행 |
 | state `error_code` | support는 저장된 칸을 읽지 않고 SaveResult·StateResult·BeginResult의 값만 소비 | 스키마 변경 불필요 |
-| 저장 경계 | R04 `60f8886`: support는 `save`만 호출, 내부에서 Jira 확인 뒤 finish. DLQ는 X03만 기록. 처리권 없는 fail은 skipped | PR #27 미병합. [로컬 가짜 Jira 시험](../../runs/public/20261105-185000-local-n8n-p19-fake-jira-e2e/summary.json)으로 소비 확인. 실제 Jira 쓰기·VM·공식 판정 미실행. wait 경로의 보완 횟수 미갱신은 R04 수정 대기 |
+| 저장 경계 | R04 `fdd0be1`: support는 `save`만 호출, 내부에서 Jira 확인 뒤 finish. DLQ는 X03만 기록. 처리권 없는 fail은 skipped. wait도 Jira에 보완 횟수 기록 | PR #27 미병합. [로컬 가짜 Jira 시험](../../runs/public/20261105-194144-local-n8n-p19-fake-jira-fdd0be1/summary.json)으로 소비 확인. support를 통한 실제 Jira·VM·공식 판정 미실행 |
 | 실제 연결 묶음 | [`make_vm_p19_real_bundle.py`](../../scripts/test/make_vm_p19_real_bundle.py), [대응표](../../scripts/test/vm-p19-real-test.md) | 로컬 임시 PostgreSQL 예행으로 실제 state·DLQ 호출 확인. 실제 Jira·VM·공식 판정 미실행 |
 | DLQ 요청 | X03a는 `jira_issue_id`·`jira_issue_key`·`last_execution_id`와 Effect 5칸을 보냄. 하위 호출은 `alwaysOutputData`로 항목 없어도 진행 | 로컬 시험이 R04의 S02·D02 코드로 요청을 대조함 |
 
@@ -1016,7 +1016,7 @@ R02 초안(2026-11-05). R04·R05 검토 전이며 아래 제안은 아직 워크
 | B04 사용자 조회 | 1.5초, 없음 | 4ms / 23ms | 유지 |
 | L01 분류 | 8초, 재시도 1회 | 1.2초 / 2.0초 | 4초, 재시도 없음 |
 | B14 검색 | 5초, 없음 | 0.8초 / 1.4초 | 3초 |
-| B15 조회 | 1.5초, 없음 | 로컬 가짜 Jira 시험에서 측정 안 함 | R04 H04가 1.5초씩 총 2회라 B15 1.5초가 먼저 끊을 수 있다. 3.5초 검토 |
+| B15 조회 | **2.5초(적용)**, 없음 | 로컬 가짜 Jira 시험에서 측정 안 함 | R04 H04가 1회 1.5초로 바뀌어 R04 권고값 적용 |
 | L02 작성 | 8초, 재시도 1회 | 1.8초 / 2.1초 | 5초, 재시도 없음 |
 | L03 검증 | 8초, 재시도 1회 | 0.8초 / 1.1초 | 3초, 재시도 없음 |
 | B27 티켓 | **15초(적용)**, 없음 | R04 보고: 생성 약 2.02초, 상태 전환 묶음 약 2.31초, 조회 0.4~0.7초, DNS 실패 약 5초 후. handoff 최악 약 12초 | R04 권고로 8초에서 변경. support는 재시도하지 않음 |
