@@ -1,0 +1,42 @@
+{
+  "executed_at": "2026-11-04T11:33:39.649946+09:00",
+  "environment": "local documentation and mocked runner review",
+  "task": "P04/P06/P07/P13 handoff integration",
+  "base_commit": "9156f35f0d24396bbd4553d8c5145dba4a3eb5ad",
+  "reviewed_r05_commit": "5ffe05e",
+  "prs": [
+    "https://github.com/ik-e/dubakwi-ttareungi-support/pull/12",
+    "https://github.com/ik-e/dubakwi-ttareungi-support/pull/13"
+  ],
+  "configuration": "branch sources; no VM config change",
+  "case_ids": [
+    "WF08",
+    "WF13a",
+    "WF13b",
+    "WF13c"
+  ],
+  "checks": {
+    "r05_tool_unit_tests": "34 passed with fake servers",
+    "r05_ruff": "check/format passed",
+    "r05_project_public_checks": "passed",
+    "updated_r01_project_docs": "20 documents,357 links,42 anchors;passed",
+    "updated_r01_public_files": "52 candidates before evidence addition;371 links;passed",
+    "diff_check": "passed",
+    "mocked_file_hook_failure": "reset503 still followed by webhook; auto_pass_unverified; fix requested",
+    "no_hooks": "WF08 mock request omitted reset"
+  },
+  "review_source": "R05 feedback forwarded by user; not a GitHub approval",
+  "sha256": {
+    "infra/vm-preflight.md": "8fe3595a328158b8ecd1f2d7952cc57bae1fc6d7f6f9cc79d8641a6a33bdaa74",
+    "docs/DEVELOPMENT-PLAN.md": "c7cc2c0438fb96795038d352fb90fb935d5c3bb5744aab31bc6fe01d859b8669",
+    "docs/project/README.md": "15271ecca5a4256197dd198384dee398eebf4b48f2b42422ae02592705ca999c",
+    "docs/project/SYSTEM-DESIGN.md": "ec5430583f6dcd2b390e5518f1af3dc4867599f56c5c3865d9f73103e4800752",
+    "docs/project/TEAM-CHARTER.md": "0e2613c542d60a6d1a135e482b4b54d53025dea5bae151d3708fc91c2e8cea25"
+  },
+  "limits": [
+    "No VM workflow activation, credential changes or service case execution",
+    "LLM/ticket absence in skeleton only; final feature regression still required",
+    "R04 review and R05 hook safety corrections pending; no merges performed",
+    "Old format statements preserved as history; new flow-shaped candidate compatibility unverified"
+  ]
+}

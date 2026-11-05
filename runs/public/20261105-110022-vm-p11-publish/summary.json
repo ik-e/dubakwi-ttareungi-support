@@ -1,0 +1,248 @@
+{
+  "recorded_at": "2026-11-05T11:08:58.815904+09:00",
+  "executed_at": "2026-11-05T11:04:12.143957+09:00",
+  "task": "R01 P04/P13 existing Header Auth registration, P11 publication and partial actual VM input validation",
+  "environment": "existing team VM n8n2.42.6; loopback HTTP and existing HTTPS port5678; no service restart",
+  "source_commit": "0e44fdbe394eb6e1f76fa78823683f8a26c0e45e",
+  "workflow": "workflows/dubakwi-support.json",
+  "source_sha256": "f826ce1362f5379f8d01ecbc699fd34e5d4b476427e83734867461090388cac3",
+  "configuration_version": "P11 environment binding: existing workflow id, new versionId, B01 team Header Auth id; business nodes/connections/settings unchanged",
+  "test_source": "scripts/test/support_skeleton_live.py at 0e44fdb; select LN01/LN02/LN03/LN04/LN06 only",
+  "test_source_sha256": "7fe79371780d26a8fbe845088da1373c7da3518d0bbfede937a8fce367a488cd",
+  "case_ids": [
+    "LN01",
+    "LN02",
+    "LN03",
+    "LN04",
+    "LN06"
+  ],
+  "backup": {
+    "new_online_snapshot_before_change": true,
+    "included_current_openai_credential": true,
+    "integrity_check": "ok",
+    "checksums_verified": true,
+    "full_service_restore_tested": false
+  },
+  "registration": {
+    "names": [
+      "dubakwi-openai",
+      "dubakwi-team-key",
+      "dubakwi-internal-key"
+    ],
+    "credential_count": 3,
+    "openai_metadata_preserved": true,
+    "existing_key_candidates_reused": true,
+    "key_values_printed_or_copied_locally": false
+  },
+  "publication": {
+    "cli_command": "n8n publish:workflow --id=<VM workflow id>",
+    "command_succeeded": true,
+    "readiness_probe": "404 until runtime synchronization, then403; recorded separately from case results",
+    "active": true,
+    "active_version_present": true,
+    "ui_published_confirmed": true,
+    "healthz_after": 200,
+    "service_restart": false
+  },
+  "total": 10,
+  "passed": 10,
+  "failed": 0,
+  "results": [
+    {
+      "case_id": "LN01",
+      "check": "missing_key",
+      "path": "vm-loopback",
+      "request_id": "vm110022-vm-loopback-LN01",
+      "http_status": 403,
+      "elapsed_ms": 13,
+      "passed": true
+    },
+    {
+      "case_id": "LN02",
+      "check": "wrong_key",
+      "path": "vm-loopback",
+      "request_id": "vm110022-vm-loopback-LN02",
+      "http_status": 403,
+      "elapsed_ms": 88,
+      "passed": true
+    },
+    {
+      "case_id": "LN03",
+      "check": "empty_question",
+      "path": "vm-loopback",
+      "request_id": "vm110022-vm-loopback-LN03",
+      "http_status": 400,
+      "elapsed_ms": 4764,
+      "passed": true,
+      "response": {
+        "error": "invalid_input",
+        "codes": [
+          "invalid_input",
+          "question_empty"
+        ]
+      }
+    },
+    {
+      "case_id": "LN04",
+      "check": "question_501_chars",
+      "path": "vm-loopback",
+      "request_id": "vm110022-vm-loopback-LN04",
+      "http_status": 400,
+      "elapsed_ms": 1636,
+      "passed": true,
+      "response": {
+        "error": "invalid_input",
+        "codes": [
+          "invalid_input",
+          "question_too_long"
+        ]
+      }
+    },
+    {
+      "case_id": "LN06",
+      "check": "prompt_injection",
+      "path": "vm-loopback",
+      "request_id": "vm110022-vm-loopback-LN06",
+      "http_status": 200,
+      "elapsed_ms": 1612,
+      "passed": true,
+      "response": {
+        "route": "차단",
+        "reason": "prompt_injection",
+        "ticket": null
+      }
+    },
+    {
+      "case_id": "LN01",
+      "check": "missing_key",
+      "path": "vm-https",
+      "request_id": "vm110022-vm-https-LN01",
+      "http_status": 403,
+      "elapsed_ms": 44,
+      "passed": true
+    },
+    {
+      "case_id": "LN02",
+      "check": "wrong_key",
+      "path": "vm-https",
+      "request_id": "vm110022-vm-https-LN02",
+      "http_status": 403,
+      "elapsed_ms": 86,
+      "passed": true
+    },
+    {
+      "case_id": "LN03",
+      "check": "empty_question",
+      "path": "vm-https",
+      "request_id": "vm110022-vm-https-LN03",
+      "http_status": 400,
+      "elapsed_ms": 1669,
+      "passed": true,
+      "response": {
+        "error": "invalid_input",
+        "codes": [
+          "invalid_input",
+          "question_empty"
+        ]
+      }
+    },
+    {
+      "case_id": "LN04",
+      "check": "question_501_chars",
+      "path": "vm-https",
+      "request_id": "vm110022-vm-https-LN04",
+      "http_status": 400,
+      "elapsed_ms": 1647,
+      "passed": true,
+      "response": {
+        "error": "invalid_input",
+        "codes": [
+          "invalid_input",
+          "question_too_long"
+        ]
+      }
+    },
+    {
+      "case_id": "LN06",
+      "check": "prompt_injection",
+      "path": "vm-https",
+      "request_id": "vm110022-vm-https-LN06",
+      "http_status": 200,
+      "elapsed_ms": 1610,
+      "passed": true,
+      "response": {
+        "route": "차단",
+        "reason": "prompt_injection",
+        "ticket": null
+      }
+    }
+  ],
+  "execution_audit": {
+    "stored_count": 6,
+    "execution_ids": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "5",
+      "6"
+    ],
+    "mode": "webhook",
+    "all_status_success": true,
+    "executed_nodes": [
+      "B01 문의 수신",
+      "B02 입력 검사",
+      "B03 입력 통과",
+      "B33 응답 구성",
+      "B35 메타 기록",
+      "B36 응답"
+    ],
+    "B04_user_lookup_executions": 0,
+    "M01_mock_executions": 0,
+    "llm_or_ticket_nodes": "absent in this P11 skeleton; recheck after full implementation",
+    "individual_execution_ui_access_confirmed": true
+  },
+  "separate_failure": {
+    "node": "B35 메타 기록",
+    "endpoint": "data-api /logs",
+    "failed_outputs": 6,
+    "error_code": "ECONNABORTED",
+    "workflow_continued_to_response": true,
+    "successful_metadata_log_writes_claimed": false
+  },
+  "evidence": {
+    "private_vm_bundle": "deploy/20261105-110022-vm-p11-publish",
+    "files": [
+      "deployment-manifest.json",
+      "credential-import.log",
+      "workflow-bind.log",
+      "workflow-publish.log",
+      "partial-input-tests.json",
+      "execution-audit.json",
+      "log-node-audit.json",
+      "public-summary.json"
+    ],
+    "public_summary_method": "Masked summary transcribed from verified terminal results and execution UI; raw execution data and private identifiers remain on VM"
+  },
+  "not_executed": [
+    "R05 official flow.py/run_cases.py acceptance",
+    "unknown-user and registered-user routes requiring data-api",
+    "RAG indexing/search and OpenAI model calls",
+    "Jira, state, DLQ, concurrent/duplicate/restart/recovery tests",
+    "Discord adapter",
+    "full common/team regression"
+  ],
+  "limits": [
+    "P11 actual VM partial tests only; not S1 business completion or final security regression",
+    "B35 metadata logging failed independently; data-api linkage still needed",
+    "Credential import file retained mode600 in private VM/temporary container path; no values in Git",
+    "No new image/Compose/network/service DB deployment"
+  ],
+  "local_checks": {
+    "project_docs": "20 documents,401 links,46 anchors;0 errors",
+    "public_candidates": "113 candidate files,442 public local links;0 errors",
+    "diff": "passed",
+    "tscan": "unavailable; public candidate check is partial substitute",
+    "repository_tests": "not rerun: only documentation/evidence changed; 10 actual VM HTTP cases executed separately"
+  }
+}

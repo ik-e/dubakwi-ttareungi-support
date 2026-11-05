@@ -1,0 +1,42 @@
+{
+  "recorded_at": "2026-11-05T10:17:47.799678+09:00",
+  "task": "P04 authorized non-disruptive VM preparation",
+  "environment": "existing team VM; web SSH",
+  "baseline": "20261105-101523-vm-preparation",
+  "configuration": "existing n8n 2.42.6/SQLite; no service configuration change",
+  "case_ids": [],
+  "observed": {
+    "free_space_before": "46 GB",
+    "workflow_count": 0,
+    "credential_count": 0,
+    "execution_count": 0,
+    "encryption_key_env_present": false,
+    "sqlite_online_backup_api": "available",
+    "snapshot_integrity_check": "ok",
+    "snapshot_checksums": "all verified",
+    "snapshot_files": [
+      "database.sqlite",
+      "database.sqlite-shm",
+      "database.sqlite-wal",
+      "n8n-config.json",
+      "compose.yml",
+      "compose.env",
+      "backup-manifest.json"
+    ],
+    "private_directories": "secrets/deploy/backups/evidence; owner-only700",
+    "key_candidates": "two distinct random 256-bit values, generated only on VM; no values printed or copied locally",
+    "secret_files": "team-keys.env and header-auth.pending.json; mode600",
+    "credential_readiness_record": "created on VM; header auth not imported; external credentials and DB pending",
+    "healthz_after": 200,
+    "service_restart": false
+  },
+  "limits": [
+    "No credential registration, workflow import/publication or external API use",
+    "No service DB, account, network or port creation",
+    "Backup covers SQLite/config/compose/env; other volume files and full service restore untested",
+    "SQLite config copied without printing its contents; no claim of full recovery validation",
+    "Temporary container snapshot mode600 retained for deliberate later cleanup",
+    "Initial multiline terminal transport failed before execution; encoded source retry succeeded",
+    "No new business scenario tests; no workflow implementation changed"
+  ]
+}
