@@ -12,6 +12,7 @@ SCRIPTS = [
     ROOT / "scripts" / "test" / "p12-save-cases.js",
     ROOT / "scripts" / "test" / "p12-case-cases.js",
     ROOT / "scripts" / "test" / "p12-repeat-handoff-cases.js",
+    ROOT / "scripts" / "test" / "p18-dlq-marker-cases.js",
 ]
 
 
