@@ -1,0 +1,37 @@
+{
+  "executed_at": "2026-11-05T15:47:37.082277+09:00",
+  "environment": "local mocked Webhook/hooks; no VM or external API",
+  "task": "R01 P13/P25 PR13 integration review",
+  "base_commit": "0a6f19d",
+  "r05_commit": "9a7ede1521a11b5f1cf82d807ae71c741c5b6a83",
+  "tests": {
+    "total": 64,
+    "passed": 57,
+    "skipped_http": 7,
+    "ruff_check": "passed",
+    "ruff_format": "passed"
+  },
+  "hook_failure_reproduction": [
+    {
+      "scenario": "file_before_failure",
+      "webhook_requests": 2,
+      "case_statuses": [
+        "pass",
+        "pass"
+      ],
+      "expected_webhook_requests": 0
+    },
+    {
+      "scenario": "case_after_failure",
+      "webhook_requests": 2,
+      "case_statuses": [
+        "auto_pass_unverified",
+        "pass"
+      ],
+      "expected_webhook_requests": 1
+    }
+  ],
+  "vm": "deferred at user request; no VM modifications",
+  "tscan": "unavailable",
+  "gitleaks": "unavailable"
+}

@@ -1,0 +1,29 @@
+{
+  "recorded_at": "2026-11-05T16:05:53.376173+09:00",
+  "task": "P08 PR30 publication-scope cleanup authorized by user",
+  "environment": "local documentation/Git candidate checks; no service execution",
+  "original_head": "277f93a4049e1087ea1aa22cee8d2ba973897edb",
+  "main_base": "0fe752e1c43242101e0f2bde6187b1b61dfda88b",
+  "configuration": "current main publication rules; external originals remain excluded",
+  "case_ids": [],
+  "checks": {
+    "archive_preservation": "original Markdown/source-index and10 images copied privately; byte equality checked; parent presentation PDF also preserved",
+    "private_archive_files": 13,
+    "project_documents": "20 files,452 links,50 anchors;0 errors",
+    "public_candidates_before_evidence": "168 files,537 links;0 errors",
+    "staged_whitespace": "passed",
+    "service_tests": "not run; no implementation change"
+  },
+  "decision": [
+    "Only authored summary and source links are public",
+    "Original Markdown/images excluded; no redistribution or RAG approval asserted",
+    "PR24 presentation/PDF/test-preparation changes remain separate",
+    "Retarget PR30 to main; squash final text-only scope to avoid bringing archive commits into main ancestry"
+  ],
+  "limits": [
+    "Existing public remote branch/PR commits are not erased or rewritten",
+    "Private archive is local team working material, not an access-controlled shared cloud service",
+    "External reuse permission remains unverified; publication policy follows user-selected internal preservation alternative",
+    "tscan unavailable; separate exact candidate Gitleaks and public-file checks used"
+  ]
+}
