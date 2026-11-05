@@ -1,0 +1,145 @@
+{
+  "label": "l03-verifier-compare",
+  "executed_at_kst": "2026-11-05",
+  "environment": "local n8n 2.42.6, course data-api, gpt-4.1-mini, main R03 검색, mock state·handoff·dlq",
+  "scope": "L03 프롬프트 수정 전후의 반복 호출 비교. VM·공식 판정이 아니다.",
+  "base_commit": "93e4c1e",
+  "workflow_sha256_without_credential_ids": "6c36e99a8117c7a3a11f8b01d34381622113cf968a49f95411ff22727da9d921",
+  "representative_question": {
+    "question": "QR이 안 읽혀요. 자전거 번호로 대여하는 방법을 알려주세요",
+    "user": "박서연",
+    "auto_answer_of_20": {
+      "before": 12,
+      "first_revision": 17,
+      "final": 20
+    },
+    "failure_reason": "수정 전과 1차 수정의 실패는 기록을 확인한 건 모두 답변에 없는 번호를 이유로 grounded=false를 낸 경우다"
+  },
+  "sibling_question": {
+    "question": "QR로 대여하는 방법 알려주세요",
+    "after_final": {
+      "김민지_auto_of_15": 15,
+      "박서연_auto_of_15": 13,
+      "회귀_LN10": "1회 실패",
+      "reason": "번호 누락을 이유로 한 verification_failed 남음"
+    }
+  },
+  "forced_writer_probes": {
+    "how": "작성 단계를 고정 출력으로 바꾸고 실제 L03으로 각 5회. 수정 전(before)과 최종(after)의 route 집계",
+    "results": [
+      {
+        "name": "생략(통과 기대)",
+        "expect": "자동 답변",
+        "before": {
+          "자동 답변": 5
+        },
+        "after": {
+          "자동 답변": 5
+        }
+      },
+      {
+        "name": "생략+고객센터(통과 기대)",
+        "expect": "자동 답변",
+        "before": {
+          "자동 답변": 5
+        },
+        "after": {
+          "자동 답변": 5
+        }
+      },
+      {
+        "name": "권한 일부 생략(통과 기대)",
+        "expect": "자동 답변",
+        "before": {
+          "자동 답변": 5
+        },
+        "after": {
+          "자동 답변": 5
+        }
+      },
+      {
+        "name": "자릿수 지어냄 6",
+        "expect": "담당자 이관",
+        "before": {
+          "자동 답변": 5
+        },
+        "after": {
+          "담당자 이관": 5
+        }
+      },
+      {
+        "name": "시한 지어냄",
+        "expect": "담당자 이관",
+        "before": {
+          "담당자 이관": 2,
+          "자동 답변": 3
+        },
+        "after": {
+          "담당자 이관": 5
+        }
+      },
+      {
+        "name": "방법 지어냄 직원",
+        "expect": "담당자 이관",
+        "before": {
+          "자동 답변": 5
+        },
+        "after": {
+          "자동 답변": 5
+        }
+      },
+      {
+        "name": "메뉴 지어냄",
+        "expect": "담당자 이관",
+        "before": {
+          "자동 답변": 5
+        },
+        "after": {
+          "담당자 이관": 5
+        }
+      },
+      {
+        "name": "방법 지어냄 재설치",
+        "expect": "담당자 이관",
+        "before": {
+          "자동 답변": 5
+        },
+        "after": {
+          "담당자 이관": 3,
+          "자동 답변": 2
+        }
+      },
+      {
+        "name": "운영시간 지어냄",
+        "expect": "담당자 이관",
+        "before": {
+          "담당자 이관": 5
+        },
+        "after": {
+          "담당자 이관": 5
+        }
+      },
+      {
+        "name": "보장 지어냄",
+        "expect": "담당자 이관",
+        "before": {
+          "담당자 이관": 5
+        },
+        "after": {
+          "담당자 이관": 5
+        }
+      }
+    ]
+  },
+  "regression": {
+    "support_skeleton_live": "runs/public/20261105-142926-local-n8n-p19-l03-regression/summary.json",
+    "r05_route_compare": "runs/public/20261105-143008-local-n8n-p19-l03-r05/summary.json"
+  },
+  "not_executed": [
+    "VM 시험",
+    "실제 state·handoff·dlq·Jira",
+    "flow.py",
+    "run_cases.py",
+    "공통 WF 공식 판정"
+  ]
+}
