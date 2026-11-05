@@ -24,7 +24,7 @@ function run(action, jira, opts = {}) {
   const calls = [];
   const lookup = (name) => ({item: {json: outputs.get(name)}});
   let current = "H01 도구 요청";
-  let json = {body: baseRequest(action)};
+  let json = {body: {...baseRequest(action), ...(opts.req ?? {})}};
   let guard = 0;
   while (current && guard++ < 80) {
     const node = nodes.get(current);
@@ -46,7 +46,7 @@ function run(action, jira, opts = {}) {
       calls.push({node: current, op: json.op});
       json = opts.state ? opts.state(current, json) : {ok: true, skipped: false, error_code: null, state_ref: stateRef(json.state_ref.state_revision + 1)};
     } else if (node.type === "n8n-nodes-base.webhook") {
-      json = {body: baseRequest(action)};
+      json = {body: {...baseRequest(action), ...(opts.req ?? {})}};
     } else if (node.type === "n8n-nodes-base.respondToWebhook") {
       return {body: json.body, calls};
     }
@@ -67,6 +67,7 @@ const happy = (name, req) => {
   if (name === "H38 Jira 담당 후보 조회") return {statusCode: 200, body: [{accountId: "acct", active: true, accountType: "atlassian"}]};
   if (name === "H09 Jira 맥락 저장·배정") return {statusCode: 204, body: ""};
   if (name === "H11 담당 알림") return {statusCode: 200, body: {ok: true}};
+  if (name === "H46 Jira 보완 횟수 저장") return {statusCode: 201, body: {id: "1"}};
   throw new Error(`unexpected call ${name}`);
 };
 const withJira = (over) => (name, req) => (name in over ? over[name] : happy(name, req));
@@ -139,4 +140,17 @@ for (const map of ["{}", "__ASSIGNEE_MAP_JSON__", "not json", '{"security":"acct
   expect(r.body.ticket_id === "JBYS-10" && r.body.recovery.action === "assign", "known ID and recovery kept", r.body);
 }
 
-console.log("P12 handoff Jira flow: 12 scenarios passed");
+// 13. 보완(wait)에서 기존 Jira 이슈를 재사용하면 보완 횟수를 Jira에 남기고, 새로 만든 경우에는 추가로 쓰지 않는다
+const existing = {"H29 Jira 기존 건 조회": {statusCode: 200, body: {id: "10004", key: "JBYS-2"}}};
+r = run("wait", withJira(existing), {req: {ticket_id: "JBYS-2", attempt: 3}});
+const note = r.calls.find((c) => c.node === "H46 Jira 보완 횟수 저장");
+expect(r.body.error_code === null && r.body.effects.context_saved.status === "confirmed" && note && /보완 횟수: 3/.test(note.req.body.body), "attempt must be saved on reuse", r);
+expect(note.req.path === "/rest/api/2/issue/JBYS-2/comment" && !/010-1234-5678|a@b\.com/.test(JSON.stringify(note.req)), "attempt note path and masking", note.req);
+r = run("wait", happy);
+expect(!r.calls.some((c) => c.node === "H46 Jira 보완 횟수 저장") && r.body.error_code === null, "new issue already carries attempt", r.calls);
+for (const bad of [{statusCode: 403, body: {}}, {statusCode: 503, body: {}}, undefined]) {
+  r = run("wait", withJira({...existing, "H46 Jira 보완 횟수 저장": bad}), {req: {ticket_id: "JBYS-2", attempt: 3}});
+  expect(r.body.error_code === "partial_effect" && r.body.ticket_id === "JBYS-2" && r.body.recovery.action === "context_update" && r.body.effects.context_saved.error_code === "attempt_update_failed", "attempt update failure must not look like success", r.body);
+}
+
+console.log("P12 handoff Jira flow: 13 scenarios passed");

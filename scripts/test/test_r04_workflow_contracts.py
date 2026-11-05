@@ -33,6 +33,18 @@ class R04WorkflowContractsTest(unittest.TestCase):
             "D06 계약 거절 반환",
         )
 
+    def test_postgres_nodes_reference_the_credential_by_name(self) -> None:
+        for filename in ("dubakwi-state.json", "dubakwi-dlq.json"):
+            workflow = json.loads((ROOT / "workflows" / filename).read_text(encoding="utf-8"))
+            nodes = [n for n in workflow["nodes"] if n["type"] == "n8n-nodes-base.postgres"]
+            self.assertTrue(nodes, filename)
+            for node in nodes:
+                self.assertEqual(
+                    node.get("credentials"),
+                    {"postgres": {"name": "dubakwi-postgres"}},
+                    f"{filename} {node['name']}",
+                )
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -267,7 +267,12 @@
       "position": [
         1480,
         -100
-      ]
+      ],
+      "credentials": {
+        "postgres": {
+          "name": "dubakwi-postgres"
+        }
+      }
     },
     {
       "name": "S14 보완 대상 판정",
@@ -402,7 +407,12 @@
       "position": [
         2920,
         -100
-      ]
+      ],
+      "credentials": {
+        "postgres": {
+          "name": "dubakwi-postgres"
+        }
+      }
     },
     {
       "name": "S20 보완 결과 정규화",

@@ -136,9 +136,6 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "onError": "continueRegularOutput",
-      "retryOnFail": true,
-      "maxTries": 2,
-      "waitBetweenTries": 300,
       "parameters": {
         "method": "GET",
         "url": "=http://dubakwi-user-api:8801/records/{{ encodeURIComponent($json.request.target_ticket_id) }}",
@@ -913,6 +910,96 @@
         8580,
         0
       ]
+    },
+    {
+      "name": "H48 보완 횟수 갱신 필요",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "parameters": {
+        "conditions": {
+          "options": {
+            "version": 2,
+            "caseSensitive": true,
+            "leftValue": ""
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "attempt-update",
+              "leftValue": "={{ $json.route === 'wait' && !!$json.ctx.ticket && $json.ctx.ticket.reused === true }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "position": [
+        4420,
+        600
+      ]
+    },
+    {
+      "name": "H45 보완 횟수 갱신 준비",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "parameters": {
+        "jsCode": "const E = () => ({status:'none'});\nconst mkEffects = () => ({created_or_reused:E(),context_saved:E(),closed:E(),assigned:E(),alert:E()});\nconst maskText = (s) => String(s ?? '').replace(/\\b0\\d{1,2}[-. ]?\\d{3,4}[-. ]?\\d{4}\\b/g,'***-****-****').replace(/[\\w.+-]+@[\\w-]+\\.[\\w.-]+/g,'***@***');\nconst ctx = $json.ctx;\nconst r = ctx.request;\nconst text = ['[두바퀴 보완 접수]', '보완 횟수: ' + r.attempt, '요약: ' + maskText((r.context || {}).summary), '부족한 정보: ' + (((r.context || {}).missing) || []).join(', ')].join('\\n');\nreturn [{json:{ctx, req:{method:'POST', path:'/rest/api/2/issue/' + encodeURIComponent(ctx.ticket.key) + '/comment', body:{body:text}}}}];"
+      },
+      "position": [
+        4680,
+        600
+      ]
+    },
+    {
+      "name": "H46 Jira 보완 횟수 저장",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "onError": "continueRegularOutput",
+      "parameters": {
+        "method": "={{ $json.req.method }}",
+        "url": "={{ '__JIRA_BASE_URL__' + $json.req.path }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "jiraSoftwareCloudApi",
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true,
+              "neverError": true
+            }
+          },
+          "timeout": 3500
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($json.req.body) }}"
+      },
+      "credentials": {
+        "jiraSoftwareCloudApi": {
+          "name": "dubakwi-Jira SW Cloud account"
+        }
+      },
+      "position": [
+        4940,
+        600
+      ]
+    },
+    {
+      "name": "H47 보완 횟수 판정",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "parameters": {
+        "jsCode": "const E = () => ({status:'none'});\nconst mkEffects = () => ({created_or_reused:E(),context_saved:E(),closed:E(),assigned:E(),alert:E()});\nconst maskText = (s) => String(s ?? '').replace(/\\b0\\d{1,2}[-. ]?\\d{3,4}[-. ]?\\d{4}\\b/g,'***-****-****').replace(/[\\w.+-]+@[\\w-]+\\.[\\w.-]+/g,'***@***');\nconst ctx = $('H45 보완 횟수 갱신 준비').item.json.ctx;\nconst r = ctx.request;\nconst sc = Number($json.statusCode ?? 0);\nif (sc === 201) {\n  ctx.effects.context_saved = {status:'confirmed', id:ctx.ticket.key};\n  return [{json:{route:'done', ctx}}];\n}\n// 보완 횟수가 Jira에 남지 않으면 다음 요청이 한도를 못 세므로 성공으로 답하지 않는다.\nctx.effects.context_saved = {status: sc >= 400 && sc < 500 ? 'failed' : 'unknown', id:ctx.ticket.key, error_code:'attempt_update_failed'};\nctx.error_code = 'partial_effect';\nctx.recovery = {version:1, mode:'jira_ref', action:'context_update', args:null, reference:{jira_issue_id:ctx.ticket.id, case_id:r.case_id, owner_id:ctx.state_ref.owner_id}, reason:'Jira 보완 횟수 갱신 실패'};\nreturn [{json:{route:'done', ctx}}];"
+      },
+      "position": [
+        5200,
+        600
+      ]
     }
   ],
   "connections": {
@@ -1189,7 +1276,7 @@
         ],
         [
           {
-            "node": "H12 티켓 결과 구성",
+            "node": "H48 보완 횟수 갱신 필요",
             "type": "main",
             "index": 0
           }
@@ -1427,6 +1514,57 @@
         [
           {
             "node": "H13 도구 응답",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "H48 보완 횟수 갱신 필요": {
+      "main": [
+        [
+          {
+            "node": "H45 보완 횟수 갱신 준비",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "H12 티켓 결과 구성",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "H45 보완 횟수 갱신 준비": {
+      "main": [
+        [
+          {
+            "node": "H46 Jira 보완 횟수 저장",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "H46 Jira 보완 횟수 저장": {
+      "main": [
+        [
+          {
+            "node": "H47 보완 횟수 판정",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "H47 보완 횟수 판정": {
+      "main": [
+        [
+          {
+            "node": "H12 티켓 결과 구성",
             "type": "main",
             "index": 0
           }

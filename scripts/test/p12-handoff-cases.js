@@ -51,6 +51,7 @@ for (const node of workflow.nodes.filter((n) => n.type === "n8n-nodes-base.httpR
 }
 if (JSON.stringify(workflow).includes("atlassian.net")) throw new Error("Jira domain must not be written in the workflow");
 
+if (nodes.get("H04 본인 기록 조회").retryOnFail) throw new Error("lookup must try once to fit the caller timeout");
 // 본인/타인 조회: H02 → H21 → H04 → H22 → H13 연결과 결과 판정.
 const lookupRoute = execute({body: {
   kind: "lookup", request_id: "req-4", enabled: true, actor_id: "citizen-a", target_ticket_id: "T-1001",

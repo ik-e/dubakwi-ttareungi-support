@@ -456,7 +456,7 @@ B28은 먼저 error_code=null && state_saved=true && 최신 state_ref를 확인�
 | H01 도구 요청 | Webhook | TicketRequest/LookupRequest | WebhookBody | 내부 Header Auth, responseNode |
 | H02 고정 기능 검사 | Code | WebhookBody.body | ToolCtx | kind=process/lookup, actor·owner·key·역할·action 검사. disabled 조회는 skip |
 | H03 기능 분기 | Switch | ToolCtx.kind | ToolCtx | out0 lookup;out1 skip;out2 process→H14 생성 계획 저장;fallback invalid |
-| H04 본인 대상 조회 | HTTP Request | actor_id,target_ticket_id | Raw | GET http://dubakwi-user-api:8801/records/<id>?requester=<actor> (내부 Header Auth, full response·neverError·timeout 1.5초, 네트워크 오류 포함 총 2회). 서버가 owner를 판정하며 requester는 서버 확인 actor만 사용 |
+| H04 본인 대상 조회 | HTTP Request | actor_id,target_ticket_id | Raw | GET http://dubakwi-user-api:8801/records/<id>?requester=<actor> (내부 Header Auth, full response·neverError·timeout 1.5초, 1회 시도(호출자 B15 시간 제한 안에 끝내려고 재시도 없음)). 서버가 owner를 판정하며 requester는 서버 확인 actor만 사용 |
 | H05 티켓 생성·재사용 | HTTP Request | TicketRequest | Raw | H15 저장 확인 뒤 H23~H25가 label `dubakwi-<first_request_id>`로 기존 건을 먼저 찾고 없을 때만 POST /rest/api/2/issue(프로젝트 JBYS·유형 10006·가린 요약/설명). 주소는 자리표시자 __JIRA_BASE_URL__(가져올 때 환경 값으로 치환, 변수 기능은 라이선스 없음), 인증은 n8n Jira Credential. 중복 조회 실패면 생성하지 않는다. 쓰기 timeout 3.5초·재시도 없음 |
 | H06 티켓 식별 확인 | Code | Raw+H02.ToolCtx | ToolCtx | 생성/조회 결과를 created/failed/unknown으로 분리,알려진 Jira ID/key 보존·has_ticket 판정. state_ref는 H14의 현재 값 복원 |
 | H07 티켓 결과 분기 | Switch | ToolCtx.action | ToolCtx | H18 저장결과 검증 후 out0 close;out1 wait;out2 handoff;fallback failed. 다음 외부 동작 준비가 저장되지 않으면 fallback |
@@ -475,6 +475,7 @@ B28은 먼저 error_code=null && state_saved=true && 최신 state_ref를 확인�
 | H20 알림 실행 허용 | If | ok=true && skipped=false && 유효 state_ref | StateResult | true H11,false state_error로 H12. 성공한 담당 지정은 유지하고 알림 호출0 |
 | H21 조회 실행 여부 | If | H02 결과 | ToolCtx | route=lookup이면 H04,아니면 H13. enabled=false 조회는 H02가 skipped로 종료 |
 | H22 조회 결과 정규화 | Code | H04 Raw+H02 요청 | LookupResult | 200+owner 일치만 ok(가린 연락처만 masked_phone/masked_email,masked=가린 필드 수). 403·404·owner 불일치는 같은 denied(record=null,error_code=null,존재 여부 미노출). 401·5xx·시간 초과·형식 오류는 error(lookup_error). enabled=true인데 target_ticket_id=null이면 H02가 400 invalid_tool_request |
+| H45~H48 보완 횟수 갱신 | If·Code·HTTP Request | 재사용한 Jira 티켓의 TicketRequest(action=wait) | TicketResult | 기존 이슈를 재사용하는 wait만 POST /issue/<key>/comment에 "보완 횟수: N"과 가린 요약을 남긴다(다음 요청의 case_ref가 이 값의 최댓값을 읽음). 새로 만든 이슈는 설명에 이미 있어 쓰지 않는다. 저장 실패는 context_saved=failed/unknown·partial_effect·recovery(context_update)로 반환해 호출자가 한도를 놓치지 않게 한다 |
 
 ### 4.5. P11 골격 구현 상태
 
