@@ -1,5 +1,7 @@
 # Docker Compose 배포와 운영
 
+P19 실제 S1의 최신 고정 버전·scope·비활성 후보와 역할 검토/적용 조건은 [R01 S1 준비](p19-s1-readiness.md)를 따른다. 준비본의 생성·문서 검사 통과는 main 병합이나 실제 서비스 게시를 뜻하지 않는다.
+
 Docker Compose 채택: 2026-11-03 사용자 결정. 편집·배포 R01, 저장/영속성 검토 R04, 흐름 연결 R02/R03, VM 검증 R05. 책임 원본은 [팀 헌장](../docs/project/TEAM-CHARTER.md), 절차 규칙은 [AGENTS](../AGENTS.md)다.
 
 - 버전: v0.9 / 2026-11-05 PostgreSQL 독립 배포 준비본·R04 검토 인계

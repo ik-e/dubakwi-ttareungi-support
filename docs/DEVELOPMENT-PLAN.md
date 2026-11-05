@@ -1,5 +1,11 @@
 # 개발 순서와 역할별 진행 관리
 
+### P12/P19 실제 S1 사전 준비 진행 (2026-11-06 KST)
+
+사용자가 1b83d18 기준 통합 작업 진행을 지시했다. R01은 별도 r01/p19-s1-readiness에서 고정 버전·scope·묶음·VM 사전 조건을 확인한다. 영향 경로는 이 원장·infra 인계·새 가린 증거이며 업무 원본/역할 브랜치는 수정하지 않는다. #27은 R01 승인/CI 통과지만 R02·R05 영향 검토가 미취합이고 사용자는 별도 회신이 없다고 확인했다. #28의 state throw 후 DLQ 중단 P1도 남아 있다. 해당 조건을 완료로 만들거나 main 병합/서비스 적용을 진행하지 않는다.
+
+새 scope는 dubakwi-p19-real로 고정한다. VM SELECT에서 해당 request/DLQ행0·시험 support ID/경로 충돌0·사례함수없음·런타임scope미주입·health200을 확인했다. 기존 private 후보는 다른 예행scope였으므로 보존하고 고정scope의 새 비활성 후보를 Git 제외 경로에 생성했다. 실제LF해시/manifest일치·Credential8참조·업무원본clean을확인했다. unresolved errors는연결하지않았다. source6a963c6 support는5e0026c와동일하며 Code125/125통과다. [배포준비](../infra/p19-s1-readiness.md)와 [증거](../runs/public/20261106-062603-mixed-p19-s1-readiness/report.md)에 조건을 기록한다. VM반입/게시/SQL/업무행/Credential/재시작 변경은없다.
+
 작성·상태 확인: 2026-11-03. 대상: 따릉이 기술지원 프로젝트, 5명 팀, 80~82일차.
 
 이 문서는 개발 순서·파일 소유자·선행 작업·완료 증거를 관리합니다. 실제 설계 내용은 설계서, 실행 결과와 수치는 `runs/`와 실행 결과서에 기록합니다. 공식 요구를 바꾸는 문서는 아닙니다.
