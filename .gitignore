@@ -1,5 +1,7 @@
 # Public repository: default-deny root entries; local archives stay on disk.
 /*
+!/services/
+!/services/**
 !/.gitignore
 !/.gitattributes
 !/.python-version
