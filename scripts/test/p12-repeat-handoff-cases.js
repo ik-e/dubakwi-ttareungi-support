@@ -3,6 +3,7 @@ const path = require("path");
 
 const root = path.resolve(__dirname, "../..");
 const workflow = JSON.parse(fs.readFileSync(path.join(root, "workflows", "dubakwi-handoff.json"), "utf8"));
+const dlqWorkflow = JSON.parse(fs.readFileSync(path.join(root, "workflows", "dubakwi-dlq.json"), "utf8"));
 const nodes = new Map(workflow.nodes.map((node) => [node.name, node]));
 const planNode = nodes.get("H39 배정 계획");
 if (!planNode) throw new Error("H39 node missing");
@@ -27,8 +28,20 @@ if (out.route !== "done" || out.ctx.effects.assigned.status !== "confirmed" || o
 }
 
 out = execute(base(["dubakwi-alert-attempted-support"]));
-if (out.route !== "done" || out.ctx.error_code !== "partial_effect" || out.ctx.effects.alert.status !== "unknown") {
+if (out.route !== "done" || out.ctx.error_code !== "partial_effect" || out.ctx.effects.alert.status !== "unknown" || out.ctx.recovery.action !== "alert_marker") {
   throw new Error(`attempt-only marker must stop automatic repeat: ${JSON.stringify(out)}`);
+}
+const dlqCode = dlqWorkflow.nodes.find((node) => node.name === "D02 계약 검사와 안전 차단")?.parameters.jsCode;
+const validateDlq = new Function("$json", dlqCode);
+const dlqInput = {
+  op: "put", scope: "dubakwi-team", request_id: "req-next", case_id: "case-1",
+  jira_issue_id: "10001", jira_issue_key: "JBYS-1", failed_step: "H39",
+  error_code: out.ctx.error_code, summary: "alert result unknown", attempts: 1,
+  effects: out.ctx.effects, recovery: out.ctx.recovery, last_execution_id: "exec-next",
+};
+const dlqResult = validateDlq(dlqInput)[0].json;
+if (dlqResult.error_code !== "dlq_backend_unconfigured" || dlqResult.payload._dedupe_ref !== "case:case-1:alert_marker") {
+  throw new Error(`attempt-only handoff must produce a case-deduplicated DLQ request: ${JSON.stringify(dlqResult)}`);
 }
 
 out = execute(base([]));
@@ -45,4 +58,4 @@ if (markerEdges[0]?.[0]?.node !== "H50 Jira 알림 성공 표식" || markerEdges
   throw new Error("alert marker routing is incomplete");
 }
 
-console.log("P12 repeated assignment/alert suppression: 4/4 passed");
+console.log("P12 repeated assignment/alert suppression and DLQ handoff: 5/5 passed");
