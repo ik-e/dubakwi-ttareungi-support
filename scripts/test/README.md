@@ -39,6 +39,8 @@ $env:FLOW_WEBHOOK_KEY = "<팀 키>"
 uv run --locked python scripts/test/run_cases.py --base-url <n8n 주소> --env vm --desc p13-entry --path mock --case WF08 WF13a WF13c --no-hooks --auth-required --workflow-version <커밋 또는 내보내기 버전>
 # WF13b(미등록 사용자)는 사용자 조회용 data-api 준비 후 같은 방식으로 실행한다
 # TC08(답변 검증 실패): R02 사본을 만들어 게시한 뒤, 출력된 모드·sha256을 넘긴다. 두 모드는 같은 경로라 하나씩 게시한다
+# 사본 도구는 PR #16 병합 전까지 r02/p19-support-flow에만 있다. 원본이 바뀌면 sha256도 바뀌므로 시험마다 새로 만든다
+# 사본도 state·handoff를 호출하므로 VM에 두 하위 워크플로우가 있어야 실행할 수 있다
 uv run --locked python scripts/test/make_verifier_fault.py --output <새 파일> --mode grounded
 uv run --locked python scripts/test/run_cases.py --base-url <n8n 주소> --env vm --desc p13-tc08 --path mock --case TC08 --test-copy-mode grounded --test-copy-sha256 <출력된 sha256> --auth-required --workflow-version <커밋>
 ```

@@ -121,7 +121,10 @@
           "webhook": "dubakwi-support-tc08",
           "tool": "uv run --locked python scripts/test/make_verifier_fault.py --output <새 파일> --mode <grounded|unparsable>",
           "modes": ["grounded", "unparsable"],
-          "note": "R02 PR #16(09b57fa). 사본은 별도 경로·ID·webhookId라 원본과 동시 게시 가능. 두 모드는 같은 경로라 한 번에 하나만 게시. 도구가 출력한 sha256을 --test-copy-sha256으로 넘긴다"
+          "note": "R02 PR #16(09b57fa). 사본은 별도 경로·ID·webhookId라 원본과 동시 게시 가능. 두 모드는 같은 경로라 한 번에 하나만 게시. 도구가 출력한 sha256을 --test-copy-sha256으로 넘긴다",
+          "source_branch": "make_verifier_fault.py는 PR #16 병합 전까지 r02/p19-support-flow에만 있다. 그 브랜치에서 사본을 만든다",
+          "per_run": "sha256은 원본 support JSON이 바뀌면 달라진다. 시험할 때마다 사본을 새로 만들고 새 sha256을 넘긴다",
+          "precondition": "사본도 B07 이후 state·handoff를 호출하므로 VM에 dubakwi-state·dubakwi-handoff가 있어야 실행할 수 있다"
         },
         "assert": [{"path": "ticket", "op": "not_null"}, {"path": "reason", "op": "exists"}],
         "checks": ["closed_guidance로 종료되지 않음·handed_off", "DLQ 증가 0"],

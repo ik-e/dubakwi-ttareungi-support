@@ -8,15 +8,16 @@
     "status": "draft_not_run",
     "owner": "R05",
     "reviewers": ["R02", "R03", "R04", "instructor"],
-    "updated": "2026-11-04",
+    "updated": "2026-11-05",
     "format": "07-TESTING-GUIDE 1절 flow.py test 형식. 판정 칸 equals·contains·not_contains·status·max_seconds가 원본이다. x_dubakwi 칸은 팀 확장(추가 판정·미확인 항목)이며 flow.py가 모르는 칸을 무시하는지는 키트에서 확인 필요",
     "basis": {
       "guide": "03-SCENARIOS-AND-DATA 4절(유형·조건·판정), 11-TOPIC-GUIDE 4절(질문만 옮김), 07-TESTING-GUIDE 1절(파일 형식). 공개본 제외 자료",
-      "workflow_design": "docs/project/WORKFLOW-DESIGN.md v0.13 6.1/6.4/7.3/7.4",
+      "workflow_design": "docs/project/WORKFLOW-DESIGN.md v0.14 4.4.1/6.1/6.4/7.3/7.4 (R02 PR #16 기준, 병합 전)",
       "topic": "docs/project/TOPIC.md v0.7 5절"
     },
     "choices": [
-      "가이드가 두 결과를 허용하는 사례는 하나를 골랐다(03 문서 4절). WF-05 권한 없음, WF-10 담당자 이관(fail-closed), WF-11 담당자 이관. 근거는 R02 설계서에 기록 필요"
+      "가이드가 두 결과를 허용하는 사례는 하나를 골랐다(03 문서 4절). WF-05 권한 없음, WF-10 담당자 이관(fail-closed), WF-11 담당자 이관.",
+      "WF-05 권한 없음 근거: 설계서 v0.14 4.4.1절(시민의 내부 자료 요청은 B11이 restricted_access로 검색 없이 거절). WF-10·WF-11 선택 근거는 R02 설계서에 아직 기록 필요"
     ],
     "notes": [
       "구현 전 기대 결과다. 실행·통과 증거가 아니다.",
