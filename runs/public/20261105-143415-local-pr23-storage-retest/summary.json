@@ -1,0 +1,28 @@
+{
+  "run_id": "20261105-143415-local-pr23-storage-retest",
+  "execution_date": "2026-11-05",
+  "timezone": "Asia/Seoul",
+  "tasks": ["P18", "P12"],
+  "owner": "R01",
+  "source_commit": "365c419c1801c0f80bca1ecaf9d77f8a66a08786",
+  "original_failed_commit": "a2d8fcab5373a8b1b95e4905cbadf40baaa278bf",
+  "environment": "isolated local Docker PostgreSQL16.15, no network/host ports, disposable database and separate owner/runtime roles",
+  "configuration_version": "unchanged PR23 head365c419 SQL001-004 and state/DLQ JSON; local review configuration only",
+  "migrations": "001-004 applied successfully",
+  "provided_contracts": ["constraint contract as owner", "updated function contract as owner", "updated function contract as runtime login", "runtime-role contract"],
+  "permission_denials": {"create": true, "delete": true, "truncate": true, "alter": true, "drop": true},
+  "cases": [
+    {"id": "PR23-FAIL-NULL-01-retest", "pass": true, "no_owned_skipped": true, "owned_status": "unknown", "owned_revision": 1, "original_n8n_if_forwards_to_db": true, "normalizer_matches": true, "stale_prepare_rejected": true, "completed_state_preserved": true},
+    {"id": "PR23-DLQ-CLAIM-01-retest", "pass": true, "duplicate_preserves_reprocessing_revision1_and_owner_execution": true, "second_claim_with_current_revision_rejected": true, "original_owner_resolve_control": true},
+    {"id": "PR23-SAVE-GATE-01-retest", "pass": true, "unverified_jira_save_ok": false, "error_code": "tickets_down", "state_remains": "processing:1", "recovery_present": true, "normalizer_matches": true}
+  ],
+  "harness_history": [
+    {"attempt": 1, "result": "stopped on an overly narrow denial-message assertion", "detail": "ALTER correctly denied with must be owner of table, but harness expected the words permission denied; original output preserved privately"},
+    {"attempt": 2, "result": "all provided and boundary checks passed after accepting the valid ownership-denial message; SQL/workflow source unchanged"}
+  ],
+  "common_checks_before_artifacts": {"unittest_total": 45, "passed": 38, "skipped_http": 7, "failed": 0, "ruff_check": "pass", "ruff_format": "pass,40 files", "docs_files": 20, "docs_links": 427, "docs_anchors": 50, "public_candidates": 140, "public_links": 493, "errors": 0},
+  "verdict": "approve storage and safe-failure merge of reviewed head; actual Jira save/S1/VM deployment are incomplete",
+  "effects": {"vm_calls": 0, "jira_calls": 0, "real_secret_registration": 0, "source_sql_or_workflow_edits": 0, "local_test_container_removed": true},
+  "limits": ["R01 review does not replace R05 official acceptance.", "No live n8n Postgres connector, backup/restore, restart persistence, real concurrency or Jira/handoff test.", "Successful finish control used a trusted synthetic caller and is not proof of Jira completion.", "PR25 still has an outstanding R04 review; deployment conditions and D01 remain separate.", "tscan/Gitleaks unavailable; public candidate audit is a partial substitute."],
+  "report": "report.md"
+}
