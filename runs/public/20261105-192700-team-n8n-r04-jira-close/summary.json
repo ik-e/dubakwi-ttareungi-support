@@ -11,10 +11,11 @@
   "source_commit": {
     "handoff_at_runs_204_to_228": "e02f0a1 content (handoff nodes identical through eb8f1c3)",
     "handoff_updated_after_runs": "6d05ced then 5737477 (not used by the runs below)",
-    "state_clone": "eb8f1c3 content: 11 nodes (S06-S11); S12-S20 case_ref not imported"
+    "state_clone": "eb8f1c3 content: 11 nodes (S06-S11); S12-S20 case_ref not imported",
+    "handoff_runs_232_235": "5737477 (45 nodes, mapped-or-fail assignment, attempt note on reuse)"
   },
   "configuration_version": "Jira address and assignee mapping are import-time placeholders; credentials by name; runs 217 predates the mapped-or-fail assignment change",
-  "real_effects_on_jira": "JBYS-2 only: label added, context comments added, assignee set to the existing account, status Pending -> done (Resolution done). No new issue created.",
+  "real_effects_on_jira": "JBYS-2: label, context comments, existing assignee kept, status done (Resolution done). One new test issue created by run 232 (key delivered privately, not recorded here); run 235 added one attempt note to it and created nothing.",
   "cases": [
     {
       "id": "STATE-SMOKE",
@@ -92,6 +93,21 @@
       "id": "FINAL-READBACK",
       "result": "pass",
       "detail": "Jira JBYS-2 status done and Resolution done; DB begin with the same request returns replay with the stored response"
+    },
+    {
+      "id": "CREATE-NEW-ISSUE",
+      "executions": [
+        231,
+        232
+      ],
+      "result": "pass",
+      "detail": "begin proceed rev0; label search found 0; create HTTP 201; bind rev2; effects created confirmed, error_code null"
+    },
+    {
+      "id": "DUPLICATE-REUSE",
+      "execution": 235,
+      "result": "pass",
+      "detail": "same first_request_id sent again: label search found 1, create not run, existing issue reused, attempt note stored (context confirmed), rev 4, error_code null"
     }
   ],
   "incident": {
@@ -100,12 +116,12 @@
     "detail": "an ad-hoc run executed the stored 'start' test workflow (JBYS-2 transition) instead of the intended label write; Jira returned Bad request; later read-back showed JBYS-2 unchanged (Pending, no Resolution). Cause: the editor run API ignores the supplied workflow data and runs the stored one."
   },
   "not_run": [
-    "new issue creation path (H05) in the product workflow",
     "assignment success with a role-to-account mapping",
     "case_ref with migrations 005-006 on the service database",
     "webhook (Header Auth) calls",
     "flow.py and tscan (tools unavailable on the author's machine)",
-    "Discord integration"
+    "Discord integration",
+    "closing or assigning the new test issue (left open, preserved)"
   ],
   "preserved": "test request rows and DLQ are kept; nothing deleted or reset",
   "overall": "not recorded as S1 full success"
