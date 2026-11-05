@@ -532,15 +532,15 @@ Credential 주의: 이름만 있는 Header Auth를 가져오면 n8n이 같은 �
 | B01 문의 수신 | Webhook POST `dubakwi-support`, Header Auth, responseNode | Credential 이름 `dubakwi-team-key`만 넣고 ID·값은 넣지 않음. VM에서 연결. 경로는 팀 헌장의 `POST /webhook/dubakwi-support`를 유지 |
 | B02 입력 검사 | 본문 객체, request_id/user 1~64자, question trim 1~500자, attempt 정수≥1, channel/context/case_ref 문자열 검사. 명백한 주입 정규식 차단(question+context) | `codes`는 공통 코드 `invalid_input`을 먼저 두고 세부 사유(`question_empty` 등)를 뒤에 둠. 주입 패턴은 초기 목록이며 명령형만 차단하고 가능 여부 질문·경험 서술은 통과시킴. 글자 사이를 띄운 한국어 지시는 공백을 없앤 문장으로도 검사. 타인 기록 요청은 권한 문제라 여기서 막지 않음 |
 | B03 입력 통과 | If input_ok. false → B33(E087) | 없음 |
-| B04 사용자 확인 | GET `http://data-api:8800/employees/<user>`, full response·neverError·timeout 1.5초 | n8n 컨테이너 안에서는 `localhost:8800`에 연결되지 않아 서비스 이름을 사용. 과정 data-api 실호출 확인. 시민 사용자 공급(R04 P09) 형식은 6.4.1 제안 기준으로 R04 확인 필요 |
-| B05 등록·권한 확인 | 200 응답의 구조·필수 ID·요청 사용자 일치·권한 조합을 6.4.1 기준으로 검증해 Actor 구성. 404 → 400 `unknown_user`, 그 외 → 503 `user_lookup_error` | 권한 조합과 오류 계약은 R02 제안이며 R04·R05 검토 대기. 과정 형식의 dept 매핑은 미확정이라 최소 권한만 부여 |
+| B04 사용자 확인 | GET `http://data-api:8800/employees/<user>`, full response·neverError·timeout 1.5초 | n8n 컨테이너 안에서는 `localhost:8800`에 연결되지 않아 서비스 이름을 사용. 과정 data-api 실호출 확인. 시민 사용자 공급(R04 P09)의 API 주소와 인증은 R04 확인 필요. 응답 형식은 6.4.1 기준에 R04 동의 |
+| B05 등록·권한 확인 | 200 응답의 구조·필수 ID·요청 사용자 일치·권한 조합을 6.4.1 기준으로 검증해 Actor 구성. 404 → 400 `unknown_user`, 그 외 → 503 `user_lookup_error` | 권한 조합과 오류 계약은 R04·R05가 PR #11 제안서에 동의(2026-11-05, R02 취합). 과정 형식의 dept 매핑은 미확정이라 최소 권한만 부여 |
 | B06 사용자 통과 | If actor_ok. false → B33(E088) | 없음 |
 | M01 골격 mock | B07~B32 대신 route=담당자 이관, reason=skeleton_mock, ticket=null과 “실제 접수·티켓 생성·이관 없음” 안내 응답 | P19에서 실제 노드로 교체. route는 공통 enum을 지키기 위한 값이며 mock 응답은 업무 성공이 아님 |
 | B33 응답 구성 | InputError 또는 공통 Response 정규화, timings.total_ms, 가린 감사 메타 구성 | B34·B37~B39 저장 게이트는 아직 없음 |
 | B35 메타 기록 | POST `http://data-api:8800/logs`, 실패해도 응답 진행 | 원문 질문·답변·연락처·헤더 제외 |
 | B36 응답 | B33의 body/status로 한 번 응답 | 없음 |
 
-로컬 확인(2026-11-04): [`support-skeleton-cases.js`](../../scripts/test/support-skeleton-cases.js)로 Code 노드 JS를 Node.js에서 실행하고 connections를 따라 입력을 확인했다. B04·B35는 대체값이다. B05 보완 전 커밋 `55bba3d`는 [8/36 통과](../../runs/public/20261104-090315-local-p11-before-fix/summary.json), 보완 후는 [36/36 통과](../../runs/public/20261104-090407-local-p11-skeleton/summary.json)다. 이후 B02 사례 10개를 더한 46개 기준으로 수정 전 [38/46](../../runs/public/20261104-102320-local-p11-before-b02-fix/summary.json), 수정 후 [46/46 통과](../../runs/public/20261104-102342-local-p11-b02-fix/summary.json)다. R05 TC11 문장을 더한 50개 기준으로 수정 전 [49/50](../../runs/public/20261104-140902-local-p11-before-spacing-fix/summary.json), 수정 후 [50/50 통과](../../runs/public/20261104-140902-local-p11-spacing-fix/summary.json)다. 보완 전 실패에는 코드 이름 변경·mock 문구 변경으로 기대값이 달라진 사례도 포함된다. 대상은 입력 오류, 주입과 오탐 경계, 미등록, 조회 장애, 빈 사용자 응답, ID 불일치, 잘못된 권한 조합, 정상 mock이다. 
+로컬 확인(2026-11-04): [`support-skeleton-cases.js`](../../scripts/test/support-skeleton-cases.js)로 Code 노드 JS를 Node.js에서 실행하고 connections를 따라 입력을 확인했다. B04·B35는 대체값이다. B05 보완 전 커밋 `55bba3d`는 [8/36 통과](../../runs/public/20261104-090315-local-p11-before-fix/summary.json), 보완 후는 [36/36 통과](../../runs/public/20261104-090407-local-p11-skeleton/summary.json)다. 이후 B02 사례 10개를 더한 46개 기준으로 수정 전 [38/46](../../runs/public/20261104-102320-local-p11-before-b02-fix/summary.json), 수정 후 [46/46 통과](../../runs/public/20261104-102342-local-p11-b02-fix/summary.json)다. R05 TC11 문장을 더한 50개 기준으로 수정 전 [49/50](../../runs/public/20261104-140902-local-p11-before-spacing-fix/summary.json), 수정 후 [50/50 통과](../../runs/public/20261104-140902-local-p11-spacing-fix/summary.json)다. 보완 전 실패에는 코드 이름 변경·mock 문구 변경으로 기대값이 달라진 사례도 포함된다. 대상은 입력 오류, 주입과 오탐 경계, 미등록, 조회 장애, 빈 사용자 응답, ID 불일치, 잘못된 권한 조합, 정상 mock이다.
 
 로컬 n8n 확인(2026-11-04): n8n 2.42.6 컨테이너에 가져와 게시하고 과정 data-api로 [`support_skeleton_live.py`](../../scripts/test/support_skeleton_live.py)를 실행했다. 첫 실행은 B04의 `localhost:8800` 연결 거부로 [5/11](../../runs/public/20261104-103531-local-n8n-p11-before-url-fix/summary.json)이었다. 주소를 고친 뒤 재시작 직후 실행도 [5/11](../../runs/public/20261104-103812-local-n8n-p11-skeleton/summary.json)이었고 실행 기록에는 이전 주소의 연결 거부가 남았다. 재시작 시점 문제로 보이지만 원인은 확정하지 못했다. 잠시 뒤 재실행은 [11/11 통과](../../runs/public/20261104-104205-local-n8n-p11-pass/summary.json)다. B02 수정이 들어간 커밋 `5113956` 파일을 그대로 다시 게시해 [11/11 통과](../../runs/public/20261104-152533-local-n8n-p11-5113956/summary.json)를 확인했다. 그 전 1회는 가져오기 권한 오류로 이전 사본이 실행되어 무효로 처리했다. 인증 키 없음·오류 403, 입력 400, 미등록 400, 주입 차단, 정상 mock, B35 `/logs` 기록과 질문 원문 미포함을 확인했다. 과정 data-api에는 R05 시험 사용자 `citizen-a`가 없어 400 `unknown_user`가 나오므로 R04 P09의 사용자 공급이 필요하다. **VM 시험, R05 실행 도구 시험, WF-08/13 공식 판정은 미실행이다.** 공식 판정은 R05의 P13 증거로 기록한다.
 
@@ -752,7 +752,7 @@ B25→B27 일반 안내. 답변 검증 뒤이며 아직 ticket_id=null:
 - 동일 owner/request_id와 동일 업무 입력이면 재전송이다. 입력 비교에는 정규화한 question/context/attempt/case_ref를 포함한다. 동일 ID의 다른 입력·소유자는 충돌이다. 처리 중이면 재실행하지 않고 request_in_progress로 반환한다. 해시 알고리즘·원자적 저장 구현은 R04가 정한다.
 - citizen은 서버가 허용한 공개 지식·본인 기록만 사용한다. support/security는 서버에 등록된 모의 역할이며 질문에서 선언할 수 없다. 실제 access_level 값은 R03/R04가 공동 매핑하고 R02/R05에 제공한다. R01~R05는 개발 책임 ID이며 티켓 담당 역할 ID가 아니다.
 - B05는 HTTP 200이어도 아래를 모두 만족할 때만 Actor를 만든다. 형식은 팀 등록 형식 `{id,role,access_levels}` 또는 과정 data-api 형식 `{name,dept}`이다. id 또는 name은 공백이 아닌 문자열이고 trim된 Request.user와 정확히 같아야 한다. 과정 형식에 role/access_levels가 섞이면 거절한다.
-- 권한 조합(R02 제안, R04 확인 대기): citizen은 `["public"]`만, support/security는 `public` 필수에 `restricted` 선택이다. 값 중복과 정의되지 않은 role/level은 거절한다. `public`/`restricted`는 knowledge 폴더 구분을 따른 임시 값이며 D04 확정 시 함께 바꾼다. 과정 형식은 dept 매핑 확정 전까지 IT팀을 포함해 citizen/`["public"]`만 부여한다.
+- 권한 조합(R04 동의, 2026-11-05): citizen은 `["public"]`만, support/security는 `public` 필수에 `restricted` 선택이다. 값 중복과 정의되지 않은 role/level은 거절한다. `public`/`restricted`는 knowledge 폴더 구분을 따른 임시 값이며 D04 확정 시 함께 바꾼다. 과정 형식은 dept 매핑 확정 전까지 IT팀을 포함해 citizen/`["public"]`만 부여한다.
 
 #### 6.4.2. 분류·답변·검증의 공통 출력
 
@@ -977,7 +977,7 @@ HTTP는 비2xx full response·네트워크 오류 continueRegularOutput을 인�
 | 조건 | 공통 코드 | 시민 응답·X 효과 계획 |
 | --- | --- | --- |
 | 형식 오류/없는 사용자 | invalid_input/unknown_user | HTTP400 InputError(error,codes),LLM·티켓0. 기존 WF13 codes 판정 보존 |
-| 사용자 확인 실패 (R02 제안, R04·R05 검토 대기) | user_lookup_error. codes=user_lookup_unavailable/user_lookup_invalid_response/user_id_mismatch/user_permission_invalid | HTTP503 InputError,actor=null,LLM·티켓·상태 쓰기0. 소유자를 확정할 수 없어 이관 경로로 보내지 않는다. 뒤 행의 lookup_error(본인 기록 조회 장애)와 구분한다 |
+| 사용자 확인 실패 (R04·R05 동의, 2026-11-05) | user_lookup_error. codes=user_lookup_unavailable/user_lookup_invalid_response/user_id_mismatch/user_permission_invalid | HTTP503 InputError,actor=null,LLM·티켓·상태 쓰기0. 소유자를 확정할 수 없어 이관 경로로 보내지 않는다. 뒤 행의 lookup_error(본인 기록 조회 장애)와 구분한다 |
 | 명백한 주입 | prompt_injection | HTTP200,route=차단,blocked_by 지정,LLM·티켓0 |
 | 입력 충돌/동일 요청 처리 중 | request_conflict/request_in_progress/case_busy/request_requires_review | HTTP409 InputError,새 티켓·LLM 실행0,X effect_plan=none |
 | 보완 참조 오류 | invalid_case_ref/case_access_denied/case_closed | BeginResult의400/403/409,기존 내용 비공개·상태 쓰기0 |
