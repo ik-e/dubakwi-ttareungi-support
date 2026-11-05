@@ -1,0 +1,34 @@
+{
+  "environment": "local fake Webhook/data-api only",
+  "scope": "R01 delegated hook failure correction and integration regression",
+  "tests": {
+    "total": 67,
+    "passed": 60,
+    "skipped_http": 7,
+    "runner_tests": 35,
+    "new_hook_boundary_tests": 3
+  },
+  "verified_boundaries": [
+    "file reset 503 blocks both current and later files; Webhook 0",
+    "case prepare 503 still attempts cleanup and blocks later case; Webhook 0",
+    "cleanup 503 records H01 failure and blocks later file; Webhook 1"
+  ],
+  "ruff_check": "passed",
+  "ruff_format": "passed",
+  "project_docs": {
+    "files": 20,
+    "local_links": 448,
+    "anchor_links": 50,
+    "errors": 0
+  },
+  "vm": "not accessed or modified in this work; deferred by user",
+  "historical_r05_results": "unchanged",
+  "final_public_checks": {
+    "documents": 20,
+    "local_links": 449,
+    "anchor_links": 50,
+    "public_candidates": 159,
+    "public_links": 529,
+    "errors": 0
+  }
+}
