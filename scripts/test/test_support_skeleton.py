@@ -74,6 +74,13 @@ class SupportSkeletonTest(unittest.TestCase):
         self.assertEqual(hook["parameters"]["authentication"], "headerAuth")
         self.assertNotIn("id", hook["credentials"]["httpHeaderAuth"])
 
+    def test_vm_bundle_can_use_team_user_api(self) -> None:
+        files = build_all({"openai": None, "team": None, "internal": None}, user_api=True)
+        nodes = {item["name"]: item for item in files["dubakwi-support-p19-mock.json"]["nodes"]}
+        lookup = nodes["B04 사용자 확인"]
+        self.assertIn("dubakwi-user-api:8801/employees/", lookup["parameters"]["url"])
+        self.assertEqual(lookup["credentials"]["httpHeaderAuth"]["name"], "dubakwi-internal-key")
+
 
 if __name__ == "__main__":
     unittest.main()

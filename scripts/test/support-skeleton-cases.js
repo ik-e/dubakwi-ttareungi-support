@@ -329,6 +329,7 @@ const FLOWS = [
   ['FL68', 'S8', 'save 실패의 최신 state_ref로 실패 기록', ask(), { save: (r) => ({ request_id: 'lc-req', ok: false, state_ref: { ...r.state_ref, state_revision: 77 }, error_code: 'tickets_down', recovery: null }) }, handoff('tickets_down', { failRevision: 77 })],
   ['FL69', 'S8', '긴급 후속 save 실패도 high 유지', ask(), { triage: { text: triage({ type: 'security', urgency: 'high' }) }, ...JIRA_UNVERIFIED }, handoff('tickets_down', { dlq: 1, saves: 1, ticketId: 'T-1', priority: 'high' })],
   ['FL70', 'S8', '허용되지 않은 save 오류 코드는 state_error', ask(), { save: () => ({ request_id: 'lc-req', ok: false, state_ref: null, error_code: 'stack trace 원문', recovery: null }) }, handoff('state_error', { dlq: 1, noText: 'stack trace' })],
+  ['FL71', '계약', 'Jira 키 형식 ticket_id를 응답에 그대로 전달', ask(), { triage: { text: triage({ type: 'security', urgency: 'high' }) }, ...processResult({ ticket_id: 'JBYS-1' }) }, flow({ route: '담당자 이관', ticketId: 'JBYS-1', priority: 'high' })],
   ['FL41', '계약', 'BeginRequest 서버 값', ask({ role: 'security' }), {}, flow({ route: '자동 답변', beginShape: true })],
 ];
 

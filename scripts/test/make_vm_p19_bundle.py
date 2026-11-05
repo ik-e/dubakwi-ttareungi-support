@@ -35,6 +35,9 @@ ORIGINAL_DLQ_ID = "dubakwiDlq0001"
 ORIGINAL_HANDOFF_URL = "http://127.0.0.1:5678/webhook/dubakwi-handoff"
 HANDOFF_URL = f"http://127.0.0.1:5678/webhook/{HANDOFF_PATH}"
 SEARCH_URL = "http://127.0.0.1:5678/webhook/dubakwi-search"
+USER_API_URL = (
+    "=http://dubakwi-user-api:8801/employees/{{ encodeURIComponent($json.request.user) }}"
+)
 OPENAI_NAME = "dubakwi-openai"
 TEAM_KEY_NAME = "dubakwi-team-key"
 INTERNAL_KEY_NAME = "dubakwi-internal-key"
@@ -65,12 +68,24 @@ def require_url(nodes: dict, name: str, expected: str) -> None:
         raise ValueError(f"{name} 주소가 예상과 다릅니다: {actual}")
 
 
-def build_support(workflow: dict, ids: dict) -> dict:
+def use_user_api(node: dict, internal_id: str | None) -> None:
+    node["parameters"].update(
+        url=USER_API_URL,
+        authentication="genericCredentialType",
+        genericAuthType="httpHeaderAuth",
+    )
+    node["credentials"] = header_auth(INTERNAL_KEY_NAME, internal_id)
+
+
+def build_support(workflow: dict, ids: dict, user_api: bool = False) -> dict:
     copy = json.loads(json.dumps(workflow))
     nodes = {node["name"]: node for node in copy["nodes"]}
     require_url(nodes, "B14 RAG 검색", SEARCH_URL)
     if not nodes["B04 사용자 확인"]["parameters"]["url"].startswith("=http://data-api:8800/"):
         raise ValueError("B04가 data-api를 가리키지 않습니다")
+
+    if user_api:
+        use_user_api(nodes["B04 사용자 확인"], ids["internal"])
 
     targets = {ORIGINAL_STATE_ID: (STATE_ID, STATE_NAME), ORIGINAL_DLQ_ID: (DLQ_ID, DLQ_NAME)}
     for node in copy["nodes"]:
@@ -109,9 +124,9 @@ def build_handoff(internal_id: str | None) -> dict:
     return copy
 
 
-def build_all(ids: dict) -> dict[str, dict]:
+def build_all(ids: dict, user_api: bool = False) -> dict[str, dict]:
     return {
-        f"{SUPPORT_NAME}.json": build_support(read_json(SUPPORT), ids),
+        f"{SUPPORT_NAME}.json": build_support(read_json(SUPPORT), ids, user_api),
         f"{STATE_NAME}.json": build_trigger_mock("dubakwi-mock-state.json", STATE_ID, STATE_NAME),
         f"{DLQ_NAME}.json": build_trigger_mock("dubakwi-mock-dlq.json", DLQ_ID, DLQ_NAME),
         f"{HANDOFF_NAME}.json": build_handoff(ids["internal"]),
@@ -133,6 +148,11 @@ def main() -> None:
     parser.add_argument("--openai-credential-id")
     parser.add_argument("--team-credential-id")
     parser.add_argument("--internal-credential-id")
+    parser.add_argument(
+        "--user-api",
+        action="store_true",
+        help="B04를 과정 data-api 대신 팀 사용자 API로 호출한다. R01 배포 뒤 사용한다",
+    )
     args = parser.parse_args()
     ids = {
         "openai": args.openai_credential_id,
@@ -140,7 +160,7 @@ def main() -> None:
         "internal": args.internal_credential_id,
     }
 
-    files = build_all(ids)
+    files = build_all(ids, args.user_api)
     args.output_dir.mkdir(parents=True, exist_ok=False)
     digests = {}
     for name, workflow in files.items():
@@ -154,6 +174,7 @@ def main() -> None:
     manifest = {
         "base": base_commit(),
         "credential_ids_included": any(ids.values()),
+        "user_lookup": "dubakwi-user-api" if args.user_api else "data-api",
         "sha256": digests,
         "publish_order": [
             f"{STATE_NAME}.json",

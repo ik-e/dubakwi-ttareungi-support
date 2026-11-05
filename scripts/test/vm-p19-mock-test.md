@@ -24,6 +24,8 @@ R02가 준비하고 R01이 격리를 검토한 뒤 게시하는 시험이다. �
 uv run --locked python scripts/test/make_vm_p19_bundle.py --output-dir <새 폴더>
 ```
 
+기본값은 B04가 과정 data-api를 호출한다. R01이 팀 사용자 API를 배포한 뒤에는 `--user-api`를 붙여 B04를 `dubakwi-user-api:8801`과 `dubakwi-internal-key`로 바꾼다. 이때 시험 사용자는 `citizen-a` 등 `data/users.json`의 ID로 바꿔야 하며 `박서연`은 400이 된다.
+
 Credential은 이름만 들어 있다. 실제 ID는 게시 사본에서 연결하거나 `--openai-credential-id`, `--team-credential-id`, `--internal-credential-id`로 넘긴다. ID를 넘기면 support와 handoff의 SHA-256이 아래 값과 달라진다. `manifest.json`에 기준 커밋과 파일별 SHA-256이 남는다.
 
 | 파일 (ID를 넘기지 않은 경우) | SHA-256 |

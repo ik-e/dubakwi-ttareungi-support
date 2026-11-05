@@ -511,7 +511,10 @@ B28은 먼저 error_code=null && state_saved=true && 최신 state_ref를 확인�
 | LLM Credential | 과정 공통 ID `openAiCourse0001` 사용 | 이름만으로는 로컬 n8n에서 권한 오류가 나서 ID를 넣음. 비밀값은 없음. VM은 R01이 배포 사본에서 L01~L03과 각 Header Auth를 실제 Credential ID로 연결·확인 |
 | VM 게시 | VM은 P11 게시본 유지. R01 PR #22가 B14·L01~L03 부분 연결을 확인 | R01 동의(2026-11-05)로 [전용 mock 사본 시험](../../scripts/test/vm-p19-mock-test.md) 준비. 실제 B04·검색·모델 + mock state·handoff·dlq. 실제 저장·DLQ·Jira 성공과 공식 판정이 아님 |
 | TC08 | 운영 JSON에는 스위치를 넣지 않음. [`make_verifier_fault.py`](../../scripts/test/make_verifier_fault.py)가 경로 `dubakwi-support-tc08`, 별도 ID·webhookId의 사본 생성 | [원본과 동시 게시 확인](../../runs/public/20261105-104900-local-n8n-p19-tc08-parallel/summary.json). 모드 3종(`grounded`, `unparsable`, TC08-v1용 [`unknown_chunk`](../../runs/public/20261105-112427-local-n8n-p19-tc08-unknown-chunk/summary.json))은 같은 경로라 하나만 게시 |
-| B05 | 과정 data-api 형식은 `citizen`/`public` 최소 권한 유지 | `citizen-a` 공급과 `dept` 매핑은 R04 P09·D04 |
+| B04·B05 사용자 조회 | 현재 B04는 과정 data-api 호출, B05는 data-api 형식과 팀 형식 `{id,role,access_levels}`을 모두 처리 | R04 PR #26 계약: `http://dubakwi-user-api:8801/employees/<id>`, `X-Internal-Key`. VM 배포 후 B04를 바꾼다. [임시 API 로컬 확인](../../runs/public/20261105-150536-local-n8n-p19-user-api/summary.json), VM 미실행 |
+| 시민 ticket_id | Jira 키(예: `JBYS-1`)를 그대로 응답 | R04 동의(2026-11-05). 실제 Jira 생성은 미실행 |
+| state `error_code` | support는 저장된 칸을 읽지 않고 SaveResult·StateResult·BeginResult의 값만 소비 | 스키마 변경 불필요 |
+| 저장 경계 연결 전 확인 | main `003`의 유효한 `save`는 항상 `ok:false`, 유효한 `case_ref`의 `begin`은 항상 `case_verification_required` | 정상 완료와 보완 연결 경로는 R04 확인 필요. 해결 전 실제 state 연결 시 해당 요청은 이관으로 끝남 |
 
 로컬 확인(2026-11-04): Code 시험 [89/89](../../runs/public/20261104-113327-local-p19-flow/summary.json). 로컬 n8n 2.42.6에서 `scripts/test/mocks/`의 mock과 실제 gpt-4.1-mini로 Webhook 18개를 3회 실행해 모두 18/18 통과했다([1회](../../runs/public/20261104-113005-local-n8n-p19-mock-run1/summary.json), [2회](../../runs/public/20261104-113036-local-n8n-p19-mock-run2/summary.json), [3회](../../runs/public/20261104-113113-local-n8n-p19-mock-run3/summary.json)). 이 저장 결과 전에 Credential 권한 오류(2/18)와 분류 프롬프트 문제(12/18)가 있었고 수정했다. 해당 시도의 결과 파일은 남기지 않았다. TC08 grounded=false 사본도 이관을 1회 확인했다.
 
