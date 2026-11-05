@@ -84,7 +84,9 @@
       "onError": "continueRegularOutput",
       "parameters": {
         "method": "GET",
-        "url": "=http://data-api:8800/employees/{{ encodeURIComponent($json.request.user) }}",
+        "url": "=http://dubakwi-user-api:8801/employees/{{ encodeURIComponent($json.request.user) }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
         "options": {
           "response": {
             "response": {
@@ -93,6 +95,11 @@
             }
           },
           "timeout": 1500
+        }
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "name": "dubakwi-internal-key"
         }
       }
     },

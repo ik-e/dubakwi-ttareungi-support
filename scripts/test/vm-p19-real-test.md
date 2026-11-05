@@ -22,11 +22,11 @@ R01 확정 후 R04가 하위 기능 기준을 `1b83d18`로 올렸다고 알렸�
 ```bash
 uv run --locked python scripts/test/make_vm_p19_real_bundle.py --output-dir <새 폴더> \
   --state-workflow-id <state ID> --dlq-workflow-id <DLQ ID> --handoff-url <handoff 내부 주소> \
-  --scope <시험 scope> --error-workflow-id <errors ID> \
+  --scope <R01이 정한 VM scope> --error-workflow-id <errors ID> \
   --openai-credential-id <ID> --team-credential-id <ID> --internal-credential-id <ID>
 ```
 
-handoff는 R04 `168c79c`의 `scripts/dev/render_n8n_workflow.py`로 Jira 주소와 담당 매핑을 채운 사본을 Git 제외 경로에 만들어 반입한다. 환경 값은 옵션으로만 넣고 공개 기록에 남기지 않는다. `manifest.json`에 기준 커밋, support SHA-256, 함께 쓰는 워크플로우의 원본 커밋과 SHA-256이 남는다. R01의 비활성 복제본이 이 값과 같은 원본인지 대조한다.
+handoff는 R04 `168c79c`의 `scripts/dev/render_n8n_workflow.py`로 Jira 주소와 담당 매핑을 채운 사본을 Git 제외 경로에 만들어 반입한다. 환경 값은 옵션으로만 넣고 공개 기록에 남기지 않는다. `--scope`는 필수이며, 사본에 원본 `dubakwi-dev`가 남으면 만들지 않는다. `manifest.json`에 기준 커밋, support SHA-256, 함께 쓰는 워크플로우의 원본 커밋과 SHA-256이 남는다. R01의 비활성 복제본이 이 값과 같은 원본인지 대조한다.
 
 ## ID·Credential 대응표
 
@@ -34,12 +34,12 @@ handoff는 R04 `168c79c`의 `scripts/dev/render_n8n_workflow.py`로 Jira 주소�
 | --- | --- | --- | --- |
 | support ID·이름 | 환경별 | `dubakwiP19RealSupport`, `dubakwi-support-p19-real` | R02 |
 | support 경로 | `/webhook/dubakwi-support` | `/webhook/dubakwi-support-p19-real` | R02 |
-| B04 사용자 조회 | `data-api:8800/employees/<user>` | `dubakwi-user-api:8801/employees/<user>` | R01 배포 완료(PR #32) |
+| B04 사용자 조회 | `dubakwi-user-api:8801/employees/<user>`, `dubakwi-internal-key` (2026-11-06 원본 반영) | 그대로, Credential ID만 연결 | R01 배포 완료(PR #32) |
 | B07·B37·B32·X06 state | `dubakwiState01` | `--state-workflow-id` | R01 복제본 ID |
 | X03 DLQ | `dubakwiDlq0001` | `--dlq-workflow-id` | R01 복제본 ID |
 | B15·B27 handoff | `http://127.0.0.1:5678/webhook/dubakwi-handoff` | `--handoff-url` | R01 복제본 경로 |
 | Error Workflow | 없음 | `--error-workflow-id` | R01. `DUBAKWI_SCOPE` 미설정 문제 해결 후 |
-| scope (B07a·X06a·X03a) | `dubakwi-dev` | `--scope`, 기본 `dubakwi-p19-real` | R01. errors의 `DUBAKWI_SCOPE`와 같게 |
+| scope (B07a·X06a·X03a) | `dubakwi-dev` (로컬 개발값) | `--scope` 필수로 치환 | R01. errors의 `DUBAKWI_SCOPE`와 같게 |
 | B14 검색 | `/webhook/dubakwi-search` | 그대로 | R03 |
 | B35 로그, X04 알림 | `data-api:8800` | 그대로 | 과정 data-api. 운영 알림 아님 |
 

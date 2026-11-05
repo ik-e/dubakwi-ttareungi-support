@@ -24,13 +24,13 @@ R02가 준비하고 R01이 격리를 검토한 뒤 게시하는 시험이다. �
 uv run --locked python scripts/test/make_vm_p19_bundle.py --output-dir <새 폴더>
 ```
 
-기본값은 B04가 과정 data-api를 호출한다. R01이 팀 사용자 API를 배포한 뒤에는 `--user-api`를 붙여 B04를 `dubakwi-user-api:8801`과 `dubakwi-internal-key`로 바꾼다. 이때 시험 사용자는 `citizen-a` 등 `data/users.json`의 ID로 바꿔야 하며 `박서연`은 400이 된다.
+2026-11-06부터 원본 B04가 팀 사용자 API(`dubakwi-user-api:8801`, `dubakwi-internal-key`)를 호출하므로 사본도 기본값이 같다(R04 요청). 시험 사용자는 `citizen-a` 등 `data/users.json`의 ID를 쓰며 `박서연`은 400이 된다. 아래 `06863b3` 시험처럼 과정 data-api 직원으로 재현할 때만 `--data-api`를 붙인다(이전 `--user-api`는 없앴다).
 
 Credential은 이름만 들어 있다. 실제 ID는 게시 사본에서 연결하거나 `--openai-credential-id`, `--team-credential-id`, `--internal-credential-id`로 넘긴다. ID를 넘기면 support와 handoff의 SHA-256이 아래 값과 달라진다. `manifest.json`에 기준 커밋과 파일별 SHA-256이 남는다.
 
 | 파일 (ID를 넘기지 않은 경우) | SHA-256 |
 | --- | --- |
-| `dubakwi-support-p19-mock.json` | `e1dde6744829ce308910cf3212efa3543788b88ee5ee3e6def538e188353984a` |
+| `dubakwi-support-p19-mock.json` | `e1dde6744829ce308910cf3212efa3543788b88ee5ee3e6def538e188353984a` (B04 변경 전 기준. 현재 기본값으로 만들면 달라진다) |
 | `dubakwi-p19-mock-state.json` | `749928db5072cbf43d43880d1aa300ffb226aa42c1878e883e87a055c5a92f95` |
 | `dubakwi-p19-mock-dlq.json` | `598e87c6bd4991f3878e7ee8d8a8390cec96ef62249642946bf5a6a5e1634cd0` |
 | `dubakwi-p19-mock-handoff.json` | `7ee40e17cd9012dea231b974c167023eb589d051c33a5145286e26ef7d04b51a` |
@@ -46,12 +46,12 @@ Credential은 이름만 들어 있다. 실제 ID는 게시 사본에서 연결�
 | handoff ID | 환경별 | `dubakwiP19Handoff` |
 | handoff 경로 (B15·B27) | `/webhook/dubakwi-handoff` | `/webhook/dubakwi-p19-mock-handoff` |
 | 검색 경로 (B14) | `/webhook/dubakwi-search` | 그대로 |
-| 사용자 조회 (B04) | `data-api:8800/employees/<user>` | 그대로 |
+| 사용자 조회 (B04) | `dubakwi-user-api:8801/employees/<user>` (2026-11-06 전에는 `data-api:8800`) | 그대로. `--data-api`면 과정 data-api |
 
 | Credential | 연결할 노드 | 헤더 |
 | --- | --- | --- |
 | `dubakwi-team-key` | support B01 | `X-Team-Key` |
-| `dubakwi-internal-key` | support B14·B15·B27, handoff mock 입력 | `X-Internal-Key` |
+| `dubakwi-internal-key` | support B04·B14·B15·B27, handoff mock 입력 | `X-Internal-Key` |
 | `dubakwi-openai` | support L01~L03 | 없음 |
 
 handoff mock은 원본 mock과 달리 Header Auth를 켰다. VM에서 인증 없이 열리지 않게 하기 위해서다.

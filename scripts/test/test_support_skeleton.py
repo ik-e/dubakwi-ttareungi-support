@@ -70,18 +70,29 @@ class SupportSkeletonTest(unittest.TestCase):
         self.assertEqual(nodes["B01 문의 수신"]["parameters"]["path"], SUPPORT_PATH)
         self.assertEqual(nodes["B14 RAG 검색"]["parameters"]["url"], SEARCH_URL)
         self.assertEqual(nodes["B27 티켓 생성·처리"]["parameters"]["url"], HANDOFF_URL)
-        self.assertIn("data-api:8800", nodes["B04 사용자 확인"]["parameters"]["url"])
+        lookup = nodes["B04 사용자 확인"]
+        self.assertIn("dubakwi-user-api:8801/employees/", lookup["parameters"]["url"])
+        self.assertEqual(lookup["credentials"]["httpHeaderAuth"]["name"], "dubakwi-internal-key")
         handoff = files["dubakwi-p19-mock-handoff.json"]
         hook = next(item for item in handoff["nodes"] if item["type"].endswith(".webhook"))
         self.assertEqual(hook["parameters"]["authentication"], "headerAuth")
         self.assertNotIn("id", hook["credentials"]["httpHeaderAuth"])
 
-    def test_vm_bundle_can_use_team_user_api(self) -> None:
-        files = build_all({"openai": None, "team": None, "internal": None}, user_api=True)
+    def test_source_calls_team_user_api_with_internal_key(self) -> None:
+        workflow = json.loads(SOURCE.read_text(encoding="utf-8"))
+        lookup = next(item for item in workflow["nodes"] if item["name"] == "B04 사용자 확인")
+        self.assertIn("dubakwi-user-api:8801/employees/", lookup["parameters"]["url"])
+        self.assertEqual(lookup["parameters"]["genericAuthType"], "httpHeaderAuth")
+        self.assertEqual(lookup["credentials"]["httpHeaderAuth"]["name"], "dubakwi-internal-key")
+        self.assertNotIn("id", lookup["credentials"]["httpHeaderAuth"])
+
+    def test_vm_bundle_can_fall_back_to_course_data_api(self) -> None:
+        files = build_all({"openai": None, "team": None, "internal": None}, data_api=True)
         nodes = {item["name"]: item for item in files["dubakwi-support-p19-mock.json"]["nodes"]}
         lookup = nodes["B04 사용자 확인"]
-        self.assertIn("dubakwi-user-api:8801/employees/", lookup["parameters"]["url"])
-        self.assertEqual(lookup["credentials"]["httpHeaderAuth"]["name"], "dubakwi-internal-key")
+        self.assertIn("data-api:8800/employees/", lookup["parameters"]["url"])
+        self.assertNotIn("credentials", lookup)
+        self.assertNotIn("authentication", lookup["parameters"])
 
     def test_real_bundle_connects_real_targets_without_changing_source(self) -> None:
         workflow = json.loads(SOURCE.read_text(encoding="utf-8"))
@@ -112,6 +123,7 @@ class SupportSkeletonTest(unittest.TestCase):
         self.assertEqual(nodes["X03 실패 보관"]["parameters"]["workflowId"]["value"], "dlq-x")
         for name in SCOPE_NODES:
             self.assertIn("scope-x", nodes[name]["parameters"]["jsonOutput"])
+        self.assertNotIn("dubakwi-dev", text)
         self.assertEqual(copy["settings"]["errorWorkflow"], "errors-x")
         self.assertFalse(copy["active"])
 

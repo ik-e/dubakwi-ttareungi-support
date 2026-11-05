@@ -2,7 +2,8 @@
 
 사용법:
   uv run --locked python scripts/test/make_vm_p19_real_bundle.py --output-dir <새 폴더> \
-      [--state-workflow-id <ID>] [--dlq-workflow-id <ID>] [--handoff-url <URL>] [--scope <값>]
+      --scope <R01이 정한 VM scope> [--state-workflow-id <ID>] [--dlq-workflow-id <ID>] \
+      [--handoff-url <URL>]
 
 사용자 조회·state·DLQ·handoff를 실제 대상으로 연결한다. 원본 workflows/dubakwi-support.json은 바꾸지 않는다.
 환경 ID와 Credential ID는 비밀이 아니어도 공개 기록에 남기지 않으므로 옵션으로만 받는다.
@@ -38,7 +39,6 @@ SUPPORT_ID = "dubakwiP19RealSupport"
 SUPPORT_NAME = "dubakwi-support-p19-real"
 SUPPORT_PATH = "dubakwi-support-p19-real"
 SOURCE_SCOPE = "dubakwi-dev"
-DEFAULT_SCOPE = "dubakwi-p19-real"
 SCOPE_NODES = ("B07a BeginRequest 구성", "X06a 실패 상태 명령", "X03a DLQ 요청 구성")
 DEPENDENCIES = {
     "state": ("workflows/dubakwi-state.json", "1b83d18"),
@@ -76,6 +76,8 @@ def build_support(workflow: dict, options: dict) -> dict:
         if SOURCE_SCOPE not in output:
             raise ValueError(f"{name}에 scope가 없습니다")
         nodes[name]["parameters"]["jsonOutput"] = output.replace(SOURCE_SCOPE, options["scope"])
+    if options["scope"] != SOURCE_SCOPE and SOURCE_SCOPE in json.dumps(copy, ensure_ascii=False):
+        raise ValueError(f"원본 scope {SOURCE_SCOPE}가 남았습니다")
 
     webhook = nodes["B01 문의 수신"]
     webhook["parameters"]["path"] = SUPPORT_PATH
@@ -111,7 +113,11 @@ def main() -> None:
     parser.add_argument("--state-workflow-id", default=ORIGINAL_STATE_ID)
     parser.add_argument("--dlq-workflow-id", default=ORIGINAL_DLQ_ID)
     parser.add_argument("--handoff-url", default=ORIGINAL_HANDOFF_URL)
-    parser.add_argument("--scope", default=DEFAULT_SCOPE)
+    parser.add_argument(
+        "--scope",
+        required=True,
+        help="R01이 정한 VM scope. errors의 DUBAKWI_SCOPE와 같은 값",
+    )
     parser.add_argument("--error-workflow-id")
     parser.add_argument("--openai-credential-id")
     parser.add_argument("--team-credential-id")

@@ -508,11 +508,11 @@ B28은 먼저 error_code=null && state_saved=true && 최신 state_ref를 확인�
 | 하위 ID | `dubakwi-state`=`dubakwiState01`, `dubakwi-dlq`=`dubakwiDlq0001` | R04 구현 ID와 맞추거나 R01 배포 때 교체 필요 |
 | 내부 호출 | B14·B15·B27은 `dubakwi-internal-key` Header Auth(`X-Internal-Key`)로 `127.0.0.1:5678/webhook/dubakwi-search`·`dubakwi-handoff` 호출 | 검색 경로·헤더·응답 필드는 R03 확인(2026-11-04), 로컬 연결 확인. handoff는 R04 확인 필요 |
 | 근거 표시 | R03 기본안에 따라 시민 답변에 `[실제 안내]`·`[가상 설정]`을 보존. Evidence.text 앞 표시를 쓰고 전용 필드는 추가하지 않음. B21이 인용 근거와 답변의 표시 일치를 검사 | 표시 없는 근거에는 요구하지 않음 |
-| scope | `dubakwi-dev` 고정 | R01 환경 설정 값으로 교체 필요 |
+| scope | 원본은 로컬 개발값 `dubakwi-dev`. VM 사본은 [`make_vm_p19_real_bundle.py`](../../scripts/test/make_vm_p19_real_bundle.py)의 필수 `--scope`로 B07a·X06a·X03a를 치환하고, 원본 값이 남으면 사본을 만들지 않음 | R01이 정한 VM scope와 errors의 `DUBAKWI_SCOPE`를 같게 둠. n8n 환경 변수로 읽는 방식은 `DUBAKWI_SCOPE` 미설정 문제 때문에 쓰지 않음(R04 요청 2026-11-06) |
 | LLM Credential | 과정 공통 ID `openAiCourse0001` 사용 | 이름만으로는 로컬 n8n에서 권한 오류가 나서 ID를 넣음. 비밀값은 없음. VM은 R01이 배포 사본에서 L01~L03과 각 Header Auth를 실제 Credential ID로 연결·확인 |
 | VM 게시 | 운영 경로는 P11 게시본 유지. R01 PR #22가 B14·L01~L03 부분 연결을, 이후 [전용 mock 사본 시험](../../scripts/test/vm-p19-mock-test.md)이 `06863b3` 전체 흐름 연결을 확인. 사본은 시험 뒤 비활성화 | 실제 data-api 사용자 조회·B14·L01~L03 + mock state·handoff·dlq 범위의 20사례 첫 실행 20/20(R01 보고). 실제 state·DLQ·Jira 성공과 공식 판정이 아니며 WF-11 시간 기준 통과도 아니다(LN07 8.184초) |
 | TC08 | 운영 JSON에는 스위치를 넣지 않음. [`make_verifier_fault.py`](../../scripts/test/make_verifier_fault.py)가 경로 `dubakwi-support-tc08`, 별도 ID·webhookId의 사본 생성 | [원본과 동시 게시 확인](../../runs/public/20261105-104900-local-n8n-p19-tc08-parallel/summary.json). 모드 3종(`grounded`, `unparsable`, TC08-v1용 [`unknown_chunk`](../../runs/public/20261105-112427-local-n8n-p19-tc08-unknown-chunk/summary.json))은 같은 경로라 하나만 게시 |
-| B04·B05 사용자 조회 | 현재 B04는 과정 data-api 호출, B05는 data-api 형식과 팀 형식 `{id,role,access_levels}`을 모두 처리 | R04 PR #26 계약: `http://dubakwi-user-api:8801/employees/<id>`, `X-Internal-Key`. VM 배포 후 B04를 바꾼다. [임시 API 로컬 확인](../../runs/public/20261105-150536-local-n8n-p19-user-api/summary.json), VM 미실행 |
+| B04·B05 사용자 조회 | B04는 팀 사용자 API를 `dubakwi-internal-key`로 호출(2026-11-06, R04 요청). B05는 팀 형식 `{id,role,access_levels}`과 이전 data-api 형식을 모두 처리 | R04 PR #26 계약: `http://dubakwi-user-api:8801/employees/<id>`, `X-Internal-Key`. 과정 data-api 비교 시험은 `make_vm_p19_bundle.py --data-api` 사본으로만 한다. [임시 API 로컬 확인](../../runs/public/20261105-150536-local-n8n-p19-user-api/summary.json), VM 미실행 |
 | 시민 ticket_id | Jira 키(예: `JBYS-1`)를 그대로 응답 | R04 동의(2026-11-05). 실제 Jira 생성은 미실행 |
 | state `error_code` | support는 저장된 칸을 읽지 않고 SaveResult·StateResult·BeginResult의 값만 소비 | 스키마 변경 불필요 |
 | 저장 경계 | R04 `1b83d18`: support는 `save`만 호출, 내부에서 Jira 확인 뒤 finish. DLQ는 X03만 기록. 처리권 없는 fail은 skipped. wait도 Jira에 보완 횟수 기록 | PR #27 미병합. [로컬 가짜 Jira 시험](../../runs/public/20261105-194144-local-n8n-p19-fake-jira-fdd0be1/summary.json)으로 소비 확인. support를 통한 실제 Jira·VM·공식 판정 미실행 |
@@ -547,7 +547,7 @@ Credential 주의: 이름만 있는 Header Auth를 가져오면 n8n이 같은 �
 | B01 문의 수신 | Webhook POST `dubakwi-support`, Header Auth, responseNode | Credential 이름 `dubakwi-team-key`만 넣고 ID·값은 넣지 않음. VM에서 연결. 경로는 팀 헌장의 `POST /webhook/dubakwi-support`를 유지 |
 | B02 입력 검사 | 본문 객체, request_id/user 1~64자, question trim 1~500자, attempt 정수≥1, channel/context/case_ref 문자열 검사. 명백한 주입 정규식 차단(question+context) | `codes`는 공통 코드 `invalid_input`을 먼저 두고 세부 사유(`question_empty` 등)를 뒤에 둠. 주입 패턴은 초기 목록이며 명령형만 차단하고 가능 여부 질문·경험 서술은 통과시킴. 글자 사이를 띄운 한국어 지시는 공백을 없앤 문장으로도 검사. 타인 기록 요청은 권한 문제라 여기서 막지 않음 |
 | B03 입력 통과 | If input_ok. false → B33(E087) | 없음 |
-| B04 사용자 확인 | GET `http://data-api:8800/employees/<user>`, full response·neverError·timeout 1.5초 | n8n 컨테이너 안에서는 `localhost:8800`에 연결되지 않아 서비스 이름을 사용. 과정 data-api 실호출 확인. 시민 사용자 공급(R04 P09)의 API 주소와 인증은 R04 확인 필요. 응답 형식은 6.4.1 기준에 R04 동의 |
+| B04 사용자 확인 | GET `http://dubakwi-user-api:8801/employees/<user>`, Header Auth `dubakwi-internal-key`(`X-Internal-Key`), full response·neverError·timeout 1.5초 | n8n 컨테이너 안에서는 서비스 이름을 사용. 2026-11-05까지는 과정 data-api를 호출했고 그 실호출은 확인함. 팀 사용자 API는 임시 API 로컬 확인만 했고 원본 B04로 VM 호출은 미실행. 응답 형식은 6.4.1 기준에 R04 동의 |
 | B05 등록·권한 확인 | 200 응답의 구조·필수 ID·요청 사용자 일치·권한 조합을 6.4.1 기준으로 검증해 Actor 구성. 404 → 400 `unknown_user`, 그 외 → 503 `user_lookup_error` | 권한 조합과 오류 계약은 R04·R05가 PR #11 제안서에 동의(2026-11-05, R02 취합). 과정 형식의 dept 매핑은 미확정이라 최소 권한만 부여 |
 | B06 사용자 통과 | If actor_ok. false → B33(E088) | 없음 |
 | M01 골격 mock | B07~B32 대신 route=담당자 이관, reason=skeleton_mock, ticket=null과 “실제 접수·티켓 생성·이관 없음” 안내 응답 | P19에서 실제 노드로 교체. route는 공통 enum을 지키기 위한 값이며 mock 응답은 업무 성공이 아님 |
