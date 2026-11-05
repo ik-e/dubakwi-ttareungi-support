@@ -564,3 +564,9 @@ PR #19에서는 R01이 기존 VM 증거와의 상태 정합성에 한해 R03 문
 사용자가 R01 배포 준비본 작성과 R04 검토 항목 전달을 지시했다. R01은 기존 n8n Compose·운영 P11·Credential을 유지한 독립 PostgreSQL Compose·비밀 없는 설정 예시·적용/백업/복원/Credential 연결 안내를 준비한다. 영향 경로는 infra·설정 예시·시스템 경로/헌장·원장·새 검증 증거다. PR #23은a2d8fca수정요청상태이며 SQL/워크플로우는 임의 변경하거나 VM에 배포하지 않는다. 이미지 다이제스트와 Compose 문법/필수값 차단을 확인하고 R04의 저장/권한/복원 검토 요청을 구체화한다. DB 채택·실제 VM 자원/아키텍처·비밀 주입·실행은 검토 후 적용 조건으로 남긴다.
 
 R01 준비 결과: [PostgreSQL 전용 Compose](../infra/postgres-compose.yaml)·[배포/검토 안내v0.1](../infra/postgres-deployment.md)·비밀없는설정이름을작성했다. 공식16.15-bookworm index digest조회/고정, 로컬Compose5.6.1문법·서비스1개·무공개포트·external볼륨/기존망·파일비밀3개·필수값누락5건차단을확인했다. [준비검증](../runs/public/20261105-141233-local-postgres-deploy-prep/report.md)을따른다. R04에게호환/권한/마이그레이션/복원/Credential6개항목검토를요청하며회신전승인으로쓰지않는다. VM/자원생성/DB기동/비밀생성/Credential등록/SQL·워크플로우변경은0이며실제서비스완료는아니다.
+
+### P18 PR #23 재시험·병합과 PR #25 후속 정리 (2026-11-05 KST)
+
+사용자의 두 PR 완료 요청에 따라 R01이 PR #23 수정본365c419를 실제 격리 PostgreSQL16.15에서 재시험했다. 원본001~004·제약/함수(owner/runtime)·runtime권한거절과 기존세실패경계가통과했고원본n8n Code/IF전달·정규화도대조했다. [재시험증거](../runs/public/20261105-143415-local-pr23-storage-retest/report.md)에첫harness정상거절문구오분류와수정후통과를보존했다. SQL/JSON은수정하지않고저장/안전실패범위로승인해PR #23을main95479d5에병합했다. 실제Jira save는미준비실패를유지하며S1통과가아니다.
+
+PR #25에최신main과재시험증거·현재적용조건을반영했다. Compose필수값5개차단·문서20개/링크438개/앵커50개·공개후보146개/링크514개·JSON/diff를확인했다. R01준비는완료했지만R04준비본검토요청은회신전이다. 기존VM/P11/Credential은유지했고DB기동·비밀등록·실제n8n/Postgres연결·백업/복원은하지않았다. 역할검토를받은것으로만들지않으며R04검토·D01/실제환경조건확인후적용한다.

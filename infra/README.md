@@ -11,7 +11,7 @@ Docker Compose 채택: 2026-11-03 사용자 결정. 편집·배포 R01, 저장/�
 | 경로·항목 | 용도·상태 | 선행 확인 |
 | --- | --- | --- |
 | `infra/compose.yaml` | 미작성. 현재는 기존 VM Compose를 유지하며 새 파일로 대체/기동하지 않음 | 기존 설치·데이터/비밀 보존·D01/D03·R04 연결 인계 |
-| [postgres-compose.yaml](postgres-compose.yaml)·[PostgreSQL 준비/검토](postgres-deployment.md) | R01 검토용 준비본. 기존 n8n과 별도 project, 공개 포트 없음·external 볼륨·파일 secrets | R04 검토·D01 물리 DB 채택·PR #23 수정 통과 전 VM 미적용 |
+| [postgres-compose.yaml](postgres-compose.yaml)·[PostgreSQL 준비/검토](postgres-deployment.md) | R01 검토용 준비본. 기존 n8n과 별도 project, 공개 포트 없음·external 볼륨·파일 secrets | PR #23 수정은 재시험/병합 완료. R04 준비본 검토·D01 물리 DB 채택·실제 환경 확인 전 VM 미적용 |
 | Discord Gateway 봇 | R04 구현·R01 Compose 배포 예정. 외부 Gateway 연결과 내부 n8n 호출, 실제 SDK/토큰은 미준비 | D07,3초 defer·허용 계정 매핑·중복·전송 실패·토큰 만료 검증 |
 | [.env.example](../.env.example) | R05 도구의 확인된 Webhook 키 환경변수·빈 값 작성. VM Compose 설정과 별개 | 실제 키는 환경별 비공개 연결 |
 | `.env` | 환경별 비밀/설정, Git 제외 | 비밀 공급·접근권한·백업 방식 |
@@ -29,7 +29,7 @@ RAG 원본 수동 색인44청크·실제 HTTP7/7·HTTPS검색과 P11부분회귀
 
 기존 VM은 [배포 전 점검](vm-preflight.md)을 먼저 따른다. 아래 compose 작성/기동은 향후 검토된 교체/확장 구성이 있을 때의 절차다. 현재 infra/compose.yaml이 없으므로 아래 up 명령을 실행하거나 같은 포트에 두 번째 n8n을 만들지 않는다.
 
-PostgreSQL만 추가하는 준비본은 별도 [배포/권한/복원·Credential 안내](postgres-deployment.md)를 따른다. 이 준비본의 문법 통과나 PR 생성은 VM DB 적용 완료가 아니다. 수정 요청 상태인 PR #23 SQL을 자동 초기화로 실행하지 않는다.
+PostgreSQL만 추가하는 준비본은 별도 [배포/권한/복원·Credential 안내](postgres-deployment.md)를 따른다. 이 준비본의 문법 통과나 PR 생성은 VM DB 적용 완료가 아니다. PR #23 수정본은 main에 병합했으며 자동 초기화 대신 검토된 버전의 SQL을 명시적으로 적용한다.
 
 1. R01이 확정 접두사 dubakwi 적용·VM 자원·Docker Compose 사용 가능 여부·접속 URL/TLS·외부 포트·볼륨·백업 위치를 확인한다. R04는 Jira 및 저장 경계를 확인한다(D01/D03).
 2. R01이 실제 이미지 버전과 compose를 작성하고 R04가 영속성·DB 격리·비밀 주입을 검토한다. 외부 공개는 필요한 입구로 제한하고 내부 DB·관리 연결을 무조건 공개하지 않는다.

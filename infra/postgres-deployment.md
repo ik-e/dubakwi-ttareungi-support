@@ -3,7 +3,7 @@
 - 2026-11-05 KST · v0.1 · P04/P18 · R01 준비, R04 저장/권한 검토, R05 검증.
 - 상태: **검토용 준비본, VM 미적용**. 기존 n8n·P11·Credential은 유지한다.
 - 원본: [전용 Compose](postgres-compose.yaml), [설정 이름](../.env.example), [R04 저장소 설계](../docs/project/STORAGE-DESIGN.md), [마이그레이션 안내](db/migrations/README.md).
-- PR #23 `a2d8fca`는 null-ref fail·활성 DLQ claim·Jira 확인 없는 save의 수정 요청 상태다. 수정본 검토/병합, D01 물리 DB 채택과 아래 적용 조건 확인 전 VM에서 up·마이그레이션·Credential 등록을 하지 않는다. 준비본 검토와 PR #23 수정은 병행할 수 있다.
+- PR #23 수정본365c419는 null-ref fail·활성 DLQ claim·Jira 미확인save 안전 차단의 실제 DB 재시험 후 main95479d5에 병합했다. [재시험 증거](../runs/public/20261105-143415-local-pr23-storage-retest/report.md)를 따른다. 실제 Jira save/S1은 미완료다. 이 준비본의 R04 검토·D01 물리 DB 채택·실제 VM 적용 조건 확인 전에는 up·마이그레이션·Credential 등록을 하지 않는다.
 
 ## 1 구성과 경계
 
@@ -49,7 +49,7 @@ docker volume inspect "$DUBAKWI_POSTGRES_DATA_VOLUME" --format '{{.Name}} {{.Dri
 
 env 파일을 Compose가 읽는 것과 셸 환경변수 주입은 별개다. inspect용 비밀 없는 두 자원 이름도 운영자가 셸에 명시한다. 실제 secrets 파일 존재/소유/600·부모700, 이미지/아키텍처, 기존망 alias 중복, 전용 볼륨 빈 상태/소유권을 R01이 확인한다. 신규 볼륨 생성은 대상 이름을 검토한 뒤 초기 준비에서만 한다. 위 inspect 실패를 임의 create로 덮지 않는다.
 
-PR #23 수정 통과·물리 DB 채택·자원/백업 검토가 끝나면 R01이 새 PostgreSQL 서비스만 기동한다. n8n Compose 교체·n8n 재시작·P19 게시를 섞지 않는다.
+PR #23 수정 재시험은 통과했다. 이후 준비본 검토·물리 DB 채택·자원/백업 검토가 끝나면 R01이 새 PostgreSQL 서비스만 기동한다. n8n Compose 교체·n8n 재시작·P19 게시를 섞지 않는다.
 
 ```sh
 docker compose --env-file "$DUBAKWI_POSTGRES_ENV_FILE" -f infra/postgres-compose.yaml up -d postgres
@@ -78,12 +78,12 @@ SQL
 
 비밀번호3개는 비어 있지 않고 서로 다른 난수64자리hex로 준비한다. CR/LF·공백을 값에 포함하지 않으며 실제 값은 이 문서의 예시가 아니다. 이번 준비 작업에서는 생성·등록하지 않는다. runtime에는 DB CREATE/TEMP나 service DELETE/TRUNCATE/DDL을 부여하지 않는다. owner 백업 클라이언트와 runtime 클라이언트는 각각 private 비밀을 사용한 TCP 접속을 시험해야 하며 bootstrap socket 성공만으로 인증을 통과 처리하지 않는다.
 
-마이그레이션은 검토된 기본 브랜치의 파일 해시·수정 PR을 기록한 후 owner로 실행한다. 현재 main에는003/004가 없으며 미병합 PR #23 파일을 운영 명령으로 가져오지 않는다. 파일 적용 시 `exec -T`의 stdin으로 SQL을 전달하고 런타임 검증과 분리한다.
+마이그레이션은 검토된 기본 브랜치의 파일 해시·수정 PR을 기록한 후 owner로 실행한다. main95479d5에는 PR #23 수정본365c419의001~004가 포함돼 있다. 실제 적용 때도 현재 검토 버전과 파일 해시를 다시 확인하고, 이미001이 적용된 DB는 별도 upgrade 절차를 검토한다. 파일 적용 시 `exec -T`의 stdin으로 SQL을 전달하고 런타임 검증과 분리한다.
 
 ```sh
 docker compose --env-file "$DUBAKWI_POSTGRES_ENV_FILE" -f infra/postgres-compose.yaml exec -T postgres psql -X -U dubakwi_owner -d dubakwi_service -v ON_ERROR_STOP=1 -f - < infra/db/migrations/001-create-service-storage.sql
 docker compose --env-file "$DUBAKWI_POSTGRES_ENV_FILE" -f infra/postgres-compose.yaml exec -T postgres psql -X -U dubakwi_owner -d dubakwi_service -v ON_ERROR_STOP=1 -v runtime_role=dubakwi_runtime -f - < infra/db/migrations/002-grant-runtime-access.sql
-# 아래003/004는 수정된 PR #23 병합 후 검토한 실제 파일에만 사용한다.
+# 아래003/004도 검토한 실제 main 파일 해시를 기록한 뒤 사용한다.
 docker compose --env-file "$DUBAKWI_POSTGRES_ENV_FILE" -f infra/postgres-compose.yaml exec -T postgres psql -X -U dubakwi_owner -d dubakwi_service -v ON_ERROR_STOP=1 -f - < infra/db/migrations/003-create-storage-functions.sql
 docker compose --env-file "$DUBAKWI_POSTGRES_ENV_FILE" -f infra/postgres-compose.yaml exec -T postgres psql -X -U dubakwi_owner -d dubakwi_service -v ON_ERROR_STOP=1 -v runtime_role=dubakwi_runtime -f - < infra/db/migrations/004-grant-storage-functions.sql
 ```
