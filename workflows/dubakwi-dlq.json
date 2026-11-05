@@ -74,6 +74,13 @@
         "jsCode": "const raw = $json.result;\nlet result = raw;\nif (typeof raw === 'string') { try { result = JSON.parse(raw); } catch { result = null; } }\nif (!result || typeof result !== 'object' || Array.isArray(result)) return [{json:{ok:false,dlq_id:null,deduplicated:false,error_code:'dlq_error'}}];\nreturn [{json:result}];"
       },
       "position": [1020, -100]
+    },
+    {
+      "name": "D06 계약 거절 반환",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "parameters": {},
+      "position": [780, 140]
     }
   ],
   "connections": {
@@ -86,7 +93,7 @@
     "D03 실제 DLQ 호출 여부": {
       "main": [
         [{"node": "D04 PostgreSQL DLQ 저장", "type": "main", "index": 0}],
-        []
+        [{"node": "D06 계약 거절 반환", "type": "main", "index": 0}]
       ]
     },
     "D04 PostgreSQL DLQ 저장": {

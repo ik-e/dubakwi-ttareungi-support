@@ -91,6 +91,16 @@
         1000,
         -100
       ]
+    },
+    {
+      "name": "S06 계약 거절 반환",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "parameters": {},
+      "position": [
+        760,
+        140
+      ]
     }
   ],
   "connections": {
@@ -125,7 +135,13 @@
             "index": 0
           }
         ],
-        []
+        [
+          {
+            "node": "S06 계약 거절 반환",
+            "type": "main",
+            "index": 0
+          }
+        ]
       ]
     },
     "S04 PostgreSQL 상태 저장": {
