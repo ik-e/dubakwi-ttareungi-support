@@ -41,12 +41,24 @@ def masked_contact(contact: dict) -> dict:
     return result
 
 
+def safe_log_path(request_target: str) -> str:
+    """Return a stable route label without user, ticket, or query identifiers."""
+    path = urlparse(request_target).path
+    if path.startswith("/employees/"):
+        return "/employees/:user_id"
+    if path.startswith("/records/"):
+        return "/records/:ticket_id"
+    if path == "/healthz":
+        return "/healthz"
+    return "/unknown"
+
+
 class Handler(BaseHTTPRequestHandler):
     server_version = "dubakwi-user-api/1"
 
     def log_message(self, format: str, *args: object) -> None:
         # Do not put user identifiers or query strings in shared container logs.
-        print(f'{self.address_string()} - "{self.command} {urlparse(self.path).path}"')
+        print(f'{self.address_string()} - "{self.command} {safe_log_path(self.path)}"')
 
     def send_json(self, status: HTTPStatus, payload: dict) -> None:
         body = json.dumps(payload, ensure_ascii=False, separators=(",", ":")).encode()

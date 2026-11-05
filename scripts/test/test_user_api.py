@@ -72,6 +72,20 @@ class UserApiTest(unittest.TestCase):
         self.assertEqual(403, status)
         self.assertEqual("record_access_denied", payload["error"])
 
+    def test_log_path_redacts_user_ticket_and_query_identifiers(self):
+        self.assertEqual(
+            "/employees/:user_id",
+            server.safe_log_path("/employees/citizen-a"),
+        )
+        self.assertEqual(
+            "/records/:ticket_id",
+            server.safe_log_path("/records/T-DEMO-01?requester=citizen-a"),
+        )
+        self.assertNotIn(
+            "citizen-a",
+            server.safe_log_path("/records/T-DEMO-01?requester=citizen-a"),
+        )
+
 
 if __name__ == "__main__":
     unittest.main()
