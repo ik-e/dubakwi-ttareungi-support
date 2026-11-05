@@ -587,3 +587,14 @@ R01 수정 후 검증: 공통 unittest67건 중60통과·실제HTTP7생략(실�
 ### P08 PR #30 공개 범위 정리 (2026-11-05 KST)
 
 사용자의 원문 내부 보관·출처/자체 요약 공개 지시로 R01이 이번 공개 범위와 공통 정책을 취합한다. R03의 출처·미확인 시점·시점 차이 설명을 보존하고 원문 Markdown·사진10장은 Git 제외 내부 자료로 바이트 검증해 보관했다. 원문 재배포 허용·기관 지식/색인 승인은 주장하지 않는다. #30을 최신 main 기준 출처/요약 변경으로 분리하며 #24의 설계·시험 준비·발표 PDF와 검사 예외는 이 PR에 섞지 않는다. #24는 별도 검토로 남긴다. 과거 원격 커밋을 재작성하지 않으므로 최신 트리에서 제외한 것이 이력 삭제를 뜻하지 않는다. 이후 지식 본문·워크플로우 편집 책임은 R03에 유지한다. 공개 원본은 [정책](PUBLICATION.md)·rag-knowledge .gitignore이며 [조사 요약](rag-knowledge/chatbot_documents/README.md)과 출처 목록을 연결한다. 이번 문서/추적 범위 변경으로 서비스 성공·VM 시험을 기록하지 않는다.
+
+### 2026-11-05 R01 P18 Jira 연결·case 함수 검토 착수
+
+상태: 진행. R01은 PR #27 커밋 60f8886의 005~006을 격리된 일회용 PostgreSQL에서 검증하고 Jira Resolution/전환 설정을 확인한다. 영향 경로는 R01 검토 증거·원장·Git 제외 인계이며 R04 업무 원본은 편집하지 않는다. 서비스 DB 적용·공용 P11/P19 변경·시험 이슈 삭제는 수행 전 검증 대상으로 구분한다. 웹 SSH 관리 인증 후 기존 n8n Jira Credential을 사용했다. 관리자 브라우저 계정 접근은 이번 API 작업의 선행 조건이 아니었다.
+
+
+### 2026-11-05 R01 P18 Jira 종료 준비·case 함수 검토 결과
+
+상태: R01 준비 검증 완료, R04 실제 종료/save·R02 통합·R05 공식 판정은 진행/대기. [Jira/VM 검증](../runs/public/20261105-185423-vm-jira-case-readiness/summary.json)에서 기존 Credential의 Jira 관리 권한·빈 Resolution 목록·종료 전환 필수 조건을 실제 확인하고 등록 API 201 및 허용값 재조회 200을 확인했다. 기존 시험 이슈는 Pending을 유지했다. 새 미게시 helper의 일회성 POST는 disabled로 보호했다. 기존 업무 복제본4개와 공용 본체의 nodes/connections/settings/active/versionId는 전후 같았다.
+
+[로컬 격리 DB](../runs/public/20261105-184250-local-case-review/summary.json) 및 VM 별도 DB에서 60f8886의 001~006과 runtime constraint/function/case/role 계약 시험이 통과했다. 로컬 추가 동시 처리권은 하나만 proceed·나머지는 case_busy, runtime DDL/삭제6종 거절을 확인했다. Windows 응답 디코딩 실패와 n8n --file 옵션 최초 실패는 별도 기록하고 재시험을 구분했다. 서비스 DB의 기존 state_apply 해시는 같고 005~006은 미적용이다. 서비스 적용은 AGENTS의 검토된 main 기준과 배포 순서를 따른다. 역할별 담당 대신 첫 후보 선택, 알림 body, 전체 기한과 B27 실측, 11노드 VM/20노드 원본 배포 정합성 및 시험 processing/DLQ 복구는 후속이다. Git 제외 인계 v1.3을 준비했으며 S1 전체 성공으로 기록하지 않는다.

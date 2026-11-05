@@ -1,0 +1,98 @@
+{
+  "environment": "isolated local Docker; not VM acceptance",
+  "source_commit": "60f8886b74319ddf809d71cf4dd5c3c3533c8d97",
+  "image": "postgres:16.15-bookworm@sha256:e8a07d2c7579b038938cdba6c539e580e5001caf9ea203d397b5cc83e76bd938",
+  "isolation": "network none; no published ports; tmpfs data; synthetic fixtures only",
+  "migration_and_contract_results": [
+    {
+      "case_id": "roles",
+      "passed": true
+    },
+    {
+      "case_id": "001-create-service-storage",
+      "passed": true
+    },
+    {
+      "case_id": "002-grant-runtime-access",
+      "passed": true
+    },
+    {
+      "case_id": "003-create-storage-functions",
+      "passed": true
+    },
+    {
+      "case_id": "004-grant-storage-functions",
+      "passed": true
+    },
+    {
+      "case_id": "005-create-case-functions",
+      "passed": true
+    },
+    {
+      "case_id": "006-grant-case-functions",
+      "passed": true
+    },
+    {
+      "case_id": "constraint-contract",
+      "passed": true
+    },
+    {
+      "case_id": "function-contract",
+      "passed": true
+    },
+    {
+      "case_id": "case-contract",
+      "passed": true
+    },
+    {
+      "case_id": "runtime-role-contract",
+      "passed": true
+    }
+  ],
+  "additional_results": {
+    "concurrency": {
+      "passed": true,
+      "modes": [
+        "pending",
+        "proceed"
+      ]
+    },
+    "runtime_denials": [
+      {
+        "case_id": "create",
+        "passed": true
+      },
+      {
+        "case_id": "alter",
+        "passed": true
+      },
+      {
+        "case_id": "drop",
+        "passed": true
+      },
+      {
+        "case_id": "truncate",
+        "passed": true
+      },
+      {
+        "case_id": "delete",
+        "passed": true
+      },
+      {
+        "case_id": "function",
+        "passed": true
+      }
+    ],
+    "case_function_execute": true
+  },
+  "first_attempt": {
+    "additional_concurrency_probe": "Windows cp949 decoder failed on Korean pending response; DB migrations and contract scripts already passed; retry uses UTF-8 and fresh scope"
+  },
+  "limits": [
+    "VM 005~006 not applied",
+    "Jira admin resolution change pending",
+    "R05 official acceptance pending"
+  ],
+  "execution_date_kst": "2026-11-05",
+  "recorded_at_kst": "2026-11-05T18:55:13.579218+09:00"
+}
