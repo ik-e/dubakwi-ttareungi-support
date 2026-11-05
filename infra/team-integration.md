@@ -1,8 +1,41 @@
 # 팀 VM 통합 인계와 적용 조건
 
-- 2026-11-05 KST · v0.1 · P04/P09/P12/P18/P20/P22/P29 · R01 취합.
-- 상태: 연결 준비와 검토 요청 진행. 실제 VM 배포·Jira·공식 판정은 미완료.
+- 2026-11-05 22:58 KST · v0.2 · P04/P09/P12/P18/P20/P22/P29 · R01 취합.
+- 상태: VM 부분 적용·Jira 하위 기능 시험 진행. 전체 S1·R05 공식 판정은 미완료.
 - 책임은 [팀 헌장](../docs/project/TEAM-CHARTER.md), 상태·결정은 [개발 원장](../docs/DEVELOPMENT-PLAN.md), 공개 업무 계약은 [워크플로우 설계](../docs/project/WORKFLOW-DESIGN.md), 저장 명령은 [저장소 설계](../docs/project/STORAGE-DESIGN.md)를 따른다.
+
+## 현재 적용·검토 기준 — 2026-11-05 22:58 KST
+
+P04/P12/P18/P19/P20의 영향 경로는 이 인계·공통 원장·시스템 개요·발표 인계다. R01이 취합하며 기능 소유권은 헌장을 따른다. 선행은 병합된 main과 각 소유자의 PR 증거다. 이번 작업은 GitHub·저장소 기록 재확인과 문서 정리이며 VM에서 새로 실행한 시험은 없다. 아래 기준이 뒤의 최초 인계 시점 설명보다 우선한다.
+
+| 구분 | 고정 버전·근거 | 확인 범위와 남은 조건 |
+| --- | --- | --- |
+| 병합 기준 | main `9086cff4bee7fa42fe6f479ec70a5c653e4dfe75` | #13·#25·#26·#30 병합됨. 사용자 API·SQL001~004 준비 원본과 시험 도구 포함. main 해시를 현재 VM 전체 배포 해시로 간주하지 않음 |
+| 운영 입구·검색 | main의 [P11/data-api 기록](../runs/public/20261105-114531-vm-course79-data-api/report.md)·[RAG 부분 기록](../runs/public/20261105-111311-vm-rag-integration/report.md) | P11 게시·과정 data-api/B35 연결·수동44청크 검색 확인. P19 운영 전환·PostgreSQL 벡터 검색·완성본 사용자 인가는 미확인 |
+| VM 사용자 API·PostgreSQL | [#32 6fe8532](https://github.com/ik-e/dubakwi-ttareungi-support/tree/6fe853204394a4001baacc0630df2d248685f957) | 실제 배포·인증/권한·별도 DB 복원/재시작 기록. 기록 PR 검토 대기이며 현재 VM을 새로 조회한 결과와 구분 |
+| 시민 공급·state 연결 | [#33 403ee43](https://github.com/ik-e/dubakwi-ttareungi-support/tree/403ee43270a641c8a8001262467c379eb300012d)·[#34 53f7c59](https://github.com/ik-e/dubakwi-ttareungi-support/tree/53f7c591fa4684bb519265cc54c8f3d833b9a912) | 시민 호환 공급·실제 Postgres 읽기·처리권 없는 fail의 skipped 확인. 전체 업무 성공은 아님 |
+| Jira·저장 하위 기능 | [#27 168c79c](https://github.com/ik-e/dubakwi-ttareungi-support/tree/168c79c160d847115aa00f01e30107a2ebcb617c)·[실제 실행 보고](https://github.com/ik-e/dubakwi-ttareungi-support/blob/168c79c160d847115aa00f01e30107a2ebcb617c/runs/public/20261105-192700-team-n8n-r04-jira-close/report.md) | 생성/bind·종료·save 내부 finish·최종 Jira/DB 재조회 확인. label 충돌/재사용의 문의·소유권 검증 결함으로 변경 요청 유지. 담당 매핑 성공·Webhook 종단은 미실행 |
+| case 함수·독립 확인 | [#35 7b1456c](https://github.com/ik-e/dubakwi-ttareungi-support/tree/7b1456c81bae073365882b6e99381b8fba9acc13)·[최신 결함 재현](https://github.com/ik-e/dubakwi-ttareungi-support/blob/7b1456c81bae073365882b6e99381b8fba9acc13/runs/public/20261105-194913-local-p27-168c79c-review/report.md) | 005~006은 격리 DB에서 검증. 서비스 DB 미적용 유지. 기존 Jira/DB 최종 상태를 독립 읽기로 확인했지만 실제 P19 S1을 대신하지 않음 |
+| P19 연결 후보 | [#16 6afb94d](https://github.com/ik-e/dubakwi-ttareungi-support/tree/6afb94d7c79a948312cd3c415d15284d202bdee9) | 연결 시험 고정값: support `5e0026c`, R04 하위 기능 `168c79c`/errors `ff19178`. B15 2.5초·B27 15초, H04 1.5초 1회. 전체 WF-11 시간 통과 아님. 보완 한도 후 새 요청의 반복 배정·알림, 답변 검증·실제 S1 남음. 초안 유지 |
+| 오류·DLQ | [#28 ff19178](https://github.com/ik-e/dubakwi-ttareungi-support/tree/ff1917860e8a43379301a59a0b751be7cd613083) | E05 하위 실행 throw 후 DLQ 지속/원 문맥 보존 필요. 운영 알림 backend 미구현을 구분. 변경 요청 유지 |
+| 지식·권한/발표 | #31 `06e9223`·#24 `dfcaff2` | 역할 검토 대기. 오프라인 비교를 VM 적용/서버 인가로 표시하지 않음. PDF 시각·권리 검토는 이번 작업 미실행 |
+
+보완 횟수 저장·H04 재시도 제거·부모 조회 제한 조정·S13/S19 Credential 참조·매핑 미설정 시 안전 실패는 #27 후속에서 반영됐다. 이미 수정된 항목을 미수정으로 재요청하지 않는다. 반면 `req.a`와 `req/a`의 label 충돌과 검색 첫 결과의 case/owner 확인 누락은 최신 168c79c에서도 재현됐다.
+
+### R01 기록 PR의 취합 방식
+
+#29는 버전·진행·인계의 통합 색인이다. #32 배포, #33 시민 공급, #34 state 연결, #35 case/Jira 확인은 서로 다른 시점의 증거를 보존하는 별도 기록 PR이다. 원본을 복사하거나 과거 해시를 고치지 않는다. #29 병합이 이 네 PR의 승인·병합을 뜻하지 않으며, 각 PR의 영향 검토를 취합한 뒤 중복 문서 변경과 base를 다시 확인한다. 기능 #27/#28의 차단 사유와 기록 PR의 사실 확인을 구분한다.
+
+### 다음 적용·시험 체크리스트
+
+1. R04가 #27의 원 ID/scope 식별·case/owner 확인·다중 검색 안전 실패를 보완하고, 생성/조회/save 계약을 일치시킨다. #28은 state throw 후 원 문맥으로 DLQ가 실행되는 실패 시험을 제공한다. R02·R05 영향 검토 결과를 취합한다.
+2. 적용 직전에 R01이 현재 VM 이미지 digest·Compose/설정 버전·워크플로우 JSON 해시/게시 여부·SQL 적용 목록·Credential 연결 여부를 비공개 manifest에 기록한다. 현재 저장소 해시만으로 VM 버전을 채우지 않는다. 비밀값·서버/계정 ID는 공개 기록에서 제외한다.
+3. 변경 전 백업과 별도 복원 가능 여부를 확인하고, R04의 migration/권한/복구 절차와 R05 확인 조건을 고정한다. 005~006은 위 차단 해소·검토 전 서비스 DB에 적용하지 않는다. 기존 P11을 유지한다.
+4. 검토된 main에서만 적용한다. 외부 효과/처리권 미확인, 저장 게이트 실패, 식별 불일치가 보이면 후속 쓰기·전체 재실행을 멈추고 known ID와 확인 필요를 보존한다. 일반 복구에 DB 초기화·볼륨 삭제를 포함하지 않는다.
+5. R02/R04/R05가 같은 request_id의 사용자→허용 검색→답변 검증→Jira 생성/bind→종료→finish→최종 응답을 연결한다. 종료 상태·Resolution·저장 completed/replay까지 같은 묶음에 남긴 뒤 S1을 판단한다.
+6. 기능 확인 후 권한/타인·중복/동시·보완 한도 이후 새 요청·생성 응답 유실·bind/finish 실패·DLQ·재시작/복원과 전체 시간 회귀를 수행한다. 최초 실패와 재시험은 별도 보존한다. Discord/D07과 공식 판정은 실제 시험 전 완료로 표기하지 않는다.
+
+## 최초 인계 기록 — 아래 상태는 작성 당시 기준
 
 ## 1 검토 기준과 병합 판단
 
@@ -71,3 +104,7 @@ R01은 PR #27 60f8886, #28 ff19178, #31 06e9223, #24 dfcaff2를 로컬에서 재
 팀 채팅의 구현 보고·수정 요청·후속 시험 계획을 병합 승인으로 확대하지 않는다. 현재 열린 기록 PR의 R04/R05 영향 검토, #24/#31의 관련 역할 검토를 취합하기 전 병합하지 않는다. #16은 실제 저장/Jira와 답변·시간 계약 검증 전 초안을 유지한다.
 
 검토 중 #27에 6d05ced가 추가돼 역할 매핑 미설정 시 assignee_unmapped로 외부 배정을 막는 수정과 회귀를 확인했다. 앞의 첫 계정 배정 재현은 60f8886 시점 결과이며 최신 코드에서 동일 결함이 남았다는 뜻이 아니다. correlation label 충돌과 R02 보완 횟수/시간 요청은 별도 재검토 대상이다.
+
+### v0.2 변경 기록
+
+2026-11-05 22:58 KST: 최신 main/후보/VM 증거 기준, #32~#35 취합 방식, 수정 완료/잔여 결함과 적용·중단·복구·시험 체크리스트를 추가했다. 아래 과거 기록의 Jira 미확인·미배포·검토 대기는 해당 시점의 상태이며 현황은 상단 표를 따른다.
