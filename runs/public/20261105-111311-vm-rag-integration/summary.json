@@ -1,0 +1,215 @@
+{
+  "recorded_at": "2026-11-05T11:27:35.464920+09:00",
+  "task": "R01 P04/P10/P13/P16 data-api diagnosis and educational RAG VM integration",
+  "environment": "existing team VM n8n2.42.6; existing OpenAI/internal credentials; same running server manual indexing and HTTP search",
+  "source_commit": "0e44fdbe394eb6e1f76fa78823683f8a26c0e45e",
+  "configuration_version": "environment workflow names/id/versionId, Credential IDs and missing Webhook webhookId only; no business-logic edits",
+  "source_sha256": {
+    "workflows/dubakwi-index.json": "9dc3a959fb7c545db742746f45b2f84998ae95c63a2a4d0277f46d9a07af2741",
+    "workflows/dubakwi-search.json": "cb56db189594437b98712fdcef6121633c76d2a105bb0f81461e252ff6d469a7",
+    "scripts/test/test_n8n_rag_http.py": "ad17d0dce0acb09d549a6aba524e305a2ab552c92b31178dad38e74975d9497c"
+  },
+  "case_ids": [
+    "rag-authentication",
+    "rag-skip-invalid-expired",
+    "rag-citizen-evidence",
+    "rag-staff-restricted",
+    "rag-wf03-empty",
+    "rag-rental-lost-property",
+    "rag-topics",
+    "https-public-qr",
+    "LN01",
+    "LN02",
+    "LN03",
+    "LN04",
+    "LN06"
+  ],
+  "backup": {
+    "new_online_snapshot_before_change": true,
+    "integrity": "ok",
+    "checksums_verified": true,
+    "counts_before": {
+      "workflows": 1,
+      "credentials": 3,
+      "executions": 6
+    },
+    "full_restore_tested": false
+  },
+  "data_api_diagnosis": {
+    "all_containers_in_current_context_checked": true,
+    "data_api_container_or_network_alias_seen": false,
+    "bounded_home_search": "max depth4; skip hidden/cache and private backup/secret/evidence directories",
+    "source_candidates": "existing n8n Compose only; no data-api executable found in searched paths",
+    "n8n_container_probe": "http://data-api:8800/health; TimeoutError after2500ms",
+    "instructor_repository_head": "eb6937fcb2103af66ccc542ff32fde95b21813a9",
+    "instructor_head_unchanged_from_prior_no_day80_tree_check": true,
+    "r04_fixture_branch": "origin/r04/p09-fixtures has users.json/records.json but no API serving implementation found",
+    "change_performed": "none; no replacement server/image/network/database invented",
+    "conclusion": "API supply/hosting artifact is required; timeout is not resolved"
+  },
+  "attempts": [
+    {
+      "operation": "source-name precondition",
+      "result": "stopped before import because source names were educational titles; environment names normalized to dubakwi-index/search"
+    },
+    {
+      "operation": "initial search route probes",
+      "results": [
+        {
+          "case": "missing_auth",
+          "http_status": 404
+        },
+        {
+          "case": "disabled",
+          "http_status": 404
+        },
+        {
+          "case": "before_manual_index",
+          "http_status": 404
+        }
+      ],
+      "cause": "missing source webhookId made n8n register a workflow-prefixed path"
+    },
+    {
+      "operation": "environment webhookId added, reimport and republish",
+      "business_logic_changed": false,
+      "results": [
+        {
+          "case": "missing_auth",
+          "http_status": 403
+        },
+        {
+          "case": "disabled",
+          "http_status": 200,
+          "status": "skipped"
+        },
+        {
+          "case": "before_manual_index",
+          "http_status": 200,
+          "status": "error",
+          "error_code": "index_not_ready"
+        }
+      ]
+    }
+  ],
+  "manual_index": {
+    "trigger": "original UI Manual; no substitute Webhook or n8n execute process",
+    "execution_id": "9",
+    "mode": "manual",
+    "status": "success",
+    "prepared_chunks": 44,
+    "insert_calls": 44,
+    "mark_ready_executed": true,
+    "model": "text-embedding-3-large",
+    "knowledge_scope": "pending-review educational/demo snapshot; no service approval change"
+  },
+  "actual_rag_http_suite": {
+    "executed_at": "2026-11-05T11:20:48.066177+09:00",
+    "tests_run": 7,
+    "passed": 7,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "test_methods": [
+      "test_authentication",
+      "test_skip_and_invalid_permissions",
+      "test_citizen_evidence_and_no_restricted_leak",
+      "test_staff_can_retrieve_restricted_and_citizen_cannot",
+      "test_unrelated_wf03_is_empty",
+      "test_rental_failure_and_lost_item_retrieval",
+      "test_topics"
+    ],
+    "note": "seven unittest methods include multiple HTTP requests; not seven total API requests"
+  },
+  "external_https_search": {
+    "http_status": 200,
+    "status": "ok",
+    "documents": [
+      "rental-guide",
+      "rental-guide",
+      "rental-guide",
+      "return-guide",
+      "privacy-security-guide"
+    ],
+    "only_public": true,
+    "restricted_canary_present": false
+  },
+  "p11_partial_regression": {
+    "total": 5,
+    "passed": 5,
+    "case_ids": [
+      "LN01",
+      "LN02",
+      "LN03",
+      "LN04",
+      "LN06"
+    ],
+    "scope": "input/auth subset; not full common regression"
+  },
+  "final_state": {
+    "workflows": [
+      {
+        "name": "dubakwi-support",
+        "active": true,
+        "published": true
+      },
+      {
+        "name": "dubakwi-index",
+        "active": false,
+        "published": false
+      },
+      {
+        "name": "dubakwi-search",
+        "active": true,
+        "published": true
+      }
+    ],
+    "credential_count": 3,
+    "index_and_search_business_nodes_connections_settings_match_source": true,
+    "healthz": 200,
+    "service_restart": false,
+    "network_ports_compose_changes": false
+  },
+  "private_evidence": {
+    "bundle": "deploy/20261105-111311-vm-rag-integration",
+    "files": [
+      "data-api-diagnosis.json",
+      "deployment-manifest.json",
+      "index.source.json",
+      "search.source.json",
+      "index.bound.json",
+      "search.bound.json",
+      "search.webhookid.bound.json",
+      "before-index.json",
+      "before-index-retest.json",
+      "rag-http-first.json",
+      "https-search.json",
+      "p11-regression.json",
+      "final-audit.json"
+    ],
+    "public_summary_method": "Masked summary transcribed from terminal/UI observations; raw data and environment identifiers remain on VM"
+  },
+  "limits": [
+    "data-api and B35 log timeout remain unresolved pending instructor/R04 execution artifact",
+    "caller-provided access_levels tested behind internal authentication; actual R04 server user authorization is not verified",
+    "educational knowledge approval and temporary0.30 threshold remain unchanged",
+    "VM process restart/reindex recovery, concurrent indexing and multiple-process memory sharing not tested",
+    "no R02 full P19/Jira/state/DLQ/Discord integration or official R05 flow.py acceptance",
+    "R03 detailed design/runbook should review and incorporate this new VM evidence; original R03 files were not edited",
+    "tscan/Gitleaks unavailable in shell; public candidate scan is a partial substitute"
+  ],
+  "local_checks": {
+    "docs": "20 documents,409 local links,47 anchors;0 errors",
+    "public_candidates": "115 candidates,453 public local links;0 errors",
+    "diff": "passed",
+    "repository_tests": "not repeated: only docs/evidence changed; actual VM HTTP7/7,HTTPS probe and P11 subset5/5 executed separately"
+  },
+  "parent_review_integration": {
+    "parent_commit": "4a3a670",
+    "preserved": "PR12 R05 scope review and timing/wording limits; no new service test",
+    "docs": "20 documents,410 links,47 anchors;0 errors",
+    "public_candidates": "116 candidates,457 public local links;0 errors",
+    "diff": "passed",
+    "vm_preflight_version": "v0.9; preserve prior v0.8 R05 history"
+  }
+}
