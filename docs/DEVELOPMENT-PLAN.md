@@ -598,3 +598,9 @@ R01 수정 후 검증: 공통 unittest67건 중60통과·실제HTTP7생략(실�
 상태: R01 준비 검증 완료, R04 실제 종료/save·R02 통합·R05 공식 판정은 진행/대기. [Jira/VM 검증](../runs/public/20261105-185423-vm-jira-case-readiness/summary.json)에서 기존 Credential의 Jira 관리 권한·빈 Resolution 목록·종료 전환 필수 조건을 실제 확인하고 등록 API 201 및 허용값 재조회 200을 확인했다. 기존 시험 이슈는 Pending을 유지했다. 새 미게시 helper의 일회성 POST는 disabled로 보호했다. 기존 업무 복제본4개와 공용 본체의 nodes/connections/settings/active/versionId는 전후 같았다.
 
 [로컬 격리 DB](../runs/public/20261105-184250-local-case-review/summary.json) 및 VM 별도 DB에서 60f8886의 001~006과 runtime constraint/function/case/role 계약 시험이 통과했다. 로컬 추가 동시 처리권은 하나만 proceed·나머지는 case_busy, runtime DDL/삭제6종 거절을 확인했다. Windows 응답 디코딩 실패와 n8n --file 옵션 최초 실패는 별도 기록하고 재시험을 구분했다. 서비스 DB의 기존 state_apply 해시는 같고 005~006은 미적용이다. 서비스 적용은 AGENTS의 검토된 main 기준과 배포 순서를 따른다. 역할별 담당 대신 첫 후보 선택, 알림 body, 전체 기한과 B27 실측, 11노드 VM/20노드 원본 배포 정합성 및 시험 processing/DLQ 복구는 후속이다. Git 제외 인계 v1.3을 준비했으며 S1 전체 성공으로 기록하지 않는다.
+
+### 2026-11-05 R01 P18 최신 후속 검토
+
+상태: 검토/서비스 적용 보류. 사용자 요청으로 담당 매핑과 005~006 적용 준비를 진행했다. [5737477 후속 검토](../runs/public/20261105-192841-local-p27-followup/summary.json): 공통79건 중72통과·HTTP7생략, Ruff 통과. SQL005~006·case 계약은 기존 검증본과 동일하지만 H23 label 충돌·H24 재사용 소유권 미검증 P1을 재현했다. 기존 GitHub changes-requested 검토를 유지하고 R04 원본을 대리 편집하지 않았다. 담당 계정 지정과 SSH 재인증을 요청했으며 서비스DB/Jira/workflow 변경은 이번 확인에서0이다. Git 제외 R04 회신안과 서비스 적용 준비안을 작성했다.
+
+후속 SSH/API 읽기 확인: 설계와 R02 B25의 security/기타 이관 역할을 대조했다. 실제 활성 배정 후보1개를 조회하고 기존 시험 계정의 시험 전용 매핑 초안을 Git 제외로 준비했으나 D06 계정 합의/치환은 미완료다. Jira done/Resolution 및 DB completed rev3·6 응답 저장을 확인했고 이전 processing rev2는 유지했다. 서비스 case 함수는 미설치다. head fdd0be1은 증거 추가이며 5737477 이후 업무 코드 불변으로 P1은 남는다. 새 미게시 GET helper1개만 추가했고 Jira/서비스 데이터 변경은0이다.
