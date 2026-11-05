@@ -18,6 +18,9 @@ Python 표준 라이브러리만 사용한다. 현재 팀 문서와 진입/작�
 
 Windows에서 `python`이 Microsoft Store 별칭이면 같은 명령의 실행기를 `py -3`으로 바꾼다. 현재 Windows 환경에서는 `py -3 scripts/test/check_project_docs.py`로 확인했다.
 
+P11 support 골격의 Code 노드 로컬 시험은 `node scripts/test/support-skeleton-cases.js [--workflow <json>] [--label <이름>] [--output runs/public/<실행묶음ID>/summary.json]`로 실행한다. JSON의 jsCode를 Node.js에서 실행하고 connections를 따라 진행하며 B04·B35 HTTP는 대체값을 쓴다. 실패 시 종료 코드 1이고 기존 출력 파일은 덮어쓰지 않는다. unittest의 `test_support_skeleton.py`도 같은 시험을 실행한다. n8n 가져오기·Webhook·data-api 실호출·VM·WF-08/13 공식 판정을 대신하지 않는다.
+
+게시된 n8n의 Webhook 호출은 `SUPPORT_TEAM_KEY=<시험 키> uv run --locked python scripts/test/support_skeleton_live.py --url <Webhook URL> [--output runs/public/<실행묶음ID>/summary.json]`로 확인한다. 키는 결과에 남기지 않는다. n8n 게시 직후 결과가 이전 버전으로 나올 수 있어 실패하면 잠시 뒤 다시 확인하고 최초 결과를 보존한다. VM·공식 판정을 대신하지 않는다.
 ## 서비스 사례 실행 도구
 
 `run_cases.py`는 [공통 사례](../../cases/common.json)·[팀 사례](../../cases/team.json)의 요청을 support Webhook에 보내고 응답을 판정한다. 담당 R05, 대상 기능 R02/R04. 표준 라이브러리만 사용한다.

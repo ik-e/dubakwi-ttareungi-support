@@ -1,6 +1,6 @@
 # 기존 VM 배포 전 점검과 인계
 
-- 작성: 2026-11-04 KST / v0.4 / R01 환경 준비, 실제 업무 배포 전
+- 작성: 2026-11-04 KST / v0.5 / R01 P11 비활성 반입, 인증/게시 전
 - 책임: [팀 헌장](../docs/project/TEAM-CHARTER.md). 원장: [P04/P13](../docs/DEVELOPMENT-PLAN.md#5-작업-원장). 운영 기준: [infra 안내](README.md).
 
 ## 1 확인한 범위와 현행 구성
@@ -118,10 +118,19 @@ VM의 기존 n8n2.42.6·Compose5.6.1·named volume을 재확인하고 이미지 
 
 OpenAI/Jira/Discord는 계정 공급·실제 등록이 남아 있고 PostgreSQL/data-api 기동·포트/네트워크 변경·업무 JSON 가져오기·게시는 하지 않았다. 서비스 DB 스키마/마이그레이션은 R04 원본을 기다린다. 새 공개 증거는 [사전 준비 요약](../runs/public/20261105-101747-vm-baseline-preparation/summary.json)이다.
 
-## 8 변경 기록
+## 8 P11 비활성 반입 (2026-11-05 KST)
+
+검토된 main `0e44fdb`의 P11 JSON을 VM 운영 경로에 내려받아 SHA-256 `f826ce1362f5379f8d01ecbc699fd34e5d4b476427e83734867461090388cac3`을 확인했다. 기존 기준 백업의 체크섬을 다시 검증하고 개인 프로젝트가 하나임을 확인했다. 서버 CLI `import:workflow`로 비활성 초안을 반입했다. 최초 원본 반입은 ID 부재로 `workflow_entity.id` NOT NULL 오류가 났고, 환경용 id/versionId만 추가한 사본으로 재시험해 성공했다. 첫 실패/재시험 로그·소스/배포 해시·프로젝트/워크플로우 ID는 VM 제한 경로 매니페스트에 남겼다. 노드·연결·설정은 DB 저장본과 main 원본의 일치를 확인했다.
+
+현재 워크플로우1건·active=false·activeVersionId=null·Credential0건·실행0건, healthz200이다. 기존 서비스 재시작·Compose/네트워크 변경은 없다. 등록 준비 키는 VM에 보존했으며 Credential 등록·연결·게시·WF08/WF13 시험은 아직 하지 않았다. 브라우저 도구의 신규 지속 인증 접근에 대한 실행 시점 확인 조건을 적용한다. 과정 도구 버전은 사용자 결정대로 강사님 지정본을 따르며 이번 서버 CLI 반입을 과정 flow.py 검사 통과로 기록하지 않는다. [n8n 공식 CLI 안내](https://docs.n8n.io/hosting/cli-commands/)와 설치된2.42.6의 help를 확인했다.
+
+[새 반입 검증 증거](../runs/public/20261105-103334-vm-p11-staging/summary.json). 다음 순서는 팀 Header Auth 등록·환경 Credential ID 연결 → 게시 → 운영 경로·실행 기록 → R05 입력/차단 부분 시험이다.
+
+## 9 변경 기록
 
 | 날짜 | 버전 | 내용 |
 | --- | --- | --- |
+| 2026-11-05 | v0.5 | main P11 원본/백업 검증·CLI 최초 ID 오류/환경 메타데이터 사본 재시험·비활성 반입과 미실행 경계 기록 |
 | 2026-11-05 | v0.4 | SQLite online backup·설정 기준 사본 검증·비공개 키 후보/등록 준비 자료·서비스 보존 기록 |
 | 2026-11-04 | v0.3 | P11 R01 코드 검토·공식78/79 도구 거절/80 미확인·VM SQLite/빈 목록·Credential/백업 준비 조건 반영 |
 | 2026-11-04 | v0.2 | R05 검토 반영: 운영 경로 활성화·실행 기록 접근·data-api 전후 시험 범위·골격 증거의 한계 |

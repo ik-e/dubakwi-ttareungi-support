@@ -1,0 +1,435 @@
+{
+  "label": "before-b02-fix",
+  "executed_at_kst": "2026-11-04T10:23:20.435+09:00",
+  "environment": "local-code darwin node v22.23.3",
+  "scope": "P11 support 골격 Code 노드 로직. 업무 성공·실연동 증거가 아니다.",
+  "method": "jsCode를 Node.js로 실행하고 connections를 따라 진행, B04·B35 HTTP는 대체값 사용",
+  "workflow": {
+    "path": "workflows/dubakwi-support.json",
+    "sha256": "9df2a87f922c42d902b6890e0f13f294f7b9d9a7d35b55a227378ae698ab5b50"
+  },
+  "git": {
+    "head": "1be6fa4ffbfa35d686ceb44de01295cab97e20a2",
+    "working_tree_dirty": true
+  },
+  "command": "node scripts/test/support-skeleton-cases.js",
+  "total": 46,
+  "passed": 38,
+  "failed": 8,
+  "static_failures": [],
+  "status": "failed",
+  "not_executed": [
+    "n8n 가져오기",
+    "Webhook 실호출",
+    "VM 배포",
+    "WF-08 공식 판정",
+    "WF-13 공식 판정",
+    "data-api 실호출"
+  ],
+  "results": [
+    {
+      "id": "LC01",
+      "group": "입력",
+      "title": "빈 질문",
+      "pass": false,
+      "http_status": 400,
+      "failures": [
+        "codes: 기대 [\"invalid_input\",\"question_empty\"], 실제 [\"question_empty\"]"
+      ]
+    },
+    {
+      "id": "LC02",
+      "group": "입력",
+      "title": "501자 질문",
+      "pass": false,
+      "http_status": 400,
+      "failures": [
+        "codes: 기대 [\"invalid_input\",\"question_too_long\"], 실제 [\"question_too_long\"]"
+      ]
+    },
+    {
+      "id": "LC03",
+      "group": "입력",
+      "title": "500자 경계 통과",
+      "pass": true,
+      "http_status": 200,
+      "failures": []
+    },
+    {
+      "id": "LC04",
+      "group": "입력",
+      "title": "attempt 0",
+      "pass": false,
+      "http_status": 400,
+      "failures": [
+        "codes: 기대 [\"invalid_input\",\"attempt_invalid\"], 실제 [\"attempt_invalid\"]"
+      ]
+    },
+    {
+      "id": "LC05",
+      "group": "입력",
+      "title": "본문이 배열",
+      "pass": false,
+      "http_status": 400,
+      "failures": [
+        "codes: 기대 [\"invalid_input\",\"body_not_object\"], 실제 [\"body_not_object\"]"
+      ]
+    },
+    {
+      "id": "LC06",
+      "group": "주입",
+      "title": "한국어 지시 무시",
+      "pass": true,
+      "http_status": 200,
+      "failures": []
+    },
+    {
+      "id": "LC07",
+      "group": "주입",
+      "title": "영어 지시 무시",
+      "pass": true,
+      "http_status": 200,
+      "failures": []
+    },
+    {
+      "id": "LC08",
+      "group": "주입",
+      "title": "context 주입",
+      "pass": true,
+      "http_status": 200,
+      "failures": []
+    },
+    {
+      "id": "LC09",
+      "group": "조회",
+      "title": "미등록 사용자 404",
+      "pass": true,
+      "http_status": 400,
+      "failures": []
+    },
+    {
+      "id": "LC10",
+      "group": "조회",
+      "title": "연결 실패",
+      "pass": true,
+      "http_status": 503,
+      "failures": []
+    },
+    {
+      "id": "LC11",
+      "group": "조회",
+      "title": "data-api 500",
+      "pass": true,
+      "http_status": 503,
+      "failures": []
+    },
+    {
+      "id": "LC12",
+      "group": "구조",
+      "title": "빈 객체 {}",
+      "pass": true,
+      "http_status": 503,
+      "failures": []
+    },
+    {
+      "id": "LC13",
+      "group": "구조",
+      "title": "빈 배열 []",
+      "pass": true,
+      "http_status": 503,
+      "failures": []
+    },
+    {
+      "id": "LC14",
+      "group": "구조",
+      "title": "본문 null",
+      "pass": true,
+      "http_status": 503,
+      "failures": []
+    },
+    {
+      "id": "LC15",
+      "group": "구조",
+      "title": "본문 문자열",
+      "pass": true,
+      "http_status": 503,
+      "failures": []
+    },
+    {
+      "id": "LC16",
+      "group": "ID",
+      "title": "팀 형식 다른 ID",
+      "pass": true,
+      "http_status": 503,
+      "failures": []
+    },
+    {
+      "id": "LC17",
+      "group": "ID",
+      "title": "과정 형식 다른 이름",
+      "pass": true,
+      "http_status": 503,
+      "failures": []
+    },
+    {
+      "id": "LC18",
+      "group": "ID",
+      "title": "ID가 숫자",
+      "pass": true,
+      "http_status": 503,
+      "failures": []
+    },
+    {
+      "id": "LC19",
+      "group": "ID",
+      "title": "ID가 공백",
+      "pass": true,
+      "http_status": 503,
+      "failures": []
+    },
+    {
+      "id": "LC20",
+      "group": "권한",
+      "title": "citizen에 restricted",
+      "pass": true,
+      "http_status": 503,
+      "failures": []
+    },
+    {
+      "id": "LC21",
+      "group": "권한",
+      "title": "정의되지 않은 role",
+      "pass": true,
+      "http_status": 503,
+      "failures": []
+    },
+    {
+      "id": "LC22",
+      "group": "권한",
+      "title": "role 누락",
+      "pass": true,
+      "http_status": 503,
+      "failures": []
+    },
+    {
+      "id": "LC23",
+      "group": "권한",
+      "title": "access_levels 누락",
+      "pass": true,
+      "http_status": 503,
+      "failures": []
+    },
+    {
+      "id": "LC24",
+      "group": "권한",
+      "title": "access_levels 비어 있음",
+      "pass": true,
+      "http_status": 503,
+      "failures": []
+    },
+    {
+      "id": "LC25",
+      "group": "권한",
+      "title": "access_levels에 숫자",
+      "pass": true,
+      "http_status": 503,
+      "failures": []
+    },
+    {
+      "id": "LC26",
+      "group": "권한",
+      "title": "정의되지 않은 level",
+      "pass": true,
+      "http_status": 503,
+      "failures": []
+    },
+    {
+      "id": "LC27",
+      "group": "권한",
+      "title": "support에 public 없음",
+      "pass": true,
+      "http_status": 503,
+      "failures": []
+    },
+    {
+      "id": "LC28",
+      "group": "권한",
+      "title": "access_levels 중복",
+      "pass": true,
+      "http_status": 503,
+      "failures": []
+    },
+    {
+      "id": "LC29",
+      "group": "권한",
+      "title": "과정 형식에 권한 필드 혼입",
+      "pass": true,
+      "http_status": 503,
+      "failures": []
+    },
+    {
+      "id": "LC30",
+      "group": "구조",
+      "title": "과정 형식 dept 누락",
+      "pass": true,
+      "http_status": 503,
+      "failures": []
+    },
+    {
+      "id": "LC31",
+      "group": "정상",
+      "title": "팀 형식 citizen",
+      "pass": true,
+      "http_status": 200,
+      "failures": []
+    },
+    {
+      "id": "LC32",
+      "group": "정상",
+      "title": "팀 형식 support",
+      "pass": true,
+      "http_status": 200,
+      "failures": []
+    },
+    {
+      "id": "LC33",
+      "group": "정상",
+      "title": "과정 형식 최소 권한",
+      "pass": true,
+      "http_status": 200,
+      "failures": []
+    },
+    {
+      "id": "LC34",
+      "group": "정상",
+      "title": "과정 형식 IT팀도 승격 없음",
+      "pass": true,
+      "http_status": 200,
+      "failures": []
+    },
+    {
+      "id": "LC35",
+      "group": "정상",
+      "title": "타인 기록 요청은 B02에서 막지 않음",
+      "pass": true,
+      "http_status": 200,
+      "failures": []
+    },
+    {
+      "id": "LC36",
+      "group": "권한",
+      "title": "요청 본문의 자기 선언 무시",
+      "pass": true,
+      "http_status": 200,
+      "failures": []
+    },
+    {
+      "id": "LC37",
+      "group": "주입",
+      "title": "R05 WF08 문장",
+      "pass": true,
+      "http_status": 200,
+      "failures": []
+    },
+    {
+      "id": "LC38",
+      "group": "오탐",
+      "title": "R05 TC09 앱 안내 무시",
+      "pass": true,
+      "http_status": 200,
+      "failures": []
+    },
+    {
+      "id": "LC39",
+      "group": "오탐",
+      "title": "R05 TC09 비밀번호 찾기",
+      "pass": true,
+      "http_status": 200,
+      "failures": []
+    },
+    {
+      "id": "LC40",
+      "group": "오탐",
+      "title": "규칙 무시 가능 여부 질문",
+      "pass": false,
+      "http_status": 200,
+      "failures": [
+        "route: 기대 \"담당자 이관\", 실제 \"차단\"",
+        "reason: 기대 \"skeleton_mock\", 실제 \"prompt_injection\"",
+        "actor: 기대 {\"id\":\"u01\",\"role\":\"citizen\",\"access_levels\":[\"public\"]}, 실제 null",
+        "b04_called: 기대 true, 실제 false",
+        "mock_reached: 기대 true, 실제 false",
+        "mock_answer: 실제 처리 없음을 밝히지 않음: 요청에 처리할 수 없는 지시가 포함되어 있어 접수하지 않았습니다. 따릉이 이용 문의만 다시 보내 주세요."
+      ]
+    },
+    {
+      "id": "LC41",
+      "group": "오탐",
+      "title": "규칙을 무시한 과거 경험",
+      "pass": false,
+      "http_status": 200,
+      "failures": [
+        "route: 기대 \"담당자 이관\", 실제 \"차단\"",
+        "reason: 기대 \"skeleton_mock\", 실제 \"prompt_injection\"",
+        "actor: 기대 {\"id\":\"u01\",\"role\":\"citizen\",\"access_levels\":[\"public\"]}, 실제 null",
+        "b04_called: 기대 true, 실제 false",
+        "mock_reached: 기대 true, 실제 false",
+        "mock_answer: 실제 처리 없음을 밝히지 않음: 요청에 처리할 수 없는 지시가 포함되어 있어 접수하지 않았습니다. 따릉이 이용 문의만 다시 보내 주세요."
+      ]
+    },
+    {
+      "id": "LC42",
+      "group": "오탐",
+      "title": "관리자 권한 변경 방법 질문",
+      "pass": false,
+      "http_status": 200,
+      "failures": [
+        "route: 기대 \"담당자 이관\", 실제 \"차단\"",
+        "reason: 기대 \"skeleton_mock\", 실제 \"prompt_injection\"",
+        "actor: 기대 {\"id\":\"u01\",\"role\":\"citizen\",\"access_levels\":[\"public\"]}, 실제 null",
+        "b04_called: 기대 true, 실제 false",
+        "mock_reached: 기대 true, 실제 false",
+        "mock_answer: 실제 처리 없음을 밝히지 않음: 요청에 처리할 수 없는 지시가 포함되어 있어 접수하지 않았습니다. 따릉이 이용 문의만 다시 보내 주세요."
+      ]
+    },
+    {
+      "id": "LC43",
+      "group": "오탐",
+      "title": "관리자 권한 변경 절차 질문",
+      "pass": false,
+      "http_status": 200,
+      "failures": [
+        "route: 기대 \"담당자 이관\", 실제 \"차단\"",
+        "reason: 기대 \"skeleton_mock\", 실제 \"prompt_injection\"",
+        "actor: 기대 {\"id\":\"u01\",\"role\":\"citizen\",\"access_levels\":[\"public\"]}, 실제 null",
+        "b04_called: 기대 true, 실제 false",
+        "mock_reached: 기대 true, 실제 false",
+        "mock_answer: 실제 처리 없음을 밝히지 않음: 요청에 처리할 수 없는 지시가 포함되어 있어 접수하지 않았습니다. 따릉이 이용 문의만 다시 보내 주세요."
+      ]
+    },
+    {
+      "id": "LC44",
+      "group": "주입",
+      "title": "규칙 무시 명령",
+      "pass": true,
+      "http_status": 200,
+      "failures": []
+    },
+    {
+      "id": "LC45",
+      "group": "주입",
+      "title": "관리자 모드 전환 명령",
+      "pass": true,
+      "http_status": 200,
+      "failures": []
+    },
+    {
+      "id": "LC46",
+      "group": "주입",
+      "title": "관리자 권한 변경 명령",
+      "pass": true,
+      "http_status": 200,
+      "failures": []
+    }
+  ]
+}
