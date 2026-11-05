@@ -35,6 +35,20 @@ Jira 업무 상태와 request_state.processing_status는 다르다. 예를 들�
 
 SupportCase/CaseFacts는 워크플로우가 조합하는 논리 객체다. 별도 테이블 생성을 뜻하지 않는다. 보완 요청은 최소 연결 정보를 확인하고 Jira에서 현재 소유권·맥락·횟수·상태를 읽어 처리한다. Jira reporter가 서비스 계정이면 시민 소유권의 근거로 사용하지 않는다.
 
+### 2.1. P09 모의 사용자 공급과 data-api 경계
+
+`data/users.json`은 팀 형식 사용자·권한의 원본이고 `data/records.json`은 소유권 시험 자료다. `unregistered-zz`는 미등록 시험을 위해 어느 사용자 공급 파일에도 넣지 않는다. 강의 data-api의 `{name,dept}` 형식은 dept를 역할로 승격하지 않고 citizen/public으로만 처리한다.
+
+현재 강의 원본의 `GET /employees/<name>`에는 별도 인증과 직원 조회 고장 스위치가 없다. VM에서 프록시 인증을 추가했는지, 내부 주소·네트워크 별칭과 데이터 마운트가 무엇인지는 R01이 확인한다. 팀 형식 API를 별도로 채택할 경우 등록 사용자는 `{id,role,access_levels}`, 미등록은 404를 반환하고 임의 role/access_levels 입력은 받지 않는다. 실제 조회→B05→RAG·소유권 종단 시험은 VM 공급과 R02/R03 연결 후 수행하며, fixture 정적 확인과 구분한다.
+
+강의 data-api 호환 모드는 R01이 VM의 기존 `employees.json`을 저장소 밖에 백업한 뒤, `users.json`에서 role이 citizen인 세 ID를 아래 형식으로 기존 배열에 병합하고 `/data/employees.json`에 읽기 전용 마운트한다. 기존 강의 직원은 덮어쓰지 않는다. 이 형식은 담당자 권한을 표현할 수 없으므로 support/security는 넣지 않으며 시민·미등록 시험에만 사용한다.
+
+```json
+[{"name":"citizen-a","dept":"시민"},{"name":"citizen-b","dept":"시민"},{"name":"citizen-c","dept":"시민"}]
+```
+
+확인은 n8n 내부에서 `GET http://data-api:8800/employees/citizen-a`가 200과 `{name:"citizen-a",dept:"시민"}`을, `unregistered-zz`가 404를 반환하는지 본다. 팀 형식 모드는 `users.json`을 읽는 서버 경계가 200에 `{id,role,access_levels}`를 반환하도록 한다. 두 방식 모두 외부 공개 포트·사용자 입력 role/access_levels·저장소의 인증값은 허용하지 않는다. VM Header Auth가 필요하면 R01이 비공개 Credential로 주입한다.
+
 ## 3. 최소 처리 상태 설계
 
 ### 3.1. 논리 구조와 제약
