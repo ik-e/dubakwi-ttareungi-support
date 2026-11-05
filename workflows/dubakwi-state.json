@@ -219,6 +219,202 @@
         1720,
         300
       ]
+    },
+    {
+      "name": "S12 보완 확인 필요",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "parameters": {
+        "conditions": {
+          "options": {
+            "version": 2,
+            "caseSensitive": true,
+            "leftValue": ""
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "case-needed",
+              "leftValue": "={{ $('S01 상태 명령 수신').item.json.op === 'begin' && $json.error_code === 'case_verification_required' }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "position": [
+        1240,
+        -100
+      ]
+    },
+    {
+      "name": "S13 보완 case 조회",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "onError": "continueRegularOutput",
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT dubakwi_service.case_lookup($1::jsonb) AS result;",
+        "options": {
+          "queryReplacement": "={{ JSON.stringify({scope: $('S01 상태 명령 수신').item.json.scope, case_ref: $('S01 상태 명령 수신').item.json.request.case_ref, actor_id: $('S01 상태 명령 수신').item.json.actor.id}) }}"
+        }
+      },
+      "position": [
+        1480,
+        -100
+      ]
+    },
+    {
+      "name": "S14 보완 대상 판정",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "parameters": {
+        "jsCode": "const input = $('S01 상태 명령 수신').item.json;\nconst rid = input.request && input.request.request_id ? input.request.request_id : null;\nconst result = (mode, http, code, response) => ({request_id:rid, mode, state_ref:null, support:null, facts:null, response, http_status:http, error_code:code});\nconst reject = (mode, http, code, message) => result(mode, http, code, {error:message, codes:[code]});\nlet raw = $json.result;\nif (typeof raw === 'string') { try { raw = JSON.parse(raw); } catch { raw = null; } }\nif (!raw || raw.ok !== true) return [{json:result('error', 503, 'state_error', null)}];\nif (raw.found !== true) return [{json:reject('conflict', 400, 'invalid_case_ref', '알 수 없는 문의 번호입니다.')}];\nif (raw.owner_match !== true) return [{json:reject('conflict', 403, 'case_access_denied', '이 문의에 접근할 수 없습니다.')}];\nif (raw.busy === true) return [{json:reject('pending', 409, 'case_busy', '기존 요청을 먼저 확인해야 합니다.')}];\n// Jira 키가 없는 case는 열림 상태를 확인할 수 없으므로 이어 가지 않는다.\nif (typeof raw.jira_issue_key !== 'string' || raw.jira_issue_key.trim() === '') return [{json:result('error', 503, 'case_verification_required', null)}];\nreturn [{json:{route:'jira', req:{method:'GET', path:'/rest/api/2/issue/' + encodeURIComponent(raw.jira_issue_key) + '?fields=status,description,comment'}}}];"
+      },
+      "position": [
+        1720,
+        -100
+      ]
+    },
+    {
+      "name": "S15 Jira 확인 필요",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "parameters": {
+        "conditions": {
+          "options": {
+            "version": 2,
+            "caseSensitive": true,
+            "leftValue": ""
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "case-jira",
+              "leftValue": "={{ $json.route === 'jira' }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "position": [
+        1960,
+        -100
+      ]
+    },
+    {
+      "name": "S16 Jira 보완 case 확인",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "onError": "continueRegularOutput",
+      "parameters": {
+        "method": "GET",
+        "url": "={{ '__JIRA_BASE_URL__' + $json.req.path }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "jiraSoftwareCloudApi",
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true,
+              "neverError": true
+            }
+          },
+          "timeout": 2000
+        }
+      },
+      "credentials": {
+        "jiraSoftwareCloudApi": {
+          "name": "dubakwi-Jira SW Cloud account"
+        }
+      },
+      "position": [
+        2200,
+        -100
+      ]
+    },
+    {
+      "name": "S17 Jira 열림 판정",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "parameters": {
+        "jsCode": "const input = $('S01 상태 명령 수신').item.json;\nconst rid = input.request && input.request.request_id ? input.request.request_id : null;\nconst result = (mode, http, code, response) => ({request_id:rid, mode, state_ref:null, support:null, facts:null, response, http_status:http, error_code:code});\nconst reject = (mode, http, code, message) => result(mode, http, code, {error:message, codes:[code]});\nconst sc = Number($json.statusCode ?? 0);\nconst body = $json.body;\n// Jira 조회 장애를 case가 없다거나 닫혔다는 뜻으로 해석하지 않는다.\nif (sc !== 200 || !body || !body.fields) return [{json:result('error', 503, 'state_error', null)}];\nconst category = body.fields.status && body.fields.status.statusCategory ? body.fields.status.statusCategory.key : null;\nif (!category) return [{json:result('error', 503, 'state_error', null)}];\nconst texts = [String(body.fields.description ?? '')].concat(((body.fields.comment || {}).comments || []).map((c) => String(c.body ?? '')));\nlet attempt = 1;\nfor (const t of texts) for (const m of t.matchAll(/보완 횟수:\\s*(\\d+)/g)) attempt = Math.max(attempt, Number(m[1]));\nconst payload = {op:input.op, scope:input.scope, execution_id:input.execution_id, input_hash:input.input_hash, actor:input.actor, request:input.request, jira_open:category !== 'done', jira_attempt:attempt};\nreturn [{json:{route:'begin', case_begin_payload:payload}}];"
+      },
+      "position": [
+        2440,
+        -100
+      ]
+    },
+    {
+      "name": "S18 보완 시작 가능",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "parameters": {
+        "conditions": {
+          "options": {
+            "version": 2,
+            "caseSensitive": true,
+            "leftValue": ""
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "case-begin",
+              "leftValue": "={{ $json.route === 'begin' }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "position": [
+        2680,
+        -100
+      ]
+    },
+    {
+      "name": "S19 보완 처리권 획득",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "onError": "continueRegularOutput",
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT dubakwi_service.case_begin($1::jsonb) AS result;",
+        "options": {
+          "queryReplacement": "={{ JSON.stringify($json.case_begin_payload) }}"
+        }
+      },
+      "position": [
+        2920,
+        -100
+      ]
+    },
+    {
+      "name": "S20 보완 결과 정규화",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "parameters": {
+        "jsCode": "const input = $('S01 상태 명령 수신').item.json;\nconst rid = input.request && input.request.request_id ? input.request.request_id : null;\nconst result = (mode, http, code, response) => ({request_id:rid, mode, state_ref:null, support:null, facts:null, response, http_status:http, error_code:code});\nconst reject = (mode, http, code, message) => result(mode, http, code, {error:message, codes:[code]});\nlet raw = $json.result;\nif (typeof raw === 'string') { try { raw = JSON.parse(raw); } catch { raw = null; } }\nif (!raw || typeof raw !== 'object' || Array.isArray(raw) || typeof raw.mode !== 'string') return [{json:result('error', 503, 'state_error', null)}];\nreturn [{json:raw}];"
+      },
+      "position": [
+        3160,
+        -100
+      ]
     }
   ],
   "connections": {
@@ -333,6 +529,137 @@
             "index": 0
           }
         ],
+        [
+          {
+            "node": "S06 계약 거절 반환",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "S05 저장 결과 정규화": {
+      "main": [
+        [
+          {
+            "node": "S12 보완 확인 필요",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "S12 보완 확인 필요": {
+      "main": [
+        [
+          {
+            "node": "S13 보완 case 조회",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "S06 계약 거절 반환",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "S13 보완 case 조회": {
+      "main": [
+        [
+          {
+            "node": "S14 보완 대상 판정",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "S14 보완 대상 판정": {
+      "main": [
+        [
+          {
+            "node": "S15 Jira 확인 필요",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "S15 Jira 확인 필요": {
+      "main": [
+        [
+          {
+            "node": "S16 Jira 보완 case 확인",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "S06 계약 거절 반환",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "S16 Jira 보완 case 확인": {
+      "main": [
+        [
+          {
+            "node": "S17 Jira 열림 판정",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "S17 Jira 열림 판정": {
+      "main": [
+        [
+          {
+            "node": "S18 보완 시작 가능",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "S18 보완 시작 가능": {
+      "main": [
+        [
+          {
+            "node": "S19 보완 처리권 획득",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "S06 계약 거절 반환",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "S19 보완 처리권 획득": {
+      "main": [
+        [
+          {
+            "node": "S20 보완 결과 정규화",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "S20 보완 결과 정규화": {
+      "main": [
         [
           {
             "node": "S06 계약 거절 반환",

@@ -39,6 +39,11 @@ psql "$DUBAKWI_DATABASE_URL" -v ON_ERROR_STOP=1 \
 psql "$DUBAKWI_DATABASE_URL" -v ON_ERROR_STOP=1 \
   -v runtime_role=dubakwi_runtime \
   -f infra/db/migrations/004-grant-storage-functions.sql
+
+# 005~006은 case_ref 보완 확인용이며 R04·R01 검토 승인 뒤에만 적용한다.
+psql "$DUBAKWI_DATABASE_URL" -v ON_ERROR_STOP=1   -f infra/db/migrations/005-create-case-functions.sql
+
+psql "$DUBAKWI_DATABASE_URL" -v ON_ERROR_STOP=1   -v runtime_role=dubakwi_runtime   -f infra/db/migrations/006-grant-case-functions.sql
 ```
 
 Record the applied commit and migration filenames in the private deployment
@@ -68,6 +73,12 @@ server details to a public report.
 - A new request without `case_ref` can acquire state atomically. A request with
   `case_ref` returns `case_verification_required` until the live Jira owner and
   open-state check has completed; the database never guesses that result.
+  After 005~006 are applied, the workflow calls `case_lookup` (read-only;
+  unknown case, other owner, busy), checks the open state in Jira, then calls
+  `case_begin`, which re-checks ownership and the active-case rule atomically
+  and returns `invalid_case_ref` (400), `case_access_denied` (403),
+  `case_closed` (409), `case_busy` (409), or `proceed`. Until then
+  `state_apply` keeps returning `case_verification_required`.
 - Never add a foreign key from `dead_letters` to `request_state`; a DLQ write
   must remain possible when state storage failed.
 - Use parameterized SQL only. Do not accept table, schema, URL, SQL, or code

@@ -10,6 +10,7 @@ SCRIPTS = [
     ROOT / "scripts" / "test" / "p12-handoff-cases.js",
     ROOT / "scripts" / "test" / "p12-jira-flow-cases.js",
     ROOT / "scripts" / "test" / "p12-save-cases.js",
+    ROOT / "scripts" / "test" / "p12-case-cases.js",
 ]
 
 
