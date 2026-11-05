@@ -7,6 +7,7 @@ import unittest
 from pathlib import Path
 
 from make_verifier_fault import MODEL, SOURCE, VERIFIER, WRITER, WRITER_MODEL, build
+from make_vm_p19_bundle import FORBIDDEN, HANDOFF_URL, SEARCH_URL, SUPPORT_PATH, build_all
 
 ROOT = Path(__file__).resolve().parents[2]
 SCRIPT = ROOT / "scripts" / "test" / "support-skeleton-cases.js"
@@ -53,6 +54,25 @@ class SupportSkeletonTest(unittest.TestCase):
         self.assertNotIn(WRITER_MODEL, copy["connections"])
         source = {item["name"]: item for item in workflow["nodes"]}
         self.assertTrue(source[WRITER]["type"].endswith("chainLlm"))
+
+    def test_vm_bundle_isolates_mocks_and_keeps_real_calls(self) -> None:
+        original = SOURCE.read_text(encoding="utf-8")
+        files = build_all({"openai": None, "team": None, "internal": None})
+        self.assertEqual(SOURCE.read_text(encoding="utf-8"), original)
+        for workflow in files.values():
+            text = json.dumps(workflow, ensure_ascii=False)
+            self.assertFalse([word for word in FORBIDDEN if word in text])
+            self.assertFalse(workflow["active"])
+        support = files["dubakwi-support-p19-mock.json"]
+        nodes = {item["name"]: item for item in support["nodes"]}
+        self.assertEqual(nodes["B01 문의 수신"]["parameters"]["path"], SUPPORT_PATH)
+        self.assertEqual(nodes["B14 RAG 검색"]["parameters"]["url"], SEARCH_URL)
+        self.assertEqual(nodes["B27 티켓 생성·처리"]["parameters"]["url"], HANDOFF_URL)
+        self.assertIn("data-api:8800", nodes["B04 사용자 확인"]["parameters"]["url"])
+        handoff = files["dubakwi-p19-mock-handoff.json"]
+        hook = next(item for item in handoff["nodes"] if item["type"].endswith(".webhook"))
+        self.assertEqual(hook["parameters"]["authentication"], "headerAuth")
+        self.assertNotIn("id", hook["credentials"]["httpHeaderAuth"])
 
 
 if __name__ == "__main__":

@@ -504,7 +504,7 @@ B28은 먼저 error_code=null && state_saved=true && 최신 state_ref를 확인�
 | 근거 표시 | R03 기본안에 따라 시민 답변에 `[실제 안내]`·`[가상 설정]`을 보존. Evidence.text 앞 표시를 쓰고 전용 필드는 추가하지 않음. B21이 인용 근거와 답변의 표시 일치를 검사 | 표시 없는 근거에는 요구하지 않음 |
 | scope | `dubakwi-dev` 고정 | R01 환경 설정 값으로 교체 필요 |
 | LLM Credential | 과정 공통 ID `openAiCourse0001` 사용 | 이름만으로는 로컬 n8n에서 권한 오류가 나서 ID를 넣음. 비밀값은 없음. VM은 R01이 배포 사본에서 L01~L03과 각 Header Auth를 실제 Credential ID로 연결·확인 |
-| VM 게시 | VM은 P11 게시본 유지 | data-api와 R04 하위 기능 준비 뒤 R01과 P19 연결 시험 |
+| VM 게시 | VM은 P11 게시본 유지. R01 PR #22가 B14·L01~L03 부분 연결을 확인 | R01 동의(2026-11-05)로 [전용 mock 사본 시험](../../scripts/test/vm-p19-mock-test.md) 준비. 실제 B04·검색·모델 + mock state·handoff·dlq. 실제 저장·DLQ·Jira 성공과 공식 판정이 아님 |
 | TC08 | 운영 JSON에는 스위치를 넣지 않음. [`make_verifier_fault.py`](../../scripts/test/make_verifier_fault.py)가 경로 `dubakwi-support-tc08`, 별도 ID·webhookId의 사본 생성 | [원본과 동시 게시 확인](../../runs/public/20261105-104900-local-n8n-p19-tc08-parallel/summary.json). 모드 3종(`grounded`, `unparsable`, TC08-v1용 [`unknown_chunk`](../../runs/public/20261105-112427-local-n8n-p19-tc08-unknown-chunk/summary.json))은 같은 경로라 하나만 게시 |
 | B05 | 과정 data-api 형식은 `citizen`/`public` 최소 권한 유지 | `citizen-a` 공급과 `dept` 매핑은 R04 P09·D04 |
 

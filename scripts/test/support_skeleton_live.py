@@ -99,7 +99,7 @@ CASES = [
         "LN14",
         "S6 근거 없음 이관",
         "valid",
-        ask(question="따릉이를 화성에서 대여하려면 QR을 어떻게 스캔하나요?"),
+        ask(question="따릉이를 해외 여행에 가져가서 한 달 동안 써도 되나요?"),
         {"status": 200, "route": "담당자 이관", "reason": "no_evidence", "has_ticket": True},
     ),
     (
@@ -127,6 +127,13 @@ CASES = [
         "valid",
         ask(question="사칭 링크에 비밀번호를 입력했어요. 개인정보가 노출된 것 같아요."),
         {"status": 200, "route": "담당자 이관", "has_ticket": True, "priority": "high"},
+    ),
+    (
+        "LN20",
+        "대표 문의 자동 답변",
+        "valid",
+        ask(question="QR이 안 읽혀요. 자전거 번호로 대여하는 방법을 알려주세요"),
+        {"status": 200, "route": "자동 답변", "ticket": None, "source_doc": "rental-guide"},
     ),
     (
         "LN19",
@@ -193,6 +200,10 @@ def problems(expected: dict, status: int, payload: object) -> list[str]:
         found.append(f"route {body.get('route')!r}")
     if expected.get("has_sources") and not body.get("sources"):
         found.append("sources 없음")
+    if "source_doc" in expected:
+        docs = [item.get("doc") for item in body.get("sources") or [] if isinstance(item, dict)]
+        if expected["source_doc"] not in docs:
+            found.append(f"sources에 {expected['source_doc']!r} 없음")
     if expected.get("has_case_ref") and not body.get("case_ref"):
         found.append("case_ref 없음")
     ticket = body.get("ticket") if isinstance(body.get("ticket"), dict) else {}
@@ -240,6 +251,15 @@ def main() -> int:
     parser.add_argument("--label", default="current")
     parser.add_argument("--wait-seconds", type=int, default=90)
     parser.add_argument("--settle-seconds", type=int, default=0)
+    parser.add_argument(
+        "--environment", default="local n8n 2.42.6 container, course data-api container"
+    )
+    parser.add_argument(
+        "--workflow-file",
+        type=Path,
+        default=WORKFLOW,
+        help="게시한 파일. 사본을 시험하면 그 사본을 지정한다",
+    )
     args = parser.parse_args()
 
     key = os.environ.get("SUPPORT_TEAM_KEY")
@@ -264,17 +284,16 @@ def main() -> int:
         summary = {
             "label": args.label,
             "executed_at_kst": datetime.now(UTC).astimezone(KST).isoformat(timespec="seconds"),
-            "environment": "local n8n 2.42.6 container, course data-api container",
-            "scope": "support 실제 Webhook과 LLM 호출. state·search·handoff·dlq는 mock이며 업무 성공 증거가 아니다.",
-            "workflow_sha256": hashlib.sha256(WORKFLOW.read_bytes()).hexdigest(),
+            "environment": args.environment,
+            "scope": "support 실제 Webhook, 사용자 조회, 검색, LLM 호출. state·handoff·dlq는 mock이며 업무 성공 증거가 아니다.",
+            "workflow_sha256": hashlib.sha256(args.workflow_file.read_bytes()).hexdigest(),
             "command": "scripts/test/support_skeleton_live.py",
             "total": len(results),
             "passed": passed,
             "failed": len(results) - passed,
             "status": "passed" if passed == len(results) else "failed",
             "not_executed": [
-                "VM 배포",
-                "실제 search·state·handoff·dlq",
+                "실제 state·handoff·dlq",
                 "Jira",
                 "공통 WF 공식 판정",
                 "R05 run_cases.py",
