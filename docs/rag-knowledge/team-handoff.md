@@ -58,7 +58,7 @@ R05 시험 실행기의 환경변수는 `DUBAKWI_WEBHOOK_TOKEN`, 과정 `flow.py
 
 ## R05의 flow.py 사례 형식 변경과 R03 기본안 (2026-11-04)
 
-R05의 `r05/p06-flow-format` 브랜치에는 `cases/team-extended.json` 분리와 flow.py 형식 변경이 있다. 2026-11-04 현재 해당 브랜치는 별도 작업이며 이 브랜치로 병합하지 않았다. `x_dubakwi`를 실제 flow.py가 무시하는지, 공식 실행 및 서비스 테스트는 검증 전이다.
+R05의 이전 `r05/p06-flow-format` 브랜치에는 `cases/team-extended.json` 분리와 flow.py 형식 변경이 있다. 2026-11-04 현재 해당 브랜치는 별도 작업이며 이 브랜치로 병합하지 않았다. `x_dubakwi`를 실제 flow.py가 무시하는지, 공식 실행 및 서비스 테스트는 검증 전이다.
 
 - R01에 `cases/team-extended.json`의 경로 소유권과 병합 순서를 헌장에 반영하도록 전달한다.
 - R04에 TC10이 조회만 실패하고 티켓 생성은 성공하는 모의 고장 주입이 필요하다는 점을 전달한다. 실제 구현 전에는 `tickets error`로 같은 상황을 재현했다고 가정하지 않는다.
@@ -71,3 +71,24 @@ R05의 `r05/p06-flow-format` 브랜치에는 `cases/team-extended.json` 분리�
 3. B05는 등록된 citizen→[`public`], support/security→[`public`,`restricted`]를 구성한다. 미등록·조회 실패·역할 불일치는 검색 전에 거절 또는 오류로 처리한다.
 4. 메인 워크플로우가 별도 인증된 내부 RAG 호출에 서버가 만든 access_levels를 전달한다. RAG는 유효한 조합만 받고 검색 전에 분리된 저장소를 선택한다. 전체 검색 후 제한 결과를 삭제하는 방식은 사용하지 않는다.
 5. 이 문서는 설계 기본안이며 Discord 인증·서버 매핑·내부 Webhook 인증·검색 권한을 실제로 구현하거나 검증한 것은 아니다. 인증된 어댑터가 전달한 ID를 서버에서 어떻게 신뢰할지는 R04/R02와 최종 통합에서 확인한다.
+
+## R01·R05 첫 VM 시험 공유 반영 (2026-11-04)
+
+R01의 PR #12는 기존 VM 관측·운영 준비 초안이며, R03의 로컬 개발과 별개다. 사용자 전달상 첫 시험은 RAG를 기다리지 않고 WF08·WF13부터 한다. R05 안내에 따라 WF08·WF13 빈 질문/501자와 data-api가 필요한 미등록 사용자 사례를 분리한다. Webhook 활성화·실행 기록 접근과 가린 증거가 필요하며, 현재 골격의 실행 노드 확인을 최종 LLM·티켓 호출 0의 증거로 확대하지 않는다.
+
+R05가 지정한 사례 수정·병합 대상은 `r05/p06-flow-cases`이고 이전 `r05/p06-flow-format`은 사용 종료다. R03은 기존 R05 요청에 대한 [대응 문서](r05-review-response.md)를 공유할 수 있다. 팀원에게 실제 메시지는 아직 보내지 않았다.
+
+## R02 PR #11에 대한 R03 검토
+
+PR #11에서 제안한 `public`·`restricted`는 RAG manifest와 일치한다. 과정 data-api에서 `dept`만으로 담당자 권한을 주지 않고 시민·public으로 처리하는 것은 권한 상승을 막는 안전한 기본안이다. 현재 PR의 팀 형식 검증은 support/security가 public만 가져도 허용한다. 따라서 사용자 결정인 담당자 public+restricted가 필요한 경우 서버 사용자 공급에서 두 권한을 정확히 제공하거나 누락을 오류로 처리하는 방법을 R02/R04와 맞춘다. 실제 역할 공급·검색 전 차단·담당자 양성 시험은 미완료다.
+
+## R04 권한 연결 인계 계획 수신 (2026-11-04)
+
+사용자 전달에 따르면 R04는 시민·담당자 모의 계정, B05 검증 및 Discord ID 매핑을 우선 구현하고 실제 JSON·시험 결과를 순차 공유할 계획이다. R03은 전달된 서버 역할·허용 범위를 기준으로 검색 전 partition을 선택하는 연결을 준비한다. 미등록·조회 오류와 권한 불일치는 R04/R02 계약대로 처리하며, 아직 실제 공급·RAG 권한 통합은 검증되지 않았다. TC10 조회만 실패하는 고장 주입은 R04 준비 예정으로 기록한다.
+
+## R02·R04 연결 기준 업데이트
+
+- R02 제안: 검색 내부 경로 `POST /webhook/dubakwi-search`, Header Auth `X-Internal-Key`, 별도 Credential `dubakwi-internal-key`. 시민 입구 `X-Team-Key`와 분리한다. 서버 발급 권한만 신뢰하고 검색 전에 partition을 제한한다. 실제 키는 기록하지 않는다.
+- SearchResult는 `request_id`를 요청과 동일하게 유지하며 `ok`/`empty`/`skipped`/`error`. Evidence 필수 doc·section·chunk_id·text·score·access_level·version을 충족한다. text의 실제/가상 표시를 시민 답변에도 표시하는 것이 사용자 결정에 맞는 R03 기본안이다.
+- R04 `r04/p09-fixtures`의 citizen-a/b/c는 public, support-demo/security-demo는 public+restricted로 현재 RAG 기준에 부합한다. 실제 서버 연동 및 권한 차단은 미완료다.
+- R02 WF09 제안은 첫·두 번째 ticket_id, priority, route, answer를 같게 두고 duplicate만 false/true로 따로 시험한다. 가이드의 ticket 전체 동일 요구와 충돌할 수 있어 강사/공통 도구 확인 전 통과를 확정하지 않는다.

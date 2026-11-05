@@ -1,0 +1,50 @@
+{
+  "executed_at": "2026-11-04T11:11:14.495084+09:00",
+  "environment": "local repository and authenticated VM web SSH",
+  "task": "P04 deployment preparation; P13 not executed",
+  "base_commit": "bad410c63c14bcf861f1a91502b39d32b278e8de",
+  "configuration": "R01 branch files; no VM Compose replacement",
+  "case_ids": [],
+  "observations": {
+    "compose_version": "v5.6.1",
+    "n8n_image_tag": "2.42.6",
+    "related_running_containers": 5,
+    "n8n_named_data_volume": "confirmed; identifiers private",
+    "existing_network": "confirmed; identifier private",
+    "healthz_http_status": 200,
+    "data_api": "absent from observed Docker context container list"
+  },
+  "vm_changes": {
+    "operations_root_created": true,
+    "children": [
+      "deploy",
+      "backups",
+      "evidence"
+    ],
+    "mode_verified": "700; owner-only",
+    "existing_services_modified": false
+  },
+  "checks": {
+    "project_docs": "20 documents, 357 links, 42 anchors; passed before evidence addition",
+    "public_files": "51 candidates, 371 links; passed before evidence addition",
+    "diff_check": "passed",
+    "uv_env_file_flag": "confirmed from installed uv help"
+  },
+  "sha256": {
+    ".env.example": "59a126a4436b735cb8409a670aade5eaa2c7855f58ce7e68f88fa534d06dd883",
+    "infra/vm-preflight.md": "6246f08433aa20c696970459595736508afa47a20a52deed80ea9d90db536afb",
+    "infra/README.md": "5b916090b9e1e7169cc192aebb27552636157ab2708af4c628a95e28bfb728fe",
+    "docs/project/SYSTEM-DESIGN.md": "df6472f7e1fd4421d8dddf18d8ea7593127f52ff2ffaa188fd1d132ea191a5f7",
+    "docs/project/TEAM-CHARTER.md": "d8d5087d3442def1fcf78d237afcffcc836033a91c75fc425513508859624e20",
+    "docs/project/README.md": "ba3fcc4de568e079a5a64f65b307d0b097920a6d00c7da0e04f486a084eeb65c",
+    "docs/DEVELOPMENT-PLAN.md": "4f8157a767b5a0219705056d0cb257c38d13f22c4f4e8ef00e8b7bbe13faa10c",
+    "docs/PRESENTATION-PLAN.md": "6558a9b43b699d0b1be17a2189b47d038930ccf1a4c6c44e98044a6b10c2ad60"
+  },
+  "limitations": [
+    "No service cases run",
+    "No data-api install, workflow import, credential creation, restart, DB backup or restore",
+    "Immutable image identity and secret/key recovery not yet verified",
+    "R02 deployment artifact and R04 data-api handoff still required",
+    "Raw server names/paths and screenshot kept in ignored private run directory"
+  ]
+}

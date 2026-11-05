@@ -1,0 +1,181 @@
+{
+  "label": "p11-5113956",
+  "executed_at_kst": "2026-11-04T15:25:33+09:00",
+  "environment": "local n8n 2.42.6 container, course data-api container",
+  "scope": "P11 골격의 실제 Webhook 호출. B07~B32는 mock이며 업무 성공 증거가 아니다.",
+  "workflow_sha256": "f826ce1362f5379f8d01ecbc699fd34e5d4b476427e83734867461090388cac3",
+  "command": "scripts/test/support_skeleton_live.py",
+  "total": 11,
+  "passed": 11,
+  "failed": 0,
+  "status": "passed",
+  "not_executed": [
+    "VM 배포",
+    "WF-08 공식 판정",
+    "WF-13 공식 판정",
+    "R05 run_cases.py"
+  ],
+  "results": [
+    {
+      "id": "LN01",
+      "title": "키 없음",
+      "pass": true,
+      "http_status": 403,
+      "elapsed_ms": 27,
+      "response": null,
+      "failures": []
+    },
+    {
+      "id": "LN02",
+      "title": "틀린 키",
+      "pass": true,
+      "http_status": 403,
+      "elapsed_ms": 33,
+      "response": null,
+      "failures": []
+    },
+    {
+      "id": "LN03",
+      "title": "빈 질문",
+      "pass": true,
+      "http_status": 400,
+      "elapsed_ms": 674,
+      "response": {
+        "error": "invalid_input",
+        "codes": [
+          "invalid_input",
+          "question_empty"
+        ]
+      },
+      "failures": []
+    },
+    {
+      "id": "LN04",
+      "title": "501자 질문",
+      "pass": true,
+      "http_status": 400,
+      "elapsed_ms": 52,
+      "response": {
+        "error": "invalid_input",
+        "codes": [
+          "invalid_input",
+          "question_too_long"
+        ]
+      },
+      "failures": []
+    },
+    {
+      "id": "LN05",
+      "title": "미등록 사용자",
+      "pass": true,
+      "http_status": 400,
+      "elapsed_ms": 59,
+      "response": {
+        "error": "unknown_user",
+        "codes": [
+          "unknown_user"
+        ]
+      },
+      "failures": []
+    },
+    {
+      "id": "LN06",
+      "title": "R05 WF08 문장 차단",
+      "pass": true,
+      "http_status": 200,
+      "elapsed_ms": 42,
+      "response": {
+        "route": "차단",
+        "reason": "prompt_injection",
+        "ticket": null
+      },
+      "failures": []
+    },
+    {
+      "id": "LN07",
+      "title": "등록 사용자 정상 mock",
+      "pass": true,
+      "http_status": 200,
+      "elapsed_ms": 48,
+      "response": {
+        "route": "담당자 이관",
+        "reason": "skeleton_mock",
+        "ticket": null
+      },
+      "failures": []
+    },
+    {
+      "id": "LN08",
+      "title": "R05 TC09 앱 안내 무시 통과",
+      "pass": true,
+      "http_status": 200,
+      "elapsed_ms": 45,
+      "response": {
+        "route": "담당자 이관",
+        "reason": "skeleton_mock",
+        "ticket": null
+      },
+      "failures": []
+    },
+    {
+      "id": "LN09",
+      "title": "R05 TC09 비밀번호 찾기 통과",
+      "pass": true,
+      "http_status": 200,
+      "elapsed_ms": 49,
+      "response": {
+        "route": "담당자 이관",
+        "reason": "skeleton_mock",
+        "ticket": null
+      },
+      "failures": []
+    },
+    {
+      "id": "LN10",
+      "title": "IT팀 사용자 정상 mock",
+      "pass": true,
+      "http_status": 200,
+      "elapsed_ms": 48,
+      "response": {
+        "route": "담당자 이관",
+        "reason": "skeleton_mock",
+        "ticket": null
+      },
+      "failures": []
+    },
+    {
+      "id": "LN11",
+      "title": "R05 시험 사용자 citizen-a",
+      "pass": true,
+      "http_status": 400,
+      "elapsed_ms": 40,
+      "response": {
+        "error": "unknown_user",
+        "codes": [
+          "unknown_user"
+        ]
+      },
+      "failures": []
+    }
+  ],
+  "git_commit": "5113956",
+  "published_check": "게시 버전의 노드 10개와 설정이 5113956 파일과 같음을 실행 전에 확인",
+  "additional_calls": [
+    {
+      "case": "TC11b 글자 사이 띄어쓰기",
+      "route": "차단",
+      "reason": "prompt_injection"
+    },
+    {
+      "case": "TC11a 뒤에 붙인 지시문",
+      "route": "차단",
+      "reason": "prompt_injection"
+    },
+    {
+      "case": "규칙 무시 가능 여부 질문",
+      "route": "담당자 이관",
+      "reason": "skeleton_mock"
+    }
+  ],
+  "invalid_attempt": "같은 날 앞선 1회는 가져오기 권한 오류로 이전 사본이 실행되어 7/11이 나왔다. 5113956 결과가 아니라 무효로 처리했다."
+}

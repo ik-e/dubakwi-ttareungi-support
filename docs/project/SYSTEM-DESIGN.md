@@ -1,9 +1,9 @@
 # 두바퀴 따릉이 시민 문의 지원 시스템 설계서
 
 - 작성일: 2026-11-03 KST
-- 버전·상태: v0.8 / P08 지식 초안 경로·설계 참조 동기화 초안
+- 버전·상태: v0.10 / RAG 교육용 VM 색인·검색 부분 검증 반영 초안
 - 책임: R01 통합, R02 흐름, R03 RAG, R04 연동·저장, R05 검증 공동 검토
-- 상세 기준: 워크플로우 v0.13, RAG v0.8, 저장소 v0.4. 실제 연동·실행·품질 측정은 구현 단계에서 확인한다.
+- 상세 기준: 워크플로우 v0.14, RAG v0.9, 저장소 v0.4. RAG 교육용 원본의 VM 수동 색인·검색 부분 시험은 [최신 실행 증거](../../runs/public/20261105-111311-vm-rag-integration/report.md)를 따른다. 실제 서버 사용자 인가·공식 판정·전체 종단 연결은 미확인이다.
 
 시민 문의를 접수하고 근거로 안내하거나 담당자에게 연결한다. 모든 정상 신규 문의는 Jira 티켓으로 관리하며, 안내 완료·보완 대기·담당자 이관을 구분한다. 팀 이름은 두바퀴, 기술 접두사는 dubakwi다. 이 문서에서 시스템 전체 구성과 기능·상태·시나리오의 관계를 파악한 뒤 담당 상세 설계로 이동한다.
 
@@ -246,7 +246,7 @@ proj_team2/
 ├─ src/ttareungi_support/           # 업무 Python 로직 작성 시 생성
 ├─ tests/                          # 업무 로직 시험 작성 시 생성
 ├─ dist/public/                    # 검토용 공개본 생성 결과, Git 제외
-├─ .env.example                    # compose 설정 확정 후 작성
+├─ .env.example                    # 시험 도구 Webhook 환경변수 예시, VM Compose와 별개
 ├─ workflows/                      # 7개 n8n JSON, 구현 시 생성
 │  └─ dubakwi-{support,index,search,handoff,state,dlq,errors}.json
 ├─ knowledge/                      # 지식 작성 시 생성
@@ -256,7 +256,8 @@ proj_team2/
 ├─ data/
 │  ├─ users.json / records.json     # 모의 입력 작성 시 생성
 │  └─ research/                     # 기존 수집·분석 원본 유지
-├─ cases/common.json / team.json    # 시험 명세 작성 시 생성
+├─ cases/common.json / team.json    # 검토 전 시험 명세
+│  └─ team-extended.json            # R05 새 형식 후보, 다단계/운영자 시험
 ├─ requests/                        # 개별/시연 입력 작성 시 생성
 ├─ runs/public/<실행묶음ID>/summary.json   # 실제 시험 시 생성
 ├─ scripts/
@@ -264,7 +265,7 @@ proj_team2/
 │  ├─ dev/                          # 개발·배포 도구 추가 시 생성
 │  └─ test/                         # 시험·측정 도구 추가 시 생성
 ├─ infra/
-│  ├─ README.md
+│  ├─ README.md / vm-preflight.md  # 운영 기준·기존 VM 점검/인계
 │  ├─ compose.yaml                  # VM 설정 확인 후 작성
 │  └─ db/migrations/                # 물리 DB 채택 후 생성
 ├─ docs/
@@ -287,7 +288,7 @@ proj_team2/
 | cases/·requests/ | 기대 결과를 가진 반복 시험 / 개별 실행·시연 요청 | R05 |
 | runs/public/·runs/<실행묶음ID>/ | 검토한 가린 JSON/Markdown 공유 / 원시·비공개 결과 로컬 보존. summary와 상세 결과 구분 | R05, 구현 역할 증거 제공 |
 | scripts/dev/·scripts/test/ | 실행/배포 보조 / 시험·측정 재현 도구. 사용법은 scripts README에 연결 | R01 / R05, 도메인 검토 역할 지정 |
-| infra/compose.yaml·README | n8n 단일 인스턴스·볼륨·네트워크·선택 DB의 배포/복구 | R01, 저장 검토 R04 |
+| infra/compose.yaml·README·vm-preflight.md | n8n 단일 인스턴스·볼륨·네트워크·선택 DB의 배포/복구 | R01, 저장 검토 R04 |
 | infra/db/migrations/ | 채택한 물리 저장의 버전별 스키마 변경 | R04, 배포/복구 검토 R01 |
 | docs/project/ | 시스템·상세 설계·결과·증거 화면·이력. 문서별 원본 관계 유지 | 헌장 문서 소유권 |
 | docs/guideline·docs/research·data/research | 기존 요구·조사 원본. 서비스 입력으로 필요한 부분만 선별 | 기존 영역 규칙과 헌장 경로표 |
@@ -297,10 +298,14 @@ proj_team2/
 
 Python 실행/의존성·린트·포맷은 [Python 개발 기준](../PYTHON-DEVELOPMENT.md), 공개 대상/제외·원문 링크 전환은 [공개 정책](../PUBLICATION.md)이 원본이다. Python을 사용해도 n8n 중심 흐름은 유지한다. Discord Gateway 봇 서비스는2.1의 기본안이며 그 밖의 독립 API 서버/컨테이너는 별도 설계한다. 기존 조사·원문은 로컬에 보존하고, 현재 폴더의 .gitignore로 선별한 팀 문서·도구만 Git 추적한다. 로컬 원문·비밀은 제외하며 ZIP은 선택 사항이다.
 
+기존 VM n8n의 Compose와 데이터 볼륨을 유지한다. 로그인 사용자 홈의 dubakwi/deploy·backups·evidence는 Git 밖 운영 자료 경로이며 권한700으로 준비했다. 기존 설치·볼륨을 이곳으로 옮긴 것은 아니다. 새 infra/compose.yaml은 검토된 배포 구성 확정 후 작성하며 현재 실행 원본으로 사용하지 않는다. 확인 범위와 인계 조건은 [배포 전 점검](../../infra/vm-preflight.md), 작업 상태는 개발 원장이 관리한다.
+
 ## 10 변경 기록
 
 | 날짜 | 버전 | 내용 |
 | --- | --- | --- |
+| 2026-11-05 | v0.10 | R01 VM 수동 색인/실제 검색 부분 증거 연결. data-api 부재·인가/공식 판정/전체 종단 미완료 유지 |
+| 2026-11-04 | v0.9 | 기존 VM 유지·운영 자료 경로·P04 점검/인계와 환경 예시 구분 반영 |
 | 2026-11-03 | v0.8 | P08 검토용 초안과 서비스 색인 원본의 경계를 RAG v0.8에 연결. 구성·계약 변경 없음 |
 | 2026-11-03 | v0.7 | 두바퀴/dubakwi 확정·워크플로우/웹훅/색인 명명·현재 문서 참조 동기화 |
 | 2026-11-03 | v0.6 | 팀 첫 실행/PR·가린 텍스트 공유 경로, 보완 횟수 전달·replay 표시·공통14 판정 인계 보완 |
@@ -311,3 +316,5 @@ Python 실행/의존성·린트·포맷은 [Python 개발 기준](../PYTHON-DEVE
 | 2026-11-03 | v0.1 | 기존 상세 설계를 연결하는 최상위 구성·상태·시나리오·기능 추적 문서 작성 |
 
 [산출물 목록과 원본 관계](README.md) · [주제](TOPIC.md) · [팀 헌장](TEAM-CHARTER.md)
+
+- 2026-11-05 기준 참조 갱신: PR #10의 RAG v0.9 교육용 로컬 구현을 연결한다. 시스템 구성·공개 계약 변경과 서비스 검증 완료를 뜻하지 않는다.

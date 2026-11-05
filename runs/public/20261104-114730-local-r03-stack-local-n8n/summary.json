@@ -1,0 +1,20 @@
+{
+  "executed_at": "2026-11-04T11:47:30.197064+09:00",
+  "environment": "local document-only stack synchronization",
+  "task": "P10/P16 PR10 parent synchronization",
+  "configuration": "updated PR6 parent merged; no VM or service changes",
+  "case_ids": [],
+  "original_head": "12f98ba4480475e5cd5fc6bbf8be92ad9bada62c",
+  "parent": "6905693d3df7513d3923e778e854a07160c56708",
+  "checks": {
+    "project_docs": "20 docs,355 links,42 anchors;passed",
+    "public_files": "71 candidates before evidence;375 links;passed",
+    "diff_check": "passed",
+    "implementation": "identical to PR6 parent, whose 33 tests passed; tests not redundantly rerun"
+  },
+  "limits": [
+    "Original PR10 only adds local-n8n-progress.md",
+    "No actual n8n RAG workflow or vector tests",
+    "No merge into main or new knowledge/publication approval"
+  ]
+}
