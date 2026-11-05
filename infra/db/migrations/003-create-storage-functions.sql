@@ -175,7 +175,8 @@ BEGIN
         );
     END IF;
 
-    IF op_value = 'fail' AND ref_value IS NULL THEN
+    IF op_value = 'fail'
+       AND (ref_value IS NULL OR jsonb_typeof(ref_value) = 'null') THEN
         scope_value := nullif(btrim(payload ->> 'scope'), '');
         execution_value := nullif(btrim(payload ->> 'execution_id'), '');
         IF scope_value IS NULL OR execution_value IS NULL
@@ -277,21 +278,32 @@ BEGIN
               AND jsonb_typeof(args_value -> 'response') = 'object'
             RETURNING * INTO state_row;
         ELSIF op_value = 'save' THEN
-            UPDATE dubakwi_service.request_state
-            SET processing_status = 'completed',
-                current_step = 'respond',
-                response = payload -> 'response',
-                error_code = NULL,
-                revision = revision + 1,
-                updated_at = CURRENT_TIMESTAMP
+            SELECT * INTO state_row
+            FROM dubakwi_service.request_state
             WHERE scope = scope_value AND request_id = request_id_value
               AND owner_id = owner_value AND input_hash = input_hash_value
               AND execution_id = execution_value AND revision = expected_revision
               AND processing_status = 'processing'
               AND case_id = payload ->> 'case_id'
               AND jira_issue_key = payload ->> 'ticket_id'
-              AND jsonb_typeof(payload -> 'response') = 'object'
-            RETURNING * INTO state_row;
+              AND jsonb_typeof(payload -> 'response') = 'object';
+
+            IF state_row.request_id IS NOT NULL THEN
+                RETURN jsonb_build_object(
+                    'request_id', state_row.request_id,
+                    'ok', false,
+                    'state_ref', dubakwi_service.state_ref_json(state_row),
+                    'error_code', 'tickets_down',
+                    'recovery', jsonb_build_object(
+                        'version', 1,
+                        'mode', 'manual_required',
+                        'action', 'finish',
+                        'args', NULL,
+                        'reference', NULL,
+                        'reason', 'Jira context/version update is not verified'
+                    )
+                );
+            END IF;
         ELSIF op_value = 'fail' THEN
             UPDATE dubakwi_service.request_state
             SET processing_status = args_value ->> 'status',
@@ -383,6 +395,15 @@ BEGIN
         FOR UPDATE;
 
         IF FOUND THEN
+            IF existing_row.replay_status = 'reprocessing' THEN
+                RETURN jsonb_build_object(
+                    'ok', true,
+                    'dlq_id', existing_row.dlq_id,
+                    'deduplicated', true,
+                    'error_code', NULL
+                );
+            END IF;
+
             UPDATE dubakwi_service.dead_letters
             SET request_id = coalesce(payload ->> 'request_id', request_id),
                 case_id = coalesce(payload ->> 'case_id', case_id),
