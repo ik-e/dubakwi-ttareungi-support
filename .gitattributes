@@ -7,5 +7,3 @@
 *.yml text eol=lf
 *.yaml text eol=lf
 uv.lock text eol=lf
-*.pdf binary
-docs/rag-knowledge/chatbot_documents/chatbot-original.md whitespace=-trailing-space

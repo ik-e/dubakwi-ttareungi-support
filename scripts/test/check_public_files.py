@@ -47,27 +47,6 @@ def audit(root=ROOT):
         }:
             errors.append({"file": name, "issue": "private material in Git candidates"})
             continue
-        image_dir = "docs/rag-knowledge/chatbot_documents/images/"
-        if name.startswith(image_dir) and path.suffix.lower() in {".png", ".jpg", ".jpeg"}:
-            if (
-                not path.is_file()
-                or path.is_symlink()
-                or not path.resolve().is_relative_to(root)
-                or path.stat().st_size > 5 * 1024 * 1024
-            ):
-                errors.append({"file": name, "issue": "unsafe or oversized chatbot image"})
-            else:
-                signature = path.read_bytes()[:8]
-                if not (signature.startswith(b"\xff\xd8\xff") or signature == b"\x89PNG\r\n\x1a\n"):
-                    errors.append({"file": name, "issue": "invalid chatbot image"})
-            continue
-        # Explicit user-approved presentation; other binary PDFs remain prohibited.
-        if name == "docs/output/pdf/두바퀴_RAG_발표자료.pdf":
-            if not path.is_file() or path.is_symlink() or path.stat().st_size > 5 * 1024 * 1024:
-                errors.append({"file": name, "issue": "unsafe or oversized presentation PDF"})
-            elif not path.read_bytes().startswith(b"%PDF-"):
-                errors.append({"file": name, "issue": "invalid presentation PDF"})
-            continue
         if path.suffix.lower() in {
             ".pem",
             ".key",

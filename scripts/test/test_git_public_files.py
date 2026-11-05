@@ -66,21 +66,6 @@ class GitPublicFilesTests(unittest.TestCase):
             with self.subTest(path=name):
                 self.assertEqual(name in result["files"], included)
 
-    def test_only_named_presentation_pdf_is_allowed(self):
-        folder = self.root / "docs/output/pdf"
-        folder.mkdir(parents=True)
-        approved = folder / "두바퀴_RAG_발표자료.pdf"
-        approved.write_bytes(b"%PDF-1.4\nexample")
-        other = folder / "other.pdf"
-        other.write_bytes(b"%PDF-1.4\nexample")
-        result = audit(self.root)
-        self.assertFalse(any(x["file"].endswith(approved.name) for x in result["errors"]))
-        self.assertTrue(any(x["file"].endswith("other.pdf") for x in result["errors"]))
-        approved.write_bytes(b"not a PDF")
-        self.assertTrue(
-            any(x["issue"] == "invalid presentation PDF" for x in audit(self.root)["errors"])
-        )
-
 
 if __name__ == "__main__":
     unittest.main()

@@ -1,0 +1,83 @@
+{
+  "file": "requests/demo-sequence.json",
+  "task": "P25",
+  "owner": "R05",
+  "reviewers": ["R02", "R03", "R04"],
+  "status": "draft_not_run",
+  "updated": "2026-11-05",
+  "purpose": "5분 VM 시연(발표 계획 S08·5절)의 입력·순서·고장 설정/복원·보여줄 화면. 시험 명세는 cases/이며 이 파일은 시연 입력이다",
+  "basis": {
+    "order": "docs/PRESENTATION-PLAN.md 5절 '원본 순서 대응' 1~7, docs/DEVELOPMENT-PLAN.md P25(정상→보완 질문→장애→이관·로그)",
+    "order_limit": "원본 요구 5절 시연 순서(공개본 제외 자료)는 로컬에 없어 직접 대조하지 않음. R01 확인 필요",
+    "questions": "검토된 사례 문장을 그대로 사용: WF-01, WF-02, WF-04(cases/common.json), TC04(cases/team.json)"
+  },
+  "send": {
+    "webhook": "POST /webhook/dubakwi-support, Header Auth X-Team-Key. 키는 환경변수 FLOW_WEBHOOK_KEY에만 둔다",
+    "channel": "기본은 Discord 명령(본인 전용 초기 응답→비공개 최종 응답). 봇 미준비 시 같은 본문을 팀 Webhook으로 보내고 Discord 연결 성공으로 표현하지 않는다",
+    "request_id": "요청 상태를 저장하므로 같은 request_id를 다시 보내면 재전송(replay)으로 처리된다. 리허설·본 시연마다 끝의 -r1을 -r2, -r3…으로 바꾼다",
+    "rehearsal": "응답 판정이 필요한 리허설은 같은 문장의 사례를 run_cases.py --case WF01 WF02 WF04 TC04로 돌린다(request_id 자동 고유화)"
+  },
+  "preflight": [
+    "가이드 doctor/ready 확인",
+    "flow.py fault all ok, flow.py llm up",
+    "data-api 경로면 POST /tickets-reset",
+    "Jira 경로면 R04가 정한 시연 전 상태 확인(과정 fault 명령이 Jira에 적용된다고 가정하지 않음)",
+    "시연 사용자 citizen-a가 서버 사용자 목록에 있는지 확인(R04 P09)"
+  ],
+  "steps": [
+    {
+      "step": 1, "time": "0:00~0:30", "scenario": "S1", "case": "WF01",
+      "action": "정상 문의 전송", "request": "requests/demo-1-guide.json",
+      "show": ["Discord 초기 응답 또는 Webhook 요청", "n8n 실행 시작"]
+    },
+    {
+      "step": 2, "time": "0:30~1:00", "scenario": "S1", "case": "WF01",
+      "action": "같은 실행의 분류·근거 검색 확인", "request": null,
+      "show": ["분류 결과", "검색 근거 rental-guide 'QR 인식 또는 잠금 해제가 어려운 경우'", "근거의 [실제 안내]/[가상 설정] 표시"]
+    },
+    {
+      "step": 3, "time": "1:00~1:30", "scenario": "S1", "case": "WF01",
+      "action": "답변 검증·안내 종료·최종 응답 확인", "request": null,
+      "expect": {"status": 200, "route": "자동 답변", "ticket": null, "sources": "rental-guide 포함"},
+      "show": ["검증 통과", "Jira 생성 후 안내 종료·최종 저장", "응답 ticket=null과 내부 티켓이 다름을 설명"]
+    },
+    {
+      "step": 4, "time": "1:30~2:15", "scenario": "S2", "case": "WF02",
+      "action": "정보 부족 문의 전송", "request": "requests/demo-2-info.json",
+      "expect": {"status": 200, "route": "보완 질문", "ticket": null, "case_ref": "있음"},
+      "show": ["보완 질문 문장(자전거번호·대여소·시각 등)", "waiting_info와 case_ref"],
+      "evidence_instead": "case_ref로 이어지는 보완 왕복·한도 이관은 TC01·WF-02b 보고서로 보충"
+    },
+    {
+      "step": 5, "time": "2:15~3:30", "scenario": "S8", "case": "WF04",
+      "fault_on": {"data-api": "POST /admin/fault {\"tickets\":\"error\"}", "jira": "R04가 정함"},
+      "action": "티켓 API 장애 중 이관 필요 문의 전송", "request": "requests/demo-3-ticket-down.json",
+      "fault_off": {"data-api": "POST /admin/fault {\"tickets\":\"ok\"}", "jira": "R04가 정함"},
+      "expect": {"status": 200, "route": "담당자 이관", "ticket": null, "reason": "있음"},
+      "show": ["'접수 완료'라고 말하지 않는 응답", "DLQ 1건", "운영 알림 1건", "생성 티켓 0건"],
+      "must": "응답을 확인하면 바로 고장을 해제한다. 실패해도 해제한다"
+    },
+    {
+      "step": 6, "time": "3:30~4:30", "scenario": "S3", "case": "TC04",
+      "action": "복원 후 이관 필요 문의 전송", "request": "requests/demo-4-handoff.json",
+      "expect": {"status": 200, "route": "담당자 이관", "ticket.priority": "normal", "ticket.ticket_id": "있음"},
+      "show": ["실제 티켓 ID", "담당 역할 지정·알림", "요청·문의·Jira·execution 연결 로그"],
+      "evidence_instead": "실시간 실패 시 같은 버전·환경의 사전 실행 보고서로 전환하고 실시간 성공으로 표현하지 않는다"
+    },
+    {
+      "step": 7, "time": "4:30~5:00", "scenario": null, "case": null,
+      "action": "실행 로그와 복원 확인 후 시험 결과(S09)로 넘김", "request": null,
+      "show": ["5단계 요청의 failed/unknown·DLQ 기록", "고장·LLM 복원 상태", "runs/public 실행 보고서 경로"]
+    }
+  ],
+  "after_demo": ["flow.py fault all ok", "flow.py llm up", "사용한 request_id와 실행묶음 ID를 실행 결과서에 기록"],
+  "privacy": "모의 사용자·가상 질문만 사용. 화면 캡처에서 키·연락처·실제 계정을 가린다",
+  "open_items": [
+    "원본 요구 5절 시연 순서와 단계 대조(R01)",
+    "Discord 명령 이름·인자(R02 입구 어댑터)",
+    "Jira 경로의 시연 전 상태 확인과 장애 주입 방법(R04)",
+    "citizen-a 서버 공급(R04 P09). 미공급 시 400 unknown_user",
+    "S1 Jira 생성/안내 종료·최종 저장(P12·P18·P19) 완료 전에는 1~3·6단계를 mock 경로로 표시"
+  ],
+  "run_status": "not_run"
+}
