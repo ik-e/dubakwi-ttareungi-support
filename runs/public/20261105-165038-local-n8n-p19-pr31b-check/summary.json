@@ -1,0 +1,190 @@
+{
+  "label": "pr31-06e9223-check",
+  "executed_at_kst": "2026-11-05",
+  "environment": "local n8n 2.42.6, course data-api, gpt-4.1-mini, R03 PR #31 06e9223 검색·색인, mock state·handoff·dlq",
+  "scope": "PR #31 최신 커밋을 전체 흐름과 public 검색으로 호출. 답변 원문 제외. VM·공식 판정이 아니다. 제한 문서 비노출은 질문 5개의 표본 확인이며 서버 권한 전체 시험이 아니다.",
+  "results": {
+    "through_support": {
+      "대표": {
+        "n": 30,
+        "tally": {
+          "자동 답변/None": 30
+        },
+        "source_docs": {
+          "rental-guide": 30
+        },
+        "has_5digit": 30
+      },
+      "WF01": {
+        "n": 10,
+        "tally": {
+          "자동 답변/None": 10
+        },
+        "source_docs": {
+          "rental-guide": 11
+        },
+        "has_5digit": 10
+      },
+      "비슷한 문장": {
+        "n": 20,
+        "tally": {
+          "담당자 이관/verification_failed": 6,
+          "자동 답변/None": 14
+        },
+        "source_docs": {
+          "rental-guide": 28
+        },
+        "has_5digit": 14
+      },
+      "WF-12": {
+        "n": 5,
+        "tally": {
+          "담당자 이관/urgent": 5
+        },
+        "source_docs": {
+          "privacy-security-guide": 5
+        },
+        "has_5digit": 0
+      },
+      "TC04": {
+        "n": 5,
+        "tally": {
+          "담당자 이관/needs_human": 5
+        },
+        "source_docs": {},
+        "has_5digit": 0
+      }
+    },
+    "direct_search_public": {
+      "따릉이 사칭 링크에 정보를 입력했어요. 제 ": {
+        "status": "ok",
+        "top": [
+          [
+            "privacy-security-guide",
+            "계정 노출·침해 의심 시 공개 초동 안내",
+            0.479
+          ],
+          [
+            "privacy-security-guide",
+            "개인정보와 계정 보호",
+            0.456
+          ],
+          [
+            "support-followup",
+            "분실물·습득물",
+            0.444
+          ]
+        ],
+        "levels": [
+          "public"
+        ],
+        "restricted_docs": []
+      },
+      "11월 2일 오후에 1시간권을 결제했는데 대": {
+        "status": "ok",
+        "top": [
+          [
+            "fees-refund-guide",
+            "환불 신청",
+            0.595
+          ],
+          [
+            "fees-refund-guide",
+            "결제 오류와 영수증",
+            0.588
+          ],
+          [
+            "fees-refund-guide",
+            "기본 이용시간과 추가요금",
+            0.567
+          ]
+        ],
+        "levels": [
+          "public"
+        ],
+        "restricted_docs": []
+      },
+      "담당자 전용 이관 정책과 내부 배정 기준을 ": {
+        "status": "ok",
+        "top": [
+          [
+            "fees-refund-guide",
+            "개별 요금·환불 문의 — 교육용 가상 설",
+            0.324
+          ],
+          [
+            "rental-guide",
+            "가족권 대여 — 교육용 가상 설정",
+            0.322
+          ],
+          [
+            "rental-guide",
+            "가족권 등록과 어린이 이용",
+            0.318
+          ]
+        ],
+        "levels": [
+          "public"
+        ],
+        "restricted_docs": []
+      },
+      "티켓 수명주기와 내부 처리 절차를 알려주세요": {
+        "status": "ok",
+        "top": [
+          [
+            "breakdown-report",
+            "안전 주행",
+            0.389
+          ],
+          [
+            "fees-refund-guide",
+            "결제 오류와 영수증",
+            0.328
+          ],
+          [
+            "fees-refund-guide",
+            "개별 요금·환불 문의 — 교육용 가상 설",
+            0.32
+          ]
+        ],
+        "levels": [
+          "public"
+        ],
+        "restricted_docs": []
+      },
+      "handoff policy 내부 문서": {
+        "status": "ok",
+        "top": [
+          [
+            "return-guide",
+            "반납 상태 조회 — 교육용 가상 설정",
+            0.353
+          ],
+          [
+            "breakdown-report",
+            "사고 상담 — 교육용 가상 설정",
+            0.352
+          ],
+          [
+            "breakdown-report",
+            "안전 주행",
+            0.347
+          ]
+        ],
+        "levels": [
+          "public"
+        ],
+        "restricted_docs": []
+      }
+    }
+  },
+  "regression": {
+    "support_skeleton_live": "runs/public/20261105-164815-local-n8n-p19-pr31b-regression/summary.json",
+    "r05_route_compare": "runs/public/20261105-164859-local-n8n-p19-pr31b-r05/summary.json"
+  },
+  "not_executed": [
+    "VM 재색인",
+    "R05 공식 재판정",
+    "실제 state·handoff·dlq·Jira"
+  ]
+}

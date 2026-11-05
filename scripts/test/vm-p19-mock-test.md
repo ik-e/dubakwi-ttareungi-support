@@ -138,6 +138,8 @@ save 실패 경로는 state mock이 `ok:false`, `tickets_down`을 돌려주는 �
 
 [L02 공개 대표번호 수정 비교](../../runs/public/20261105-163443-local-n8n-p19-l02-compare/summary.json): PR #31 색인 기준 대표 문장 자동 답변이 20회 중 17회에서 30회 중 29회가 됐다. 남은 1회는 `llm_down`이고 번호 생략 오판은 없었다. "QR 대여 방법"은 10회 중 5회에서 10회가 됐고, "QR로 대여하는 방법"은 20회 중 12회에서 13회로 거의 그대로다. [회귀](../../runs/public/20261105-163143-local-n8n-p19-l02-regression-2/summary.json) 19/20, [R05 사례](../../runs/public/20261105-163225-local-n8n-p19-l02-r05-2/summary.json)는 19개 중 18개 3회 통과이고 WF-03은 1회가 보완 질문이었다.
 
+[R03 PR #31 `06e9223` 확인](../../runs/public/20261105-165038-local-n8n-p19-pr31b-check/summary.json): 대표 문장 30회, WF01 문장 10회 모두 자동 답변이고, WF-12 5회는 `privacy-security-guide` 근거의 긴급 이관, TC04 5회는 사람 판단 이관이다. "QR로 대여하는 방법"은 20회 중 14회다. [회귀](../../runs/public/20261105-164815-local-n8n-p19-pr31b-regression/summary.json)와 [R05 사례](../../runs/public/20261105-164859-local-n8n-p19-pr31b-r05/summary.json)를 같은 구성에서 다시 실행해 각각 18/20(LN07 검증 실패 이관, LN14 보완 질문), 19개 3회 응답 칸 통과다.
+
 알려진 문제가 VM에서도 나올 수 있다. 실패를 지우거나 재시도로 숨기지 않고 그대로 기록한다.
 
 - **L03 과도 판정 잔존:** L02 수정 뒤 번호 생략 이유는 줄었지만, 문장에 여러 근거 문서가 섞이면 L03이 말 바꿈이나 문서 간 차이를 실패로 보는 경우가 남았다. "QR로 대여하는 방법 알려주세요"는 20회 중 7회 `verification_failed`다. 안전한 쪽(이관)으로 끝난다.
