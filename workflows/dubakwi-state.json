@@ -1,6 +1,6 @@
 {
   "id": "dubakwiState01",
-  "name": "dubakwi-state · P12 fail-closed skeleton",
+  "name": "dubakwi-state · P12 PostgreSQL adapter",
   "nodes": [
     {
       "name": "S01 상태 명령 수신",
@@ -17,11 +17,67 @@
         "jsCode": "// P12 로컬 골격: STORAGE-DESIGN 6.1 계약만 검사한다.\n// 물리 저장소가 합의·연결되기 전에는 성공 StateRef를 만들거나 상태를 변경하지 않는다.\nconst input = $json;\nconst isObj = (v) => v !== null && typeof v === 'object' && !Array.isArray(v);\nconst isText = (v) => typeof v === 'string' && v.trim().length > 0;\nconst hasOwn = (v, key) => Object.prototype.hasOwnProperty.call(v, key);\nconst hasOnlyKeys = (v, allowed) => isObj(v) && Object.keys(v).every((key) => allowed.has(key));\nconst isNullableVersion = (v) => v === null || (Number.isInteger(v) && v >= 0);\nconst isStateRef = (v) => isObj(v) && isText(v.scope) && isText(v.request_id) && isText(v.owner_id) && isText(v.input_hash) && isText(v.execution_id) && Number.isInteger(v.state_revision) && v.state_revision >= 0;\nconst isSource = (v) => isObj(v) && isText(v.doc) && isText(v.section) && typeof v.score === 'number' && Number.isFinite(v.score);\nconst isFact = (v) => isObj(v) && isText(v.key) && typeof v.value === 'string' && ['user', 'document', 'api'].includes(v.origin) && (!hasOwn(v, 'reference') || typeof v.reference === 'string');\nconst isCaseFacts = (v) => isObj(v) && typeof v.summary === 'string' && Array.isArray(v.reported) && v.reported.every(isFact) && Array.isArray(v.confirmed) && v.confirmed.every(isFact) && Array.isArray(v.attempted_actions) && v.attempted_actions.every((item) => typeof item === 'string') && Array.isArray(v.missing) && v.missing.every((item) => typeof item === 'string') && Array.isArray(v.uncertainties) && v.uncertainties.every((item) => typeof item === 'string') && Array.isArray(v.evidence_refs) && v.evidence_refs.every(isSource);\nconst isOutcome = (v) => isObj(v) && ['guidance', 'ask', 'handoff', 'urgent', 'deny', 'failure'].includes(v.mode) && ['자동 답변', '보완 질문', '담당자 이관', '권한 없음', '차단'].includes(v.route) && typeof v.answer === 'string' && Array.isArray(v.sources) && v.sources.every(isSource) && typeof v.close_required === 'boolean' && isText(v.support_status) && (v.reason === null || typeof v.reason === 'string');\nconst isSecurity = (v) => isObj(v) && (v.blocked_by === null || typeof v.blocked_by === 'string') && (v.reason === null || typeof v.reason === 'string') && Number.isInteger(v.masked) && v.masked >= 0;\nconst isTicket = (v) => v === null || (isObj(v) && isText(v.ticket_id) && ['normal', 'high'].includes(v.priority) && typeof v.duplicate === 'boolean');\nconst isResponse = (v) => isObj(v) && isText(v.request_id) && ['자동 답변', '보완 질문', '담당자 이관', '권한 없음', '차단'].includes(v.route) && typeof v.answer === 'string' && Array.isArray(v.sources) && v.sources.every(isSource) && isTicket(v.ticket) && Array.isArray(v.agents) && v.agents.every(isText) && isSecurity(v.security);\nconst requestId = isObj(input) && isObj(input.state_ref) && isText(input.state_ref.request_id) ? input.state_ref.request_id : (isObj(input) && isObj(input.request) && isText(input.request.request_id) ? input.request.request_id : null);\n\nif (!isObj(input) || !isText(input.op)) {\n  return [{ json: { request_id: requestId, ok: false, skipped: false, state_ref: null, error_code: 'invalid_state_request' } }];\n}\n\nif (input.op === 'begin') {\n  const valid = isText(input.scope) && isText(input.execution_id) && isText(input.input_hash) && isObj(input.actor) && isText(input.actor.id) && isObj(input.request) && isText(input.request.request_id);\n  return [{ json: {\n    request_id: requestId,\n    mode: 'error',\n    state_ref: null,\n    support: null,\n    facts: null,\n    response: null,\n    http_status: valid ? 503 : 400,\n    error_code: valid ? 'state_backend_unconfigured' : 'invalid_state_request'\n  } }];\n}\n\nif (input.op === 'save') {\n  const valid = isStateRef(input.state_ref) && isText(input.case_id) && isText(input.first_request_id) && Number.isInteger(input.attempt) && input.attempt >= 1 && hasOwn(input, 'expected_case_version') && isNullableVersion(input.expected_case_version) && isText(input.ticket_id) && isCaseFacts(input.facts) && isOutcome(input.outcome) && isResponse(input.response);\n  return [{ json: {\n    request_id: requestId,\n    ok: false,\n    state_ref: null,\n    error_code: valid ? 'state_backend_unconfigured' : 'invalid_state_request',\n    recovery: { version: 1, mode: 'manual_required', action: 'finish', args: null, reference: null, reason: valid ? '물리 저장소 미연결' : '저장 요청 계약 오류' }\n  } }];\n}\n\nconst validatePrepare = (args) => hasOnlyKeys(args, new Set(['current_step'])) && isText(args.current_step);\nconst validateBind = (args) => {\n  if (!hasOnlyKeys(args, new Set(['jira_issue_id', 'key', 'jira_issue_key', 'case_id', 'first_request_id', 'next_step']))) return false;\n  const hasKey = hasOwn(args, 'key');\n  const hasIssueKey = hasOwn(args, 'jira_issue_key');\n  return isText(args.jira_issue_id) && hasKey !== hasIssueKey && isText(hasKey ? args.key : args.jira_issue_key) && isText(args.case_id) && isText(args.first_request_id) && isText(args.next_step);\n};\nconst validateFinish = (args) => hasOnlyKeys(args, new Set(['response', 'current_step'])) && isResponse(args.response) && args.current_step === 'respond';\nconst validateFail = (args) => hasOnlyKeys(args, new Set(['status', 'current_step', 'error_code'])) && ['failed', 'unknown'].includes(args.status) && isText(args.current_step) && isText(args.error_code);\nconst validators = { prepare: validatePrepare, bind: validateBind, finish: validateFinish, fail: validateFail };\nconst noOwnedState = input.op === 'fail' && input.state_ref === null && isText(input.scope) && isText(input.execution_id);\nif (noOwnedState && isObj(input.args) && validateFail(input.args)) {\n  return [{ json: { request_id: requestId, ok: true, skipped: true, state_ref: null, error_code: null } }];\n}\nconst validFailTarget = isStateRef(input.state_ref);\nconst validStateTarget = input.op === 'fail' ? validFailTarget : isStateRef(input.state_ref);\nconst valid = hasOwn(validators, input.op) && validStateTarget && isObj(input.args) && validators[input.op](input.args);\nreturn [{ json: {\n  request_id: requestId,\n  ok: false,\n  skipped: false,\n  state_ref: null,\n  error_code: valid ? 'state_backend_unconfigured' : 'invalid_state_request'\n} }];"
       },
       "position": [280, 0]
+    },
+    {
+      "name": "S03 실제 저장 호출 여부",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{ $json.error_code === 'state_backend_unconfigured' }}",
+              "value2": true
+            }
+          ]
+        }
+      },
+      "position": [520, 0]
+    },
+    {
+      "name": "S04 PostgreSQL 상태 저장",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT dubakwi_service.state_apply($1::jsonb) AS result;",
+        "options": {
+          "queryReplacement": "={{ JSON.stringify($('S01 상태 명령 수신').item.json) }}"
+        }
+      },
+      "credentials": {
+        "postgres": {
+          "name": "dubakwi-postgres"
+        }
+      },
+      "onError": "continueRegularOutput",
+      "position": [760, -100]
+    },
+    {
+      "name": "S05 저장 결과 정규화",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "parameters": {
+        "jsCode": "const original = $('S01 상태 명령 수신').item.json;\nconst raw = $json.result;\nlet result = raw;\nif (typeof raw === 'string') { try { result = JSON.parse(raw); } catch { result = null; } }\nif (!result || typeof result !== 'object' || Array.isArray(result)) {\n  if (original.op === 'begin') return [{json:{request_id:original.request?.request_id ?? null,mode:'error',state_ref:null,support:null,facts:null,response:null,http_status:503,error_code:'state_error'}}];\n  if (original.op === 'save') return [{json:{request_id:original.state_ref?.request_id ?? null,ok:false,state_ref:null,error_code:'state_error',recovery:{version:1,mode:'manual_required',action:'finish',args:null,reference:null,reason:'상태 저장 결과 확인 실패'}}}];\n  return [{json:{request_id:original.state_ref?.request_id ?? null,ok:false,skipped:false,state_ref:null,error_code:'state_error'}}];\n}\nif (original.op === 'save' && !Object.prototype.hasOwnProperty.call(result, 'recovery')) result.recovery = {version:1,mode:'manual_required',action:'inspect_only',args:null,reference:null,reason:result.ok ? null : '상태 저장 미확인'};\nreturn [{json:result}];"
+      },
+      "position": [1000, -100]
     }
   ],
   "connections": {
     "S01 상태 명령 수신": {
       "main": [[{"node": "S02 계약 검사와 안전 차단", "type": "main", "index": 0}]]
+    },
+    "S02 계약 검사와 안전 차단": {
+      "main": [[{"node": "S03 실제 저장 호출 여부", "type": "main", "index": 0}]]
+    },
+    "S03 실제 저장 호출 여부": {
+      "main": [
+        [{"node": "S04 PostgreSQL 상태 저장", "type": "main", "index": 0}],
+        []
+      ]
+    },
+    "S04 PostgreSQL 상태 저장": {
+      "main": [[{"node": "S05 저장 결과 정규화", "type": "main", "index": 0}]]
     }
   },
   "active": false,
