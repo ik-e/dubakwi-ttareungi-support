@@ -76,6 +76,7 @@ const happy = (name, req) => {
   if (name === "H38 Jira 담당 후보 조회") return {statusCode: 200, body: [{accountId: "acct", active: true, accountType: "atlassian"}]};
   if (name === "H09 Jira 맥락 저장·배정") return {statusCode: 204, body: ""};
   if (name === "H11 담당 알림") return {statusCode: 200, body: {ok: true}};
+  if (name === "H50 Jira 알림 성공 표식") return {statusCode: 204, body: ""};
   if (name === "H46 Jira 보완 횟수 저장") return {statusCode: 201, body: {id: "1"}};
   throw new Error(`unexpected call ${name}`);
 };
