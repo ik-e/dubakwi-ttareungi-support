@@ -516,7 +516,7 @@ B28은 먼저 error_code=null && state_saved=true && 최신 state_ref를 확인�
 | 시민 ticket_id | Jira 키(예: `JBYS-1`)를 그대로 응답 | R04 동의(2026-11-05). 실제 Jira 생성은 미실행 |
 | state `error_code` | support는 저장된 칸을 읽지 않고 SaveResult·StateResult·BeginResult의 값만 소비 | 스키마 변경 불필요 |
 | 저장 경계 | R04 `1b83d18`: support는 `save`만 호출, 내부에서 Jira 확인 뒤 finish. DLQ는 X03만 기록. 처리권 없는 fail은 skipped. wait도 Jira에 보완 횟수 기록 | PR #27 미병합. [로컬 가짜 Jira 시험](../../runs/public/20261105-194144-local-n8n-p19-fake-jira-fdd0be1/summary.json)으로 소비 확인. support를 통한 실제 Jira·VM·공식 판정 미실행 |
-| 알려진 한계 | 한도 이관 뒤 같은 case의 새 요청과 같은 요청 재시도에서 재배정·재알림 반복 | R04 PR #27 `e0ff365`에서 알림 시도·성공 표식으로 수정. support 소비는 로컬 Code로 호환 확인. 표식 저장 실패의 `alert_marker` 복구 정보는 DLQ 허용 action에 없어 R04 확인 필요. support를 통한 종단·실제 Jira·동시 요청 생성 원자성은 미확인 |
+| 알려진 한계 | 한도 이관 뒤 같은 case의 새 요청과 같은 요청 재시도에서 재배정·재알림 반복 | R04 PR #27 `e0ff365`에서 알림 시도·성공 표식으로 수정. support 소비는 로컬 Code로 호환 확인. `alert_marker`는 `f306778`에서 DLQ에 허용되고 같은 case는 같은 DLQ로 갱신됨(로컬 Code·임시 PostgreSQL 확인). 시도 표식만 남은 문의의 `alert`는 요청마다 새 DLQ라 R04·R05 확인 필요. support를 통한 종단·실제 Jira·동시 요청 생성 원자성은 미확인 |
 | 실제 연결 묶음 | [`make_vm_p19_real_bundle.py`](../../scripts/test/make_vm_p19_real_bundle.py), [대응표](../../scripts/test/vm-p19-real-test.md) | 로컬 임시 PostgreSQL 예행으로 실제 state·DLQ 호출 확인. 실제 Jira·VM·공식 판정 미실행 |
 | DLQ 요청 | X03a는 `jira_issue_id`·`jira_issue_key`·`last_execution_id`와 Effect 5칸을 보냄. 하위 호출은 `alwaysOutputData`로 항목 없어도 진행 | 로컬 시험이 R04의 S02·D02 코드로 요청을 대조함 |
 

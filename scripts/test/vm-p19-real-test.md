@@ -98,8 +98,8 @@ R04 `1b83d18` 기준 [재시험 결과](../../runs/public/20261105-233715-local-
 **알려진 결함:**
 
 - **알림 중복(재배정·재알림 포함):** 한도 이관 뒤 같은 case의 새 요청과 같은 요청 재시도에서 배정과 알림이 다시 나간다. R04가 PR #27 `e0ff365`에서 Jira label로 알림 시도·성공 표식을 나눠 고쳤다. 성공 표식이 있으면 생략하고, 시도 표식만 있으면 `partial_effect`와 복구 정보(`alert`)로 반환한다. R02 확인(2026-11-06): `e0ff365`의 state·DLQ·handoff로 support 로컬 Code 125/125, R04 반복 시험 4/4. support 수정은 필요 없다. 가짜 Jira는 label 추가를 흉내 내지 않아 support를 통한 종단 확인은 하지 않았다.
-- **`alert_marker` 복구 정보가 DLQ 계약에 없음:** `e0ff365`의 H51은 알림 성공 표식 저장 결과를 확인하지 못하면 `recovery.action: alert_marker`를 돌려준다. support X03a는 이 값을 그대로 DLQ에 넘기는데, DLQ D02(`e0ff365`, PR #28 `3d6a581`)의 허용 action에 없어 `invalid_dlq_request`가 된다(Code 대조로 확인). R04에 DLQ 허용 목록 추가 또는 action 변경을 요청한다.
-- **시도 표식만 남은 문의:** 알림이 한 번 실패하면 같은 case의 이후 요청마다 `partial_effect`와 DLQ 기록이 반복된다. 의도한 동작인지 R04·R05 확인이 필요하다.
+- **`alert_marker` DLQ:** `e0ff365`에서는 DLQ 허용 action에 없어 거절됐고, R04가 PR #27 `f306778`에서 허용과 case 단위 중복 제거(`007`)를 추가했다. R02 확인(2026-11-06): `f306778` 하위 기능 코드로 support 로컬 Code 127/127(새 FL75·FL76: 다른 요청 두 건이 같은 `case_id`·`_dedupe_ref`·`failed_step`·`error_code`로 같은 DLQ 키), R04 시험 4/4·4/4. 임시 PostgreSQL 16에 `001`~`007`을 적용해 support 형식 요청으로 `dlq_apply`를 호출하니 같은 case 두 번째는 같은 `dlq_id`, `deduplicated: true`, 최신 `request_id`로 갱신됐고 다른 case는 새 행이었다. FL75·FL76은 이 브랜치의 이전 R04 사본과 맞지 않아 #27 병합 뒤 main 반영 때 함께 올린다.
+- **시도 표식만 남은 문의:** 알림이 한 번 실패하면 같은 case의 이후 요청은 `recovery.action: alert`로 `partial_effect`를 반환한다. 중복 제거는 `alert_marker`에만 적용되어, 같은 임시 DB에서 `alert`는 요청마다 새 DLQ 행이 생겼다. 의도한 동작인지 R04·R05 확인이 필요하다.
 - **Jira 검색 지연 시 중복 가능성:** R04 공유 미반영 항목이다.
 
 실제 S1 통과가 아니다. 실제 Jira, VM, R05 공식 판정은 미실행이다.
