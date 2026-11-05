@@ -1,9 +1,9 @@
 # PostgreSQL 배포 준비와 R04 검토 요청
 
-- 2026-11-05 KST · v0.1 · P04/P18 · R01 준비, R04 저장/권한 검토, R05 검증.
-- 상태: **검토용 준비본, VM 미적용**. 기존 n8n·P11·Credential은 유지한다.
+- 2026-11-05 KST · v0.2 · P04/P18 · R01 준비, R04 저장/권한 검토, R05 검증.
+- 상태: **R04 조건부 동의 취합 완료, VM 미적용**. 기존 n8n·P11·Credential은 유지한다.
 - 원본: [전용 Compose](postgres-compose.yaml), [설정 이름](../.env.example), [R04 저장소 설계](../docs/project/STORAGE-DESIGN.md), [마이그레이션 안내](db/migrations/README.md).
-- PR #23 수정본365c419는 null-ref fail·활성 DLQ claim·Jira 미확인save 안전 차단의 실제 DB 재시험 후 main95479d5에 병합했다. [재시험 증거](../runs/public/20261105-143415-local-pr23-storage-retest/report.md)를 따른다. 실제 Jira save/S1은 미완료다. 이 준비본의 R04 검토·D01 물리 DB 채택·실제 VM 적용 조건 확인 전에는 up·마이그레이션·Credential 등록을 하지 않는다.
+- PR #23 수정본365c419는 null-ref fail·활성 DLQ claim·Jira 미확인save 안전 차단의 실제 DB 재시험 후 main95479d5에 병합했다. [재시험 증거](../runs/public/20261105-143415-local-pr23-storage-retest/report.md)를 따른다. 실제 Jira save/S1은 미완료다. 사용자가 전달한 R04 여섯 항목 동의와 PostgreSQL 적용 지시를 배포 기준으로 반영한다. D01 전체 완료나 실제 VM 연결을 뜻하지 않으며 아래 환경 실측 조건을 충족한 뒤 기동·마이그레이션·Credential 연결을 수행한다.
 
 ## 1 구성과 경계
 
@@ -36,6 +36,21 @@ Compose의 external 네트워크는 기존 Docker bridge 참조다. `internal:tr
 6. n8n Credential의 DB/user/SSL·함수 schema·실제 워크플로우 ID와 Error Workflow 연결 조건이 맞는가? R02 save/Jira·case_ref 소비와 합의가 필요한 점은 무엇인가?
 
 이는 VM 적용 승인 요청이 아니라 구체적인 배포 준비본의 저장·권한 검토 요청이다. SQL 결함 수정이나 문서 검토만으로 실제 운영 시험 통과를 선언하지 않는다.
+
+### 2.1 R04 회신 취합 (2026-11-05 KST)
+
+사용자가 이 대화로 전달한 R04 회신이다. GitHub의 정식 리뷰가 등록된 것으로 표시하지 않는다. R04는 준비본 병합에 이견이 없으며 VM 적용 완료를 뜻하지 않는다고 명시했다.
+
+| 검토 항목 | R04 결과 | 적용 시 남은 확인 |
+| --- | --- | --- |
+| PostgreSQL16.15·데이터 경로·state/DLQ 분리 | 동의 | 실제 이미지/아키텍처·전용 볼륨 |
+| 기존 n8n망·무공개포트·전용 볼륨·SCRAM·파일 비밀 | 동의 | 실제망·별칭 충돌·peer/TLS 필요 여부 |
+| owner/runtime/app 분리·최소 권한 | 동의 | 실제 허용/거절 시험 |
+| 새 DB의001→004 | 동의 | 기존 DB에는 별도 upgrade 필요. 이번 적용은 fresh DB에 한정 |
+| 복원 후002/004 재적용·권한 시험 | 동의 | 실제 복원, 보존기간·RPO/RTO 운영 조건 |
+| n8n Credential 연결 순서 | 동의 | 실제환경의ID·연결시험 |
+
+R04가 재확인한 Jira 생성/bind/문맥/종료·조회/배정/알림·lookup/records·save 성공·case_ref 연결은 미완료다. PostgreSQL·Credential·비활성 반입 준비와 Jira 성공 경로 구현을 구분한다. D01의 실제 Jira 매핑·효과 확인은 계속 미완료로 관리한다.
 
 ## 3 적용 전 자료와 명령 준비
 
