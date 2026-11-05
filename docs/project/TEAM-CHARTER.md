@@ -1,7 +1,7 @@
 # 팀 헌장 · 두바퀴
 
 - 작성일: 2026-11-02 KST
-- 버전·상태: v0.12 / PostgreSQL 배포 준비·저장 검토 경로 반영 초안, 팀 검토 전
+- 버전·상태: v0.13 / P11 입구 사례 경로·R05 통합 인계 반영 초안, 팀 검토 전
 - 작성 형식: [공식 팀 헌장 템플릿 — 공개본 제외 자료](../../docs/PUBLIC-SOURCES.md)
 - 주제 기준: [주제 제안서 v0.7](TOPIC.md)
 
@@ -48,7 +48,7 @@
 | workflows/*-handoff.json·*-state.json·*-dlq.json·*-errors.json | R04 | R02 공개 계약·R05 오류/복구 | Jira·조회·알림·저장·처리권·DLQ |
 | knowledge/manifest.json·public/·restricted/ | R03 | R04 권한/모의 정책·R05 근거 | 지식·출처·적용 범위·버전/권한 |
 | data/users.json·records.json | R04 | R03 권한 입력·R05 정답 연결 | 모의 사용자/소유권·API공급 방법 |
-| cases/common.json·team.json·team-extended.json·requests/ | R05 | R02/R03/R04 관련 기대값 | 공통 판정 유지·시나리오/기능/데이터 연결 |
+| cases/common.json·team.json·team-extended.json·p11-entry.json·requests/ | R05 | R02/R03/R04 관련 기대값 | 공통 판정 유지·시나리오/기능/데이터 연결 |
 | runs/public/·docs/project/images/·docs/project/EXECUTION-RESULT.md | R05 | 전원 담당 증거·R01 제출 | 공개 JSON/Markdown 요약·실패/재시험·결과서. 원시 runs/화면은 로컬/팀 내부·제출 패키지로 구분 |
 | scripts/README.md·scripts/dev/ | R01 | R04 저장/배포·R05 재현 | 공통 사용법 취합·환경/배포 도구 |
 | scripts/test/ | R05 | R02/R03/R04 대상 기능 | 시험·검색 비교·측정 재현. R03이 검색 평가 로직 제공 |
@@ -140,3 +140,5 @@ Discord 이용자 입구와 Jira 티켓 관리는 사용자 결정이며 주제 
 - 2026-11-05 v0.12 변경: PostgreSQL 전용 Compose/배포 준비 안내의 R01 편집·R04 저장/권한·R05 복원 검토 경로를 추가. 실제 VM DB 채택/적용·역할 검토 완료를 뜻하지 않는다.
 
 - 2026-11-04 R05 인계 추가: cases/team-extended.json은 R05 주 담당, R02/R03/R04 관련 기대값 검토다. 파일은 r05/p06-flow-cases의 병합 후보에 있으며 이 책임 등록이 구현 병합·시험 통과를 뜻하지 않는다.
+
+- 2026-11-05 v0.13: cases/p11-entry.json을 R05 소유·R02/R04 검토의 P11 골격 전용 임시 사례로 등록했다. team-extended.json의 기존 책임은 유지한다. 사용자가 R01에게 run_cases.py의 hook 실패 중단·관련 회귀시험 대리 수정을 인계했으며, 범위와 검증은 개발 원장의 P13/P25 기록을 따른다. 이후 시험 도구 책임은 R05가 유지한다.
