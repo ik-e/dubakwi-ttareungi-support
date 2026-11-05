@@ -102,6 +102,22 @@ SUPPORT_TEAM_KEY=<시험 키> uv run --locked python scripts/test/support_skelet
 - B07·B32가 `dubakwiP19State`를, B27이 시험 handoff를 호출했는가. 실제 state·handoff·Jira 호출은 0건이어야 한다.
 - LN18에서 X03이 `dubakwiP19Dlq`를 호출했는가.
 
+## VM 시험 결과
+
+R01이 2026-11-05에 실행하고 보고한 결과다. R02가 직접 관측한 값이 아니다.
+
+| 항목 | 결과 |
+| --- | --- |
+| 기준 | PR #16 `06863b3`. VM에서 생성한 파일 4개의 SHA-256 일치 |
+| Credential | 실제 ID 참조 8곳 연결 확인 |
+| 인증 | support와 mock handoff 모두 키 없음·틀린 키 403 |
+| 사례 | 20사례 첫 실행 20/20, 추가 재시도 없음 |
+| 실제 호출 | 사용자 조회, B14 검색, L01~L03 모델 |
+| mock | state·handoff·DLQ. 실제 R04 하위 워크플로우 호출 0건 |
+| 종료 | 사본 4개 비활성화, 두 시험 경로 404. 기존 P11·RAG·Credential 보존, n8n 재시작 없음 |
+
+고정 커밋의 연결 시험이다. 실제 state·DLQ·Jira 성공이나 공식 전체 통과가 아니다. LN07이 8.184초라 WF-11 전체 시간 기준 통과도 아니다. 20/20은 한 번의 실행이라 아래 L03 오판 한계를 지우지 않는다. `06863b3` 이후의 save 실패 처리 수정(`dc6eb8e`)과 `--user-api`는 이 시험 범위 밖이다.
+
 ## 로컬 예행 결과
 
 로컬 n8n 2.42.6에서 묶음 사본을 게시하고 실제 모델과 main의 R03 검색으로 호출했다. VM 시험이 아니다.

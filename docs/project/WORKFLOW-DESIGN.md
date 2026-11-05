@@ -3,7 +3,7 @@
 전체 구성·상태 관계·기능/시나리오 추적은 [최상위 시스템 설계서](SYSTEM-DESIGN.md)를 먼저 읽는다. 이 문서는 노드·엣지와 업무 계약의 상세 원본이다.
 
 - 작성: 2026-11-02 / 개정: 2026-11-04 KST
-- 버전·상태: **v0.14 / P11 support 골격 JSON·역할 프롬프트 초안·B05 사용자 응답 검증, P19 mock 연결 추가**, 공동 검토 전. P19 작업 브랜치는 mock 하위 기능으로 로컬 Code·n8n 호출까지 확인했고 실연동·VM 실행·공식 판정은 전.
+- 버전·상태: **v0.14 / P11 support 골격 JSON·역할 프롬프트 초안·B05 사용자 응답 검증, P19 mock 연결 추가**, 공동 검토 전. P19 작업 브랜치는 로컬 Code·n8n 호출과 R01의 VM 연결 시험(`06863b3`, 실제 사용자 조회·검색·모델 + 전용 mock state·handoff·dlq)까지 확인했다. 실제 state·DLQ·Jira 연결과 공식 판정은 전.
 - [공식 템플릿 — 공개본 제외 자료](../../docs/PUBLIC-SOURCES.md)의 8개 절 유지. 범위는 [TOPIC](TOPIC.md), 역할은 [팀 헌장](TEAM-CHARTER.md), 배정·구현 순서는 [개발 계획](../DEVELOPMENT-PLAN.md).
 - **티켓 최초 생성 위치를 뒤로 이동**했다. 일반 안내는 답변·검증 후 생성/종료, 정보 부족은 보완 질문 준비 후 생성/대기, 긴급은 분류 직후 생성/이관한다.
 
@@ -509,7 +509,7 @@ B28은 먼저 error_code=null && state_saved=true && 최신 state_ref를 확인�
 | 근거 표시 | R03 기본안에 따라 시민 답변에 `[실제 안내]`·`[가상 설정]`을 보존. Evidence.text 앞 표시를 쓰고 전용 필드는 추가하지 않음. B21이 인용 근거와 답변의 표시 일치를 검사 | 표시 없는 근거에는 요구하지 않음 |
 | scope | `dubakwi-dev` 고정 | R01 환경 설정 값으로 교체 필요 |
 | LLM Credential | 과정 공통 ID `openAiCourse0001` 사용 | 이름만으로는 로컬 n8n에서 권한 오류가 나서 ID를 넣음. 비밀값은 없음. VM은 R01이 배포 사본에서 L01~L03과 각 Header Auth를 실제 Credential ID로 연결·확인 |
-| VM 게시 | VM은 P11 게시본 유지. R01 PR #22가 B14·L01~L03 부분 연결을 확인 | R01 동의(2026-11-05)로 [전용 mock 사본 시험](../../scripts/test/vm-p19-mock-test.md) 준비. 실제 B04·검색·모델 + mock state·handoff·dlq. 실제 저장·DLQ·Jira 성공과 공식 판정이 아님 |
+| VM 게시 | 운영 경로는 P11 게시본 유지. R01 PR #22가 B14·L01~L03 부분 연결을, 이후 [전용 mock 사본 시험](../../scripts/test/vm-p19-mock-test.md)이 `06863b3` 전체 흐름 연결을 확인. 사본은 시험 뒤 비활성화 | 실제 data-api 사용자 조회·B14·L01~L03 + mock state·handoff·dlq 범위의 20사례 첫 실행 20/20(R01 보고). 실제 state·DLQ·Jira 성공과 공식 판정이 아니며 WF-11 시간 기준 통과도 아니다(LN07 8.184초) |
 | TC08 | 운영 JSON에는 스위치를 넣지 않음. [`make_verifier_fault.py`](../../scripts/test/make_verifier_fault.py)가 경로 `dubakwi-support-tc08`, 별도 ID·webhookId의 사본 생성 | [원본과 동시 게시 확인](../../runs/public/20261105-104900-local-n8n-p19-tc08-parallel/summary.json). 모드 3종(`grounded`, `unparsable`, TC08-v1용 [`unknown_chunk`](../../runs/public/20261105-112427-local-n8n-p19-tc08-unknown-chunk/summary.json))은 같은 경로라 하나만 게시 |
 | B04·B05 사용자 조회 | 현재 B04는 과정 data-api 호출, B05는 data-api 형식과 팀 형식 `{id,role,access_levels}`을 모두 처리 | R04 PR #26 계약: `http://dubakwi-user-api:8801/employees/<id>`, `X-Internal-Key`. VM 배포 후 B04를 바꾼다. [임시 API 로컬 확인](../../runs/public/20261105-150536-local-n8n-p19-user-api/summary.json), VM 미실행 |
 | 시민 ticket_id | Jira 키(예: `JBYS-1`)를 그대로 응답 | R04 동의(2026-11-05). 실제 Jira 생성은 미실행 |
@@ -532,7 +532,7 @@ main 반영 재시험(2026-11-05): main `0e44fdb`에 병합된 R03 `dubakwi-sear
 
 Credential 주의: 이름만 있는 Header Auth를 가져오면 n8n이 같은 종류의 다른 Credential에 연결하는 것을 로컬에서 확인했다(B14가 `dubakwi-team-key`로 연결되어 403). 가져온 뒤 B01·B14·B15·B27의 연결을 확인해야 한다. 78일차 `flow.py check`는 코스 Credential ID가 아닌 B01을 오류로 거절하므로 80일차 도구 확인이 필요하다.
 
-남은 한계: 실제 search·state·handoff·dlq·Jira, VM, R05 실행 도구, 공통 WF 공식 판정은 미실행이다. 동시 실행 중복은 mock에서 검증하지 않았다. B27 8초 제한은 티켓 API까지 느려지면 WF-11 6초를 넘을 수 있어 R04와 정해야 한다. 지식은 승인 전이고 시험용 검색은 실제 벡터 검색이 아니므로 답변 품질은 R03 구현 뒤 다시 평가한다.
+남은 한계: 실제 state·handoff·dlq·Jira 연결, 저장 게이트, 실패·복구, R05 실행 도구, 공통 WF 공식 판정은 미실행이다. VM 실행은 `06863b3`의 mock 연결 시험까지이며, 이후의 save 실패 처리 수정(`dc6eb8e`)과 사용자 API 전환은 VM에서 실행하지 않았다. L03 오판 한계(번호 생략 오판, 지어낸 내용 일부 통과)는 유지된다. 동시 실행 중복은 mock에서 검증하지 않았다. B27 8초 제한은 티켓 API까지 느려지면 WF-11 6초를 넘을 수 있어 R04와 정해야 한다. 지식은 승인 전이고 시험용 검색은 실제 벡터 검색이 아니므로 답변 품질은 R03 구현 뒤 다시 평가한다.
 
 ### 4.5. P11 골격 구현 상태
 
