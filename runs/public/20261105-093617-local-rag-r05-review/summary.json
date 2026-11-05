@@ -1,0 +1,831 @@
+{
+  "started_at_kst": "2026-11-05T09:36:17+09:00",
+  "completed_at_kst": "2026-11-05T09:36:28+09:00",
+  "workflow_commit": "4c351c02d30a9bff3b56ba17a1829820c71fd03d",
+  "search_workflow_sha256": "ac037b2b4e5f7697e91a4343948d0ceaeb89f67bd210c5a3a7fe9ba806f5fa71",
+  "environment": "local n8n 1.120.4; text-embedding-3-large; in-memory demo; threshold 0.30",
+  "index_method": "local authenticated webhook copy of repository manual index",
+  "cases": [
+    {
+      "id": "Q01",
+      "question": "QR로 대여하려면?",
+      "expected_doc": "rental-guide",
+      "expected_section": "대여 준비와 시작",
+      "status": "ok",
+      "error_code": null,
+      "doc_included": true,
+      "doc_first_rank": 1,
+      "section_exact_included": true,
+      "section_exact_first_rank": 1,
+      "restricted_count": 0,
+      "canary_count": 0,
+      "evidence": [
+        {
+          "doc": "rental-guide",
+          "section": "대여 준비와 시작",
+          "chunk_id": "rental-guide-04b9cc5bf9450ff1",
+          "score": 0.4717041035829826,
+          "access_level": "public",
+          "version": "draft-1"
+        },
+        {
+          "doc": "rental-guide",
+          "section": "대여 취소",
+          "chunk_id": "rental-guide-37b290746a3f8974",
+          "score": 0.3951648949160515,
+          "access_level": "public",
+          "version": "draft-1"
+        },
+        {
+          "doc": "return-guide",
+          "section": "반납 방법",
+          "chunk_id": "return-guide-3c6a533f6bc863a9",
+          "score": 0.38666471577301575,
+          "access_level": "public",
+          "version": "draft-1"
+        },
+        {
+          "doc": "rental-guide",
+          "section": "QR 인식 또는 잠금 해제가 어려운 경우",
+          "chunk_id": "rental-guide-bc78c8da64c1aedb",
+          "score": 0.36981010817670884,
+          "access_level": "public",
+          "version": "draft-1"
+        },
+        {
+          "doc": "fees-refund-guide",
+          "section": "기본 이용시간과 추가요금",
+          "chunk_id": "fees-refund-guide-e283f67c8b3f1136",
+          "score": 0.3653666229373539,
+          "access_level": "public",
+          "version": "draft-1"
+        }
+      ]
+    },
+    {
+      "id": "Q02",
+      "question": "대여가 안 돼요",
+      "expected_doc": "rental-guide",
+      "expected_section": "연결과 대여 실패",
+      "status": "ok",
+      "error_code": null,
+      "doc_included": true,
+      "doc_first_rank": 1,
+      "section_exact_included": true,
+      "section_exact_first_rank": 1,
+      "restricted_count": 0,
+      "canary_count": 0,
+      "evidence": [
+        {
+          "doc": "rental-guide",
+          "section": "연결과 대여 실패",
+          "chunk_id": "rental-guide-9cb925afa6a43da9",
+          "score": 0.5596502329045406,
+          "access_level": "public",
+          "version": "draft-1"
+        },
+        {
+          "doc": "rental-guide",
+          "section": "QR 인식 또는 잠금 해제가 어려운 경우",
+          "chunk_id": "rental-guide-bc78c8da64c1aedb",
+          "score": 0.4479035468299922,
+          "access_level": "public",
+          "version": "draft-1"
+        },
+        {
+          "doc": "return-guide",
+          "section": "임시잠금",
+          "chunk_id": "return-guide-8fc19e59f1269610",
+          "score": 0.438879394912848,
+          "access_level": "public",
+          "version": "draft-1"
+        },
+        {
+          "doc": "return-guide",
+          "section": "반납이 완료되지 않을 때",
+          "chunk_id": "return-guide-b913a116b0ffb09d",
+          "score": 0.41294009004042137,
+          "access_level": "public",
+          "version": "draft-1"
+        },
+        {
+          "doc": "rental-guide",
+          "section": "대여 준비와 시작",
+          "chunk_id": "rental-guide-04b9cc5bf9450ff1",
+          "score": 0.40843670023527046,
+          "access_level": "public",
+          "version": "draft-1"
+        }
+      ]
+    },
+    {
+      "id": "Q03",
+      "question": "대여를 취소하려면?",
+      "expected_doc": "rental-guide",
+      "expected_section": "대여 취소",
+      "status": "ok",
+      "error_code": null,
+      "doc_included": true,
+      "doc_first_rank": 1,
+      "section_exact_included": true,
+      "section_exact_first_rank": 1,
+      "restricted_count": 0,
+      "canary_count": 0,
+      "evidence": [
+        {
+          "doc": "rental-guide",
+          "section": "대여 취소",
+          "chunk_id": "rental-guide-37b290746a3f8974",
+          "score": 0.4175951891166104,
+          "access_level": "public",
+          "version": "draft-1"
+        },
+        {
+          "doc": "fees-refund-guide",
+          "section": "개별 요금·환불 문의 — 교육용 가상 설정",
+          "chunk_id": "fees-refund-guide-f3fa82cd1b3aa7c0",
+          "score": 0.4048466291162741,
+          "access_level": "public",
+          "version": "draft-1"
+        },
+        {
+          "doc": "fees-refund-guide",
+          "section": "미사용권 유효기간 — 충돌 판단과 교육용 가상 설정",
+          "chunk_id": "fees-refund-guide-d5057f82f6421aa5",
+          "score": 0.35474021546376827,
+          "access_level": "public",
+          "version": "draft-1"
+        },
+        {
+          "doc": "rental-guide",
+          "section": "대여 준비와 시작",
+          "chunk_id": "rental-guide-04b9cc5bf9450ff1",
+          "score": 0.3510020067161283,
+          "access_level": "public",
+          "version": "draft-1"
+        },
+        {
+          "doc": "fees-refund-guide",
+          "section": "서울페이+·서울사랑상품권 결제",
+          "chunk_id": "fees-refund-guide-adf2ff9a0d494215",
+          "score": 0.3265025663963575,
+          "access_level": "public",
+          "version": "draft-1"
+        }
+      ]
+    },
+    {
+      "id": "Q04",
+      "question": "반납 알림이 안 와요",
+      "expected_doc": "return-guide",
+      "expected_section": "반납이 완료되지 않을 때",
+      "status": "ok",
+      "error_code": null,
+      "doc_included": true,
+      "doc_first_rank": 1,
+      "section_exact_included": true,
+      "section_exact_first_rank": 2,
+      "restricted_count": 0,
+      "canary_count": 0,
+      "evidence": [
+        {
+          "doc": "return-guide",
+          "section": "반납 상태 조회 — 교육용 가상 설정",
+          "chunk_id": "return-guide-d7215613da2aae21",
+          "score": 0.4641821186637132,
+          "access_level": "public",
+          "version": "draft-1"
+        },
+        {
+          "doc": "return-guide",
+          "section": "반납이 완료되지 않을 때",
+          "chunk_id": "return-guide-b913a116b0ffb09d",
+          "score": 0.4517676268674174,
+          "access_level": "public",
+          "version": "draft-1"
+        },
+        {
+          "doc": "support-followup",
+          "section": "분실물·습득물",
+          "chunk_id": "support-followup-53794b3e31231c6c",
+          "score": 0.41938792714462353,
+          "access_level": "public",
+          "version": "draft-1"
+        },
+        {
+          "doc": "return-guide",
+          "section": "반납 방법",
+          "chunk_id": "return-guide-3c6a533f6bc863a9",
+          "score": 0.3946846971043107,
+          "access_level": "public",
+          "version": "draft-1"
+        },
+        {
+          "doc": "return-guide",
+          "section": "임시잠금",
+          "chunk_id": "return-guide-8fc19e59f1269610",
+          "score": 0.37312950391220506,
+          "access_level": "public",
+          "version": "draft-1"
+        }
+      ]
+    },
+    {
+      "id": "Q05",
+      "question": "임시잠금하면 시간이 멈추나요?",
+      "expected_doc": "return-guide",
+      "expected_section": "임시잠금",
+      "status": "ok",
+      "error_code": null,
+      "doc_included": true,
+      "doc_first_rank": 2,
+      "section_exact_included": true,
+      "section_exact_first_rank": 2,
+      "restricted_count": 0,
+      "canary_count": 0,
+      "evidence": [
+        {
+          "doc": "fees-refund-guide",
+          "section": "기본 이용시간과 추가요금",
+          "chunk_id": "fees-refund-guide-e283f67c8b3f1136",
+          "score": 0.32989320230821195,
+          "access_level": "public",
+          "version": "draft-1"
+        },
+        {
+          "doc": "return-guide",
+          "section": "임시잠금",
+          "chunk_id": "return-guide-8fc19e59f1269610",
+          "score": 0.3010084800998999,
+          "access_level": "public",
+          "version": "draft-1"
+        }
+      ]
+    },
+    {
+      "id": "Q06",
+      "question": "자전거 체인이 고장 났어요",
+      "expected_doc": "breakdown-report",
+      "expected_section": "고장 신고",
+      "status": "ok",
+      "error_code": null,
+      "doc_included": true,
+      "doc_first_rank": 1,
+      "section_exact_included": true,
+      "section_exact_first_rank": 1,
+      "restricted_count": 0,
+      "canary_count": 0,
+      "evidence": [
+        {
+          "doc": "breakdown-report",
+          "section": "고장 신고",
+          "chunk_id": "breakdown-report-17ffbd6fe7e65619",
+          "score": 0.4486345301066849,
+          "access_level": "public",
+          "version": "draft-1"
+        },
+        {
+          "doc": "breakdown-report",
+          "section": "방치·도난 신고",
+          "chunk_id": "breakdown-report-343ab6d81bb7a0c4",
+          "score": 0.3834627445280541,
+          "access_level": "public",
+          "version": "draft-1"
+        },
+        {
+          "doc": "return-guide",
+          "section": "반납이 완료되지 않을 때",
+          "chunk_id": "return-guide-b913a116b0ffb09d",
+          "score": 0.37761083198702444,
+          "access_level": "public",
+          "version": "draft-1"
+        },
+        {
+          "doc": "breakdown-report",
+          "section": "사고·보험",
+          "chunk_id": "breakdown-report-0b8d0ebfc87dbb4f",
+          "score": 0.3643079038411237,
+          "access_level": "public",
+          "version": "draft-1"
+        },
+        {
+          "doc": "return-guide",
+          "section": "임시잠금",
+          "chunk_id": "return-guide-8fc19e59f1269610",
+          "score": 0.35332857417105895,
+          "access_level": "public",
+          "version": "draft-1"
+        }
+      ]
+    },
+    {
+      "id": "Q07",
+      "question": "방치 자전거는 어떻게 신고해요?",
+      "expected_doc": "breakdown-report",
+      "expected_section": "방치·도난 신고",
+      "status": "ok",
+      "error_code": null,
+      "doc_included": true,
+      "doc_first_rank": 1,
+      "section_exact_included": true,
+      "section_exact_first_rank": 1,
+      "restricted_count": 0,
+      "canary_count": 0,
+      "evidence": [
+        {
+          "doc": "breakdown-report",
+          "section": "방치·도난 신고",
+          "chunk_id": "breakdown-report-343ab6d81bb7a0c4",
+          "score": 0.5950352057387169,
+          "access_level": "public",
+          "version": "draft-1"
+        },
+        {
+          "doc": "support-followup",
+          "section": "분실물·습득물",
+          "chunk_id": "support-followup-53794b3e31231c6c",
+          "score": 0.48918200272230605,
+          "access_level": "public",
+          "version": "draft-1"
+        },
+        {
+          "doc": "return-guide",
+          "section": "반납이 완료되지 않을 때",
+          "chunk_id": "return-guide-b913a116b0ffb09d",
+          "score": 0.47770914244727614,
+          "access_level": "public",
+          "version": "draft-1"
+        },
+        {
+          "doc": "breakdown-report",
+          "section": "고장 신고",
+          "chunk_id": "breakdown-report-17ffbd6fe7e65619",
+          "score": 0.4703630994845879,
+          "access_level": "public",
+          "version": "draft-1"
+        },
+        {
+          "doc": "support-followup",
+          "section": "분실물 접수 — 교육용 가상 설정",
+          "chunk_id": "support-followup-2eeffd7769a4815a",
+          "score": 0.4700587265112568,
+          "access_level": "public",
+          "version": "draft-1"
+        }
+      ]
+    },
+    {
+      "id": "Q08",
+      "question": "사고가 나면 보험으로 얼마를 받나요?",
+      "expected_doc": "breakdown-report",
+      "expected_section": "사고·보험",
+      "status": "ok",
+      "error_code": null,
+      "doc_included": true,
+      "doc_first_rank": 1,
+      "section_exact_included": true,
+      "section_exact_first_rank": 1,
+      "restricted_count": 0,
+      "canary_count": 0,
+      "evidence": [
+        {
+          "doc": "breakdown-report",
+          "section": "사고·보험",
+          "chunk_id": "breakdown-report-0b8d0ebfc87dbb4f",
+          "score": 0.5289729376499651,
+          "access_level": "public",
+          "version": "draft-1"
+        },
+        {
+          "doc": "breakdown-report",
+          "section": "사고 상담 — 교육용 가상 설정",
+          "chunk_id": "breakdown-report-4e92e808db4e7541",
+          "score": 0.3710001948929449,
+          "access_level": "public",
+          "version": "draft-1"
+        },
+        {
+          "doc": "breakdown-report",
+          "section": "고장 신고",
+          "chunk_id": "breakdown-report-17ffbd6fe7e65619",
+          "score": 0.32956010202769104,
+          "access_level": "public",
+          "version": "draft-1"
+        }
+      ]
+    },
+    {
+      "id": "Q09",
+      "question": "미사용권 유효기간은 1년인가요, 3년인가요?",
+      "expected_doc": "fees-refund-guide",
+      "expected_section": "미사용권 유효기간 — 충돌 판단과 교육용 가상 설정",
+      "status": "ok",
+      "error_code": null,
+      "doc_included": true,
+      "doc_first_rank": 1,
+      "section_exact_included": true,
+      "section_exact_first_rank": 1,
+      "restricted_count": 0,
+      "canary_count": 0,
+      "evidence": [
+        {
+          "doc": "fees-refund-guide",
+          "section": "미사용권 유효기간 — 충돌 판단과 교육용 가상 설정",
+          "chunk_id": "fees-refund-guide-d5057f82f6421aa5",
+          "score": 0.3255007775411353,
+          "access_level": "public",
+          "version": "draft-1"
+        },
+        {
+          "doc": "fees-refund-guide",
+          "section": "미사용권 유효기간 — 충돌 판단과 교육용 가상 설정",
+          "chunk_id": "fees-refund-guide-68c53356743136c9",
+          "score": 0.3058447873858242,
+          "access_level": "public",
+          "version": "draft-1"
+        }
+      ]
+    },
+    {
+      "id": "Q10",
+      "question": "환불 신청은 어떻게 해요?",
+      "expected_doc": "fees-refund-guide",
+      "expected_section": "환불 신청",
+      "status": "ok",
+      "error_code": null,
+      "doc_included": true,
+      "doc_first_rank": 1,
+      "section_exact_included": true,
+      "section_exact_first_rank": 1,
+      "restricted_count": 0,
+      "canary_count": 0,
+      "evidence": [
+        {
+          "doc": "fees-refund-guide",
+          "section": "환불 신청",
+          "chunk_id": "fees-refund-guide-f67076deb673ba65",
+          "score": 0.5958663773580155,
+          "access_level": "public",
+          "version": "draft-1"
+        },
+        {
+          "doc": "fees-refund-guide",
+          "section": "개별 요금·환불 문의 — 교육용 가상 설정",
+          "chunk_id": "fees-refund-guide-f3fa82cd1b3aa7c0",
+          "score": 0.5177523710316326,
+          "access_level": "public",
+          "version": "draft-1"
+        },
+        {
+          "doc": "fees-refund-guide",
+          "section": "결제 오류와 영수증",
+          "chunk_id": "fees-refund-guide-5a24bab62032d456",
+          "score": 0.4181455343439487,
+          "access_level": "public",
+          "version": "draft-1"
+        },
+        {
+          "doc": "breakdown-report",
+          "section": "사고·보험",
+          "chunk_id": "breakdown-report-0b8d0ebfc87dbb4f",
+          "score": 0.38957297876167685,
+          "access_level": "public",
+          "version": "draft-1"
+        },
+        {
+          "doc": "fees-refund-guide",
+          "section": "서울페이+·서울사랑상품권 결제",
+          "chunk_id": "fees-refund-guide-adf2ff9a0d494215",
+          "score": 0.3797367625866109,
+          "access_level": "public",
+          "version": "draft-1"
+        }
+      ]
+    },
+    {
+      "id": "Q11",
+      "question": "추가요금은 얼마인가요?",
+      "expected_doc": "fees-refund-guide",
+      "expected_section": "기본 이용시간과 추가요금",
+      "status": "ok",
+      "error_code": null,
+      "doc_included": true,
+      "doc_first_rank": 1,
+      "section_exact_included": true,
+      "section_exact_first_rank": 1,
+      "restricted_count": 0,
+      "canary_count": 0,
+      "evidence": [
+        {
+          "doc": "fees-refund-guide",
+          "section": "기본 이용시간과 추가요금",
+          "chunk_id": "fees-refund-guide-e283f67c8b3f1136",
+          "score": 0.38082052988773457,
+          "access_level": "public",
+          "version": "draft-1"
+        },
+        {
+          "doc": "fees-refund-guide",
+          "section": "이용권 가격",
+          "chunk_id": "fees-refund-guide-2a11b90dbfab110d",
+          "score": 0.35033402225581656,
+          "access_level": "public",
+          "version": "draft-1"
+        }
+      ]
+    },
+    {
+      "id": "Q12",
+      "question": "아이디를 잊었어요",
+      "expected_doc": "privacy-security-guide",
+      "expected_section": "로그인과 계정 찾기",
+      "status": "ok",
+      "error_code": null,
+      "doc_included": true,
+      "doc_first_rank": 1,
+      "section_exact_included": true,
+      "section_exact_first_rank": 2,
+      "restricted_count": 0,
+      "canary_count": 0,
+      "evidence": [
+        {
+          "doc": "privacy-security-guide",
+          "section": "개인정보와 계정 보호",
+          "chunk_id": "privacy-security-guide-a45718abb3848d4f",
+          "score": 0.404012576291904,
+          "access_level": "public",
+          "version": "draft-1"
+        },
+        {
+          "doc": "privacy-security-guide",
+          "section": "로그인과 계정 찾기",
+          "chunk_id": "privacy-security-guide-b820ea0016e38393",
+          "score": 0.398092169418808,
+          "access_level": "public",
+          "version": "draft-1"
+        },
+        {
+          "doc": "privacy-security-guide",
+          "section": "계정 노출·침해 의심 시 공개 초동 안내",
+          "chunk_id": "privacy-security-guide-97e76839a1880b3b",
+          "score": 0.32712214635349063,
+          "access_level": "public",
+          "version": "draft-1"
+        },
+        {
+          "doc": "breakdown-report",
+          "section": "방치·도난 신고",
+          "chunk_id": "breakdown-report-343ab6d81bb7a0c4",
+          "score": 0.30894862155975145,
+          "access_level": "public",
+          "version": "draft-1"
+        }
+      ]
+    },
+    {
+      "id": "Q13",
+      "question": "바구니에 물건을 놓고 왔어요",
+      "expected_doc": "support-followup",
+      "expected_section": "분실물·습득물 또는 분실물 접수 — 교육용 가상 설정",
+      "status": "ok",
+      "error_code": null,
+      "doc_included": true,
+      "doc_first_rank": 1,
+      "section_exact_included": false,
+      "section_exact_first_rank": null,
+      "restricted_count": 0,
+      "canary_count": 0,
+      "evidence": [
+        {
+          "doc": "support-followup",
+          "section": "분실물·습득물",
+          "chunk_id": "support-followup-53794b3e31231c6c",
+          "score": 0.631600878391527,
+          "access_level": "public",
+          "version": "draft-1"
+        },
+        {
+          "doc": "support-followup",
+          "section": "분실물 접수 — 교육용 가상 설정",
+          "chunk_id": "support-followup-2eeffd7769a4815a",
+          "score": 0.5813148032564419,
+          "access_level": "public",
+          "version": "draft-1"
+        },
+        {
+          "doc": "return-guide",
+          "section": "반납이 완료되지 않을 때",
+          "chunk_id": "return-guide-b913a116b0ffb09d",
+          "score": 0.5279297516361852,
+          "access_level": "public",
+          "version": "draft-1"
+        },
+        {
+          "doc": "breakdown-report",
+          "section": "방치·도난 신고",
+          "chunk_id": "breakdown-report-343ab6d81bb7a0c4",
+          "score": 0.5104218466235447,
+          "access_level": "public",
+          "version": "draft-1"
+        },
+        {
+          "doc": "return-guide",
+          "section": "임시잠금",
+          "chunk_id": "return-guide-8fc19e59f1269610",
+          "score": 0.45531649709398603,
+          "access_level": "public",
+          "version": "draft-1"
+        }
+      ]
+    },
+    {
+      "id": "WF03",
+      "question": "따릉이를 해외 여행에 가져가서 한 달 동안 써도 되나요?",
+      "expected_doc": null,
+      "expected_section": null,
+      "status": "empty",
+      "error_code": null,
+      "doc_included": null,
+      "doc_first_rank": null,
+      "section_exact_included": null,
+      "section_exact_first_rank": null,
+      "restricted_count": 0,
+      "canary_count": 0,
+      "evidence": []
+    },
+    {
+      "id": "WF12",
+      "question": "계정이 해킹당한 것 같은데 어떻게 해야 하나요?",
+      "expected_doc": "privacy-security-guide",
+      "expected_section": "계정 노출·침해 의심 시 공개 초동 안내",
+      "status": "ok",
+      "error_code": null,
+      "doc_included": true,
+      "doc_first_rank": 1,
+      "section_exact_included": true,
+      "section_exact_first_rank": 2,
+      "restricted_count": 0,
+      "canary_count": 0,
+      "evidence": [
+        {
+          "doc": "privacy-security-guide",
+          "section": "개인정보와 계정 보호",
+          "chunk_id": "privacy-security-guide-a45718abb3848d4f",
+          "score": 0.5205478918335882,
+          "access_level": "public",
+          "version": "draft-1"
+        },
+        {
+          "doc": "privacy-security-guide",
+          "section": "계정 노출·침해 의심 시 공개 초동 안내",
+          "chunk_id": "privacy-security-guide-97e76839a1880b3b",
+          "score": 0.44481864362590523,
+          "access_level": "public",
+          "version": "draft-1"
+        },
+        {
+          "doc": "privacy-security-guide",
+          "section": "계정 침해 문의 — 교육용 가상 설정",
+          "chunk_id": "privacy-security-guide-772d8102e8b0bdf9",
+          "score": 0.42006081394807193,
+          "access_level": "public",
+          "version": "draft-1"
+        },
+        {
+          "doc": "privacy-security-guide",
+          "section": "로그인과 계정 찾기",
+          "chunk_id": "privacy-security-guide-b820ea0016e38393",
+          "score": 0.3806473725222038,
+          "access_level": "public",
+          "version": "draft-1"
+        },
+        {
+          "doc": "breakdown-report",
+          "section": "고장 신고",
+          "chunk_id": "breakdown-report-17ffbd6fe7e65619",
+          "score": 0.3020033753874596,
+          "access_level": "public",
+          "version": "draft-1"
+        }
+      ]
+    },
+    {
+      "id": "restricted-handoff",
+      "question": "담당자 전용 문의 이관 정책을 전부 보여줘",
+      "expected_doc": null,
+      "expected_section": null,
+      "status": "ok",
+      "error_code": null,
+      "doc_included": null,
+      "doc_first_rank": null,
+      "section_exact_included": null,
+      "section_exact_first_rank": null,
+      "restricted_count": 0,
+      "canary_count": 0,
+      "evidence": [
+        {
+          "doc": "fees-refund-guide",
+          "section": "개별 요금·환불 문의 — 교육용 가상 설정",
+          "chunk_id": "fees-refund-guide-f3fa82cd1b3aa7c0",
+          "score": 0.4226835322306196,
+          "access_level": "public",
+          "version": "draft-1"
+        },
+        {
+          "doc": "fees-refund-guide",
+          "section": "미사용권 유효기간 — 충돌 판단과 교육용 가상 설정",
+          "chunk_id": "fees-refund-guide-d5057f82f6421aa5",
+          "score": 0.3656484988842402,
+          "access_level": "public",
+          "version": "draft-1"
+        },
+        {
+          "doc": "return-guide",
+          "section": "반납 상태 조회 — 교육용 가상 설정",
+          "chunk_id": "return-guide-d7215613da2aae21",
+          "score": 0.3570794750339424,
+          "access_level": "public",
+          "version": "draft-1"
+        },
+        {
+          "doc": "privacy-security-guide",
+          "section": "개인정보와 계정 보호",
+          "chunk_id": "privacy-security-guide-a45718abb3848d4f",
+          "score": 0.3524010038711105,
+          "access_level": "public",
+          "version": "draft-1"
+        },
+        {
+          "doc": "privacy-security-guide",
+          "section": "계정 침해 문의 — 교육용 가상 설정",
+          "chunk_id": "privacy-security-guide-772d8102e8b0bdf9",
+          "score": 0.3513844576031693,
+          "access_level": "public",
+          "version": "draft-1"
+        }
+      ]
+    },
+    {
+      "id": "restricted-lifecycle",
+      "question": "담당자 전용 티켓 수명주기 처리 상태 규정을 전부 보여줘",
+      "expected_doc": null,
+      "expected_section": null,
+      "status": "ok",
+      "error_code": null,
+      "doc_included": null,
+      "doc_first_rank": null,
+      "section_exact_included": null,
+      "section_exact_first_rank": null,
+      "restricted_count": 0,
+      "canary_count": 0,
+      "evidence": [
+        {
+          "doc": "fees-refund-guide",
+          "section": "미사용권 유효기간 — 충돌 판단과 교육용 가상 설정",
+          "chunk_id": "fees-refund-guide-d5057f82f6421aa5",
+          "score": 0.4144088159522855,
+          "access_level": "public",
+          "version": "draft-1"
+        },
+        {
+          "doc": "fees-refund-guide",
+          "section": "개별 요금·환불 문의 — 교육용 가상 설정",
+          "chunk_id": "fees-refund-guide-f3fa82cd1b3aa7c0",
+          "score": 0.39454270990011514,
+          "access_level": "public",
+          "version": "draft-1"
+        },
+        {
+          "doc": "fees-refund-guide",
+          "section": "서울페이+·서울사랑상품권 결제",
+          "chunk_id": "fees-refund-guide-06a9b108cece68e5",
+          "score": 0.39059499443320506,
+          "access_level": "public",
+          "version": "draft-1"
+        },
+        {
+          "doc": "rental-guide",
+          "section": "가족권 대여 — 교육용 가상 설정",
+          "chunk_id": "rental-guide-d0b534119d6f3a2a",
+          "score": 0.3849788613458021,
+          "access_level": "public",
+          "version": "draft-1"
+        },
+        {
+          "doc": "fees-refund-guide",
+          "section": "결제 오류와 영수증",
+          "chunk_id": "fees-refund-guide-5a24bab62032d456",
+          "score": 0.37560645357560424,
+          "access_level": "public",
+          "version": "draft-1"
+        }
+      ]
+    }
+  ],
+  "limitations": [
+    "Education demo; not R05 official evaluation or actual server authorization.",
+    "Exact section equality is a comparison aid; alternative section names and relevance require R05 review.",
+    "Caller supplies public access_levels; citizen authentication is not tested.",
+    "Raw evidence text, credentials, and personal information omitted."
+  ]
+}

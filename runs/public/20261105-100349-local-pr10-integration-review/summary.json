@@ -1,0 +1,71 @@
+{
+  "executed_at_kst": "2026-11-05T10:03:49+09:00",
+  "environment": "Windows local; Python 3.12.10; uv locked project",
+  "scope": "R01 P10/P16 PR #10 integration review; document references only; no runtime workflow edits",
+  "source_commit": "8888f703ed3dd46a7a1ca32b59f0257f0899351b",
+  "configuration": "pyproject.toml and uv.lock at source commit",
+  "working_tree_changes": [
+    "docs/DEVELOPMENT-PLAN.md",
+    "docs/PRESENTATION-PLAN.md",
+    "docs/project/README.md",
+    "docs/project/SYSTEM-DESIGN.md"
+  ],
+  "checks": [
+    {
+      "name": "regression",
+      "exit_code": 0,
+      "output": ".........sssssss.............................\r\n----------------------------------------------------------------------\r\nRan 45 tests in 4.206s\r\n\r\nOK (skipped=7)\r\n"
+    },
+    {
+      "name": "ruff-check",
+      "exit_code": 0,
+      "output": "All checks passed!\n"
+    },
+    {
+      "name": "ruff-format",
+      "exit_code": 0,
+      "output": "32 files already formatted\n"
+    },
+    {
+      "name": "docs",
+      "exit_code": 0,
+      "output": "{\"scope\": \"current project documents; local links/anchors/tables only; external URLs, Mermaid syntax, runtime and historic snapshots excluded\", \"files\": 20, \"local_links\": 379, \"anchor_links\": 44, \"errors\": []}\r\n"
+    },
+    {
+      "name": "public",
+      "exit_code": 0,
+      "output": "{\"scope\": \"Git candidate paths/current worktree bytes and public Markdown closure; no history/remote/PII/license guarantee\", \"files\": 102, \"tracked_files\": 102, \"ignored_tracked_files\": 0, \"public_local_links\": 410, \"errors\": []}\r\n"
+    },
+    {
+      "name": "diff",
+      "exit_code": 0,
+      "output": ""
+    }
+  ],
+  "unittest": {
+    "total": 45,
+    "passed": 38,
+    "skipped": 7,
+    "skipped_scope": "live HTTP/OpenAI API tests"
+  },
+  "workflow_hashes": {
+    "index_lf_sha256": "9dc3a959fb7c545db742746f45b2f84998ae95c63a2a4d0277f46d9a07af2741",
+    "search_lf_sha256": "cb56db189594437b98712fdcef6121633c76d2a105bb0f81461e252ff6d469a7",
+    "search_crlf_sha256": "ac037b2b4e5f7697e91a4343948d0ceaeb89f67bd210c5a3a7fe9ba806f5fa71",
+    "explanation": "The prior R03 summary hash equals the current Git blob converted from LF to CRLF. Original evidence remains unchanged; content correspondence is confirmed with that newline conversion."
+  },
+  "review_limits": [
+    "R04 confirmed mock permission values only.",
+    "R05 did not oppose educational local merge and requested evidence; no formal case approval or re-review of supplementation claimed.",
+    "tscan and gitleaks unavailable; public candidate checker used, not a full secret/PII audit."
+  ],
+  "not_executed": [
+    "new n8n/HTTP/embedding runtime tests",
+    "manual index JSON and server memory-sharing verification",
+    "actual server authorization",
+    "R05 official evaluation",
+    "team VM and n8n 2.x runtime verification"
+  ],
+  "prior_evidence": "runs/public/20261105-093642-local-rag-r05-review/summary.json",
+  "status": "local_checks_passed_runtime_not_retested"
+}
