@@ -1,0 +1,296 @@
+{
+  "run_id": "20261105-142811-vm-p13-official",
+  "executed_at": "2026-11-05T14:28:11+09:00",
+  "environment": "vm",
+  "kind": "service_cases",
+  "runner": "scripts/test/run_cases.py (not the kit flow.py)",
+  "path": "mock",
+  "auth_header_sent": true,
+  "auth_token_env": "FLOW_WEBHOOK_KEY",
+  "log_check": true,
+  "versions": {
+    "git": {
+      "commit": "61dd4210c086936eecb56c0de903553580a4d9b8",
+      "branch": "r05/p06-flow-cases",
+      "dirty": true
+    },
+    "workflow": "0e44fdb",
+    "config": "unrecorded",
+    "case_files": {
+      "cases/common.json": "e23bd4fe20f0722e2626f0169cd36b87414a6f7e6fc1ed3114f107ad22d6ed08",
+      "cases/team.json": "2778d39df98eeba96e25dcf7a336d50c4711fd888ec2d5f96fba2dda25236f53",
+      "cases/team-extended.json": "97469443f6a5111c0230a1a201adb514223fb0c2c272e0eb92a6b44c77054c49"
+    },
+    "test_copy": null,
+    "python": "3.12.16"
+  },
+  "file_hooks": {},
+  "counts": {
+    "fail": 4
+  },
+  "meaning": "auto_pass_unverified = response checks passed but ticket/state/DLQ/alert/n8n or manual checks are still open; it is not a full pass",
+  "cases": [
+    {
+      "id": "WF08",
+      "name": "WF-08 프롬프트 주입",
+      "file": "cases/common.json",
+      "status": "fail",
+      "steps": [
+        {
+          "step": 1,
+          "request_id": "20261105-142811-vm-p13-official-wf08",
+          "http_status": 403,
+          "elapsed_ms": 12,
+          "transport_error": "invalid_json",
+          "route": null,
+          "codes": null,
+          "has_ticket": false,
+          "ticket_priority": null,
+          "ticket_duplicate": null,
+          "sources_count": null,
+          "security_masked": null
+        }
+      ],
+      "checks": [
+        {
+          "step": 1,
+          "kind": "status",
+          "path": "<http_status>",
+          "expected": 200,
+          "passed": false
+        },
+        {
+          "step": 1,
+          "kind": "equals",
+          "path": "route",
+          "expected": "차단",
+          "passed": false
+        },
+        {
+          "step": 1,
+          "kind": "equals",
+          "path": "ticket",
+          "expected": null,
+          "passed": false
+        },
+        {
+          "step": 1,
+          "kind": "x:exists",
+          "path": "security.blocked_by",
+          "expected": null,
+          "passed": false
+        }
+      ],
+      "global_checks": [],
+      "log_checks": [
+        {
+          "id": "L01",
+          "step": 1,
+          "check": "log entry for request_id",
+          "passed": false
+        }
+      ],
+      "hooks": {
+        "before": [],
+        "after": []
+      },
+      "unverified": [
+        "LLM 실행 0",
+        "업무 티켓 생성 0"
+      ],
+      "manual": []
+    },
+    {
+      "id": "WF13a",
+      "name": "WF-13 잘못된 입력 · 빈 질문",
+      "file": "cases/common.json",
+      "status": "fail",
+      "steps": [
+        {
+          "step": 1,
+          "request_id": "20261105-142811-vm-p13-official-wf13a",
+          "http_status": 403,
+          "elapsed_ms": 56,
+          "transport_error": "invalid_json",
+          "route": null,
+          "codes": null,
+          "has_ticket": false,
+          "ticket_priority": null,
+          "ticket_duplicate": null,
+          "sources_count": null,
+          "security_masked": null
+        }
+      ],
+      "checks": [
+        {
+          "step": 1,
+          "kind": "status",
+          "path": "<http_status>",
+          "expected": 400,
+          "passed": false
+        },
+        {
+          "step": 1,
+          "kind": "x:len_gte",
+          "path": "codes",
+          "expected": 1,
+          "passed": false
+        },
+        {
+          "step": 1,
+          "kind": "x:exists",
+          "path": "error",
+          "expected": null,
+          "passed": false
+        }
+      ],
+      "global_checks": [],
+      "log_checks": [
+        {
+          "id": "L01",
+          "step": 1,
+          "check": "log entry for request_id",
+          "passed": false
+        }
+      ],
+      "hooks": {
+        "before": [],
+        "after": []
+      },
+      "unverified": [
+        "LLM 실행 0",
+        "티켓 생성 0",
+        "codes 문자열 대조 전: ['invalid_input']"
+      ],
+      "manual": []
+    },
+    {
+      "id": "WF13b",
+      "name": "WF-13 잘못된 입력 · 없는 사용자",
+      "file": "cases/common.json",
+      "status": "fail",
+      "steps": [
+        {
+          "step": 1,
+          "request_id": "20261105-142811-vm-p13-official-wf13b",
+          "http_status": 403,
+          "elapsed_ms": 9,
+          "transport_error": "invalid_json",
+          "route": null,
+          "codes": null,
+          "has_ticket": false,
+          "ticket_priority": null,
+          "ticket_duplicate": null,
+          "sources_count": null,
+          "security_masked": null
+        }
+      ],
+      "checks": [
+        {
+          "step": 1,
+          "kind": "status",
+          "path": "<http_status>",
+          "expected": 400,
+          "passed": false
+        },
+        {
+          "step": 1,
+          "kind": "x:len_gte",
+          "path": "codes",
+          "expected": 1,
+          "passed": false
+        },
+        {
+          "step": 1,
+          "kind": "x:exists",
+          "path": "error",
+          "expected": null,
+          "passed": false
+        }
+      ],
+      "global_checks": [],
+      "log_checks": [
+        {
+          "id": "L01",
+          "step": 1,
+          "check": "log entry for request_id",
+          "passed": false
+        }
+      ],
+      "hooks": {
+        "before": [],
+        "after": []
+      },
+      "unverified": [
+        "LLM 실행 0",
+        "티켓 생성 0",
+        "codes 문자열 대조 전: ['unknown_user']"
+      ],
+      "manual": []
+    },
+    {
+      "id": "WF13c",
+      "name": "WF-13 잘못된 입력 · 501자",
+      "file": "cases/common.json",
+      "status": "fail",
+      "steps": [
+        {
+          "step": 1,
+          "request_id": "20261105-142811-vm-p13-official-wf13c",
+          "http_status": 403,
+          "elapsed_ms": 59,
+          "transport_error": "invalid_json",
+          "route": null,
+          "codes": null,
+          "has_ticket": false,
+          "ticket_priority": null,
+          "ticket_duplicate": null,
+          "sources_count": null,
+          "security_masked": null
+        }
+      ],
+      "checks": [
+        {
+          "step": 1,
+          "kind": "status",
+          "path": "<http_status>",
+          "expected": 400,
+          "passed": false
+        },
+        {
+          "step": 1,
+          "kind": "x:len_gte",
+          "path": "codes",
+          "expected": 1,
+          "passed": false
+        },
+        {
+          "step": 1,
+          "kind": "x:exists",
+          "path": "error",
+          "expected": null,
+          "passed": false
+        }
+      ],
+      "global_checks": [],
+      "log_checks": [
+        {
+          "id": "L01",
+          "step": 1,
+          "check": "log entry for request_id",
+          "passed": false
+        }
+      ],
+      "hooks": {
+        "before": [],
+        "after": []
+      },
+      "unverified": [
+        "LLM 실행 0",
+        "티켓 생성 0",
+        "codes 문자열 대조 전: ['invalid_input']"
+      ],
+      "manual": []
+    }
+  ]
+}
