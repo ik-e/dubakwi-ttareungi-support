@@ -30,7 +30,7 @@ function run(action, jira, opts = {}) {
     const node = nodes.get(current);
     let results;
     if (node.type === "n8n-nodes-base.code") {
-      results = new Function("$json", "$", node.parameters.jsCode)(json, lookup);
+      results = new Function("$json", "$", node.parameters.jsCode.replace("__ASSIGNEE_MAP_JSON__", opts.map ?? '{"support":"acct"}'))(json, lookup);
       json = results[0].json;
     } else if (node.type === "n8n-nodes-base.if") {
       const expr = node.parameters.conditions.conditions[0].leftValue.replace(/^=\{\{\s*|\s*\}\}$/g, "");
@@ -129,6 +129,14 @@ expect(r.body.error_code === "state_error" && r.calls.every((c) => c.op), "prepa
 r = run("handoff", withJira({"H11 담당 알림": {statusCode: 500, body: {}}}));
 expect(r.body.error_code === "partial_effect" && r.body.effects.assigned.status === "confirmed" && r.body.effects.alert.status === "unknown", "alert failure", r.body);
 r = run("handoff", withJira({"H38 Jira 담당 후보 조회": {statusCode: 200, body: []}}));
-expect(r.body.error_code === "partial_effect" && r.body.effects.assigned.error_code === "assignee_unavailable" && r.body.recovery.action === "assign", "no assignee", r.body);
+expect(r.body.error_code === "partial_effect" && r.body.effects.assigned.error_code === "assignee_not_assignable" && r.body.recovery.action === "assign", "mapped assignee not assignable", r.body);
 
-console.log("P12 handoff Jira flow: 11 scenarios passed");
+// 12. 역할별 담당 매핑이 없거나 깨져 있으면 첫 후보로 배정하지 않고 안전하게 실패한다
+for (const map of ["{}", "__ASSIGNEE_MAP_JSON__", "not json", '{"security":"acct"}']) {
+  r = run("handoff", happy, {map});
+  expect(r.body.error_code === "partial_effect" && r.body.effects.assigned.status === "failed" && r.body.effects.assigned.error_code === "assignee_unmapped", `unmapped ${map} must fail`, r.body);
+  expect(!r.calls.some((c) => c.node === "H09 Jira 맥락 저장·배정") && !r.calls.some((c) => c.node === "H11 담당 알림"), `no Jira write or alert without mapping ${map}`, r.calls);
+  expect(r.body.ticket_id === "JBYS-10" && r.body.recovery.action === "assign", "known ID and recovery kept", r.body);
+}
+
+console.log("P12 handoff Jira flow: 12 scenarios passed");
