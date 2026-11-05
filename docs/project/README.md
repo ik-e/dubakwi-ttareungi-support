@@ -100,3 +100,5 @@ R01 후속 VM 실행 증거: [RAG 색인/검색과 data-api 진단](../../runs/p
 R01 GitLab79 재사용 후속: [data-api·과정 도구 적용](../../runs/public/20261105-114531-vm-course79-data-api/report.md). 기존80경로 미제공/원본 인계 선행 해석과 구분한다.
 
 R05 P13/P25 통합 산출물: [공통 사례](../../cases/common.json), [팀 사례](../../cases/team.json), [팀 확장](../../cases/team-extended.json), [P11 임시 입구 사례](../../cases/p11-entry.json), [시연 순서 초안](../../requests/demo-sequence.json), [R05 VM 부분 시험 보고서](../../runs/public/20261105-143325-vm-p13-official/report.md), [새 R01 통합 검토](../../runs/public/20261105-154737-local-r05-integration-review/summary.json). 사례 형식/도구·시연 초안·골격 부분 시험을 구분하며 P13 전체 완료·실제 시연 성공은 아니다.
+
+- [따릉이 챗봇 조사 요약·출처](../rag-knowledge/chatbot_documents/README.md): 원문·사진은 내부 보관, 공개본은 직접 작성한 요약과 링크만 포함.
