@@ -17,7 +17,7 @@
 | [SYSTEM-DESIGN.md](SYSTEM-DESIGN.md) | 초안 v0.11·최상위 논리 설계 | R01 취합·R02~R05 공동 검토 | 구성·상태·기능 추적·디렉터리 용도·Docker Compose 기준 확인 후 상세로 이동 |
 | [Python 개발 기준](../PYTHON-DEVELOPMENT.md)·[공개 정책](../PUBLICATION.md) | 도구/설정 작성·서비스 구현 전 | R01·R05 품질/R04 공개 검토 | uv 잠금·Ruff·CI, 같은 폴더 .gitignore·Git 후보·공개 링크 검사 |
 | [작업 규칙](../../AGENTS.md)·[배포 안내](../../infra/README.md) | 기준 작성·실제 배포 전 | R01·R04/R05 검토 | Git/n8n/시험·동기화·Docker 실행/복구, 환경 확인 후 compose 작성 |
-| [VM 배포 전 점검](../../infra/vm-preflight.md)·[환경 예시](../../.env.example) | v0.10·GitLab79 data-api 연결·P11 22/22·로그18/18 | R01·R04 저장/R05 재현 검토 | 기존 n8n 유지·data-api/배포본 인계·백업/복원·Credential·입구 시험 |
+| [VM 배포 전 점검](../../infra/vm-preflight.md)·[환경 예시](../../.env.example) | v0.11·GitLab79 data-api·P11 22/22·P19 검색/모델 부분 연결 | R01·R04 저장/R05 재현 검토 | 기존 n8n 유지·data-api/배포본 인계·백업/복원·Credential·입구 시험 |
 | [WORKFLOW-DESIGN.md](WORKFLOW-DESIGN.md) | 초안 v0.14 | R02 오케스트레이션 | Jira 어댑터·공개 계약 검토,저장소 내부는 STORAGE-DESIGN 참조. D01~D07의 실행 관리는 개발 계획 참조 |
 | [설계 v0.2 검증 보고서 — 공개본 제외 자료](../../docs/PUBLIC-SOURCES.md) | 정적·문서 검증 기록 | R02 취합·전원 검토 | 이전 v0.2의 P1 3건·P2 7건 이력. 현행 설계 검토는 아래 종합 검증 참조 |
 | [설계서 종합 검증 — 공개본 제외 자료](../../docs/PUBLIC-SOURCES.md) | 문서 검증 완료·실행 미검증 | R02 취합·전원 검토 | v0.9/v0.2/v0.1 검증 시점의 P1 4건·P2 3건 기록. 현행 보완 결과는 후속 재검증 참조 |
