@@ -28,7 +28,7 @@ Credential은 이름만 들어 있다. 실제 ID는 게시 사본에서 연결�
 
 | 파일 (ID를 넘기지 않은 경우) | SHA-256 |
 | --- | --- |
-| `dubakwi-support-p19-mock.json` | `6c36e99a8117c7a3a11f8b01d34381622113cf968a49f95411ff22727da9d921` |
+| `dubakwi-support-p19-mock.json` | `f22b43d9ba14eae615e74af951c196b677d717f469d781ea1a4ea9dfdbe0d782` |
 | `dubakwi-p19-mock-state.json` | `749928db5072cbf43d43880d1aa300ffb226aa42c1878e883e87a055c5a92f95` |
 | `dubakwi-p19-mock-dlq.json` | `598e87c6bd4991f3878e7ee8d8a8390cec96ef62249642946bf5a6a5e1634cd0` |
 | `dubakwi-p19-mock-handoff.json` | `7ee40e17cd9012dea231b974c167023eb589d051c33a5145286e26ef7d04b51a` |
@@ -109,9 +109,12 @@ SUPPORT_TEAM_KEY=<시험 키> uv run --locked python scripts/test/support_skelet
 | [1차](../../runs/public/20261105-140528-local-n8n-p19-vm-bundle/summary.json) | 18/20 | L03 수정 전. LN14(당시 "화성" 문장), LN20 실패 |
 | [2차](../../runs/public/20261105-140827-local-n8n-p19-vm-bundle-2/summary.json) | 19/20 | L03 수정 전. LN14를 WF-03 문장으로 교체, LN20 실패 |
 | [L03 수정 후 회귀](../../runs/public/20261105-142926-local-n8n-p19-l03-regression/summary.json) | 19/20 | LN10 1회 `verification_failed` |
+| [save 실패 처리 수정 후 회귀](../../runs/public/20261105-144236-local-n8n-p19-save-failure/summary.json) | 20/20 | 이 한 번의 결과다. 비슷한 문장의 오판은 계속 나올 수 있다 |
 | [L03 수정 후 R05 사례](../../runs/public/20261105-143008-local-n8n-p19-l03-r05/summary.json) | 19개 3회 응답 칸 통과 | R05 `61dd421`. WF-04·09·10·11, TC03은 제외 |
 
 [L03 수정 비교](../../runs/public/20261105-143502-local-n8n-p19-l03-verifier/summary.json): 대표 문장 20회 중 자동 답변이 수정 전 12회, 최종 20회다. 일부러 지어낸 문장을 넣은 대조 시험에서도 거절이 늘었다.
+
+save 실패 경로는 state mock이 `ok:false`, `tickets_down`을 돌려주는 별도 사본으로 로컬 n8n에서 확인했다. 일반 문의와 긴급 문의 모두 200 담당자 이관, `reason=tickets_down`이었고 긴급은 priority high를 유지했다. 이 묶음의 기본 state mock은 save 성공을 돌려주므로 VM 시험에서는 이 경로를 지나지 않는다.
 
 알려진 문제가 VM에서도 나올 수 있다. 실패를 지우거나 재시도로 숨기지 않고 그대로 기록한다.
 

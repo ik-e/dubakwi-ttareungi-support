@@ -190,6 +190,8 @@ const unavailable = rejected('user_lookup_error', 'user_lookup_unavailable');
 const mock = (actor) => ({ status: 200, route: '자동 답변', actor, b04: true, llm: 3, process: 1, saves: 1, action: 'close' });
 const CITIZEN_ACTOR = { id: 'u01', role: 'citizen', access_levels: ['public'] };
 
+const JIRA_UNVERIFIED = { save: (r) => ({ request_id: 'lc-req', ok: false, state_ref: r.state_ref, error_code: 'tickets_down', recovery: { version: 1, mode: 'manual_required', action: 'finish', args: null, reference: null, reason: 'Jira context/version update is not verified' } }) };
+
 // 사례 ID LC는 Local Code의 약자이며 과정 공통 WF 판정과 구분한다.
 const CASES = [
   ['LC01', '입력', '빈 질문', ask({ question: '   ' }), ok(TEAM_CITIZEN), { status: 400, error: 'invalid_input', codes: ['invalid_input', 'question_empty'], b04: false }],
@@ -323,6 +325,10 @@ const FLOWS = [
   ['FL64', 'S1', '담당자 일반 표현은 거절하지 않음', ask({ question: '담당자에게 연결되려면 어떻게 하나요?' }), {}, flow({ route: '자동 답변' })],
   ['FL65', '계약', 'begin 실패의 fail 명령에 scope·실행 ID 포함', ask(), begin('error', { error_code: 'state_error' }), handoff('state_error', { failShape: { state_ref: null } })],
   ['FL66', '계약', 'DLQ 요청이 저장 필수 칸을 채움', ask({ question: `제 번호 ${FAKE_PHONE}인데 대여가 안 돼요` }), { process: () => ({ statusCode: 500, body: {} }) }, handoff('tickets_down', { dlq: 1, dlqShape: true })],
+  ['FL67', 'S8', 'save의 Jira 문맥 미확인은 tickets_down으로 이관하고 완료로 답하지 않음', ask(), JIRA_UNVERIFIED, handoff('tickets_down', { dlq: 1, alerts: 1, saves: 1, ticketId: 'T-1', failStatus: 'unknown', dlqRecoveryAction: 'finish', answerHas: '확인되지 않아', noWriterText: true })],
+  ['FL68', 'S8', 'save 실패의 최신 state_ref로 실패 기록', ask(), { save: (r) => ({ request_id: 'lc-req', ok: false, state_ref: { ...r.state_ref, state_revision: 77 }, error_code: 'tickets_down', recovery: null }) }, handoff('tickets_down', { failRevision: 77 })],
+  ['FL69', 'S8', '긴급 후속 save 실패도 high 유지', ask(), { triage: { text: triage({ type: 'security', urgency: 'high' }) }, ...JIRA_UNVERIFIED }, handoff('tickets_down', { dlq: 1, saves: 1, ticketId: 'T-1', priority: 'high' })],
+  ['FL70', 'S8', '허용되지 않은 save 오류 코드는 state_error', ask(), { save: () => ({ request_id: 'lc-req', ok: false, state_ref: null, error_code: 'stack trace 원문', recovery: null }) }, handoff('state_error', { dlq: 1, noText: 'stack trace' })],
   ['FL41', '계약', 'BeginRequest 서버 값', ask({ role: 'security' }), {}, flow({ route: '자동 답변', beginShape: true })],
 ];
 
@@ -367,6 +373,9 @@ function evaluate(workflow, [id, group, title, body, second, expected], flowCase
     if (typeof r.recovery !== 'object' || r.recovery === null) failures.push('dlq recovery 형식');
     if (JSON.stringify(r).includes(FAKE_PHONE)) failures.push('dlq 연락처 포함');
   }
+  if ('failStatus' in e) check('fail_status', result.sent.fail?.args?.status, e.failStatus);
+  if ('failRevision' in e) check('fail_revision', result.sent.fail?.state_ref?.state_revision, e.failRevision);
+  if ('dlqRecoveryAction' in e) check('dlq_recovery_action', result.sent.dlq?.recovery?.action, e.dlqRecoveryAction);
   if (e.failShape) {
     const r = result.sent.fail;
     check('fail_scope', r?.scope, 'dubakwi-dev');

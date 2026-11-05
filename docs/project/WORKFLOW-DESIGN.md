@@ -995,6 +995,7 @@ HTTP는 비2xx full response·네트워크 오류 continueRegularOutput을 인�
 | 티켓 생성 명확 실패/생성 여부 불명 | tickets_down/ticket_unknown | X dlq_alert,HTTP200·담당자 이관·사유. known ID 없으면 ticket=null. WF04는 DLQ1·알림1 |
 | 생성 후 종료/배정/알림 실패 | partial_effect | 재처리 필요 시 X dlq_alert,recovery·known ID·Effect 보존. 확인 못한 완료 주장 금지 |
 | 문의 저장 경계 실패 | state_error | X dlq_alert,복구 가능한 finish 인자 또는 manual_required 기록. 알려진 ID 보존,자동 반복 진입0 |
+| save의 Jira 문맥 미확인 (R04 PR #23 `365c419`, 병합·실연결 전) | tickets_down | X dlq_alert,HTTP200·담당자 이관. 요청은 completed로 바꾸지 않고 fail로 unknown 기록, 재전송은409 request_requires_review. 알려진 ID 보존,완료로 답하지 않음 |
 
 X01은 위 표로 effect_plan을 정하고 X02가 실행한다. 알림·DLQ 자체 장애는 동일한 오류 워크플로우를 무한 호출하지 않고 가린 n8n 실행 기록으로 운영 확인한다. 실제 HTTP401/403은 재시도하지 않는다. 기타 재시도는 제공 API의 멱등성과 잔여 시간 안에서만,총2회 이하로 제한한다. 호출별 timeout·재시도 설정과 일반20초/조회1.5초 초기값·WF11 전체 한도는 R02/R04/R05가 실제 연동 전에 공동 확정하며 역할별로 서로 다른 값을 숨겨 쓰지 않는다. 현 시점에 성능이 검증된 수치가 아니다.
 
