@@ -147,6 +147,70 @@ class RunnerTests(unittest.TestCase):
     def simple(self, name="A", **x):
         return flow_case(name, req(), {"status": 200, "equals": {"route": "차단"}}, **x)
 
+    def write_search(self, *cases):
+        guard = {"restricted_docs": ["handoff-policy"], "canary_prefix": "TEST-CANARY"}
+        data = {"webhook": "dubakwi-search", "x_dubakwi": {"search_guard": guard}}
+        data["cases"] = list(cases)
+        path = self.base / "cases/test.json"
+        path.write_text(json.dumps(data, ensure_ascii=False), encoding="utf-8")
+
+    @staticmethod
+    def search_case(name, levels, expect=None):
+        body = {"request_id": name.lower(), "enabled": True, "query": "q"}
+        body |= {"access_levels": levels, "deadline_at": "2099-01-01T00:00:00Z"}
+        return flow_case(name, body, expect or {"status": 200, "equals": {"status": "ok"}})
+
+    @staticmethod
+    def search_reply(*evidence):
+        def reply(request):
+            items = [
+                {"doc": d, "section": "s", "access_level": a, "score": 0.5, "text": t}
+                for d, a, t in evidence
+            ]
+            body = {"request_id": request["request_id"], "status": "ok", "evidence": items}
+            return 200, body
+
+        return reply
+
+    def test_search_guard_passes_public_evidence_and_skips_support_checks(self):
+        FakeServer.reply = self.search_reply(("rental-guide", "public", "SECRET-EVIDENCE-TEXT"))
+        self.write_search(self.search_case("P", ["public"]))
+        summary, path = self.run_tool()
+        case = summary["cases"][0]
+        self.assertEqual(case["status"], "pass")
+        ids = [g["id"] for g in case["global_checks"]]
+        self.assertEqual(ids, ["G03", "G01", "S01", "S02", "S03"])
+        step = case["steps"][0]
+        self.assertEqual(step["search_status"], "ok")
+        self.assertEqual(
+            step["evidence"][0],
+            {"doc": "rental-guide", "section": "s", "access_level": "public", "score": 0.5},
+        )
+        self.assertNotIn("SECRET-EVIDENCE-TEXT", path.read_text(encoding="utf-8"))
+
+    def test_search_guard_fails_on_restricted_level_canary_or_doc_for_public_request(self):
+        leaks = [
+            (("x", "restricted", "t"), "S01"),
+            (("x", "public", "has TEST-CANARY-01"), "S02"),
+            (("handoff-policy", "public", "t"), "S03"),
+        ]
+        for evidence, expected in leaks:
+            with self.subTest(leak=expected):
+                FakeServer.reply = self.search_reply(evidence)
+                self.write_search(self.search_case("L", ["public"]))
+                summary, _ = self.run_tool()
+                case = summary["cases"][0]
+                failed = [g["id"] for g in case["global_checks"] if not g["passed"]]
+                self.assertEqual((case["status"], failed), ("fail", [expected]))
+
+    def test_search_guard_is_not_applied_when_restricted_access_is_requested(self):
+        FakeServer.reply = self.search_reply(("handoff-policy", "restricted", "TEST-CANARY-01"))
+        self.write_search(self.search_case("S", ["public", "restricted"]))
+        summary, _ = self.run_tool()
+        case = summary["cases"][0]
+        self.assertEqual(case["status"], "pass")
+        self.assertEqual([g["id"] for g in case["global_checks"]], ["G03", "G01"])
+
     def test_file_reset_failure_blocks_current_and_later_files_without_webhook(self):
         reset = [{"url": "http://localhost:8800/tickets-reset", "body": {}}]
         self.write_cases(self.simple("A"), before=reset)
@@ -573,6 +637,31 @@ class CaseFileTests(unittest.TestCase):
                 if "fault_on" in step:
                     self.assertIn("fault_off", step)
         self.assertEqual(len({self.load(s["request"])["request_id"] for s in sent}), len(sent))
+
+    def test_search_cases_guard_public_requests_and_pair_staff_controls(self):
+        self.assertNotIn("cases/search.json", RUN.DEFAULT_CASE_FILES)
+        data = self.load("cases/search.json")
+        self.assertEqual(data["webhook"], "dubakwi-search")
+        guard = data["x_dubakwi"]["search_guard"]
+        self.assertEqual(guard["restricted_docs"], ["handoff-policy", "ticket-lifecycle"])
+        manifest = self.load("knowledge/manifest.json")
+        restricted = [
+            d["doc_id"] for d in manifest["documents"] if d["access_level"] == "restricted"
+        ]
+        self.assertEqual(sorted(restricted), sorted(guard["restricted_docs"]))
+        for doc in restricted:
+            text = (ROOT / f"knowledge/restricted/{doc}.md").read_text(encoding="utf-8")
+            self.assertIn(guard["canary_prefix"], text)
+        cases = {c["x_dubakwi"]["id"]: c for c in data["cases"]}
+        for case in data["cases"]:
+            with self.subTest(case=case["name"]):
+                for key in ("request_id", "enabled", "query", "access_levels", "deadline_at"):
+                    self.assertIn(key, case["body"])
+                self.assertEqual(case["expect"]["status"], 200)
+        for citizen, staff in (("SR-R01", "SR-STAFF01"), ("SR-R02", "SR-STAFF02")):
+            self.assertEqual(cases[citizen]["body"]["query"], cases[staff]["body"]["query"])
+            self.assertEqual(cases[citizen]["body"]["access_levels"], ["public"])
+            self.assertIn("restricted", cases[staff]["body"]["access_levels"])
 
     def test_p11_entry_case_is_separate_and_expects_skeleton_mock(self):
         self.assertNotIn("cases/p11-entry.json", RUN.DEFAULT_CASE_FILES)
