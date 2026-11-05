@@ -34,3 +34,9 @@
 ## 4. PostgreSQL 경계
 
 사용자 계획은 향후 Docker 기반 PostgreSQL에 RAG 데이터를 저장하는 것이다. PR #18은 request_state·dead_letters 준비이며 RAG 벡터 저장 구현이 아니다. pgvector·3,072차원 인덱스·권한 필터·볼륨·백업/복구는 별도 설계·환경 검증이 필요하다. 현재 이 절차는 Simple Vector Store 교육용 시연 기준이다.
+
+## 5. R01·R05의 VM 준비 및 부분 시험 공유
+
+- R01의 PR #12는 기존 VM을 보존하면서 P11을 게시한 준비·관측 기록이다. R05가 공유한 검토에서는 내부 HTTP·외부 HTTPS의 입력·인증 부분 시험 10건과 저장된 실행 6건, B04/M01 미실행, B35 메타 기록 실패 6건을 구분했다. 이는 RAG 검색·임베딩 또는 전체 서비스의 성공 근거가 아니다.
+- R05는 data-api 연결 후 WF-08·WF-13a·WF-13c를 별도 실행하고, 미등록 사용자 WF-13b도 실행할 계획이라고 밝혔다. 시험 이름과 응답 시간 해석에 관한 두 정리 의견은 PR #12 담당 범위다.
+- R01과 VM Credential 준비 후 Manual Trigger 색인과 Webhook 검색의 메모리 공유를 먼저 확인하고, 재시작·재색인은 시점을 맞춰 검증한다. RAG PostgreSQL 벡터 전환은 R04의 상태·DLQ DB 작업과 별도로 진행한다.
