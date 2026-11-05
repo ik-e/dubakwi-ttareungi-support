@@ -32,6 +32,13 @@ psql "$DUBAKWI_DATABASE_URL" -v ON_ERROR_STOP=1 \
 psql "$DUBAKWI_DATABASE_URL" -v ON_ERROR_STOP=1 \
   -v runtime_role=dubakwi_runtime \
   -f infra/db/migrations/002-grant-runtime-access.sql
+
+psql "$DUBAKWI_DATABASE_URL" -v ON_ERROR_STOP=1 \
+  -f infra/db/migrations/003-create-storage-functions.sql
+
+psql "$DUBAKWI_DATABASE_URL" -v ON_ERROR_STOP=1 \
+  -v runtime_role=dubakwi_runtime \
+  -f infra/db/migrations/004-grant-storage-functions.sql
 ```
 
 Record the applied commit and migration filenames in the private deployment
@@ -54,6 +61,13 @@ server details to a public report.
 - Retain both Jira's immutable internal ID and display key internally. Return
   the actual project key, such as `JBYS-1`, as the citizen-facing `ticket_id`;
   do not hardcode an example project prefix.
+- Call `dubakwi_service.state_apply($1::jsonb)` and
+  `dubakwi_service.dlq_apply($1::jsonb)` with one parameterized JSON envelope.
+  The functions do not accept a table name, SQL text, URL, or credential from
+  the payload.
+- A new request without `case_ref` can acquire state atomically. A request with
+  `case_ref` returns `case_verification_required` until the live Jira owner and
+  open-state check has completed; the database never guesses that result.
 - Never add a foreign key from `dead_letters` to `request_state`; a DLQ write
   must remain possible when state storage failed.
 - Use parameterized SQL only. Do not accept table, schema, URL, SQL, or code
@@ -71,12 +85,15 @@ server details to a public report.
    hash, required-value, response-object, state-error, DLQ resolution, and
    one-active-case constraints. It also confirms that a completed request does
    not block a new processing request for the same case.
-5. Confirm duplicate `(scope, failure_key)` is rejected so the application must
+5. Run `infra/db/verification/function-contract.sql`. It checks new-request
+   begin, prepare/bind/finish, replay/conflict, Jira-required follow-up blocking,
+   and DLQ put/deduplicate/claim/resolve inside a rolled-back transaction.
+6. Confirm duplicate `(scope, failure_key)` is rejected so the application must
    update the existing DLQ item.
-6. Run `runtime-role-contract.sql` with the environment's login and no-login
+7. Run `runtime-role-contract.sql` with the environment's login and no-login
    role. The login must not be superuser and must not have `CREATEROLE`,
    `CREATEDB`, or `BYPASSRLS`; it must inherit the reviewed runtime role.
-7. Restart PostgreSQL and confirm the two tables and inserted test rows remain.
+8. Restart PostgreSQL and confirm the two tables and inserted test rows remain.
 
 The constraint script uses synthetic values inside a transaction and rolls the
 transaction back. Run it only against an empty disposable test database, not the
@@ -109,7 +126,8 @@ runtime grants are not restored. Use the following order:
 3. Verify that the `dubakwi_service` schema and both tables are owned by the
    intended migration owner. Stop if another or privileged login owns them.
 4. Reapply `002-grant-runtime-access.sql` with the environment's no-login
-   runtime role. This repeats the `PUBLIC` revokes and the minimum grants.
+   runtime role, then reapply `004-grant-storage-functions.sql`. This repeats
+   the `PUBLIC` revokes and the minimum table/function grants.
 5. Connect as the environment's runtime login and repeat the allow/deny tests
    below. Do not accept a restore based only on row counts.
 6. Run `storage-snapshot.sql` before the dump and after the restore. Compare row
@@ -142,6 +160,10 @@ Reapply runtime permissions after restore:
 psql "$DUBAKWI_RESTORE_DATABASE_URL" -v ON_ERROR_STOP=1 \
   -v runtime_role=dubakwi_runtime \
   -f infra/db/migrations/002-grant-runtime-access.sql
+
+psql "$DUBAKWI_RESTORE_DATABASE_URL" -v ON_ERROR_STOP=1 \
+  -v runtime_role=dubakwi_runtime \
+  -f infra/db/migrations/004-grant-storage-functions.sql
 ```
 
 Verify the runtime login attributes and membership without publishing the real
@@ -181,9 +203,11 @@ volume, Jira, and PostgreSQL backups are separate recovery scopes.
 
 ## Current limitation
 
-These files are a migration and permission proposal. They are not evidence that
-PostgreSQL was started, migrated, backed up, restored, or connected to n8n on the
-team VM.
+These files now include the table, permission, state-command, and DLQ functions
+needed by the n8n adapters. They are not evidence that PostgreSQL was started,
+migrated, backed up, restored, or connected to n8n on the team VM. Jira-backed
+`case_ref` verification also remains outside the database function and must be
+connected before follow-up requests can proceed.
 
 ## Local validation evidence (2026-11-05)
 
@@ -194,8 +218,9 @@ team verdict remain subject to R05 review.
 - Static inspection found both required tables, required constraints and
   indexes, request-state failure-code rules, no foreign key from `dead_letters`
   to `request_state`, and only `USAGE`, `SELECT`, `INSERT`, and `UPDATE`
-  runtime grants. The three SQL verification files were also added for the VM
-  test database.
+  runtime grants. The four SQL verification files were also added for the VM
+  test database. The state/DLQ function SQL was statically reviewed but not
+  executed because this workstation had no running PostgreSQL engine or `psql`.
 - `uv run --locked python -m unittest discover -s scripts/test -p 'test_*.py'`
   ran 45 tests: 38 passed and 7 HTTP environment-dependent tests were skipped.
 - Ruff check/format and the public-file audit passed; staged secret-pattern
