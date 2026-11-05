@@ -38,6 +38,9 @@ uv run --locked python scripts/test/run_cases.py --env local --desc p13-entry --
 $env:FLOW_WEBHOOK_KEY = "<팀 키>"
 uv run --locked python scripts/test/run_cases.py --base-url <n8n 주소> --env vm --desc p13-entry --path mock --case WF08 WF13a WF13c --no-hooks --auth-required --workflow-version <커밋 또는 내보내기 버전>
 # WF13b(미등록 사용자)는 사용자 조회용 data-api 준비 후 같은 방식으로 실행한다
+# P13 공식 입구 시험(data-api 연결 후): 입력 거절·미등록·등록 사용자 골격 응답과 B35 로그를 함께 판정한다
+# data-api는 VM 내부 주소이므로 VM에서 실행하거나 터널로 --data-api를 지정한다
+uv run --locked python scripts/test/run_cases.py --base-url <n8n 주소> --data-api <data-api 주소> --env vm --desc p13-official --path mock --cases-file cases/common.json cases/p11-entry.json --case WF08 WF13a WF13b WF13c P11-01 --no-hooks --check-logs --auth-required --workflow-version <커밋 또는 내보내기 버전>
 # TC08(답변 검증 실패): R02 사본을 만들어 게시한 뒤, 출력된 모드·sha256을 넘긴다. 두 모드는 같은 경로라 하나씩 게시한다
 # 사본 도구는 PR #16 병합 전까지 r02/p19-support-flow에만 있다. 원본이 바뀌면 sha256도 바뀌므로 시험마다 새로 만든다
 # 사본도 state·handoff를 호출하므로 VM에 두 하위 워크플로우가 있어야 실행할 수 있다
@@ -50,6 +53,8 @@ uv run --locked python scripts/test/run_cases.py --base-url <n8n 주소> --env v
 - 공유용 가린 요약은 `runs/public/<실행묶음ID>/summary.json`, 요청·응답 원문과 URL은 Git 제외 경로 `runs/<실행묶음ID>/raw.json`에 쓴다. 공개 요약에는 답변 원문·URL·인증값을 넣지 않는다. 인증값은 어느 파일에도 쓰지 않는다. 기존 결과는 덮어쓰지 않는다.
 - 자동 판정은 응답 상태·응답 필드·공통 검사 G01/G02/G03/G05·지정 시간 한도다. 티켓·처리 상태·DLQ·알림·n8n 실행 기록·수동 판정은 `unverified`/`manual`로 남는다.
 - 사례 상태는 `pass`(열린 항목 없음), `auto_pass_unverified`(응답 판정만 통과, 완전 통과 아님), `fail`, `blocked`(`requires`·운영자 단계·수동 고장·`--no-hooks`로 전송하지 않음), `dry_run`이다. `fail`이 있으면 종료 코드 1, 입력·설정 오류는 2다.
+- `--check-logs`를 주면 사례마다 data-api `GET /logs`를 읽어 B35 기록을 판정한다. L01 같은 request_id 기록 있음, L02 기록의 route·status가 응답과 같음, L03 질문 원문이 기록에 없음. `/logs`를 읽지 못하면 실패가 아니라 미확인으로 남긴다. 응답 모양(목록 또는 logs/items/data 칸)은 키트에서 확인해야 한다.
+- [P11 입구 사례](../../cases/p11-entry.json)는 P19 게시 전까지만 쓰는 임시 사례다. 등록 사용자 조회 성공 경로의 골격 응답(`reason=skeleton_mock`)을 보며 업무 성공으로 세지 않는다. 기본 사례 목록에 없으므로 `--cases-file`로 지정한다.
 - `x_dubakwi.test_copy`가 있는 사례(TC08)는 `--test-copy-mode`·`--test-copy-sha256`을 함께 줄 때만 사본 webhook(`dubakwi-support-tc08`)으로 보내고, 없으면 blocked다. 모드·해시는 공개 요약에 남는다. 다른 사례는 원본 webhook으로 그대로 보낸다.
 - WF-09 2/2는 두 응답의 `ticket_id`·`priority`가 같고 2번째 `ticket.duplicate=true`인지 본다(R02·R05 제안 판정, PR #16). 티켓 1건과 D02 대조가 남아 있어 완전 통과로 기록하지 않는다.
 - `contains`는 목록 항목이 값과 같거나 항목의 필드 값이 같을 때(예: `sources`의 `doc`), 문자열이면 부분 문자열일 때 통과로 본다. flow.py의 실제 해석과 다르면 키트에 맞춘다.

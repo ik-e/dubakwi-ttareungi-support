@@ -26,6 +26,14 @@ class FakeServer(BaseHTTPRequestHandler):
     reply = None
     calls = []
     headers_seen = []
+    logs = []
+    log_mode = "b35"  # b35: write a B35-like entry per webhook reply; leak; off; broken
+
+    def do_GET(self):
+        if self.path != "/logs" or FakeServer.log_mode == "broken":
+            self._send(500, {"error": "down"})
+            return
+        self._send(200, FakeServer.logs)
 
     def do_POST(self):
         length = int(self.headers["Content-Length"])
@@ -34,8 +42,17 @@ class FakeServer(BaseHTTPRequestHandler):
         FakeServer.headers_seen.append(dict(self.headers))
         if self.path.startswith("/webhook/"):
             status, out = FakeServer.reply(body)
+            if FakeServer.log_mode in ("b35", "leak"):
+                entry = {"request_id": body.get("request_id"), "node": "B33"}
+                entry |= {"route": out.get("route"), "status": status, "masked": 0}
+                if FakeServer.log_mode == "leak":
+                    entry["question"] = body.get("question")
+                FakeServer.logs.append(entry)
         else:
             status, out = 200, {"ok": True}
+        self._send(status, out)
+
+    def _send(self, status, out):
         data = json.dumps(out, ensure_ascii=False).encode("utf-8")
         self.send_response(status)
         self.send_header("Content-Type", "application/json")
@@ -91,6 +108,7 @@ class RunnerTests(unittest.TestCase):
         self.base = Path(self.temp.name).resolve()
         (self.base / "cases").mkdir()
         FakeServer.calls, FakeServer.headers_seen = [], []
+        FakeServer.logs, FakeServer.log_mode = [], "b35"
         FakeServer.reply = lambda r: (200, ok_body(r))
 
     def write_cases(self, *cases, before=None):
@@ -307,6 +325,36 @@ class RunnerTests(unittest.TestCase):
         summary, _ = self.run_tool()
         self.assertEqual(summary["cases"][1]["status"], "pass")
 
+    def test_check_logs_matches_b35_entry_and_flags_missing_leak_or_unreadable(self):
+        self.write_cases(self.simple())
+        summary, _ = self.run_tool("--check-logs")
+        case = summary["cases"][0]
+        self.assertTrue(summary["log_check"])
+        self.assertEqual(case["status"], "pass")
+        self.assertEqual([c["id"] for c in case["log_checks"]], ["L01", "L02", "L03"])
+
+        FakeServer.log_mode = "leak"
+        summary, _ = self.run_tool("--check-logs")
+        failed = [c["id"] for c in summary["cases"][0]["log_checks"] if not c["passed"]]
+        self.assertEqual((summary["cases"][0]["status"], failed), ("fail", ["L03"]))
+
+        FakeServer.logs, FakeServer.log_mode = [], "off"
+        summary, _ = self.run_tool("--check-logs")
+        failed = [c["id"] for c in summary["cases"][0]["log_checks"] if not c["passed"]]
+        self.assertEqual((summary["cases"][0]["status"], failed), ("fail", ["L01"]))
+
+        FakeServer.log_mode = "broken"
+        summary, _ = self.run_tool("--check-logs")
+        case = summary["cases"][0]
+        self.assertEqual(case["status"], "auto_pass_unverified")
+        self.assertIn("log read failed: data-api /logs를 읽지 못함", case["unverified"])
+
+    def test_logs_are_not_read_without_option(self):
+        self.write_cases(self.simple())
+        summary, _ = self.run_tool()
+        self.assertEqual(summary["cases"][0]["log_checks"], [])
+        self.assertFalse(summary["log_check"])
+
     def test_manual_fault_ready_sends_case(self):
         self.write_cases(self.simple("M", manual_fault={"before": "llm down", "after": "llm up"}))
         summary, _ = self.run_tool("--manual-fault-ready")
@@ -485,6 +533,16 @@ class CaseFileTests(unittest.TestCase):
                 if "fault_on" in step:
                     self.assertIn("fault_off", step)
         self.assertEqual(len({self.load(s["request"])["request_id"] for s in sent}), len(sent))
+
+    def test_p11_entry_case_is_separate_and_expects_skeleton_mock(self):
+        self.assertNotIn("cases/p11-entry.json", RUN.DEFAULT_CASE_FILES)
+        data = self.load("cases/p11-entry.json")
+        (case,) = data["cases"]
+        self.assertEqual(case["body"]["user"], "citizen-a")
+        equals = case["expect"]["equals"]
+        self.assertEqual(
+            equals, {"route": "담당자 이관", "reason": "skeleton_mock", "ticket": None}
+        )
 
     def test_fault_cases_switch_fault_off_after(self):
         data = self.load("cases/common.json")

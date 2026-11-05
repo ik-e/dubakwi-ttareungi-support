@@ -281,6 +281,41 @@ def post_json(url, body, headers, timeout):
     return {"status": status, "body": body, "elapsed_ms": elapsed, "error": error}
 
 
+def read_logs(data_api, timeout):
+    """GET data-api /logs. Returns a list of entries, or None if it cannot be read."""
+    req = urllib.request.Request(f"{data_api}/logs", method="GET")
+    try:
+        with urllib.request.urlopen(req, timeout=timeout) as resp:
+            data = json.loads(resp.read().decode("utf-8"))
+    except (urllib.error.URLError, TimeoutError, OSError, UnicodeDecodeError, ValueError):
+        return None
+    if isinstance(data, list):
+        return data
+    if isinstance(data, dict):
+        for key in ("logs", "items", "data"):
+            if isinstance(data.get(key), list):
+                return data[key]
+    return None
+
+
+def judge_logs(step_no, request, result, entries):
+    """L01 entry exists, L02 route/status match the response, L03 question text absent."""
+    rid = request["request_id"]
+    mine = [e for e in entries if isinstance(e, dict) and e.get("request_id") == rid]
+    out = [("L01", "log entry for request_id", bool(mine))]
+    if mine:
+        body = result["body"] if isinstance(result["body"], dict) else {}
+        last = mine[-1]
+        same = last.get("route") == body.get("route") and last.get("status") == result["status"]
+        out.append(("L02", "log route/status match response", same))
+        question = request.get("question")
+        asked = isinstance(question, str) and question.strip()
+        values = [_text(v) for e in mine for v in e.values()]
+        leaked = bool(asked) and any(question in v for v in values)
+        out.append(("L03", "question text absent from log", not leaked))
+    return [{"id": i, "step": step_no, "check": c, "passed": p} for i, c, p in out]
+
+
 def run_hooks(hooks, data_api, timeout):
     """POST before/after hooks (data-api reset/fault). Returns list of hook outcomes."""
     out = []
@@ -485,12 +520,21 @@ def run_unit(unit, ctx):
     after_ok = all(h["ok"] for h in hooks.get("after", []))
     if not after_ok:
         unverified.append("after hook failed: 고장 해제를 수동으로 확인")
-    status = case_status(checks, globals_, unverified, unit["manual"])
+    log_checks = []
+    if ctx["opts"].check_logs:
+        entries = read_logs(ctx["data_api"], ctx["timeout"])
+        if entries is None:
+            unverified.append("log read failed: data-api /logs를 읽지 못함")
+        else:
+            for no in sorted(results):
+                log_checks += judge_logs(no, requests[no], results[no], entries)
+    status = case_status(checks, globals_ + log_checks, unverified, unit["manual"])
     public = head | {
         "status": status,
         "steps": [public_step(no, requests[no], results[no]) for no in sorted(results)],
         "checks": checks,
         "global_checks": globals_,
+        "log_checks": log_checks,
         "hooks": hooks,
         "unverified": unverified,
         "manual": unit["manual"],
@@ -553,6 +597,7 @@ def execute(args, base=ROOT, now=None):
         "path": args.path,
         "auth_header_sent": bool(headers),
         "auth_token_env": token_env,
+        "log_check": bool(args.check_logs),
         "versions": {
             "git": git_info(base),
             "workflow": args.workflow_version,
@@ -611,6 +656,11 @@ def parse_args(argv):
         "--manual-fault-ready",
         action="store_true",
         help="manual faults (e.g. flow.py llm down) were switched on by hand",
+    )
+    p.add_argument(
+        "--check-logs",
+        action="store_true",
+        help="after each case read data-api /logs and check the B35 entry (L01-L03)",
     )
     p.add_argument(
         "--test-copy-mode",
