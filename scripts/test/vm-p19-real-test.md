@@ -2,7 +2,7 @@
 
 R02가 준비하고 R01이 환경 값을 연결해 게시하는 시험이다. 첫 목표는 실제 사용자 조회 → 분류·검색·답변 검증 → Jira 생성·종료 → 최종 저장 → 응답의 S1 한 건이다. mock 시험은 [VM P19 mock 시험](vm-p19-mock-test.md)에 따로 둔다.
 
-**현재 상태:** 묶음과 대응표는 준비됐지만 실제 S1은 통과할 수 없다. R04 보고(2026-11-05) 기준 Jira 생성·배정·bind는 팀 n8n에서 연결됐지만, Jira 종료(JBYS의 Resolution 값 없음), save 성공, `case_ref`, `/records`는 미완료다. 저장소의 PR #27 `e273daa`는 아직 Jira 없는 버전이라 이 묶음의 handoff 기준은 R04 새 커밋으로 바꿔야 한다.
+**현재 상태:** 로컬 가짜 Jira로는 S1 경로가 끝까지 동작했다. 실제 S1은 아직이다. R04 최신 회신(2026-11-05) 기준 실제 Jira는 읽기만 확인했고 쓰기(생성·배정·종료·알림)는 실행 전이다. 남은 것은 R04의 S13·S19 Credential과 보완 횟수 갱신, 005~006 적용, JBYS Resolution, VM 게시다.
 
 ## 파일 만들기
 
@@ -63,17 +63,22 @@ Jira 또는 저장 효과를 확인하지 못하면 응답이 맞아도 S1 통�
 
 ## 로컬 예행 결과
 
-임시 PostgreSQL(`001`~`004`), 임시 사용자 API, main의 state·DLQ, PR #27 handoff로 호출했다. Jira는 없다. [결과](../../runs/public/20261105-170800-local-n8n-p19-real-rehearsal/summary.json)
+실제 support, 임시 PostgreSQL(`001`~`006`), 임시 사용자 API, R04 `60f8886`의 state·DLQ·handoff, [가짜 Jira](fake_jira.py)로 호출했다. 실제 Jira 호출은 0건이다. [결과](../../runs/public/20261105-185000-local-n8n-p19-fake-jira-e2e/summary.json), [이전 Jira 없는 예행](../../runs/public/20261105-170800-local-n8n-p19-real-rehearsal/summary.json)
 
-| 호출 | 응답 | 저장 결과 |
+| 호출 | 응답 | 효과 |
 | --- | --- | --- |
-| 대표 문장 `citizen-a` | 200 담당자 이관 `tickets_down`, ticket null | `failed`, DLQ 1건 `pending` |
-| 같은 ID·같은 입력 재전송 | 409 `request_requires_review` | 추가 행 없음 |
-| 같은 ID·다른 입력, 다른 사용자 | 409 `request_conflict` | 추가 행 없음 |
-| 보완 정보 부족, 긴급 | 200 담당자 이관 `tickets_down` | `failed`, DLQ 각 1건 |
-| `case_ref` 있는 요청 | 200 담당자 이관 `case_verification_required` | 추가 행 없음 |
-| 주입, 미등록 사용자 | 200 차단, 400 `unknown_user` | 행 없음 |
-| PostgreSQL 중단 | 200 담당자 이관, 본문 있음 | 저장 불가 |
+| 대표 문장 S1 | 200 자동 답변, `ticket=null` | 가짜 Jira 생성·종료, `completed`, DLQ 0 |
+| 같은 요청 재전송 | 200 저장 응답 | 티켓 추가 0 |
+| Jira 종료 500 | 200 이관 `partial_effect`, known `JBYS-2` | `unknown`, DLQ `close`·`jira_ref` |
+| Jira 생성 500 | 200 이관 `ticket_unknown`, ticket null | `unknown`, DLQ `create` |
+| 보완 후 `case_ref` | 200 보완 질문 | 같은 티켓 재사용 |
+| 종료·없는·타인 `case_ref` | 409·400·403 | 내용 비공개 |
+| 긴급 | 200 이관, priority high | 배정·알림 |
+| 본인·타인 조회 | 200 자동 답변·권한 없음 | 타인 내용 비공개 |
+
+시험 사본에서는 R04 state의 S13·S19에 없는 Postgres Credential을 연결했다.
+
+**미해결:** `attempt` 없이 `case_ref`로 이어 가면 5회까지 계속 보완 질문이고 한도 이관이 없다. wait 경로가 Jira의 보완 횟수를 갱신하지 않아서다. `attempt=3`을 보내면 이관된다.
 
 실제 S1 통과가 아니다. 실제 Jira, VM, R05 공식 판정은 미실행이다.
 

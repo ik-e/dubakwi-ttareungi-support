@@ -1,0 +1,109 @@
+{
+  "label": "fake-jira-end-to-end",
+  "executed_at_kst": "2026-11-05",
+  "environment": "local n8n 2.42.6, 임시 PostgreSQL 16.15 001~006, 임시 사용자 API, R04 60f8886 state·DLQ·handoff, 로컬 가짜 Jira(scripts/test/fake_jira.py), R03 PR #31 06e9223 검색·색인, gpt-4.1-mini",
+  "scope": "실제 support와 R04 하위 기능의 계약 연결 확인. Jira는 가짜 서버이며 실제 Jira 호출 0건. 실제 S1 통과·VM·공식 판정이 아니다.",
+  "local_patch_for_test": "R04 state JSON의 S13·S19에 Postgres Credential이 없어 시험 사본에서만 연결",
+  "results": [
+    {
+      "case": "대표 문장 S1",
+      "http": 200,
+      "route": "자동 답변",
+      "note": "Jira 생성·종료, state completed, DLQ 0"
+    },
+    {
+      "case": "같은 요청 재전송",
+      "http": 200,
+      "route": "자동 답변",
+      "note": "저장 응답 재사용, 티켓 추가 0. 첫 시도는 500(수정 전)"
+    },
+    {
+      "case": "Jira 종료 500",
+      "http": 200,
+      "route": "담당자 이관",
+      "note": "partial_effect, known JBYS-2, state unknown, DLQ close·jira_ref"
+    },
+    {
+      "case": "Jira 생성 500",
+      "http": 200,
+      "route": "담당자 이관",
+      "note": "ticket_unknown, ticket null, DLQ create"
+    },
+    {
+      "case": "보완 1차",
+      "http": 200,
+      "route": "보완 질문",
+      "note": "Jira 열림 유지, case_ref 반환"
+    },
+    {
+      "case": "case_ref 이어가기",
+      "http": 200,
+      "route": "보완 질문",
+      "note": "같은 티켓 재사용"
+    },
+    {
+      "case": "종료된 case",
+      "http": 409,
+      "route": null,
+      "note": "case_closed"
+    },
+    {
+      "case": "없는 case_ref",
+      "http": 400,
+      "route": null,
+      "note": "invalid_case_ref"
+    },
+    {
+      "case": "다른 사용자의 case_ref",
+      "http": 403,
+      "route": null,
+      "note": "case_access_denied"
+    },
+    {
+      "case": "긴급",
+      "http": 200,
+      "route": "담당자 이관",
+      "note": "priority high, 배정, 알림"
+    },
+    {
+      "case": "본인 조회 T-DEMO-01",
+      "http": 200,
+      "route": "자동 답변",
+      "note": "상태 안내"
+    },
+    {
+      "case": "타인 조회 T-DEMO-02",
+      "http": 200,
+      "route": "권한 없음",
+      "note": "case_access_denied"
+    },
+    {
+      "case": "attempt 없이 case_ref 5회",
+      "http": 200,
+      "route": "보완 질문",
+      "note": "5회 모두 보완 질문, 한도 이관 없음"
+    },
+    {
+      "case": "attempt=3 전달",
+      "http": 200,
+      "route": "담당자 이관",
+      "note": "attempt_limit"
+    }
+  ],
+  "defects_found_and_fixed_in_support": [
+    "B08의 structuredClone이 n8n Code 환경에서 실패해 재전송이 500",
+    "X03a jira_issue_id에 키가 들어감"
+  ],
+  "open_for_r04": [
+    "S13·S19 Credential 없음",
+    "wait 경로가 Jira 횟수를 갱신하지 않아 attempt 없는 보완이 한도에 도달하지 않음"
+  ],
+  "regression": {
+    "support_skeleton_live": "runs/public/20261105-184305-local-n8n-p19-b27-regression/summary.json"
+  },
+  "not_executed": [
+    "실제 Jira 쓰기",
+    "VM 실제 연결",
+    "R05 공식 판정"
+  ]
+}

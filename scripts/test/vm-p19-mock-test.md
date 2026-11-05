@@ -30,7 +30,7 @@ Credential은 이름만 들어 있다. 실제 ID는 게시 사본에서 연결�
 
 | 파일 (ID를 넘기지 않은 경우) | SHA-256 |
 | --- | --- |
-| `dubakwi-support-p19-mock.json` | `ba884ca32fbd9d13e50b13992530c3e22cf84ffb60c04696ef16b2811cc3d787` |
+| `dubakwi-support-p19-mock.json` | `da87a0093e4d44f198e1de4b74917c3301ccd161f1d4c6a651a93fd3749913e3` |
 | `dubakwi-p19-mock-state.json` | `749928db5072cbf43d43880d1aa300ffb226aa42c1878e883e87a055c5a92f95` |
 | `dubakwi-p19-mock-dlq.json` | `598e87c6bd4991f3878e7ee8d8a8390cec96ef62249642946bf5a6a5e1634cd0` |
 | `dubakwi-p19-mock-handoff.json` | `7ee40e17cd9012dea231b974c167023eb589d051c33a5145286e26ef7d04b51a` |
@@ -141,6 +141,8 @@ save 실패 경로는 state mock이 `ok:false`, `tickets_down`을 돌려주는 �
 [R03 PR #31 `06e9223` 확인](../../runs/public/20261105-165038-local-n8n-p19-pr31b-check/summary.json): 대표 문장 30회, WF01 문장 10회 모두 자동 답변이고, WF-12 5회는 `privacy-security-guide` 근거의 긴급 이관, TC04 5회는 사람 판단 이관이다. "QR로 대여하는 방법"은 20회 중 14회다. [회귀](../../runs/public/20261105-164815-local-n8n-p19-pr31b-regression/summary.json)와 [R05 사례](../../runs/public/20261105-164859-local-n8n-p19-pr31b-r05/summary.json)를 같은 구성에서 다시 실행해 각각 18/20(LN07 검증 실패 이관, LN14 보완 질문), 19개 3회 응답 칸 통과다.
 
 DLQ 계약 수정 후 [회귀](../../runs/public/20261105-170027-local-n8n-p19-contract-fix-regression/summary.json) 20/20, [R05 사례](../../runs/public/20261105-170112-local-n8n-p19-contract-fix-r05/summary.json) 19개 3회 응답 칸 통과다. 한 번의 실행이라 아래 한계를 지우지 않는다.
+
+B27 15초와 재전송·DLQ ID 수정 후 [회귀](../../runs/public/20261105-184305-local-n8n-p19-b27-regression/summary.json) 20/20이다.
 
 알려진 문제가 VM에서도 나올 수 있다. 실패를 지우거나 재시도로 숨기지 않고 그대로 기록한다.
 

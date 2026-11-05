@@ -348,7 +348,7 @@ const FLOWS = [
   ['FL71', '계약', 'Jira 키 형식 ticket_id를 응답에 그대로 전달', ask(), { triage: { text: triage({ type: 'security', urgency: 'high' }) }, ...processResult({ ticket_id: 'JBYS-1' }) }, flow({ route: '담당자 이관', ticketId: 'JBYS-1', priority: 'high' })],
   ['FL72', 'S6', '가능 여부 문의는 되묻지 않고 검색', ask({ question: '따릉이를 해외 여행에 가져가서 한 달 동안 써도 되나요?' }), { triage: { text: triage({ type: 'rental', missing: ['symptom'] }) } }, flow({ route: '자동 답변', search: 1 })],
   ['FL73', 'S2', '개별 문제의 안 되나요는 보완 질문 유지', ask({ question: '반납했는데 앱에 이용 중으로 나와요. 왜 안 되나요?' }), { triage: { text: triage({ type: 'return', missing: ['bike_id'] }) } }, flow({ route: '보완 질문' })],
-  ['FL74', 'S8', 'Jira 종료 실패는 partial_effect로 known ID 보존', ask(), processResult({ ticket_id: 'JBYS-2', error_code: 'partial_effect', recovery: { version: 1, mode: 'jira_ref', action: 'close', args: null, reference: { jira_issue_id: '10004', case_id: 'case-1', owner_id: 'u01' }, reason: 'close failed' } }, { created_or_reused: { status: 'confirmed', id: '10004' }, closed: { status: 'failed' } }), handoff('partial_effect', { dlq: 1, alerts: 1, saves: 0, ticketId: 'JBYS-2', dlqJira: { jira_issue_id: '10004', jira_issue_key: 'JBYS-2' }, dlqRecoveryAction: 'close' })],
+  ['FL74', 'S8', 'Jira 종료 실패는 partial_effect로 known ID 보존', ask(), processResult({ ticket_id: 'JBYS-2', error_code: 'partial_effect', recovery: { version: 1, mode: 'jira_ref', action: 'close', args: null, reference: { jira_issue_id: '10004', case_id: 'case-1', owner_id: 'u01' }, reason: 'close failed' } }, { created_or_reused: { status: 'confirmed', id: 'JBYS-2' }, closed: { status: 'failed' } }), handoff('partial_effect', { dlq: 1, alerts: 1, saves: 0, ticketId: 'JBYS-2', dlqJira: { jira_issue_id: '10004', jira_issue_key: 'JBYS-2' }, dlqRecoveryAction: 'close' })],
   ['FL41', '계약', 'BeginRequest 서버 값', ask({ role: 'security' }), {}, flow({ route: '자동 답변', beginShape: true })],
 ];
 
@@ -443,6 +443,8 @@ function checkStatic(workflow) {
   }
   const llm = workflow.nodes.filter((node) => node.type.endsWith('chainLlm')).map((node) => node.name.split(' ')[0]).sort().join();
   if (llm !== 'B10,B19,B20') failures.push(`LLM 노드 위치 다름: ${llm}`);
+  // n8n Code 실행 환경에는 structuredClone이 없어 실제 재전송에서 500이 났다.
+  for (const node of workflow.nodes) if (String(node.parameters?.jsCode ?? '').includes('structuredClone')) failures.push(`${node.name}: structuredClone 사용`);
   // 하위 워크플로우가 항목 없이 끝나도 흐름이 멈추면 응답이 빈 본문이 된다.
   for (const node of workflow.nodes) if (node.type === 'n8n-nodes-base.executeWorkflow' && node.alwaysOutputData !== true) failures.push(`${node.name}: alwaysOutputData 없음`);
   const text = JSON.stringify(workflow);
