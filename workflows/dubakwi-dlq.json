@@ -21,16 +21,29 @@
     {
       "name": "D03 실제 DLQ 호출 여부",
       "type": "n8n-nodes-base.if",
-      "typeVersion": 1,
+      "typeVersion": 2.2,
       "parameters": {
         "conditions": {
-          "boolean": [
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
             {
-              "value1": "={{ $json.error_code === 'dlq_backend_unconfigured' }}",
-              "value2": true
+              "leftValue": "={{ $json.error_code === 'dlq_backend_unconfigured' }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
             }
-          ]
-        }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
       },
       "position": [540, 0]
     },
