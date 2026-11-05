@@ -1,7 +1,7 @@
 # 두바퀴 따릉이 시민 문의 지원 시스템 설계서
 
 - 작성일: 2026-11-03 KST
-- 버전·상태: v0.11 / GitLab79 모의 API 연결·메타 로그 검증 반영 초안
+- 버전·상태: v0.12 / PostgreSQL 독립 배포 준비 경로·미적용 경계 반영 초안
 - 책임: R01 통합, R02 흐름, R03 RAG, R04 연동·저장, R05 검증 공동 검토
 - 상세 기준: 워크플로우 v0.14, RAG v0.10, 저장소 v0.4. RAG 교육용 원본의 VM 수동 색인·검색 부분 시험은 [최신 실행 증거](../../runs/public/20261105-111311-vm-rag-integration/report.md)를 따른다. 실제 서버 사용자 인가·공식 판정·전체 종단 연결은 미확인이다.
 
@@ -248,7 +248,7 @@ proj_team2/
 ├─ src/ttareungi_support/           # 업무 Python 로직 작성 시 생성
 ├─ tests/                          # 업무 로직 시험 작성 시 생성
 ├─ dist/public/                    # 검토용 공개본 생성 결과, Git 제외
-├─ .env.example                    # 시험 도구 Webhook 환경변수 예시, VM Compose와 별개
+├─ .env.example                    # Webhook·PostgreSQL 준비 설정 이름, 실제 비밀은 제외
 ├─ workflows/                      # 7개 n8n JSON, 구현 시 생성
 │  └─ dubakwi-{support,index,search,handoff,state,dlq,errors}.json
 ├─ knowledge/                      # 지식 작성 시 생성
@@ -269,6 +269,8 @@ proj_team2/
 ├─ infra/
 │  ├─ README.md / vm-preflight.md  # 운영 기준·기존 VM 점검/인계
 │  ├─ compose.yaml                  # VM 설정 확인 후 작성
+│  ├─ postgres-compose.yaml         # PostgreSQL만 추가하는 검토용 준비본, VM 미적용
+│  ├─ postgres-deployment.md        # DB/권한/백업·복원/Credential 조건·R04 검토
 │  └─ db/migrations/                # 물리 DB 채택 후 생성
 ├─ docs/
 │  ├─ guideline/ / research/        # 기존 원문·조사 유지
@@ -291,6 +293,7 @@ proj_team2/
 | runs/public/·runs/<실행묶음ID>/ | 검토한 가린 JSON/Markdown 공유 / 원시·비공개 결과 로컬 보존. summary와 상세 결과 구분 | R05, 구현 역할 증거 제공 |
 | scripts/dev/·scripts/test/ | 실행/배포 보조 / 시험·측정 재현 도구. 사용법은 scripts README에 연결 | R01 / R05, 도메인 검토 역할 지정 |
 | infra/compose.yaml·README·vm-preflight.md | n8n 단일 인스턴스·볼륨·네트워크·선택 DB의 배포/복구 | R01, 저장 검토 R04 |
+| infra/postgres-compose.yaml·postgres-deployment.md | 기존 n8n 유지·별도 PostgreSQL project·파일 비밀·external 볼륨·준비/적용 조건 구분 | R01, 저장/권한 검토 R04·복원 검증 R05 |
 | infra/db/migrations/ | 채택한 물리 저장의 버전별 스키마 변경 | R04, 배포/복구 검토 R01 |
 | docs/project/ | 시스템·상세 설계·결과·증거 화면·이력. 문서별 원본 관계 유지 | 헌장 문서 소유권 |
 | docs/guideline·docs/research·data/research | 기존 요구·조사 원본. 서비스 입력으로 필요한 부분만 선별 | 기존 영역 규칙과 헌장 경로표 |
@@ -302,10 +305,13 @@ Python 실행/의존성·린트·포맷은 [Python 개발 기준](../PYTHON-DEVE
 
 기존 VM n8n의 Compose와 데이터 볼륨을 유지한다. 로그인 사용자 홈의 dubakwi/deploy·backups·evidence는 Git 밖 운영 자료 경로이며 권한700으로 준비했다. 기존 설치·볼륨을 이곳으로 옮긴 것은 아니다. 새 infra/compose.yaml은 검토된 배포 구성 확정 후 작성하며 현재 실행 원본으로 사용하지 않는다. 확인 범위와 인계 조건은 [배포 전 점검](../../infra/vm-preflight.md), 작업 상태는 개발 원장이 관리한다.
 
+후속 [PostgreSQL 독립 배포 준비](../../infra/postgres-deployment.md)는 구체적인 검토 자료다. D01 물리 DB 채택·PR #23 수정 통과·R04 저장/권한 검토와 실제 VM 자원/아키텍처 확인 전에는 DB 기동·Credential 등록·P19 전환을 하지 않는다. 검토용 Compose 문법 통과를 VM 실행 증거로 쓰지 않는다.
+
 ## 10 변경 기록
 
 | 날짜 | 버전 | 내용 |
 | --- | --- | --- |
+| 2026-11-05 | v0.12 | PostgreSQL 독립 Compose·배포 준비/검토 경로 추가. n8n 유지·미적용/DB 채택 조건·R04/R05 검토 경계 유지 |
 | 2026-11-05 | v0.11 | GitLab79 과정 모의 API 연결·사용자 조회/로그 저장 증거 연결. 실제 Jira·영속 저장·팀 권한은 후속 |
 | 2026-11-05 | v0.10 | R01 VM 수동 색인/실제 검색 부분 증거 연결. data-api 부재·인가/공식 판정/전체 종단 미완료 유지 |
 | 2026-11-04 | v0.9 | 기존 VM 유지·운영 자료 경로·P04 점검/인계와 환경 예시 구분 반영 |
