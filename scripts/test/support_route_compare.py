@@ -1,4 +1,4 @@
-"""R05 사례 문장을 게시된 support에 반복 호출해 경로와 응답을 flow.py 칸으로 대조한다.
+"""R05 사례 문장을 게시된 support에 반복 호출해 응답을 flow.py 칸으로만 대조한다. 결과는 "응답 칸 통과"이며 x_dubakwi·티켓·알림은 판정하지 않는다.
 
 사용법:
   SUPPORT_TEAM_KEY=<시험 키> uv run --locked python scripts/test/support_route_compare.py \
@@ -164,7 +164,9 @@ def main() -> None:
     ).stdout.strip()
     summary = {
         "label": args.label,
-        "scope": "경로·응답 대조. state·handoff·dlq는 mock이며 공식 판정이 아니다.",
+        "scope": "응답 칸 통과 여부 대조. state·handoff·dlq는 mock이며 공식 판정이 아니다.",
+        "judgment": "flow.py 칸(status·equals·contains·not_contains·max_seconds)만 판정. "
+        "x_dubakwi 판정과 티켓·알림 확인은 하지 않는다.",
         "search_source": args.search_source,
         "environment": "local n8n 2.42.6, course data-api, gpt-4.1-mini",
         "cases_commit": commit,

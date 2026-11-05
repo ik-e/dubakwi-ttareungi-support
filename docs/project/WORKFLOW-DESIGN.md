@@ -504,7 +504,7 @@ B28은 먼저 error_code=null && state_saved=true && 최신 state_ref를 확인�
 | 근거 표시 | R03 기본안에 따라 시민 답변에 `[실제 안내]`·`[가상 설정]`을 보존. Evidence.text 앞 표시를 쓰고 전용 필드는 추가하지 않음. B21이 인용 근거와 답변의 표시 일치를 검사 | 표시 없는 근거에는 요구하지 않음 |
 | scope | `dubakwi-dev` 고정 | R01 환경 설정 값으로 교체 필요 |
 | LLM Credential | 과정 공통 ID `openAiCourse0001` 사용 | 이름만으로는 로컬 n8n에서 권한 오류가 나서 ID를 넣음. 비밀값은 없음 |
-| TC08 | 운영 JSON에는 스위치를 넣지 않음. [`make_verifier_fault.py`](../../scripts/test/make_verifier_fault.py)로 시험 사본 생성 | 시험 뒤 원본을 다시 게시해야 함 |
+| TC08 | 운영 JSON에는 스위치를 넣지 않음. [`make_verifier_fault.py`](../../scripts/test/make_verifier_fault.py)가 경로 `dubakwi-support-tc08`, 별도 ID·webhookId의 사본 생성 | [원본과 동시 게시 확인](../../runs/public/20261105-104900-local-n8n-p19-tc08-parallel/summary.json). 모드 2종은 같은 경로라 하나만 게시 |
 | B05 | 과정 data-api 형식은 `citizen`/`public` 최소 권한 유지 | `citizen-a` 공급과 `dept` 매핑은 R04 P09·D04 |
 
 로컬 확인(2026-11-04): Code 시험 [89/89](../../runs/public/20261104-113327-local-p19-flow/summary.json). 로컬 n8n 2.42.6에서 `scripts/test/mocks/`의 mock과 실제 gpt-4.1-mini로 Webhook 18개를 3회 실행해 모두 18/18 통과했다([1회](../../runs/public/20261104-113005-local-n8n-p19-mock-run1/summary.json), [2회](../../runs/public/20261104-113036-local-n8n-p19-mock-run2/summary.json), [3회](../../runs/public/20261104-113113-local-n8n-p19-mock-run3/summary.json)). 이 저장 결과 전에 Credential 권한 오류(2/18)와 분류 프롬프트 문제(12/18)가 있었고 수정했다. 해당 시도의 결과 파일은 남기지 않았다. TC08 grounded=false 사본도 이관을 1회 확인했다.
@@ -517,9 +517,9 @@ R05 PR #13 문장 대조(2026-11-04): 실제 모델·mock 하위 기능으로 �
 
 R03 검색 연결(2026-11-04): R03 `25a178a`의 `dubakwi-search`와 색인을 로컬 n8n 2.42.6에 올려 전체 흐름으로 호출했다. state·handoff·dlq는 mock, 색인은 Webhook 트리거 사본, 사용자는 과정 data-api 직원이다. 수정 전 [1차](../../runs/public/20261104-162058-local-n8n-p19-r03-search-first/summary.json)·[2차](../../runs/public/20261104-162058-local-n8n-p19-r03-search-first-second/summary.json) 실패를 거쳐 R05 사례 3회가 [모두 통과](../../runs/public/20261104-161508-local-n8n-p19-r03-search-r05/summary.json)했고 제한 문서와 canary는 응답에 없었다. [근거 밖 문장 5종 거절](../../runs/public/20261104-161649-local-n8n-p19-r03-search-l03/summary.json), [회귀](../../runs/public/20261104-161956-local-n8n-p19-r03-regression/summary.json), [로컬 Code 115개](../../runs/public/20261104-162058-local-p19-flow-r03/summary.json)를 확인했다. 시민의 내부 자료 요청은 B11이 `restricted_access`로 검색 없이 거절하고, 긴급 검색어는 초동 안내를 우선한다. 내부 호출 주소는 `127.0.0.1:5678`이며 VM에서 R01이 확인한다.
 
-최신 커밋 재시험(2026-11-04): R03 `7ad9eda`로 R05 사례 27개 중 19개를 3회 실행해 [모두 통과](../../runs/public/20261104-164309-local-n8n-p19-r03-7ad9eda-r05/summary.json)했고 인용 문서와 표시를 기록했다. R04 `dbb41f9`의 [state](../../runs/public/20261104-164547-local-n8n-p19-r04-dbb41f9-state/summary.json)와 [handoff](../../runs/public/20261104-164640-local-n8n-p19-r04-dbb41f9-handoff/summary.json) 골격은 사본에 ID·Credential을 지정해 호출했으며, 저장소·Jira 미연결로 안전 차단(`state_backend_unconfigured`)을 확인했다. 정상 업무 완료 시험이 아니다.
+최신 커밋 재시험(2026-11-04): R03 `7ad9eda`로 R05 사례 27개 중 19개를 3회 실행해 [응답 칸 통과](../../runs/public/20261104-164309-local-n8n-p19-r03-7ad9eda-r05/summary.json)했고 인용 문서와 표시를 기록했다. R04 `dbb41f9`의 [state](../../runs/public/20261104-164547-local-n8n-p19-r04-dbb41f9-state/summary.json)와 [handoff](../../runs/public/20261104-164640-local-n8n-p19-r04-dbb41f9-handoff/summary.json) 골격은 사본에 ID·Credential을 지정해 호출했으며, 저장소·Jira 미연결로 안전 차단(`state_backend_unconfigured`)을 확인했다. 정상 업무 완료 시험이 아니다.
 
-main 반영 재시험(2026-11-05): main `0e44fdb`에 병합된 R03 `dubakwi-search`·색인으로 R05 `155da4c` 사례 27개 중 19개를 3회 실행해 [모두 통과](../../runs/public/20261105-101139-local-n8n-p19-main-0e44fdb-r05/summary.json)했고 제한 문서 인용은 없었다. [회귀 19/19](../../runs/public/20261105-101335-local-n8n-p19-main-regression/summary.json)와 [로컬 Code](../../runs/public/20261105-101530-local-p19-flow-main/summary.json)도 확인했다. state·handoff·dlq는 mock, 사용자는 대체값이며 공식 판정이 아니다.
+main 반영 재시험(2026-11-05): main `0e44fdb`에 병합된 R03 `dubakwi-search`·색인으로 R05 `155da4c` 사례 27개 중 19개를 3회 실행해 [응답 칸 통과(flow.py 칸만 판정, x_dubakwi·티켓·알림 미판정)](../../runs/public/20261105-101139-local-n8n-p19-main-0e44fdb-r05/summary.json)했고 제한 문서 인용은 없었다. [회귀 19/19](../../runs/public/20261105-101335-local-n8n-p19-main-regression/summary.json)와 [로컬 Code](../../runs/public/20261105-101530-local-p19-flow-main/summary.json)도 확인했다. state·handoff·dlq는 mock, 사용자는 대체값이며 공식 판정이 아니다.
 
 Credential 주의: 이름만 있는 Header Auth를 가져오면 n8n이 같은 종류의 다른 Credential에 연결하는 것을 로컬에서 확인했다(B14가 `dubakwi-team-key`로 연결되어 403). 가져온 뒤 B01·B14·B15·B27의 연결을 확인해야 한다. 78일차 `flow.py check`는 코스 Credential ID가 아닌 B01을 오류로 거절하므로 80일차 도구 확인이 필요하다.
 
@@ -805,7 +805,7 @@ Source는 승인 Evidence에서 doc/section/score를 선택해 만든다. 점수
 
 분류/한도 분기는 이번 support.attempt를 사용한다. B25→H02의 TicketRequest.attempt와 최종 SaveRequest.attempt는 그 값을 그대로 넘기고 R04는 Jira 문맥에 같은 값으로 저장한다. 생성·보완/상태 갱신·최종 저장·복구가 같은 요청에서 여러 번 수행돼도 매번 +1하지 않는다. 동일 요청 복구는 캡슐/Jira의 확인된 값을 사용하고 동일 값 대입으로 재개한다. Jira에 기록되지 않은 실패를 자동 다음 보완 요청으로 바꾸지 않는다. 기존 유효 case의 횟수를 읽지 못하면 기본1로 추정하지 않고 error/확인 필요로 처리한다.
 
-WF09의 재전송은 저장된 응답의 복사본을 사용한다. 이관 ticket이 있는 replay는 B08에서 복사본의 ticket.duplicate=true로 표시하고 ticket_id·priority·업무 결과는 유지한다. 최초 응답·저장 원본은 변경하지 않고 LLM/Jira/횟수 갱신0이다. ticket=null인 비이관 결과는 null 그대로다. 가이드의 같은 티켓 판정과 duplicate 표시는 모두 보존하며, 실제 공통 도구가 전체 객체 동등성을 요구하는지 D02에서 R02/R05가 확인한다. 확인 전 WF09 통과로 기록하지 않는다.
+WF09의 재전송은 저장된 응답의 복사본을 사용한다. 이관 ticket이 있는 replay는 B08에서 복사본의 ticket.duplicate=true로 표시하고 ticket_id·priority·업무 결과는 유지한다. 최초 응답·저장 원본은 변경하지 않고 LLM/Jira/횟수 갱신0이다. ticket=null인 비이관 결과는 null 그대로다. 가이드의 같은 티켓 판정과 duplicate 표시는 모두 보존하며, 실제 공통 도구가 전체 객체 동등성을 요구하는지 D02에서 R02/R05가 확인한다. 확인 전 WF09 통과로 기록하지 않는다. R02·R05 제안 판정은 ① 두 응답의 ticket_id·priority 같음 ② 2번째 duplicate=true ③ 티켓 1건이다(2026-11-05). 두 응답 ticket 전체 동등은 설계상 실패하므로 가이드·키트 요구를 D02에서 확인한다.
 
 ### 6.5. 공통 계약 변경과 역할별 결정의 경계
 

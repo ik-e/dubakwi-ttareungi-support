@@ -3,17 +3,23 @@
 사용법: uv run --locked python scripts/test/make_verifier_fault.py --output <새 파일> [--mode grounded|unparsable]
 
 운영 원본 workflows/dubakwi-support.json에는 시험 스위치를 넣지 않는다.
-이 사본은 시험 환경에만 게시하고 시험 뒤 원본을 다시 게시한다.
+사본은 경로 dubakwi-support-tc08, 별도 워크플로우 ID와 webhookId를 써서 원본과 동시에 게시할 수 있다.
+두 모드는 같은 경로를 쓰므로 한 번에 하나만 게시한다. 파일 SHA-256을 출력하니 시험 결과에 함께 남긴다.
 """
 
 import argparse
+import hashlib
 import json
+import uuid
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 SOURCE = ROOT / "workflows" / "dubakwi-support.json"
 VERIFIER = "B20 답변 검증"
 MODEL = "L03 검증 모델"
+FAULT_PATH = "dubakwi-support-tc08"
+FAULT_ID = "dubakwiSupportTc08"
+WEBHOOK_NAMESPACE = uuid.UUID("85023d09-4f5d-5739-bfc5-d5226093f837")
 OUTPUTS = {
     "grounded": '{"grounded":false,"policy_ok":true,"issues":["시험 고장"]}',
     "unparsable": "시험 고장: JSON 아님",
@@ -35,6 +41,11 @@ def build(workflow: dict, mode: str) -> dict:
     node.pop("onError", None)
     copy["nodes"] = [item for item in copy["nodes"] if item["name"] != MODEL]
     del copy["connections"][MODEL]
+    webhook = next(item for item in copy["nodes"] if item["type"].endswith(".webhook"))
+    webhook["parameters"]["path"] = FAULT_PATH
+    webhook["webhookId"] = str(uuid.uuid5(WEBHOOK_NAMESPACE, FAULT_PATH))
+    copy["id"] = FAULT_ID
+    copy["active"] = False
     copy["name"] = f"{copy['name']} (TC08 {mode})"
     return copy
 
@@ -48,6 +59,8 @@ def main() -> None:
     with args.output.open("x", encoding="utf-8") as file:
         json.dump(build(workflow, args.mode), file, ensure_ascii=False, indent=2)
         file.write("\n")
+    digest = hashlib.sha256(args.output.read_bytes()).hexdigest()
+    print(f"mode={args.mode} path=/webhook/{FAULT_PATH} sha256={digest}")
 
 
 if __name__ == "__main__":

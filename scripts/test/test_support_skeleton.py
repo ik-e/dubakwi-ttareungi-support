@@ -34,6 +34,11 @@ class SupportSkeletonTest(unittest.TestCase):
         self.assertIn("grounded", node["parameters"]["jsCode"])
         self.assertNotIn(MODEL, copy["connections"])
         self.assertEqual(json.dumps(workflow), original)
+        hook = next(item for item in copy["nodes"] if item["type"].endswith(".webhook"))
+        source_hook = next(item for item in workflow["nodes"] if item["type"].endswith(".webhook"))
+        self.assertEqual(hook["parameters"]["path"], "dubakwi-support-tc08")
+        self.assertNotEqual(hook["webhookId"], source_hook["webhookId"])
+        self.assertEqual(copy["id"], "dubakwiSupportTc08")
         source = next(item for item in workflow["nodes"] if item["name"] == VERIFIER)
         self.assertTrue(source["type"].endswith("chainLlm"))
 

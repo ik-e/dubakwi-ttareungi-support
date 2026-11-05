@@ -1,0 +1,43 @@
+{
+  "label": "tc08-parallel",
+  "scope": "TC08 사본과 원본을 로컬 n8n에 동시에 게시해 호출. 공식 판정이 아니다.",
+  "environment": "local n8n 2.42.6, gpt-4.1-mini, mock search·state·handoff·dlq",
+  "calls_per_mode": 2,
+  "results": [
+    {
+      "mode": "grounded",
+      "copy_path": "dubakwi-support-tc08",
+      "copy_sha256_prefix": "6138562fbf065784",
+      "copy": {
+        "status": 200,
+        "route": "담당자 이관",
+        "reason": "verification_failed",
+        "ticket": "있음"
+      },
+      "original": {
+        "status": 200,
+        "route": "자동 답변"
+      }
+    },
+    {
+      "mode": "unparsable",
+      "copy_path": "dubakwi-support-tc08",
+      "copy_sha256_prefix": "4c5f884a16010b81",
+      "copy": {
+        "status": 200,
+        "route": "담당자 이관",
+        "reason": "verification_failed",
+        "ticket": "있음"
+      },
+      "original": {
+        "status": 200,
+        "route": "자동 답변"
+      }
+    }
+  ],
+  "limits": [
+    "두 모드는 같은 경로라 한 번에 하나만 게시",
+    "사본 해시는 원본 워크플로우가 바뀌면 달라짐",
+    "VM 미실행"
+  ]
+}
