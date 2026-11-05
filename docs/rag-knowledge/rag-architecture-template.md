@@ -1,6 +1,6 @@
 # RAG 아키텍처 설계서 · 두바퀴
 
-작성: 2026-11-05 · 담당: R03 · 상태: 교육용 로컬 구현과 운영 설계 초안. 강사 제공 `RAG-ARCHITECTURE-TEMPLATE.md`의 1~5절 구조를 따른다. 현재 팀 상세 설계 및 노드·입출력 계약은 [RAG 아키텍처 상세 설계](../project/RAG-ARCHITECTURE.md), 실행·복구 방법은 [로컬 실행 안내](local-n8n-runbook.md)가 기준이다. 팀 VM·실제 서버 인가·공식 사례 판정과 실제 기관 지식 승인은 별도다.
+작성: 2026-11-05 · 담당: R03 · 상태: 교육용 로컬 구현과 운영 설계 초안. 강사 제공 `RAG-ARCHITECTURE-TEMPLATE.md`의 1~5절 구조를 따른다. 현재 팀 상세 설계 및 노드·입출력 계약은 [RAG 아키텍처 상세 설계](../project/RAG-ARCHITECTURE.md), 실행·복구 방법은 [로컬 실행 안내](local-n8n-runbook.md)가 기준이다. 팀 VM·실제 서버 인가·공식 사례 판정과 실제 기관 지식 승인은 별도다. 사용자 결정: 이후 팀 VM에서 Docker 기반 PostgreSQL에 RAG 데이터를 저장할 계획이다. 벡터 검색은 pgvector 확장을 우선 검토하며 아직 배포·연동하지 않았다.
 
 ## 1. 원본 문서
 
@@ -49,7 +49,7 @@
 
 | 항목 | 값 |
 | --- | --- |
-| 저장소 | n8n Simple Vector Store의 프로세스 메모리. 실제 로컬 시험 키: `dubakwi-demo-public`, `dubakwi-demo-restricted`, `dubakwi-demo-readiness` |
+| 저장소 | 현재 로컬: n8n Simple Vector Store의 프로세스 메모리. 이후 팀 VM: Docker 기반 PostgreSQL에 RAG 데이터 영속 저장 계획, 벡터 검색은 pgvector 확장 및 n8n PGVector 노드 검토. 아직 구현·배포 전. 실제 로컬 시험 키: `dubakwi-demo-public`, `dubakwi-demo-restricted`, `dubakwi-demo-readiness` |
 | 명명·전환 | 현 demo 키에는 버전이 없고 각 권한별로 기존 내용을 재생성한다. 운영 제안 `dubakwi_kb_v<version>_<access>`; 새 버전 완전 검증 뒤 검색 설정을 전환하는 방식은 미구현 |
 | 메타데이터 | 저장 로더 설정: `doc`, `title`, `section`, `chunk_id`, `access_level`, `type`, `version`, `source_url`, `source_checked_at`. 일부 출처 URL은 없을 수 있음. `updated_at`·제품군 필터는 현재 구현하지 않음 |
 | 검색 전 필터 | 인증된 내부 호출자의 `access_levels`를 검사하고 허용된 public/restricted 메모리 키만 검색. 서버 사용자 인증과 role→권한 전달은 R02/R04 통합 시험 전 |
@@ -64,7 +64,14 @@
 | 색인 재생성 | 44 청크 로컬 임시 Webhook 색인, 완료 후 검색 확인. 재시작 후 준비 안 됨 및 재색인 복구 시험; 저장소 수동 트리거 원본과 검색 메모리 공유 미검증. 실행시간·토큰·비용은 정식 실측 기록 미확보 | 재시작 시 원본/버전을 확인해 전량 재색인 후 공개·제한 검색 probe를 통과시킨다. 담당자는 팀 VM에서 실행·복구 절차 확인 |
 | 롤백 | 새 후보 키/이전 버전 alias 전환 미구현. building/ready와 세대 검사로 진행·실패 중 검색 차단 | 새 버전 키를 따로 생성·검증 후 검색 설정 전환, 실패 시 이전 키 유지·복귀. 구현·동시성 확인 필요 |
 | 부분 재처리 | 문서별 재시도·중복 제거 미구현; 실패 후 전체 재색인 | 실패 문서 추적 및 배치 재처리, 중복 쓰기 보장 검증 후 도입 |
-| 확장 ×10/×100 | 같은 청크 분포가 유지된다는 가정의 단순 규모: **약 440/4,400청크**. 시간·토큰·비용은 기본 실측이 없어 수치 추정 보류 | 기준 44개에 T초·X토큰·C달러가 측정되면 10배·100배를 초기 추정하고 실제 재측정. 지속형 pgvector/Qdrant 등, 배치 임베딩·권한 파티션·샤딩 검토 |
+| 확장 ×10/×100 | 같은 청크 분포가 유지된다는 가정의 단순 규모: **약 440/4,400청크**. 시간·토큰·비용은 기본 실측이 없어 수치 추정 보류 | 기준 44개에 T초·X토큰·C달러가 측정되면 10배·100배를 초기 추정하고 실제 재측정. Docker 기반 PostgreSQL+pgvector를 우선 설계하고 배치 임베딩·권한 필터·필요 시 파티션/샤딩 검토 |
+
+### PostgreSQL 전환 시 확인할 설계
+
+- RAG 벡터와 메타데이터를 PostgreSQL에 보관하고 Docker 볼륨으로 데이터 영속성을 확보한다. 볼륨은 삭제·교체 전 백업하고 복원까지 시험한다. PostgreSQL 자체가 벡터 검색을 자동으로 제공하는 것은 아니므로 `pgvector` 확장과 [n8n PGVector 노드](https://docs.n8n.io/integrations/builtin/cluster-nodes/root-nodes/n8n-nodes-langchain.vectorstorepgvector/) 호환성을 검증한다.
+- 현재 임베딩은 3,072차원이다. [pgvector 공식 문서](https://github.com/pgvector/pgvector)에 따르면 일반 `vector` 저장은 가능하나 HNSW/IVFFlat의 일반 vector 인덱스는 최대 2,000차원이다. 3,072차원을 유지할 때는 정확 검색, `halfvec` 인덱스(최대 4,000차원) 등을 비교하거나 임베딩 차원 축소 후 재색인을 검토한다. 데이터 타입·인덱스와 n8n 노드 지원은 실제 버전에서 검증 전이며 확정하지 않는다.
+- 공개·제한 문서는 권한별 테이블 또는 서버가 검증한 접근 조건으로 **검색 전에** 제한한다. 기존 메모리 키 분리만을 DB 인가로 간주하지 않는다. PostgreSQL 계정·스키마·볼륨과 R04의 `request_state`·`dead_letters` 저장은 별도 책임 경계로 유지하고 공유 인스턴스 여부를 확인한다.
+- 백업 주기·보존·복원 시점과 사용자 권한은 R01/R04 환경에 맞춰 정한다. 임베딩 모델·차원·청크 버전이 바뀌면 새 색인을 생성하고 검증 후 전환한다. 현재 구현·팀 VM 시험·기존 데이터 이전 및 성능/복구 실측은 아직 없다.
 
 Simple Vector Store는 재시작/메모리 부족 시 소실될 수 있고 메모리 키가 n8n 인스턴스 사용자에게 공유된다. 실제 민감 데이터 보관용 접근 제어를 대체하지 않는다. [n8n 공식 안내](https://docs.n8n.io/integrations/builtin/cluster-nodes/root-nodes/n8n-nodes-langchain.vectorstoreinmemory/)
 
