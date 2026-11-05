@@ -1,6 +1,6 @@
 # 기존 VM 배포 전 점검과 인계
 
-- 작성: 2026-11-04 KST / v0.11 / P19 VM Credential·검색·모델 부분 연결 시험 반영
+- 작성: 2026-11-04 KST / v0.12 / P19 전용 mock 사본 첫 VM 시험·종료 확인 반영
 - 책임: [팀 헌장](../docs/project/TEAM-CHARTER.md). 원장: [P04/P13](../docs/DEVELOPMENT-PLAN.md#5-작업-원장). 운영 기준: [infra 안내](README.md).
 
 ## 0 현재 인계 상태 (2026-11-05 KST)
@@ -8,6 +8,8 @@
 현재 support/search 게시와 원본 수동 index를 유지하며,79일차 GitLab 원본 data-api를 기존 내부망에 추가했다. 신규 P11 LN01~LN11×내부/HTTPS는22/22이고 예상 메타 로그18건 모두 저장됐다. 이전 B35 타임아웃은 이번 실행에서 해소됐다. 상세는11절의 새 증거를 따른다. 이전10/10·RAG7/7·수동색인44청크와 최초 실패는 당시 기록으로 보존한다.
 
 후속 P19 연결 시험에서 B14 내부 검색과 L01~L03 실제 OpenAI 호출을 확인했다. P19 전체는 비활성 반입했으며 운영 P11을 유지한다. 시험 사본도 종료 후 비활성화했다. 상세 범위·10.228초 측정의 한계는12절을 따른다.
+
+이후 R02 `06863b3`의 별도 support/mock 패키지를 반입해 첫 VM 시험20/20을 확인했다. 실제 수업 사용자 조회·RAG·LLM과 mock state/handoff/DLQ를 구분하며 운영 P11은 유지한다. 종료 후 사본4개 비활성·두 경로404·기존 workflow/Credential/이미지 보존을 확인했다. 최신 범위는13절이며 실제 R04/Jira 성공·공식 전체 판정은 아니다.
 
 1~6절은 최초 준비,7~12절은 날짜별 후속이다. 최신 서비스 상태는12절이 우선한다. 80경로가 없다는 사실을 전체 재사용 원본 부재로 확대했던 해석은79원본 확보로 정정한다. 과정 메모리 API와 실제 Jira·영속 저장·팀 권한 fixture·공식 R05 판정은 구분하며 P04/P09/P11/P13/P19 전체 완료로 표시하지 않는다.
 
@@ -179,10 +181,19 @@ VM Compose의 소스/데이터는 읽기전용 마운트이며 기존 n8n 네트
 
 종료 후 시험 사본unpublish·경로404, P19전체비활성, 기존support/index/search 내용·게시버전과Credential전체행 동일·n8nhealth200을 확인했다. n8n재시작은없었다. 이번10.228초는부분연결1건이며WF-11 6초통과가아니다. B15/B27은Credential참조확인뿐이며실제handoff미실행, R04사용자/상태/DLQ/Jira·Error Workflow와P19전체VM/R05시험은후속이다. [신규요약](../runs/public/20261105-121200-vm-p19-connection/summary.json)·[연결시험보고서](../runs/public/20261105-121200-vm-p19-connection/report.md).
 
-## 13 변경 기록
+## 13 P19 전용 mock 사본 VM 시험 (2026-11-05 KST)
+
+R02 고정 커밋 `06863b3b3530fa5bd4621cda81198dc42982d00d`에서 생성한 패키지를 검토했다. Windows 생성 파일의 CRLF 바이트는 생성기 LF 해시와 달랐으므로 VM Linux에서 다시 생성해 실제 파일4개 해시를 확인했다. support의 미연결 원본 SHA-256은 `6c36e99a8117c7a3a11f8b01d34381622113cf968a49f95411ff22727da9d921`다. 변경 전 온라인 SQLite 백업 integrity=ok와 config 사본을 보존하고 전용 ID·경로4사본을 비활성 반입했다. B01 팀키·B14/B15/B27 및 mock handoff 내부키·L01~L03 OpenAI의 실제 Credential ID8참조를 저장본과 대조했다.
+
+사본만 게시한 뒤 support와 handoff의 키 없음/틀린 키4요청403을 확인했다. R02 시험 도구20사례의 첫 실행20/20, 추가 재시도0이다. support 실행18건, mock state38건·handoff24건·DLQ1건을 확인했다. 정상 완료 경로5건에서 B04/B07/B14/B19/B20/L01/L02/L03/B27/B32 실행을 확인했고 실제 R04 하위 workflow ID호출0이다. LN18의 합성 티켓 실패는 mock DLQ로 이어졌다. LN07은8184ms였으며 이번 결과를 WF-11 6초 전체 통과로 쓰지 않는다. 기존 n8n 프로세스·색인을 재시작하지 않았다.
+
+시험 후4사본 모두 unpublish exit0·비활성, 두 시험 Webhook404·신규 미종료 실행0, 기존 workflow 내용/게시버전과 Credential 전체행 일치·실행 이미지 동일·health200을 확인했다. 사본과 원시 자료는 VM 제한 경로에 보존했다. 실제 state/DLQ/Jira·팀 사용자 권한 공급·전체 서비스/공식 판정·반복 품질 시험은 미완료다. [보고서](../runs/public/20261105-144629-vm-p19-mock/report.md)·[상세](../runs/public/20261105-144629-vm-p19-mock/summary.json). 업무 JSON과 과거 증거는 수정하지 않았다.
+
+## 14 변경 기록
 
 | 날짜 | 버전 | 내용 |
 | --- | --- | --- |
+| 2026-11-05 | v0.12 | R02 06863b3 Linux 해시·백업·8 Credential 참조·첫 VM20/20·실제/mock 호출 구분·4사본 종료/기존 상태 보존 |
 | 2026-11-05 | v0.11 | P19 비활성54노드 Credential7개 참조 확인·B14/모델3개 실제 부분 시험·사본 비활성화·P11/기존Credential 보존·시간 기준 미판정 |
 | 2026-11-05 | v0.10 | GitLab79 원본25파일·고정 이미지 data-api 기동·P11 22/22·로그18/18·flow ops/doctor/check 실제 결과·이전 인계 선행 해석 정정 |
 | 2026-11-05 | v0.9 | data-api 부재/원본 인계 조건·RAG 환경 Webhook ID 보완·원본 Manual44청크와 실제 HTTP7/7·HTTPS검색·P11회귀5/5 기록 |

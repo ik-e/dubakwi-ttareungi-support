@@ -1,0 +1,289 @@
+{
+  "run_id": "20261105-144629-vm-p19-mock",
+  "execution_date": "2026-11-05",
+  "timezone": "Asia/Seoul",
+  "recorded_at": "2026-11-05T14:53:04.718869+09:00",
+  "tasks": [
+    "P04",
+    "P19"
+  ],
+  "owner": "R01",
+  "environment": "existing VM n8n2.42.6; course79 data-api; existing in-process RAG/OpenAI; isolated mock state/handoff/dlq",
+  "source_commit": "06863b3b3530fa5bd4621cda81198dc42982d00d",
+  "source_pr": 16,
+  "configuration_version": "R02 generator at pinned commit; four dedicated IDs/paths; explicit existing Credential IDs and per-workflow versionId on VM copy",
+  "unbound_sha256": {
+    "dubakwi-support-p19-mock.json": "6c36e99a8117c7a3a11f8b01d34381622113cf968a49f95411ff22727da9d921",
+    "dubakwi-p19-mock-state.json": "749928db5072cbf43d43880d1aa300ffb226aa42c1878e883e87a055c5a92f95",
+    "dubakwi-p19-mock-dlq.json": "598e87c6bd4991f3878e7ee8d8a8390cec96ef62249642946bf5a6a5e1634cd0",
+    "dubakwi-p19-mock-handoff.json": "7ee40e17cd9012dea231b974c167023eb589d051c33a5145286e26ef7d04b51a"
+  },
+  "hash_verification": {
+    "windows_actual_bytes_match": false,
+    "windows_lf_normalized_match": true,
+    "linux_actual_bytes_match_all_four": true,
+    "bound_workflow_sha256": "recorded in private first-results.private.json; distinct from unbound source hash"
+  },
+  "backup": {
+    "method": "online SQLite snapshot and config copy via existing Python image, network disabled and n8n volume read-only",
+    "integrity": "ok",
+    "full_restore_tested": false
+  },
+  "credential_bindings": {
+    "nodes_checked": 8,
+    "support_B01": "team Header Auth",
+    "support_B14_B15_B27_and_mock_handoff": "internal Header Auth",
+    "support_L01_L02_L03": "existing OpenAI",
+    "credential_created_or_rotated": false
+  },
+  "authentication_precheck": {
+    "requests": 4,
+    "passed": 4,
+    "status": 403,
+    "scope": "support and mock handoff; missing and wrong keys"
+  },
+  "first_suite": {
+    "total": 20,
+    "passed": 20,
+    "failed": 0,
+    "extra_retries": 0,
+    "results": [
+      {
+        "id": "LN01",
+        "passed": true,
+        "http_status": 403,
+        "elapsed_ms": 18,
+        "route": null,
+        "reason": null
+      },
+      {
+        "id": "LN02",
+        "passed": true,
+        "http_status": 403,
+        "elapsed_ms": 80,
+        "route": null,
+        "reason": null
+      },
+      {
+        "id": "LN03",
+        "passed": true,
+        "http_status": 400,
+        "elapsed_ms": 1534,
+        "route": null,
+        "reason": null
+      },
+      {
+        "id": "LN04",
+        "passed": true,
+        "http_status": 400,
+        "elapsed_ms": 144,
+        "route": null,
+        "reason": null
+      },
+      {
+        "id": "LN05",
+        "passed": true,
+        "http_status": 400,
+        "elapsed_ms": 181,
+        "route": null,
+        "reason": null
+      },
+      {
+        "id": "LN06",
+        "passed": true,
+        "http_status": 200,
+        "elapsed_ms": 179,
+        "route": "차단",
+        "reason": "prompt_injection"
+      },
+      {
+        "id": "LN07",
+        "passed": true,
+        "http_status": 200,
+        "elapsed_ms": 8184,
+        "route": "자동 답변",
+        "reason": null
+      },
+      {
+        "id": "LN08",
+        "passed": true,
+        "http_status": 200,
+        "elapsed_ms": 5851,
+        "route": "자동 답변",
+        "reason": null
+      },
+      {
+        "id": "LN09",
+        "passed": true,
+        "http_status": 200,
+        "elapsed_ms": 4517,
+        "route": "자동 답변",
+        "reason": null
+      },
+      {
+        "id": "LN10",
+        "passed": true,
+        "http_status": 200,
+        "elapsed_ms": 4988,
+        "route": "자동 답변",
+        "reason": null
+      },
+      {
+        "id": "LN11",
+        "passed": true,
+        "http_status": 400,
+        "elapsed_ms": 152,
+        "route": null,
+        "reason": null
+      },
+      {
+        "id": "LN12",
+        "passed": true,
+        "http_status": 200,
+        "elapsed_ms": 2386,
+        "route": "보완 질문",
+        "reason": null
+      },
+      {
+        "id": "LN13",
+        "passed": true,
+        "http_status": 200,
+        "elapsed_ms": 1985,
+        "route": "담당자 이관",
+        "reason": "attempt_limit"
+      },
+      {
+        "id": "LN14",
+        "passed": true,
+        "http_status": 200,
+        "elapsed_ms": 2080,
+        "route": "담당자 이관",
+        "reason": "no_evidence"
+      },
+      {
+        "id": "LN15",
+        "passed": true,
+        "http_status": 200,
+        "elapsed_ms": 1956,
+        "route": "자동 답변",
+        "reason": null
+      },
+      {
+        "id": "LN16",
+        "passed": true,
+        "http_status": 200,
+        "elapsed_ms": 1994,
+        "route": "권한 없음",
+        "reason": "case_access_denied"
+      },
+      {
+        "id": "LN17",
+        "passed": true,
+        "http_status": 200,
+        "elapsed_ms": 2802,
+        "route": "담당자 이관",
+        "reason": "urgent"
+      },
+      {
+        "id": "LN20",
+        "passed": true,
+        "http_status": 200,
+        "elapsed_ms": 5294,
+        "route": "자동 답변",
+        "reason": null
+      },
+      {
+        "id": "LN19",
+        "passed": true,
+        "http_status": 200,
+        "elapsed_ms": 3635,
+        "route": "담당자 이관",
+        "reason": "lookup_error"
+      },
+      {
+        "id": "LN18",
+        "passed": true,
+        "http_status": 200,
+        "elapsed_ms": 5520,
+        "route": "담당자 이관",
+        "reason": "tickets_down"
+      }
+    ]
+  },
+  "execution_audit": {
+    "support_executions": 18,
+    "mock_state_executions": 38,
+    "mock_handoff_executions": 24,
+    "mock_dlq_executions": 1,
+    "full_normal_traces": 5,
+    "normal_trace_example_execution_id": 57,
+    "normal_trace_required_nodes": [
+      "B04",
+      "B07",
+      "B14",
+      "B19",
+      "B20",
+      "L01",
+      "L02",
+      "L03",
+      "B27",
+      "B32"
+    ],
+    "actual_r04_subworkflow_id_calls": 0,
+    "unfinished_new_executions": 0
+  },
+  "cleanup": {
+    "all_four_unpublish_exit0": true,
+    "all_four_inactive": true,
+    "test_support_route": 404,
+    "test_handoff_route": 404,
+    "original_workflows_content_and_published_versions_unchanged": true,
+    "credential_rows_unchanged": true,
+    "image_id_unchanged": true,
+    "health": 200,
+    "n8n_restart": false
+  },
+  "attempts_before_import": [
+    "Native Windows browser-window URL detection failed; exact browser tab selection after tool reset restored access to the already-connected web SSH.",
+    "Separate direct SSH attempt timed out; that did not describe the web SSH session.",
+    "Initial container-name assumption was incorrect; selected actual n8n container from Docker image filter.",
+    "Noninteractive sudo required authentication and did not execute staging.",
+    "Initial script quoting produced SyntaxError before execution; corrected before staging.",
+    "Used existing Docker permission for read-only-volume online backup; did not change host permissions or create credentials."
+  ],
+  "limits": [
+    "Single first run, not repeatability or model quality guarantee; R02 known verifier false positives/unsupported-answer false negatives remain.",
+    "LN07 took8184ms; not official WF11 or overall6-second SLA acceptance.",
+    "Actual users/search/LLM were tested; state/handoff/DLQ and ticket effects were mocks.",
+    "No real Jira or persistent R04 runtime success; no official R05 full acceptance.",
+    "Test used internal HTTP on VM; external HTTPS suite not rerun.",
+    "Current PR16 may contain later commits; results are pinned to06863b3 only."
+  ],
+  "private_evidence": {
+    "bundle": "deploy/20261105-144629-vm-p19-mock",
+    "files": [
+      "baseline.private.json",
+      "before.private.sqlite",
+      "config.private",
+      "first-results.private.json",
+      "first-test.log",
+      "execution-traces.private.json",
+      "final-audit.json",
+      "bound/manifest.json"
+    ],
+    "method": "Public observations transcribed from VM terminal; raw inputs/answers, actual environment IDs and secrets remain on VM."
+  },
+  "local_checks": {
+    "project_documents": 20,
+    "local_links": 435,
+    "anchor_links": 50,
+    "document_errors": 0,
+    "public_candidates": 145,
+    "public_local_links": 511,
+    "public_errors": 0,
+    "json": "pass",
+    "diff": "pass",
+    "tscan_gitleaks": "not provided; public candidate pattern scan is a partial substitute",
+    "repository_service_tests": "not rerun; source unchanged, VM suite and audit executed separately"
+  }
+}
