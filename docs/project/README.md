@@ -13,10 +13,11 @@
 | 산출물·예정 위치 | 문서 상태 | 편집 책임 | 다음 작업 |
 | --- | --- | --- | --- |
 | [TOPIC.md](TOPIC.md) | 초안 v0.7 | ① 팀장·통합 | 문의 유형·구성 검토, 티켓 종료 계약 확인, 강사 확인 |
-| [TEAM-CHARTER.md](TEAM-CHARTER.md) | 초안 v0.10 | R01 팀장·통합 | 역할 ID·파일 소유권·협업 규칙 검토, GitHub 팀 권한·발표 ID 확인(dubakwi 확정) |
-| [SYSTEM-DESIGN.md](SYSTEM-DESIGN.md) | 초안 v0.8·최상위 논리 설계 | R01 취합·R02~R05 공동 검토 | 구성·상태·기능 추적·디렉터리 용도·Docker Compose 기준 확인 후 상세로 이동 |
+| [TEAM-CHARTER.md](TEAM-CHARTER.md) | 초안 v0.11 | R01 팀장·통합 | 역할 ID·파일 소유권·협업 규칙 검토, GitHub 팀 권한·발표 ID 확인(dubakwi 확정) |
+| [SYSTEM-DESIGN.md](SYSTEM-DESIGN.md) | 초안 v0.11·최상위 논리 설계 | R01 취합·R02~R05 공동 검토 | 구성·상태·기능 추적·디렉터리 용도·Docker Compose 기준 확인 후 상세로 이동 |
 | [Python 개발 기준](../PYTHON-DEVELOPMENT.md)·[공개 정책](../PUBLICATION.md) | 도구/설정 작성·서비스 구현 전 | R01·R05 품질/R04 공개 검토 | uv 잠금·Ruff·CI, 같은 폴더 .gitignore·Git 후보·공개 링크 검사 |
 | [작업 규칙](../../AGENTS.md)·[배포 안내](../../infra/README.md) | 기준 작성·실제 배포 전 | R01·R04/R05 검토 | Git/n8n/시험·동기화·Docker 실행/복구, 환경 확인 후 compose 작성 |
+| [VM 배포 전 점검](../../infra/vm-preflight.md)·[환경 예시](../../.env.example) | v0.11·GitLab79 data-api·P11 22/22·P19 검색/모델 부분 연결 | R01·R04 저장/R05 재현 검토 | 기존 n8n 유지·data-api/배포본 인계·백업/복원·Credential·입구 시험 |
 | [WORKFLOW-DESIGN.md](WORKFLOW-DESIGN.md) | 초안 v0.14 | R02 오케스트레이션 | Jira 어댑터·공개 계약 검토,저장소 내부는 STORAGE-DESIGN 참조. D01~D07의 실행 관리는 개발 계획 참조 |
 | [설계 v0.2 검증 보고서 — 공개본 제외 자료](../../docs/PUBLIC-SOURCES.md) | 정적·문서 검증 기록 | R02 취합·전원 검토 | 이전 v0.2의 P1 3건·P2 7건 이력. 현행 설계 검토는 아래 종합 검증 참조 |
 | [설계서 종합 검증 — 공개본 제외 자료](../../docs/PUBLIC-SOURCES.md) | 문서 검증 완료·실행 미검증 | R02 취합·전원 검토 | v0.9/v0.2/v0.1 검증 시점의 P1 4건·P2 3건 기록. 현행 보완 결과는 후속 재검증 참조 |
@@ -92,3 +93,7 @@
 저장소 설계서는 추가 보조 문서이며 다른 설계서가 참조하므로 제출 패키지에도 포함하고 링크를 검사합니다. 제출 경로의 변경 허용 여부는 강사 확인 전입니다. 제출 도구가 공식 경로를 요구하면 팀장이 제출용 패키지에서 경로·상대 링크를 맞추고 재현·검사를 수행합니다. 개발 중에는 중복 편집본을 만들지 않습니다. 경로 대응 확인은 P31 제출 검사에 포함합니다.
 
 [개발 계획](../DEVELOPMENT-PLAN.md) · [발표 계획](../PRESENTATION-PLAN.md) · [문서 대문](../README.md)
+
+R01 후속 VM 실행 증거: [RAG 색인/검색과 data-api 진단](../../runs/public/20261105-111311-vm-rag-integration/report.md). R03 상세 문서의 역할 검토/반영과 공식 판정은 별도다.
+
+R01 GitLab79 재사용 후속: [data-api·과정 도구 적용](../../runs/public/20261105-114531-vm-course79-data-api/report.md). 기존80경로 미제공/원본 인계 선행 해석과 구분한다.

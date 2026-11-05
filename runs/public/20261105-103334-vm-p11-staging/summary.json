@@ -1,0 +1,67 @@
+{
+  "recorded_at": "2026-11-05T10:38:36.802794+09:00",
+  "task": "P04/P13 merge preparation and P11 inactive VM import",
+  "environment": "existing team VM via web SSH; local source checks",
+  "source_commit": "0e44fdbe394eb6e1f76fa78823683f8a26c0e45e",
+  "source_workflow": "workflows/dubakwi-support.json",
+  "source_sha256": "f826ce1362f5379f8d01ecbc699fd34e5d4b476427e83734867461090388cac3",
+  "configuration": "existing n8n 2.42.6; same Compose and volume; environment id/versionId metadata only",
+  "case_ids": [],
+  "observed": {
+    "backup_manifest_checksums": "verified again",
+    "source_sha256": "matched pinned public main bytes",
+    "personal_project": "one; assigned explicitly, identifier retained privately",
+    "workflow_count": 1,
+    "active": false,
+    "active_version_id": null,
+    "credential_count": 0,
+    "execution_count": 0,
+    "source_nodes_connections_settings_match": true,
+    "healthz_after": 200,
+    "service_restart": false
+  },
+  "attempts": [
+    {
+      "attempt": 1,
+      "operation": "multiline shell transport",
+      "result": "Python syntax error before execution"
+    },
+    {
+      "attempt": 2,
+      "operation": "single-line Python script transport",
+      "result": "Python quoting syntax errors before execution; corrected before successful staging"
+    },
+    {
+      "attempt": 3,
+      "operation": "CLI import of raw source without id",
+      "result": "SQLITE_CONSTRAINT NOT NULL workflow_entity.id; failure log retained on VM"
+    },
+    {
+      "attempt": 4,
+      "operation": "CLI import with environment id and versionId",
+      "result": "success; verified inactive and unpublished"
+    }
+  ],
+  "checks": {
+    "unittest": {
+      "run": 45,
+      "passed": 38,
+      "skipped": 7,
+      "http_tests_run": false
+    },
+    "ruff_check": "passed",
+    "ruff_format_check": "passed",
+    "project_docs": "20 documents,397 links,46 anchors;0 errors after final result documentation",
+    "public_candidates": "111 files,435 links;0 errors after final result documentation",
+    "diff_check": "passed after final result documentation"
+  },
+  "limits": [
+    "Credential registration, binding and publication pending; no WF08/WF13 calls",
+    "Browser automation policy requires action-time confirmation for new persistent security-sensitive access before credential registration",
+    "Not course flow.py acceptance; instructor tool version remains authoritative",
+    "No RAG/Jira/service DB/data-api/Discord deployment",
+    "Backup integrity and checksums are not full restore validation",
+    "tscan/Gitleaks executables unavailable in this shell; Git candidate public check used instead"
+  ],
+  "private_evidence": "VM deployment manifest, source and environment JSON, first failure/retry logs and verification.json retained in owner-only deployment bundle"
+}
