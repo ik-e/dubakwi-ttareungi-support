@@ -1,5 +1,7 @@
 # Docker Compose 배포와 운영
 
+P19 별도 support/mock 사본의 배포 준비·Credential 매핑·시험 종료 기준은 [격리 VM 시험 안내](p19-isolated-vm-test.md)를 따른다. 새 R02 패키지 전달 전에는 기존 로컬 mock을 VM에 반입하지 않는다.
+
 Docker Compose 채택: 2026-11-03 사용자 결정. 편집·배포 R01, 저장/영속성 검토 R04, 흐름 연결 R02/R03, VM 검증 R05. 책임 원본은 [팀 헌장](../docs/project/TEAM-CHARTER.md), 절차 규칙은 [AGENTS](../AGENTS.md)다.
 
 - 버전: v0.8 / 2026-11-05 P19 Credential·검색·모델 VM 부분 연결 반영

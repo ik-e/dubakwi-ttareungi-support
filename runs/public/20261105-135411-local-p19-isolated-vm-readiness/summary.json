@@ -1,0 +1,117 @@
+{
+  "run_id": "20261105-135411-local-p19-isolated-vm-readiness",
+  "recorded_at": "2026-11-05T13:54:11.818403+09:00",
+  "tasks": [
+    "P04",
+    "P19"
+  ],
+  "owner": "R01",
+  "environment": "local Git and GitHub read-only inspection; no VM access",
+  "base_commit": "eb37e0f9ca4c348fe43c2b8a469db4df23992e92",
+  "pr16_head": "329778c0de476bc950ad2da866833ce5244f4b07",
+  "source_files": [
+    {
+      "path": "workflows/dubakwi-support.json",
+      "sha256": "0613a7a97b1346efd7c913c100788118a37cb56ee613241a6f0288f8fc0204ed",
+      "id": null,
+      "name": "dubakwi-support",
+      "webhooks": [
+        {
+          "path": "dubakwi-support",
+          "authentication": "headerAuth"
+        }
+      ],
+      "subworkflow_references": [
+        {
+          "node": "B07 요청 문맥 읽기",
+          "id": "dubakwiState01"
+        },
+        {
+          "node": "B37 최종 저장 의도 기록",
+          "id": "dubakwiState01"
+        },
+        {
+          "node": "B32 결과 저장",
+          "id": "dubakwiState01"
+        },
+        {
+          "node": "X06 실패 상태 저장",
+          "id": "dubakwiState01"
+        },
+        {
+          "node": "X03 실패 보관",
+          "id": "dubakwiDlq0001"
+        }
+      ]
+    },
+    {
+      "path": "scripts/test/mocks/dubakwi-mock-state.json",
+      "sha256": "a09c18faeb61bcac25ff989c8a70f45f088ecf9c9d12119c874e17357be4c344",
+      "id": "dubakwiState01",
+      "name": "dubakwi-mock-state",
+      "webhooks": [],
+      "subworkflow_references": []
+    },
+    {
+      "path": "scripts/test/mocks/dubakwi-mock-handoff.json",
+      "sha256": "e8673d1908ea667b2208460bbf8cc249d9d66af7f4fa6e05e5d17ffc31eb36d4",
+      "id": "dubakwiHandoff1",
+      "name": "dubakwi-mock-handoff",
+      "webhooks": [
+        {
+          "path": "dubakwi-handoff",
+          "authentication": null
+        }
+      ],
+      "subworkflow_references": []
+    },
+    {
+      "path": "scripts/test/mocks/dubakwi-mock-dlq.json",
+      "sha256": "76fe799fb7964d00c82c9756be66307ff09abc363ccafec442d0a3e9c8046a16",
+      "id": "dubakwiDlq0001",
+      "name": "dubakwi-mock-dlq",
+      "webhooks": [],
+      "subworkflow_references": []
+    }
+  ],
+  "findings": [
+    "Existing mock state ID dubakwiState01 collides with real R04 ID.",
+    "Existing mock DLQ ID dubakwiDlq0001 collides with real R04 ID.",
+    "Existing mock handoff uses production dubakwi-handoff path and has no authentication."
+  ],
+  "new_isolated_package": "not found in inspected PR16 head tree/body/comments; awaiting R02 handoff",
+  "verdict": "Do not import existing local mocks; R01 deployment preparation complete; new isolated owner package required.",
+  "vm_access": false,
+  "vm_import_publish_tests": false,
+  "credential_changes": false,
+  "team_messages_sent": false,
+  "previous_vm_evidence": [
+    "runs/public/20261105-114531-vm-course79-data-api/report.md",
+    "runs/public/20261105-121200-vm-p19-connection/report.md"
+  ],
+  "preparation": "infra/p19-isolated-vm-test.md v0.1; binding, import, five case groups, cleanup",
+  "limits": [
+    "No live VM state verification; prior VM results are historical.",
+    "No R02 source edits or R04 DB deployment.",
+    "First evidence-generation attempt failed before writing files because Windows tzdata was absent; rerun used UTC+09:00 without changing dependencies."
+  ],
+  "checks": {
+    "project_docs": {
+      "files": 20,
+      "local_links": 431,
+      "anchor_links": 50,
+      "errors": 0
+    },
+    "public_candidates": {
+      "files": 135,
+      "public_local_links": 501,
+      "errors": 0
+    },
+    "diff_check": "pass",
+    "json_parse": "pass",
+    "tscan": "not installed",
+    "gitleaks": "not installed",
+    "secret_check_limit": "public candidate pattern check is a partial substitute; no complete secret/PII audit",
+    "service_tests": "not run; documentation and static inspection only"
+  }
+}

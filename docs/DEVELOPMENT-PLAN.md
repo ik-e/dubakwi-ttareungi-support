@@ -1,5 +1,11 @@
 # 개발 순서와 역할별 진행 관리
 
+### P04/P19 격리 VM 시험 R01 준비 (2026-11-05 KST)
+
+사용자가 R02 제안 전달 후 R01 작업 처리를 지시했다. R01은 main `eb37e0f` 기준 별도 `r01/p19-isolated-vm-readiness` 브랜치에서 배포 준비를 수행한다. 영향 경로는 infra 시험 인계 안내·이 원장·새 가린 검토 증거다. 선행은 R02 소유의 별도 support/mock 패키지와 고정 버전·ID/경로 대응표·시험 입력 전달이다. 기존 R02/R04 업무 JSON·다른 작업 사본·운영 VM은 이번 준비에서 수정하지 않는다.
+
+PR #16 `329778c`의 기존 로컬 mock은 state `dubakwiState01`, DLQ `dubakwiDlq0001`, handoff `dubakwi-handoff`를 사용하고 handoff Webhook에 인증이 없다. 그대로 VM에 가져오면 격리가 성립하지 않으므로 반입 대상에서 제외한다. 현재 PR 본문·댓글·Git 트리에는 새 VM 격리 패키지 인계가 확인되지 않아 게시/실행은 대기한다. [R01 준비 안내](../infra/p19-isolated-vm-test.md)의 반입 조건·Credential 매핑·시험/종료 확인으로 후속한다. PR #21/#22의 data-api 및 B14/모델 부분 성공은 기존 증거로 참조하며 이번 시험으로 재기록하지 않는다. 새 준비 검토는 [보고서](../runs/public/20261105-135411-local-p19-isolated-vm-readiness/report.md)와 [상세](../runs/public/20261105-135411-local-p19-isolated-vm-readiness/summary.json)를 참조한다.
+
 작성·상태 확인: 2026-11-03. 대상: 따릉이 기술지원 프로젝트, 5명 팀, 80~82일차.
 
 이 문서는 개발 순서·파일 소유자·선행 작업·완료 증거를 관리합니다. 실제 설계 내용은 설계서, 실행 결과와 수치는 `runs/`와 실행 결과서에 기록합니다. 공식 요구를 바꾸는 문서는 아닙니다.
