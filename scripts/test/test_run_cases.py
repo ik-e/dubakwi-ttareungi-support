@@ -254,6 +254,59 @@ class RunnerTests(unittest.TestCase):
         self.assertEqual([c["status"] for c in summary["cases"]], ["blocked"] * 4)
         self.assertEqual(FakeServer.calls, [])
 
+    def test_test_copy_case_is_blocked_without_mode_and_sent_to_copy_with_mode(self):
+        copy = {"webhook": "dubakwi-support-tc08", "modes": ["grounded", "unparsable"]}
+        self.write_cases(self.simple("T", test_copy=copy), self.simple("N"))
+        summary, _ = self.run_tool()
+        self.assertEqual([c["status"] for c in summary["cases"]], ["blocked", "pass"])
+        self.assertIsNone(summary["versions"]["test_copy"])
+
+        FakeServer.calls = []
+        digest = "a" * 64
+        summary, path = self.run_tool("--test-copy-mode", "grounded", "--test-copy-sha256", digest)
+        paths = [p for p, _ in FakeServer.calls]
+        self.assertEqual(paths, ["/webhook/dubakwi-support-tc08", "/webhook/dubakwi-support"])
+        self.assertEqual(summary["cases"][0]["status"], "pass")
+        recorded = {"webhook": "dubakwi-support-tc08", "mode": "grounded", "sha256": digest}
+        self.assertEqual(summary["cases"][0]["test_copy"], recorded)
+        self.assertEqual(summary["versions"]["test_copy"], {"mode": "grounded", "sha256": digest})
+        self.assertIn(digest, path.read_text(encoding="utf-8"))
+
+        FakeServer.calls = []
+        summary, _ = self.run_tool("--test-copy-mode", "other", "--test-copy-sha256", digest)
+        self.assertEqual(summary["cases"][0]["status"], "blocked")
+        self.assertEqual([p for p, _ in FakeServer.calls], ["/webhook/dubakwi-support"])
+
+    def test_test_copy_options_must_come_together_with_valid_hash(self):
+        self.write_cases(self.simple())
+        with self.assertRaisesRegex(ValueError, "together"):
+            self.run_tool("--test-copy-mode", "grounded")
+        with self.assertRaisesRegex(ValueError, "64 lowercase hex"):
+            self.run_tool("--test-copy-mode", "grounded", "--test-copy-sha256", "XYZ")
+        self.assertEqual(FakeServer.calls, [])
+
+    def test_wf09_style_replay_passes_when_only_duplicate_flag_differs(self):
+        def reply(request):
+            replay = request["request_id"].endswith("-2")
+            ticket = {"ticket_id": "T-1", "priority": "normal", "duplicate": replay}
+            return 200, ok_body(request, route="담당자 이관", ticket=ticket)
+
+        FakeServer.reply = reply
+        same = [
+            {"path": p, "op": "same_as", "value": {"case": "D 1/2", "path": p}}
+            for p in ("ticket.ticket_id", "ticket.priority")
+        ]
+        first = flow_case("D 1/2", req("d-1"), {"status": 200})
+        second = flow_case(
+            "D 2/2",
+            req("d-2"),
+            {"status": 200, "equals": {"ticket.duplicate": True}},
+            **{"assert": same},
+        )
+        self.write_cases(first, second)
+        summary, _ = self.run_tool()
+        self.assertEqual(summary["cases"][1]["status"], "pass")
+
     def test_manual_fault_ready_sends_case(self):
         self.write_cases(self.simple("M", manual_fault={"before": "llm down", "after": "llm up"}))
         summary, _ = self.run_tool("--manual-fault-ready")
@@ -363,6 +416,7 @@ class RunnerTests(unittest.TestCase):
         self.assertEqual(by_id["WF04"]["status"], "dry_run")
         self.assertEqual(by_id["WF10"]["status"], "blocked")
         self.assertEqual(by_id["TC05"]["status"], "blocked")
+        self.assertIn("test copy", by_id["TC08"]["reason"])
         self.assertEqual(len(by_id["WF13c"]["requests"][1]["question"]), 501)
         self.assertEqual(len(by_id["TC09c"]["requests"][1]["question"]), 500)
 
@@ -398,6 +452,20 @@ class CaseFileTests(unittest.TestCase):
             with self.subTest(case=case["name"]):
                 self.assertIn("body", case)
                 self.assertIn("status", case["expect"])
+
+    def test_wf09_replay_compares_ticket_id_and_priority_not_whole_ticket(self):
+        data = self.load("cases/common.json")
+        second = next(c for c in data["cases"] if c["name"] == "WF-09 중복 요청 2/2")
+        self.assertIs(second["expect"]["equals"]["ticket.duplicate"], True)
+        paths = [a["path"] for a in second["x_dubakwi"]["assert"] if a["op"] == "same_as"]
+        self.assertEqual(paths, ["ticket.ticket_id", "ticket.priority"])
+
+    def test_tc08_uses_test_copy_webhook_instead_of_requires(self):
+        data = self.load("cases/team-extended.json")
+        tc08 = next(c for c in data["cases"] if c["x_dubakwi"]["id"] == "TC08")
+        self.assertNotIn("requires", tc08["x_dubakwi"])
+        self.assertEqual(tc08["x_dubakwi"]["test_copy"]["webhook"], "dubakwi-support-tc08")
+        self.assertEqual(tc08["x_dubakwi"]["test_copy"]["modes"], ["grounded", "unparsable"])
 
     def test_fault_cases_switch_fault_off_after(self):
         data = self.load("cases/common.json")

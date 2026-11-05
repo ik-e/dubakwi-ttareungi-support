@@ -38,6 +38,9 @@ uv run --locked python scripts/test/run_cases.py --env local --desc p13-entry --
 $env:FLOW_WEBHOOK_KEY = "<팀 키>"
 uv run --locked python scripts/test/run_cases.py --base-url <n8n 주소> --env vm --desc p13-entry --path mock --case WF08 WF13a WF13c --no-hooks --auth-required --workflow-version <커밋 또는 내보내기 버전>
 # WF13b(미등록 사용자)는 사용자 조회용 data-api 준비 후 같은 방식으로 실행한다
+# TC08(답변 검증 실패): R02 사본을 만들어 게시한 뒤, 출력된 모드·sha256을 넘긴다. 두 모드는 같은 경로라 하나씩 게시한다
+uv run --locked python scripts/test/make_verifier_fault.py --output <새 파일> --mode grounded
+uv run --locked python scripts/test/run_cases.py --base-url <n8n 주소> --env vm --desc p13-tc08 --path mock --case TC08 --test-copy-mode grounded --test-copy-sha256 <출력된 sha256> --auth-required --workflow-version <커밋>
 ```
 
 - 웹훅은 사례 파일의 `webhook`(dubakwi-support), 인증 머리글은 `X-Team-Key`가 기본이다. `--data-api`로 before/after 주소의 `http://localhost:8800`을 바꿀 수 있다. `after`는 사례가 실패해도 실행한다.
@@ -45,6 +48,8 @@ uv run --locked python scripts/test/run_cases.py --base-url <n8n 주소> --env v
 - 공유용 가린 요약은 `runs/public/<실행묶음ID>/summary.json`, 요청·응답 원문과 URL은 Git 제외 경로 `runs/<실행묶음ID>/raw.json`에 쓴다. 공개 요약에는 답변 원문·URL·인증값을 넣지 않는다. 인증값은 어느 파일에도 쓰지 않는다. 기존 결과는 덮어쓰지 않는다.
 - 자동 판정은 응답 상태·응답 필드·공통 검사 G01/G02/G03/G05·지정 시간 한도다. 티켓·처리 상태·DLQ·알림·n8n 실행 기록·수동 판정은 `unverified`/`manual`로 남는다.
 - 사례 상태는 `pass`(열린 항목 없음), `auto_pass_unverified`(응답 판정만 통과, 완전 통과 아님), `fail`, `blocked`(`requires`·운영자 단계·수동 고장·`--no-hooks`로 전송하지 않음), `dry_run`이다. `fail`이 있으면 종료 코드 1, 입력·설정 오류는 2다.
+- `x_dubakwi.test_copy`가 있는 사례(TC08)는 `--test-copy-mode`·`--test-copy-sha256`을 함께 줄 때만 사본 webhook(`dubakwi-support-tc08`)으로 보내고, 없으면 blocked다. 모드·해시는 공개 요약에 남는다. 다른 사례는 원본 webhook으로 그대로 보낸다.
+- WF-09 2/2는 두 응답의 `ticket_id`·`priority`가 같고 2번째 `ticket.duplicate=true`인지 본다(R02·R05 제안 판정, PR #16). 티켓 1건과 D02 대조가 남아 있어 완전 통과로 기록하지 않는다.
 - `contains`는 목록 항목이 값과 같거나 항목의 필드 값이 같을 때(예: `sources`의 `doc`), 문자열이면 부분 문자열일 때 통과로 본다. flow.py의 실제 해석과 다르면 키트에 맞춘다.
 - run_cases.py는 request_id 앞에 실행묶음 ID를 붙이고 flow.py는 고정 ID를 보낸다. 요청 상태를 저장소에 남기는 설계에서는 flow.py 반복 실행이 재전송으로 판정될 수 있다.
 - `--path`에 data-api/jira/mock을 기록한다. data-api 결과를 Jira 연동 증거로 쓰지 않는다. 티켓/DLQ/알림 조회 자동화와 R02/R04 시험용 설정은 방법이 정해진 뒤 추가한다.

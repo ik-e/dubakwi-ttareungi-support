@@ -34,6 +34,7 @@ HANDOFF = "담당자 이관"
 MAX_REQUEST_ID = 64
 NAME_PART = re.compile(r"^[a-z0-9][a-z0-9-]{0,30}$")
 STEP_REF = re.compile(r"^\{step(\d+)\.([^}]+)\}$")
+SHA256_HEX = re.compile(r"^[0-9a-f]{64}$")
 PHONE = re.compile(r"01[016789]-?\d{3,4}-?\d{4}")
 EMAIL = re.compile(r"[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}")
 
@@ -172,6 +173,7 @@ def normalize(file_name, raw):
         "before": raw.get("before", []),
         "after": raw.get("after", []),
         "requires": x.get("requires"),
+        "test_copy": x.get("test_copy"),
         "manual_fault": x.get("manual_fault"),
         "expected_codes": x.get("expected_codes"),
         "checks": list(x.get("checks", [])),
@@ -240,6 +242,11 @@ def blocked_reason(unit, opts):
         return f"requires: {unit['requires']}"
     if not unit["steps"]:
         return "no request to send (operator step)"
+    copy = unit["test_copy"]
+    if copy and not opts.test_copy_mode:
+        return "test copy: publish it, then pass --test-copy-mode and --test-copy-sha256"
+    if copy and opts.test_copy_mode not in copy["modes"]:
+        return f"test copy mode {opts.test_copy_mode} not in {copy['modes']}"
     if unit["manual_fault"] and not opts.manual_fault_ready:
         return f"manual fault: run '{unit['manual_fault']['before']}' then --manual-fault-ready"
     if (unit["before"] or unit["after"]) and not opts.hooks:
@@ -433,6 +440,14 @@ def run_unit(unit, ctx):
     if reason:
         return head | {"status": "blocked", "reason": reason}, None
     requests, results, hooks = {}, {}, {}
+    url = ctx["url"]
+    if unit["test_copy"]:
+        url = f"{ctx['base_url']}/webhook/{unit['test_copy']['webhook']}"
+        head["test_copy"] = {
+            "webhook": unit["test_copy"]["webhook"],
+            "mode": ctx["opts"].test_copy_mode,
+            "sha256": ctx["opts"].test_copy_sha256,
+        }
     try:
         if ctx["opts"].dry_run:
             for step in unit["steps"]:
@@ -454,7 +469,7 @@ def run_unit(unit, ctx):
             except LookupError as err:
                 return head | {"status": "blocked", "reason": str(err), "hooks": hooks}, None
             requests[step["step"]] = request
-            results[step["step"]] = post_json(ctx["url"], request, ctx["headers"], ctx["timeout"])
+            results[step["step"]] = post_json(url, request, ctx["headers"], ctx["timeout"])
     finally:
         if not ctx["opts"].dry_run and "before" in hooks:
             hooks["after"] = run_hooks(unit["after"], ctx["data_api"], ctx["timeout"])
@@ -500,10 +515,15 @@ def execute(args, base=ROOT, now=None):
         headers[args.auth_header] = os.environ[token_env]
     elif args.auth_required:
         raise ValueError(f"environment variable {' or '.join(names)} is not set")
+    if bool(args.test_copy_mode) != bool(args.test_copy_sha256):
+        raise ValueError("--test-copy-mode and --test-copy-sha256 must be given together")
+    if args.test_copy_sha256 and not SHA256_HEX.match(args.test_copy_sha256):
+        raise ValueError("--test-copy-sha256 must be 64 lowercase hex characters")
 
     ctx = {
         "opts": args,
         "run_id": run_id,
+        "base_url": args.base_url.rstrip("/"),
         "headers": headers,
         "timeout": args.timeout,
         "data_api": args.data_api.rstrip("/"),
@@ -538,6 +558,11 @@ def execute(args, base=ROOT, now=None):
             "workflow": args.workflow_version,
             "config": args.config_version,
             "case_files": {name: sha256(base / name) for name in files},
+            "test_copy": (
+                {"mode": args.test_copy_mode, "sha256": args.test_copy_sha256}
+                if args.test_copy_mode
+                else None
+            ),
             "python": platform.python_version(),
         },
         "file_hooks": file_hooks,
@@ -586,6 +611,14 @@ def parse_args(argv):
         "--manual-fault-ready",
         action="store_true",
         help="manual faults (e.g. flow.py llm down) were switched on by hand",
+    )
+    p.add_argument(
+        "--test-copy-mode",
+        help="mode of the published test copy (e.g. TC08 grounded|unparsable); "
+        "cases with x_dubakwi.test_copy are sent to the copy webhook only when set",
+    )
+    p.add_argument(
+        "--test-copy-sha256", help="SHA-256 printed by the copy tool, recorded in the summary"
     )
     p.add_argument("--workflow-version", default="unrecorded")
     p.add_argument("--config-version", default="unrecorded")
