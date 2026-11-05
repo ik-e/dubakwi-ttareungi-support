@@ -1,0 +1,81 @@
+{
+  "run_id": "20261105-134603-local-pr23-storage-review",
+  "execution_date": "2026-11-05",
+  "timezone": "Asia/Seoul",
+  "owner": "R01",
+  "tasks": ["P18", "P12"],
+  "pull_request": 23,
+  "source_commit": "a2d8fcab5373a8b1b95e4905cbadf40baaa278bf",
+  "source_branch": "r04/p18-state-dlq-integration",
+  "configuration_version": "isolated local PostgreSQL16.15, no host port, no network, separate owner/runtime roles; unchanged pinned PR23 SQL and workflow JSON",
+  "environment": {
+    "review_host": "local Windows with Docker Desktop",
+    "postgres_image": "existing local postgres:16",
+    "postgres_server_version": "16.15 (Debian 16.15-1.pgdg13+2)",
+    "network": "none",
+    "published_ports": [],
+    "persistent_production_data": false,
+    "cleanup": "review container stopped and automatically removed; absence confirmed"
+  },
+  "source_modified": false,
+  "provided_sql_checks": {
+    "migrations_001_004": "all applied successfully as a separate non-superuser owner in a fresh disposable database",
+    "constraint_contract": "pass, owner role",
+    "function_contract": "pass, owner role and runtime login",
+    "runtime_role_contract": "pass, no superuser/createrole/createdb/bypassrls; inherits runtime role",
+    "runtime_permission_denials": {"create_in_service_schema": "denied", "delete": "denied", "truncate": "denied", "alter": "denied", "drop": "denied"}
+  },
+  "boundary_cases": [
+    {
+      "id": "PR23-FAIL-NULL-01",
+      "pass": false,
+      "input": "op=fail,state_ref=null,valid scope/execution_id/args; test both with and without an owned processing row",
+      "direct_sql_no_owned": {"ok": false, "skipped": false, "error_code": "invalid_state_request"},
+      "direct_sql_owned": {"ok": false, "skipped": false, "error_code": "invalid_state_request"},
+      "owned_state_after": "processing,revision0",
+      "omitted_ref_control_no_owned": {"ok": true, "skipped": true, "error_code": null},
+      "original_n8n_s02_with_owned_execution": {"ok": true, "skipped": true, "state_ref": null, "error_code": null},
+      "n8n_would_call_postgres": false,
+      "expected": "query the original scope/execution ownership; skip only when not owned/completed; mark owned request failed/unknown conditionally"
+    },
+    {
+      "id": "PR23-DLQ-CLAIM-01",
+      "pass": false,
+      "steps": ["put revision0", "operator A claim succeeds -> reprocessing revision1", "duplicate put with same failure key", "operator B claim revision2"],
+      "after_duplicate_put": "pending,revision2,last_execution_id reset to original execution",
+      "operator_b_claim": {"ok": true},
+      "expected": "a duplicate writer must preserve or reject the active recovery claim; operator B must not acquire while A is running"
+    },
+    {
+      "id": "PR23-SAVE-GATE-01",
+      "pass": false,
+      "steps": ["begin synthetic request", "bind synthetic known Jira ID/key", "save full envelope with attempt7 and expected_case_version999"],
+      "observed": {"ok": true, "processing_status": "completed", "state_revision": 2},
+      "external_jira_calls": 0,
+      "state_workflow_node_types": ["executeWorkflowTrigger", "code", "if", "postgres", "code"],
+      "expected": "Jira context/version update must be verified before finish; while that dependency is unconfigured save must not report success"
+    }
+  ],
+  "common_checks": {
+    "unittest": {"total": 45, "passed": 38, "skipped_http": 7, "failed": 0},
+    "ruff_check": "pass",
+    "ruff_format": "pass,40 files",
+    "docs_before_review_artifacts": {"files": 20, "links": 427, "anchors": 50, "errors": 0},
+    "public_candidates_before_review_artifacts": {"files": 140, "links": 493, "errors": 0},
+    "diff": "pass",
+    "final_docs": {"files": 20, "links": 428, "anchors": 50, "errors": 0},
+    "final_public_candidates": {"files": 142, "links": 495, "errors": 0},
+    "review_json": "pass"
+  },
+  "verdict": "request_changes; do not merge or deploy current PR23 head",
+  "limits": [
+    "No VM, Jira, OpenAI, Discord or live data-api calls performed.",
+    "No VM PostgreSQL adoption, persistent database deployment or dubakwi-postgres Credential registration performed.",
+    "Original workflow S02 Code executed in local Node for the null-ref boundary; no live n8n/Postgres adapter execution claimed.",
+    "SQL tests are R01 review evidence and do not replace R05 official acceptance.",
+    "Backup/restore, restart persistence, concurrent race execution and R02/R03 full integration remain untested.",
+    "DLQ claim violation reproduced sequentially to demonstrate an allowed second claim; no actual external recovery was run.",
+    "tscan/Gitleaks unavailable; public candidate audit is only a partial substitute."
+  ],
+  "report": "report.md"
+}
