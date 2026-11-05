@@ -41,9 +41,9 @@ SOURCE_SCOPE = "dubakwi-dev"
 DEFAULT_SCOPE = "dubakwi-p19-real"
 SCOPE_NODES = ("B07a BeginRequest 구성", "X06a 실패 상태 명령", "X03a DLQ 요청 구성")
 DEPENDENCIES = {
-    "state": ("workflows/dubakwi-state.json", "fdd0be1"),
-    "dlq": ("workflows/dubakwi-dlq.json", "fdd0be1"),
-    "handoff": ("workflows/dubakwi-handoff.json", "fdd0be1"),
+    "state": ("workflows/dubakwi-state.json", "168c79c"),
+    "dlq": ("workflows/dubakwi-dlq.json", "168c79c"),
+    "handoff": ("workflows/dubakwi-handoff.json", "168c79c"),
     "errors": ("workflows/dubakwi-errors.json", "ff19178"),
 }
 

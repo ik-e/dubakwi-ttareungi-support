@@ -515,7 +515,7 @@ B28은 먼저 error_code=null && state_saved=true && 최신 state_ref를 확인�
 | B04·B05 사용자 조회 | 현재 B04는 과정 data-api 호출, B05는 data-api 형식과 팀 형식 `{id,role,access_levels}`을 모두 처리 | R04 PR #26 계약: `http://dubakwi-user-api:8801/employees/<id>`, `X-Internal-Key`. VM 배포 후 B04를 바꾼다. [임시 API 로컬 확인](../../runs/public/20261105-150536-local-n8n-p19-user-api/summary.json), VM 미실행 |
 | 시민 ticket_id | Jira 키(예: `JBYS-1`)를 그대로 응답 | R04 동의(2026-11-05). 실제 Jira 생성은 미실행 |
 | state `error_code` | support는 저장된 칸을 읽지 않고 SaveResult·StateResult·BeginResult의 값만 소비 | 스키마 변경 불필요 |
-| 저장 경계 | R04 `fdd0be1`: support는 `save`만 호출, 내부에서 Jira 확인 뒤 finish. DLQ는 X03만 기록. 처리권 없는 fail은 skipped. wait도 Jira에 보완 횟수 기록 | PR #27 미병합. [로컬 가짜 Jira 시험](../../runs/public/20261105-194144-local-n8n-p19-fake-jira-fdd0be1/summary.json)으로 소비 확인. support를 통한 실제 Jira·VM·공식 판정 미실행 |
+| 저장 경계 | R04 `168c79c`: support는 `save`만 호출, 내부에서 Jira 확인 뒤 finish. DLQ는 X03만 기록. 처리권 없는 fail은 skipped. wait도 Jira에 보완 횟수 기록 | PR #27 미병합. [로컬 가짜 Jira 시험](../../runs/public/20261105-194144-local-n8n-p19-fake-jira-fdd0be1/summary.json)으로 소비 확인. support를 통한 실제 Jira·VM·공식 판정 미실행 |
 | 실제 연결 묶음 | [`make_vm_p19_real_bundle.py`](../../scripts/test/make_vm_p19_real_bundle.py), [대응표](../../scripts/test/vm-p19-real-test.md) | 로컬 임시 PostgreSQL 예행으로 실제 state·DLQ 호출 확인. 실제 Jira·VM·공식 판정 미실행 |
 | DLQ 요청 | X03a는 `jira_issue_id`·`jira_issue_key`·`last_execution_id`와 Effect 5칸을 보냄. 하위 호출은 `alwaysOutputData`로 항목 없어도 진행 | 로컬 시험이 R04의 S02·D02 코드로 요청을 대조함 |
 
@@ -1019,14 +1019,14 @@ R02 초안(2026-11-05). R04·R05 검토 전이며 아래 제안은 아직 워크
 | B15 조회 | **2.5초(적용)**, 없음 | 로컬 가짜 Jira 시험에서 측정 안 함 | R04 H04가 1회 1.5초로 바뀌어 R04 권고값 적용 |
 | L02 작성 | 8초, 재시도 1회 | 1.8초 / 2.1초 | 5초, 재시도 없음 |
 | L03 검증 | 8초, 재시도 1회 | 0.8초 / 1.1초 | 3초, 재시도 없음 |
-| B27 티켓 | **15초(적용)**, 없음 | R04 보고: 생성 약 2.02초, 상태 전환 묶음 약 2.31초, 조회 0.4~0.7초, DNS 실패 약 5초 후. handoff 최악 약 12초 | R04 권고로 8초에서 변경. support는 재시도하지 않음 |
+| B27 티켓 | **15초(적용)**, 없음 | R04 보고: 생성 약 2.02초, 상태 전환 묶음 약 2.31초, 조회 0.4~0.7초, DNS 실패 약 5초 후. handoff 최악 약 13초 + PostgreSQL 3회 | R04 권고로 8초에서 변경. support는 재시도하지 않음 |
 | state·DLQ | 설정 없음 | 13ms / 60ms | PostgreSQL 장애 대기 시간 측정 필요 |
 
 - **전체 시간:** 일반 응답은 로컬 4.3~6.4초, VM mock LN07은 8.184초다. 현재 전체 시한은 20초이고 검증된 값이 아니다.
 - **WF-11 범위:** `cases/common.json`의 6초는 조회 API가 느린 경우의 판정이고 사례에도 가이드 예시값으로 적혀 있다. 일반 응답 기준으로 쓰지 않는다. 일반 응답 기준은 별도로 정해야 한다.
 - **현재 최악값:** LLM 3회가 재시도까지 모두 시간을 쓰면 48초다. 여기에 호출별 timeout을 더하면 62.5초로 20초 시한을 크게 넘는다. 시한 검사는 B11·B17 등 분기 지점에만 있다.
 - **Jira 포함 추정:** 측정하지 않은 산술값이다. 일반 응답은 로컬 9~11초, VM 약 13초로 20초 시한 안이다.
-- **B27 시간 초과 위험:** support가 먼저 끊으면 handoff는 계속 Jira를 바꾸는데 support는 `ticket_unknown`으로 실패를 기록할 수 있다. 그래서 handoff 최악 약 12초(R04 보고)보다 큰 15초로 올렸다.
+- **B27 시간 초과 위험:** support가 먼저 끊으면 handoff는 계속 Jira를 바꾸는데 support는 `ticket_unknown`으로 실패를 기록할 수 있다. 그래서 R04 최신 예산(종료 약 11초, 생성 후 이관 약 13초 + PostgreSQL 3회)보다 큰 15초로 올렸다. 이관 경로의 여유는 2초 미만일 수 있다.
 - **WF-11 위험:** 조회 지연 뒤 이관 티켓까지 만들면 분류 약 1.2~2초, 조회 제한 1.5초, Jira 생성·전환 약 4.3초로 7초를 넘을 수 있다. 사례의 미결 사항대로 6초에 티켓 생성을 포함할지 정해야 한다.
 - **재시도(R04 제안, 2026-11-05):** GET 조회는 제한적으로 재시도한다. 생성·종료·배정은 무조건 재시도하지 않고 Jira ID·key를 재조회해 미반영이 확인된 경우만 재시도한다. known ID가 있거나 결과를 확인할 수 없으면 `partial_effect`와 DLQ로 보존한다. 7.4절의 401·403 무재시도와 총 2회 이하는 유지한다.
 

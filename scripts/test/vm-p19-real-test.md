@@ -2,7 +2,7 @@
 
 R02가 준비하고 R01이 환경 값을 연결해 게시하는 시험이다. 첫 목표는 실제 사용자 조회 → 분류·검색·답변 검증 → Jira 생성·종료 → 최종 저장 → 응답의 S1 한 건이다. mock 시험은 [VM P19 mock 시험](vm-p19-mock-test.md)에 따로 둔다.
 
-**현재 상태:** R04는 팀 n8n에서 하위 기능의 실제 Jira 생성·종료·이관을 통과했다고 보고했다(PR #27 `fdd0be1`). support를 포함한 실제 S1은 아직이다. support 연결은 로컬 가짜 Jira로 확인했다. 남은 것은 R01의 담당 매핑, `005`~`006` 적용, 시험 사본 게시다.
+**현재 상태:** R04는 팀 n8n에서 하위 기능의 실제 Jira 생성·종료·이관을 통과했다고 보고했다(PR #27 `fdd0be1`, 최신 기준 `168c79c`). support를 포함한 실제 S1은 아직이다. support 연결은 로컬 가짜 Jira로 확인했다. 남은 것은 R01의 담당 매핑, `005`~`006` 적용, 시험 사본 게시다.
 
 ## 파일 만들기
 
@@ -13,7 +13,7 @@ uv run --locked python scripts/test/make_vm_p19_real_bundle.py --output-dir <새
   --openai-credential-id <ID> --team-credential-id <ID> --internal-credential-id <ID>
 ```
 
-환경 값은 옵션으로만 넣고 공개 기록에 남기지 않는다. `manifest.json`에 기준 커밋, support SHA-256, 함께 쓰는 워크플로우의 원본 커밋과 SHA-256이 남는다. R01의 비활성 복제본이 이 값과 같은 원본인지 대조한다.
+handoff는 R04 `168c79c`의 `scripts/dev/render_n8n_workflow.py`로 Jira 주소와 담당 매핑을 채운 사본을 Git 제외 경로에 만들어 반입한다. 환경 값은 옵션으로만 넣고 공개 기록에 남기지 않는다. `manifest.json`에 기준 커밋, support SHA-256, 함께 쓰는 워크플로우의 원본 커밋과 SHA-256이 남는다. R01의 비활성 복제본이 이 값과 같은 원본인지 대조한다.
 
 ## ID·Credential 대응표
 
@@ -78,7 +78,9 @@ Jira 또는 저장 효과를 확인하지 못하면 응답이 맞아도 S1 통�
 
 R04 `fdd0be1` 기준 [재시험 결과](../../runs/public/20261105-194144-local-n8n-p19-fake-jira-fdd0be1/summary.json): 위 경로가 모두 동작했고, `attempt` 없이 `case_ref`로 이어 가도 3회째에 `attempt_limit`으로 이관된다. 담당 매핑은 시험 값이다.
 
-**미해결:** 한도 이관 뒤 같은 case로 다시 요청하면 배정과 알림이 반복된다.
+R04 `168c79c` 기준 [재시험 결과](../../runs/public/20261105-195528-local-n8n-p19-fake-jira-168c79c/summary.json)도 같다.
+
+**미해결:** 한도 이관 뒤 같은 case로 다시 요청하면 배정과 알림이 반복된다. R04는 재시도 시 알림 중복과 Jira 검색 지연 시 중복 가능성을 미반영으로 공유했다.
 
 실제 S1 통과가 아니다. 실제 Jira, VM, R05 공식 판정은 미실행이다.
 
