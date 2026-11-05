@@ -543,3 +543,9 @@ R01 실제 결과: data-api 컨테이너/네트워크 별칭·확인 경로 실�
 사용자가 설계에 포함된 GitLab 도구 재사용을 지시했다. R01은 고정 커밋 eb6937f의 Last3Mon/79/data-api·tools/flow.py를 원본 그대로 확보·검토하고 기존 P11의 employees/logs 계약과 호환을 확인한다. VM 배포용 Compose만 이미지 다이제스트·기존 네트워크·loopback8800 연결로 파생한다. R04 모의 사용자/업무 저장·원본 Python은 수정하지 않으며 실제 로그/사용자 조회 재시험과 과정 도구의 현재 지원/미지원 명령을 구분한다. 이전 80경로 미제공을 전체 data-api 원본 부재로 확대했던 해석은 이번79원본 확인으로 정정한다.
 
 R01 실제 결과: GitLab79 원본25파일과흐름도구를확보·해시검증후data-api를기존망에기동했다. 이미지다이제스트고정·loopback8800·읽기전용마운트이며n8n재시작은없다. P11전체입력11유형×2경로22/22·로그18/18·B04조회12회와B35오류0을확인했다. flow ops exit0,doctor/정적check는수업Credential ID제한으로각exit1을유지했다. 원본도구·인증을바꾸지않고한계를기록했다. [실행요약](../runs/public/20261105-114531-vm-course79-data-api/summary.json)·[보고서](../runs/public/20261105-114531-vm-course79-data-api/report.md). 이전80경로미제공을전체원본부재로확대했던판단을정정하며R04팀fixture/권한·실제Jira/저장연결과R05공식시험은후속이다.
+
+### P04/P19 VM 미실행 연결 시험 진행 (2026-11-05 KST)
+
+사용자가 P11 기존 시험을 반복하지 않고 P19 미실행 연결 검증을 지시했다. R01은 PR #16의 고정 원본을 확인하고 기존 P11 게시본·Credential·RAG 메모리를 보존한다. 영향 경로는 infra 배포 기록·개발 원장·신규 실행 증거다. P19 전체 사본은 환경 ID/Credential을 명시해 비활성으로 반입하고, 운영 경로와 분리한 부분 시험 사본에서 원본 B14와 L01~L03의 실제 호출을 확인한다. 부분 시험 문맥은 fixture이며 R04 state·DLQ·Jira를 우회한 전체 서비스 통과로 기록하지 않는다. R02 소유 JSON은 편집하지 않는다.
+
+R01 실제 결과: PR #16 329778c 원본54노드 비활성 사본의 Credential7노드 연결을 확인했다. 별도14노드 부분 시험에서 인증없음403·팀키200, B14 내부주소 검색200/ok·공개근거5개, L01~L03 실제 모델과 작성/검증JSON·grounded/policy_ok=true·issues0을 확인했다. 실행45 success에 모델3개·B14 실행이 기록됐다. 종료 후 시험 사본을 비활성화해404를 확인했고 P11/index/search·기존Credential전체행은 전후 동일하다. 기존P11시험·n8n재시작은없다. 이번10.228초는WF-11 6초통과가아니며시간예산검증은후속이다. B15/B27 실제handoff·R04 state/DLQ/사용자/Jira와P19전체/R05공식판정은남았다. [연결시험요약](../runs/public/20261105-121200-vm-p19-connection/summary.json)·[보고서](../runs/public/20261105-121200-vm-p19-connection/report.md), VM점검v0.11을따르며P19진행을유지한다.
