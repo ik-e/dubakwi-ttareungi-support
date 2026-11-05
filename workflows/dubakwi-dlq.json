@@ -1,0 +1,101 @@
+{
+  "id": "dubakwiDlq0001",
+  "name": "dubakwi-dlq · P18 PostgreSQL adapter",
+  "nodes": [
+    {
+      "name": "D01 DLQ 명령 수신",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "parameters": {"inputSource": "passthrough"},
+      "position": [0, 0]
+    },
+    {
+      "name": "D02 계약 검사와 안전 차단",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "parameters": {
+        "jsCode": "// P18 로컬 골격: STORAGE-DESIGN 4절과 6.1의 DLQ 계약만 검사한다.\n// 저장소와 운영 재처리 드라이버가 연결되기 전에는 보관·claim·resolve 성공을 반환하지 않는다.\nconst input = $json;\nconst isObj = (v) => v !== null && typeof v === 'object' && !Array.isArray(v);\nconst isText = (v) => typeof v === 'string' && v.trim().length > 0;\nconst isNullableText = (v) => v === null || isText(v);\nconst hasOwn = (v, key) => Object.prototype.hasOwnProperty.call(v, key);\nconst hasOnlyKeys = (v, allowed) => isObj(v) && Object.keys(v).every((key) => allowed.has(key));\nconst allowedStatuses = new Set(['confirmed', 'none', 'failed', 'unknown']);\nconst allowedActions = new Set(['create', 'bind', 'context_update', 'close', 'assign', 'alert', 'finish', 'inspect_only']);\nconst forbiddenKey = /(url|endpoint|code|script|credential|token|password|secret|authorization)/i;\n\nconst containsForbiddenKey = (value) => {\n  if (Array.isArray(value)) return value.some(containsForbiddenKey);\n  if (!isObj(value)) return false;\n  return Object.entries(value).some(([key, child]) => forbiddenKey.test(key) || containsForbiddenKey(child));\n};\n\nconst isEffect = (v) => {\n  if (!hasOnlyKeys(v, new Set(['status', 'id', 'error_code']))) return false;\n  if (!allowedStatuses.has(v.status)) return false;\n  if (hasOwn(v, 'id') && !isText(v.id)) return false;\n  return !hasOwn(v, 'error_code') || v.error_code === null || isText(v.error_code);\n};\n\nconst isEffects = (v) => {\n  const keys = new Set(['created_or_reused', 'context_saved', 'closed', 'assigned', 'alert']);\n  return hasOnlyKeys(v, keys) && [...keys].every((key) => hasOwn(v, key) && isEffect(v[key]));\n};\n\nconst isRecovery = (v) => {\n  if (!hasOnlyKeys(v, new Set(['version', 'mode', 'action', 'args', 'reference', 'reason']))) return false;\n  if (v.version !== 1 || !['payload', 'jira_ref', 'manual_required'].includes(v.mode) || !allowedActions.has(v.action)) return false;\n  if (!(v.reason === null || typeof v.reason === 'string')) return false;\n  if (containsForbiddenKey(v.args) || containsForbiddenKey(v.reference)) return false;\n  if (v.mode === 'payload') return isObj(v.args) && v.reference === null;\n  if (v.mode === 'jira_ref') return v.args === null && isObj(v.reference) && isText(v.reference.jira_issue_id) && isText(v.reference.case_id) && isText(v.reference.owner_id);\n  return v.args === null && v.reference === null;\n};\n\nconst validatePut = (v) => {\n  const keys = new Set(['op', 'scope', 'request_id', 'case_id', 'jira_issue_id', 'jira_issue_key', 'failed_step', 'error_code', 'summary', 'attempts', 'effects', 'recovery', 'last_execution_id']);\n  return hasOnlyKeys(v, keys) && [...keys].every((key) => hasOwn(v, key)) && v.op === 'put' && isText(v.scope) && isNullableText(v.request_id) && isNullableText(v.case_id) && isNullableText(v.jira_issue_id) && isNullableText(v.jira_issue_key) && isText(v.failed_step) && isText(v.error_code) && isText(v.summary) && Number.isInteger(v.attempts) && v.attempts >= 0 && isEffects(v.effects) && isRecovery(v.recovery) && isNullableText(v.last_execution_id);\n};\n\nconst validateClaim = (v) => hasOnlyKeys(v, new Set(['op', 'scope', 'dlq_id', 'expected_revision', 'operator_id', 'execution_id'])) && v.op === 'claim' && isText(v.scope) && isText(v.dlq_id) && Number.isInteger(v.expected_revision) && v.expected_revision >= 0 && isText(v.operator_id) && isText(v.execution_id);\nconst validateResolve = (v) => hasOnlyKeys(v, new Set(['op', 'scope', 'dlq_id', 'expected_revision', 'operator_id', 'execution_id', 'resolution'])) && v.op === 'resolve' && isText(v.scope) && isText(v.dlq_id) && Number.isInteger(v.expected_revision) && v.expected_revision >= 0 && isText(v.operator_id) && isText(v.execution_id) && isText(v.resolution);\n\nconst validators = { put: validatePut, claim: validateClaim, resolve: validateResolve };\nconst valid = isObj(input) && isText(input.op) && hasOwn(validators, input.op) && validators[input.op](input);\nreturn [{ json: {\n  ok: false,\n  dlq_id: null,\n  deduplicated: false,\n  error_code: valid ? 'dlq_backend_unconfigured' : 'invalid_dlq_request'\n} }];"
+      },
+      "position": [300, 0]
+    },
+    {
+      "name": "D03 실제 DLQ 호출 여부",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "leftValue": "={{ $json.error_code === 'dlq_backend_unconfigured' }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "position": [540, 0]
+    },
+    {
+      "name": "D04 PostgreSQL DLQ 저장",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT dubakwi_service.dlq_apply($1::jsonb) AS result;",
+        "options": {
+          "queryReplacement": "={{ JSON.stringify($('D01 DLQ 명령 수신').item.json) }}"
+        }
+      },
+      "credentials": {
+        "postgres": {
+          "name": "dubakwi-postgres"
+        }
+      },
+      "onError": "continueRegularOutput",
+      "position": [780, -100]
+    },
+    {
+      "name": "D05 DLQ 결과 정규화",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "parameters": {
+        "jsCode": "const raw = $json.result;\nlet result = raw;\nif (typeof raw === 'string') { try { result = JSON.parse(raw); } catch { result = null; } }\nif (!result || typeof result !== 'object' || Array.isArray(result)) return [{json:{ok:false,dlq_id:null,deduplicated:false,error_code:'dlq_error'}}];\nreturn [{json:result}];"
+      },
+      "position": [1020, -100]
+    }
+  ],
+  "connections": {
+    "D01 DLQ 명령 수신": {
+      "main": [[{"node": "D02 계약 검사와 안전 차단", "type": "main", "index": 0}]]
+    },
+    "D02 계약 검사와 안전 차단": {
+      "main": [[{"node": "D03 실제 DLQ 호출 여부", "type": "main", "index": 0}]]
+    },
+    "D03 실제 DLQ 호출 여부": {
+      "main": [
+        [{"node": "D04 PostgreSQL DLQ 저장", "type": "main", "index": 0}],
+        []
+      ]
+    },
+    "D04 PostgreSQL DLQ 저장": {
+      "main": [[{"node": "D05 DLQ 결과 정규화", "type": "main", "index": 0}]]
+    }
+  },
+  "active": false,
+  "settings": {"executionOrder": "v1"},
+  "pinData": {},
+  "meta": {"templateCredsSetupCompleted": false},
+  "tags": []
+}
