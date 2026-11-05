@@ -1,0 +1,227 @@
+{
+  "label": "real-state-dlq-handoff-local",
+  "executed_at_kst": "2026-11-05",
+  "environment": "local n8n 2.42.6, 임시 PostgreSQL 16.15 001~004, 임시 사용자 API, main state·DLQ, PR #27 e273daa handoff, R03 PR #31 06e9223 검색·색인, gpt-4.1-mini",
+  "scope": "실제 state·DLQ·handoff 연결 예행. Jira 호출 없음. 실제 S1 통과·VM·공식 판정이 아니다.",
+  "results": [
+    {
+      "case": "대표 문장 citizen-a",
+      "http": 200,
+      "route": "담당자 이관",
+      "reason_or_code": "tickets_down"
+    },
+    {
+      "case": "같은 ID 같은 입력 재전송",
+      "http": 409,
+      "route": null,
+      "reason_or_code": "request_requires_review"
+    },
+    {
+      "case": "같은 ID 다른 입력",
+      "http": 409,
+      "route": null,
+      "reason_or_code": "request_conflict"
+    },
+    {
+      "case": "같은 ID 다른 사용자",
+      "http": 409,
+      "route": null,
+      "reason_or_code": "request_conflict"
+    },
+    {
+      "case": "보완 정보 부족",
+      "http": 200,
+      "route": "담당자 이관",
+      "reason_or_code": "tickets_down"
+    },
+    {
+      "case": "case_ref 있는 요청",
+      "http": 200,
+      "route": "담당자 이관",
+      "reason_or_code": "case_verification_required"
+    },
+    {
+      "case": "긴급",
+      "http": 200,
+      "route": "담당자 이관",
+      "reason_or_code": "tickets_down"
+    },
+    {
+      "case": "주입",
+      "http": 200,
+      "route": "차단",
+      "reason_or_code": "prompt_injection"
+    },
+    {
+      "case": "미등록 사용자",
+      "http": 400,
+      "route": null,
+      "reason_or_code": "unknown_user"
+    },
+    {
+      "case": "PostgreSQL 중단",
+      "http": 200,
+      "route": "담당자 이관",
+      "reason_or_code": "본문 있음"
+    }
+  ],
+  "storage_after": {
+    "request_state": "3행 failed, current_step=H05, error_code=tickets_down, revision=2",
+    "dead_letters": "3행 pending, failed_step=B29, recovery.action=create"
+  },
+  "defects_found_and_fixed": [
+    "X03a가 DLQ 계약과 달라 invalid_dlq_request로 거절됨",
+    "X01 복구 정보가 manual_required에 reference를 넣음",
+    "하위 워크플로우가 항목 없이 끝나면 응답이 빈 본문이 됨"
+  ],
+  "wf03_auto_compare_20": {
+    "before": "담당자 이관 no_evidence 20회",
+    "after": "담당자 이관 no_evidence 20회",
+    "note": "이번 20회에서는 수정 전에도 재현되지 않음"
+  },
+  "node_timings_ms": {
+    "dubakwiP19Support": {
+      "B04": {
+        "n": 15,
+        "median_ms": 2,
+        "max_ms": 3
+      },
+      "B07": {
+        "n": 30,
+        "median_ms": 7,
+        "max_ms": 54
+      },
+      "B10": {
+        "n": 15,
+        "median_ms": 1229,
+        "max_ms": 1758
+      },
+      "B14": {
+        "n": 15,
+        "median_ms": 838,
+        "max_ms": 1410
+      },
+      "B15": {
+        "n": 15,
+        "median_ms": 51,
+        "max_ms": 58
+      },
+      "B19": {
+        "n": 15,
+        "median_ms": 1809,
+        "max_ms": 2127
+      },
+      "B20": {
+        "n": 15,
+        "median_ms": 817,
+        "max_ms": 1128
+      },
+      "B27": {
+        "n": 15,
+        "median_ms": 50,
+        "max_ms": 56
+      },
+      "B32": {
+        "n": 28,
+        "median_ms": 6,
+        "max_ms": 33
+      },
+      "B35": {
+        "n": 15,
+        "median_ms": 2,
+        "max_ms": 3
+      },
+      "B37": {
+        "n": 28,
+        "median_ms": 5,
+        "max_ms": 33
+      },
+      "X03": {
+        "n": 2,
+        "median_ms": 8,
+        "max_ms": 11
+      },
+      "X04": {
+        "n": 1,
+        "median_ms": 2,
+        "max_ms": 2
+      },
+      "X06": {
+        "n": 2,
+        "median_ms": 7,
+        "max_ms": 10
+      }
+    },
+    "dubakwiP19RealSupport": {
+      "B04": {
+        "n": 18,
+        "median_ms": 4,
+        "max_ms": 23
+      },
+      "B07": {
+        "n": 32,
+        "median_ms": 13,
+        "max_ms": 60
+      },
+      "B10": {
+        "n": 6,
+        "median_ms": 1484,
+        "max_ms": 1963
+      },
+      "B14": {
+        "n": 2,
+        "median_ms": 933,
+        "max_ms": 1070
+      },
+      "B15": {
+        "n": 2,
+        "median_ms": 77,
+        "max_ms": 88
+      },
+      "B19": {
+        "n": 2,
+        "median_ms": 1942,
+        "max_ms": 2110
+      },
+      "B20": {
+        "n": 2,
+        "median_ms": 768,
+        "max_ms": 792
+      },
+      "B27": {
+        "n": 6,
+        "median_ms": 105,
+        "max_ms": 127
+      },
+      "B35": {
+        "n": 16,
+        "median_ms": 2,
+        "max_ms": 7
+      },
+      "X03": {
+        "n": 16,
+        "median_ms": 10,
+        "max_ms": 29
+      },
+      "X04": {
+        "n": 6,
+        "median_ms": 3,
+        "max_ms": 12
+      },
+      "X06": {
+        "n": 20,
+        "median_ms": 11,
+        "max_ms": 41
+      }
+    }
+  },
+  "regression": {
+    "support_skeleton_live": "runs/public/20261105-170027-local-n8n-p19-contract-fix-regression/summary.json",
+    "r05_route_compare": "runs/public/20261105-170112-local-n8n-p19-contract-fix-r05/summary.json"
+  },
+  "not_executed": [
+    "실제 Jira",
+    "VM 실제 연결",
+    "R05 공식 판정"
+  ]
+}

@@ -516,6 +516,8 @@ B28은 먼저 error_code=null && state_saved=true && 최신 state_ref를 확인�
 | 시민 ticket_id | Jira 키(예: `JBYS-1`)를 그대로 응답 | R04 동의(2026-11-05). 실제 Jira 생성은 미실행 |
 | state `error_code` | support는 저장된 칸을 읽지 않고 SaveResult·StateResult·BeginResult의 값만 소비 | 스키마 변경 불필요 |
 | 저장 경계 연결 전 확인 | main `003`의 유효한 `save`는 항상 `ok:false`, 유효한 `case_ref`의 `begin`은 항상 `case_verification_required` | 정상 완료와 보완 연결 경로는 R04 확인 필요. 해결 전 실제 state 연결 시 해당 요청은 이관으로 끝남 |
+| 실제 연결 묶음 | [`make_vm_p19_real_bundle.py`](../../scripts/test/make_vm_p19_real_bundle.py), [대응표](../../scripts/test/vm-p19-real-test.md) | 로컬 임시 PostgreSQL 예행으로 실제 state·DLQ 호출 확인. 실제 Jira·VM·공식 판정 미실행 |
+| DLQ 요청 | X03a는 `jira_issue_id`·`jira_issue_key`·`last_execution_id`와 Effect 5칸을 보냄. 하위 호출은 `alwaysOutputData`로 항목 없어도 진행 | 로컬 시험이 R04의 S02·D02 코드로 요청을 대조함 |
 
 로컬 확인(2026-11-04): Code 시험 [89/89](../../runs/public/20261104-113327-local-p19-flow/summary.json). 로컬 n8n 2.42.6에서 `scripts/test/mocks/`의 mock과 실제 gpt-4.1-mini로 Webhook 18개를 3회 실행해 모두 18/18 통과했다([1회](../../runs/public/20261104-113005-local-n8n-p19-mock-run1/summary.json), [2회](../../runs/public/20261104-113036-local-n8n-p19-mock-run2/summary.json), [3회](../../runs/public/20261104-113113-local-n8n-p19-mock-run3/summary.json)). 이 저장 결과 전에 Credential 권한 오류(2/18)와 분류 프롬프트 문제(12/18)가 있었고 수정했다. 해당 시도의 결과 파일은 남기지 않았다. TC08 grounded=false 사본도 이관을 1회 확인했다.
 
@@ -1004,6 +1006,28 @@ HTTP는 비2xx full response·네트워크 오류 continueRegularOutput을 인�
 X01은 위 표로 effect_plan을 정하고 X02가 실행한다. 알림·DLQ 자체 장애는 동일한 오류 워크플로우를 무한 호출하지 않고 가린 n8n 실행 기록으로 운영 확인한다. 실제 HTTP401/403은 재시도하지 않는다. 기타 재시도는 제공 API의 멱등성과 잔여 시간 안에서만,총2회 이하로 제한한다. 호출별 timeout·재시도 설정과 일반20초/조회1.5초 초기값·WF11 전체 한도는 R02/R04/R05가 실제 연동 전에 공동 확정하며 역할별로 서로 다른 값을 숨겨 쓰지 않는다. 현 시점에 성능이 검증된 수치가 아니다.
 
 Jira에는 가린 facts,최소 상태에는 가린 최종 응답을 두고 감사 로그에는 request_id·불투명 사용자ID·노드·route·reason·시도·시간·가림건수·근거ID만 남긴다. 문의 원문·답변 원문·연락처·Credential을 그대로 기록하지 않는다. 실제 실행 시험과 결과는 cases/runs/실행 결과서에 둔다.
+
+### 7.5. D05 시간·재시도 초안
+
+R02 초안(2026-11-05). R04·R05 검토 전이며 아래 제안은 아직 워크플로우에 적용하지 않았다. 실측은 로컬 n8n이고 Jira 호출을 포함하지 않는다. [노드별 실측](../../runs/public/20261105-170800-local-n8n-p19-real-rehearsal/summary.json)
+
+| 호출 | 현재 timeout·재시도 | 로컬 중앙값/최대 | 제안 |
+| --- | --- | --- | --- |
+| B04 사용자 조회 | 1.5초, 없음 | 4ms / 23ms | 유지 |
+| L01 분류 | 8초, 재시도 1회 | 1.2초 / 2.0초 | 4초, 재시도 없음 |
+| B14 검색 | 5초, 없음 | 0.8초 / 1.4초 | 3초 |
+| B15 조회 | 1.5초, 없음 | mock 값뿐 | 유지, `/records` 연결 후 측정 |
+| L02 작성 | 8초, 재시도 1회 | 1.8초 / 2.1초 | 5초, 재시도 없음 |
+| L03 검증 | 8초, 재시도 1회 | 0.8초 / 1.1초 | 3초, 재시도 없음 |
+| B27 티켓 | 8초, 없음 | Jira 측정값 없음 | R04 실측 후 결정. 자동 재시도 금지 유지 |
+| state·DLQ | 설정 없음 | 13ms / 60ms | PostgreSQL 장애 대기 시간 측정 필요 |
+
+- **전체 시간:** 일반 응답은 로컬 4.3~6.4초, VM mock LN07은 8.184초다. 현재 전체 시한은 20초이고 검증된 값이 아니다.
+- **WF-11 범위:** `cases/common.json`의 6초는 조회 API가 느린 경우의 판정이고 사례에도 가이드 예시값으로 적혀 있다. 일반 응답 기준으로 쓰지 않는다. 일반 응답 기준은 별도로 정해야 한다.
+- **현재 최악값:** LLM 3회가 재시도까지 모두 시간을 쓰면 48초다. 여기에 호출별 timeout을 더하면 62.5초로 20초 시한을 크게 넘는다. 시한 검사는 B11·B17 등 분기 지점에만 있다.
+- **재시도:** 7.4절 기준(401·403 없음, 멱등·잔여 시간 안에서 총 2회 이하)을 유지한다. 외부 효과가 있는 B27은 R04가 멱등성을 확인하기 전 재시도하지 않는다.
+
+결정이 필요한 것: 일반 응답 전체 기준(R05), Jira 호출 실측과 B27 값(R04), WF-11의 `tickets slow`가 이관 티켓 생성까지 늦추는지(R04), 시한 초과 때 이미 진행한 외부 효과의 처리(R04·R02).
 
 ## 8. 64~79일차에서 가져온 것
 

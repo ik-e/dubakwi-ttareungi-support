@@ -26,6 +26,8 @@ R05 사례 응답은 `support_route_compare.py`로 3회씩 flow.py 칸만 대조
 
 VM P19 연결 시험 사본과 전용 mock은 `make_vm_p19_bundle.py`로 만든다. 게시 순서·ID 대응표·입력·기대값은 [VM P19 mock 시험](vm-p19-mock-test.md)을 따른다.
 
+실제 state·DLQ·handoff 연결 사본은 `make_vm_p19_real_bundle.py`로 만든다. 대응표와 S1 통과 기준은 [VM P19 실제 연결 시험](vm-p19-real-test.md)을 따른다.
+
 `build_knowledge_search_mock.py`는 승인 전 지식으로 답하는 시험용 search를 만든다. 산출물은 커밋하지 않고 실제 검색 평가에 쓰지 않는다.
 
 게시된 n8n의 Webhook 호출은 `SUPPORT_TEAM_KEY=<시험 키> uv run --locked python scripts/test/support_skeleton_live.py --url <Webhook URL> [--output runs/public/<실행묶음ID>/summary.json]`로 확인한다. 키는 결과에 남기지 않는다. n8n 게시 직후 결과가 이전 버전으로 나올 수 있어 실패하면 잠시 뒤 다시 확인하고 최초 결과를 보존한다. VM·공식 판정을 대신하지 않는다.

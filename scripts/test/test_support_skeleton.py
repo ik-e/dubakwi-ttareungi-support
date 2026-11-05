@@ -8,6 +8,8 @@ from pathlib import Path
 
 from make_verifier_fault import MODEL, SOURCE, VERIFIER, WRITER, WRITER_MODEL, build
 from make_vm_p19_bundle import FORBIDDEN, HANDOFF_URL, SEARCH_URL, SUPPORT_PATH, build_all
+from make_vm_p19_real_bundle import SCOPE_NODES
+from make_vm_p19_real_bundle import build_support as build_real_support
 
 ROOT = Path(__file__).resolve().parents[2]
 SCRIPT = ROOT / "scripts" / "test" / "support-skeleton-cases.js"
@@ -80,6 +82,38 @@ class SupportSkeletonTest(unittest.TestCase):
         lookup = nodes["B04 사용자 확인"]
         self.assertIn("dubakwi-user-api:8801/employees/", lookup["parameters"]["url"])
         self.assertEqual(lookup["credentials"]["httpHeaderAuth"]["name"], "dubakwi-internal-key")
+
+    def test_real_bundle_connects_real_targets_without_changing_source(self) -> None:
+        workflow = json.loads(SOURCE.read_text(encoding="utf-8"))
+        original = json.dumps(workflow)
+        copy = build_real_support(
+            workflow,
+            {
+                "state_id": "state-x",
+                "dlq_id": "dlq-x",
+                "handoff_url": "http://handoff-x",
+                "scope": "scope-x",
+                "error_workflow_id": "errors-x",
+                "openai": None,
+                "team": None,
+                "internal": None,
+            },
+        )
+        self.assertEqual(json.dumps(workflow), original)
+        text = json.dumps(copy, ensure_ascii=False)
+        for word in ("dubakwiState01", "dubakwiDlq0001", "dubakwi-handoff", "openAiCourse0001"):
+            self.assertNotIn(word, text)
+        nodes = {item["name"]: item for item in copy["nodes"]}
+        self.assertIn("dubakwi-user-api", nodes["B04 사용자 확인"]["parameters"]["url"])
+        self.assertEqual(nodes["B27 티켓 생성·처리"]["parameters"]["url"], "http://handoff-x")
+        self.assertEqual(
+            nodes["B07 요청 문맥 읽기"]["parameters"]["workflowId"]["value"], "state-x"
+        )
+        self.assertEqual(nodes["X03 실패 보관"]["parameters"]["workflowId"]["value"], "dlq-x")
+        for name in SCOPE_NODES:
+            self.assertIn("scope-x", nodes[name]["parameters"]["jsonOutput"])
+        self.assertEqual(copy["settings"]["errorWorkflow"], "errors-x")
+        self.assertFalse(copy["active"])
 
 
 if __name__ == "__main__":

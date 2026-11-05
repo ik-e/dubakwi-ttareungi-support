@@ -70,12 +70,27 @@ const clock = {
   reset() { Date.now = this.real; },
 };
 
+// R04가 소유한 state·DLQ의 계약 검사 코드를 그대로 실행해 요청 형식을 대조한다. mock이 놓치는 형식 불일치를 잡는다.
+const storageCheck = (file, prefix) => {
+  const workflow = JSON.parse(fs.readFileSync(path.join(ROOT, 'workflows', file), 'utf8'));
+  const code = workflow.nodes.find((node) => node.name.startsWith(prefix)).parameters.jsCode;
+  return new Function('$json', code);
+};
+const STATE_CHECK = storageCheck('dubakwi-state.json', 'S02');
+const DLQ_CHECK = storageCheck('dubakwi-dlq.json', 'D02');
+function checkStorageContract(input, failures) {
+  const check = input.op === 'put' ? DLQ_CHECK : STATE_CHECK;
+  const result = check(JSON.parse(JSON.stringify(input)))[0].json;
+  if (['invalid_state_request', 'invalid_dlq_request'].includes(result.error_code) || result.http_status === 400) failures.push(`${input.op}: ${result.error_code}`);
+}
+
 function runWorkflow(workflow, webhookItem, b04Response, overrides = {}) {
   clock.reset();
   const env = { ...defaults(), ...overrides };
   const nodes = new Map(workflow.nodes.map((node) => [node.name, node]));
   const outputs = new Map();
   const visited = [];
+  const contractFailures = [];
   const calls = { llm: 0, search: 0, lookup: 0, process: 0, saves: 0, prepares: 0, fails: 0, dlq: 0, alerts: 0, begin: 0 };
   const sent = { process: [], search: [], begin: null, fail: null, dlq: null, logs: [] };
   const merges = new Map();
@@ -133,6 +148,7 @@ function runWorkflow(workflow, webhookItem, b04Response, overrides = {}) {
         break;
       }
       case 'n8n-nodes-base.executeWorkflow': {
+        checkStorageContract(input, contractFailures);
         if (input.op === 'begin') { calls.begin += 1; sent.begin = input; json = env.begin(input); }
         else if (input.op === 'prepare') { calls.prepares += 1; json = env.prepare(input); }
         else if (input.op === 'save') { calls.saves += 1; json = env.save(input); }
@@ -170,7 +186,7 @@ function runWorkflow(workflow, webhookItem, b04Response, overrides = {}) {
   }
 
   const final = outputs.get(B33);
-  return { visited, calls, sent, http_status: final.http_status, http_body: final.http_body, actor: final.actor, log: final.log, serialized: JSON.stringify([...outputs.entries()].filter(([key]) => key !== visited[0])) };
+  return { visited, calls, sent, contractFailures, http_status: final.http_status, http_body: final.http_body, actor: final.actor, log: final.log, serialized: JSON.stringify([...outputs.entries()].filter(([key]) => key !== visited[0])) };
 }
 
 const ok = (body) => ({ statusCode: 200, body });
@@ -330,6 +346,8 @@ const FLOWS = [
   ['FL69', 'S8', '긴급 후속 save 실패도 high 유지', ask(), { triage: { text: triage({ type: 'security', urgency: 'high' }) }, ...JIRA_UNVERIFIED }, handoff('tickets_down', { dlq: 1, saves: 1, ticketId: 'T-1', priority: 'high' })],
   ['FL70', 'S8', '허용되지 않은 save 오류 코드는 state_error', ask(), { save: () => ({ request_id: 'lc-req', ok: false, state_ref: null, error_code: 'stack trace 원문', recovery: null }) }, handoff('state_error', { dlq: 1, noText: 'stack trace' })],
   ['FL71', '계약', 'Jira 키 형식 ticket_id를 응답에 그대로 전달', ask(), { triage: { text: triage({ type: 'security', urgency: 'high' }) }, ...processResult({ ticket_id: 'JBYS-1' }) }, flow({ route: '담당자 이관', ticketId: 'JBYS-1', priority: 'high' })],
+  ['FL72', 'S6', '가능 여부 문의는 되묻지 않고 검색', ask({ question: '따릉이를 해외 여행에 가져가서 한 달 동안 써도 되나요?' }), { triage: { text: triage({ type: 'rental', missing: ['symptom'] }) } }, flow({ route: '자동 답변', search: 1 })],
+  ['FL73', 'S2', '개별 문제의 안 되나요는 보완 질문 유지', ask({ question: '반납했는데 앱에 이용 중으로 나와요. 왜 안 되나요?' }), { triage: { text: triage({ type: 'return', missing: ['bike_id'] }) } }, flow({ route: '보완 질문' })],
   ['FL41', '계약', 'BeginRequest 서버 값', ask({ role: 'security' }), {}, flow({ route: '자동 답변', beginShape: true })],
 ];
 
@@ -346,6 +364,7 @@ function evaluate(workflow, [id, group, title, body, second, expected], flowCase
   const sentTicket = result.sent.process[0];
   const text = JSON.stringify(b);
   check('http_status', result.http_status, e.status);
+  for (const failure of result.contractFailures) failures.push(`R04 계약 검사 거절 ${failure}`);
   for (const key of ['error', 'codes', 'route', 'reason', 'case_ref', 'ticket']) if (key in e) check(key, b[key], e[key]);
   if ('actor' in e) check('actor', result.actor, e.actor);
   if ('b04' in e) check('b04_called', result.visited.some((n) => n.startsWith('B04')), e.b04);
@@ -422,6 +441,8 @@ function checkStatic(workflow) {
   }
   const llm = workflow.nodes.filter((node) => node.type.endsWith('chainLlm')).map((node) => node.name.split(' ')[0]).sort().join();
   if (llm !== 'B10,B19,B20') failures.push(`LLM 노드 위치 다름: ${llm}`);
+  // 하위 워크플로우가 항목 없이 끝나도 흐름이 멈추면 응답이 빈 본문이 된다.
+  for (const node of workflow.nodes) if (node.type === 'n8n-nodes-base.executeWorkflow' && node.alwaysOutputData !== true) failures.push(`${node.name}: alwaysOutputData 없음`);
   const text = JSON.stringify(workflow);
   if (/담당자가 이어서/.test(text)) failures.push('후속 처리 약속 문구가 남아 있음');
   if (text.includes('localhost:8800')) failures.push('data-api 주소: n8n 안에서는 data-api:8800을 사용해야 함');
