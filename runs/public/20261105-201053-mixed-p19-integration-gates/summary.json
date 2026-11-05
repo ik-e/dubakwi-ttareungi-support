@@ -1,0 +1,139 @@
+{
+  "run_id": "20261105-201053-mixed-p19-integration-gates",
+  "recorded_at": "2026-11-05T20:12:42.070107+09:00",
+  "owner": "R01",
+  "tasks": [
+    "P12",
+    "P19"
+  ],
+  "environment": "local pinned-source tests and merge preview; existing VM read-only inspection",
+  "source_refs": {
+    "support": "5e0026cc776abc52677810745bafa3e12ad66ba7",
+    "support_docs": "6afb94d7c79a948312cd3c415d15284d202bdee9",
+    "r04": "168c79c160d847115aa00f01e30107a2ebcb617c",
+    "errors": "ff1917860e8a43379301a59a0b751be7cd613083"
+  },
+  "support_sha256": "b44fb305cfb20f7def0613185b710a5e6d6a228b884bdff40a075c94cef36ada",
+  "docs_only_support_identical": true,
+  "dependency_source_hashes": {
+    "state": {
+      "ref": "168c79c",
+      "sha256": "0747b8957e1e5d00b378f043b7efa33a4825d04d71d7984b26a78b6dbc0fffe6"
+    },
+    "dlq": {
+      "ref": "168c79c",
+      "sha256": "9c466061b7e480c4f0a007771f1d5fbf108a496c2b6944bac521e589e0acb6c9"
+    },
+    "handoff": {
+      "ref": "168c79c",
+      "sha256": "d70e212990faed10713e883e9a08f08adacec86e8d0f69501e7e83c6e9436c5c"
+    },
+    "errors": {
+      "ref": "ff19178",
+      "sha256": "bf8146de49a64f74a9b506b053b43f51662e5591a7d71494f8b2deb10d2b5549"
+    }
+  },
+  "local_tests": {
+    "command": "uv run --locked python -m unittest scripts.test.test_p12_handoff scripts.test.test_r04_workflow_contracts scripts.test.test_render_n8n_workflow -q",
+    "tests": 8,
+    "passed": 8,
+    "failed": 0,
+    "scope": "Code/IF simulated Jira/state plus renderer/contracts; no real HTTP/Jira/DB effects"
+  },
+  "additional_boundary": {
+    "node_names": [
+      "H23 중복 조회 준비",
+      "H24 생성 판정"
+    ],
+    "request_ids": [
+      "req.a",
+      "req/a"
+    ],
+    "different_scope_owner_control": true,
+    "observed_labels": [
+      "dubakwi-req_a",
+      "dubakwi-req_a",
+      "dubakwi-req_a"
+    ],
+    "ambiguous_search_issues": 2,
+    "observed_route": "known",
+    "selected_synthetic_ticket": "JBYS-900",
+    "observed_reused": true,
+    "observed_effect": "confirmed",
+    "expected": "reject ambiguous or unrelated issue; preserve collision-safe scope/case/owner linkage",
+    "verdict": "failed; blocks merge and deployment"
+  },
+  "merge_preview": {
+    "first": "168c79c",
+    "second": "5e0026c",
+    "conflicts": [
+      "docs/project/WORKFLOW-DESIGN.md"
+    ],
+    "aborted": true,
+    "scratch_worktree_clean_after_abort": true,
+    "source_branches_modified": false
+  },
+  "vm_readonly": {
+    "reauthentication": "user logged into existing web SSH after reconnect",
+    "target_writes": false,
+    "jira_calls": 0,
+    "workflow_import_publish": false,
+    "sql_migrations_applied": false,
+    "credential_changes": false,
+    "service_restart": false,
+    "expected_nodes": {
+      "state": 20,
+      "dlq": 6
+    },
+    "observed_matching_name_state_node_counts": [
+      2,
+      11,
+      3,
+      2
+    ],
+    "observed_matching_name_dlq_node_counts": [
+      2,
+      5,
+      3
+    ],
+    "all_matched_workflows_inactive": true,
+    "exact_expected_connections_present": false,
+    "service_functions": [
+      "dlq_apply",
+      "state_apply",
+      "state_ref_json"
+    ],
+    "case_functions_from_005_present": false,
+    "grants_from_006": "not verified; do not claim applied",
+    "DUBAKWI_SCOPE_present": false,
+    "n8n_running": true,
+    "health": 200,
+    "inspection_helper": "existing Python image; transient container network none/read_only, volume readonly; SELECT only",
+    "evidence_method": "masked observations transcribed from terminal; raw DB/credential IDs and secrets not copied"
+  },
+  "verdict": "retain existing changes-requested review; do not merge PR27 or deploy this pinned version; prepare PR16 after R04 fix",
+  "known_separate_issue": "new requests after attempt-limit handoff repeat assignment/notification; do not conflate with same-action retry duplication",
+  "limits": [
+    "No full common acceptance, concurrency, restart/restore or actual support/Jira S1 executed.",
+    "Existing role branches and workflow/SQL source unchanged.",
+    "This inspection does not prove current copies correspond to any particular older source commit.",
+    "No user/account/secret or database rows changed; ephemeral read helper exited automatically."
+  ],
+  "checks": {
+    "docs": {
+      "files": 20,
+      "links": 456,
+      "anchors": 50,
+      "errors": 0
+    },
+    "public_candidates": {
+      "files": 172,
+      "links": 544,
+      "errors": 0
+    },
+    "json": "pass",
+    "diff": "pass",
+    "secret_scan": "tscan/Gitleaks unavailable; public candidate check is partial; no full secret/PII guarantee",
+    "source_modified": false
+  }
+}

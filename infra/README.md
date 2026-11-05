@@ -1,5 +1,7 @@
 # Docker Compose 배포와 운영
 
+P19 실제 연결의 #27→#16 병합 순서, 최신 원본/VM 차이와 수정 후 적용 조건은 [R01 통합 게이트](p19-integration-gates.md)를 따른다. 현재 후보의 티켓 재사용 경계가 미해결이므로 병합/게시는 보류한다.
+
 Docker Compose 채택: 2026-11-03 사용자 결정. 편집·배포 R01, 저장/영속성 검토 R04, 흐름 연결 R02/R03, VM 검증 R05. 책임 원본은 [팀 헌장](../docs/project/TEAM-CHARTER.md), 절차 규칙은 [AGENTS](../AGENTS.md)다.
 
 - 버전: v0.9 / 2026-11-05 PostgreSQL 독립 배포 준비본·R04 검토 인계
