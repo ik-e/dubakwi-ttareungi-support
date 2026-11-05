@@ -6,7 +6,7 @@
 
 팀 이름은 **두바퀴**, 기술 접두사는 **dubakwi**입니다.
 
-이 문서는 **슬라이드에서 무엇을 설명하고 어떤 증거를 보여줄지** 정합니다. 현재는 구성안이며, Discord 시민 문의·Jira·최소 상태/실행 기록/DLQ·Docker Compose를 반영합니다. 발표자 역할 ID·공용 파일 형식·실행 결과는 미확정입니다. 설계 기준은 [시스템 v0.12](project/SYSTEM-DESIGN.md), [워크플로우 v0.14](project/WORKFLOW-DESIGN.md), [RAG v0.10](project/RAG-ARCHITECTURE.md), [저장소 v0.4](project/STORAGE-DESIGN.md)입니다. 발표 준비의 진행 상태는 [개발 작업 원장 P29](DEVELOPMENT-PLAN.md#5-작업-원장)에서 관리하고, 슬라이드별 상태를 별도로 복제하지 않습니다.
+이 문서는 **슬라이드에서 무엇을 설명하고 어떤 증거를 보여줄지** 정합니다. 현재는 구성안이며, Discord 시민 문의·Jira·최소 상태/실행 기록/DLQ·Docker Compose를 반영합니다. 발표자 역할 ID·공용 파일 형식·실행 결과는 미확정입니다. 설계 기준은 [시스템 v0.13](project/SYSTEM-DESIGN.md), [워크플로우 v0.14](project/WORKFLOW-DESIGN.md), [RAG v0.10](project/RAG-ARCHITECTURE.md), [저장소 v0.4](project/STORAGE-DESIGN.md)입니다. 발표 준비의 진행 상태는 [개발 작업 원장 P29](DEVELOPMENT-PLAN.md#5-작업-원장)에서 관리하고, 슬라이드별 상태를 별도로 복제하지 않습니다.
 
 2026-11-05 R01이 [통합 발표 인계 초안](project/presentation/integration-brief.md)을 작성했다. 기존 부분 시험·로컬 검증과 미완료 종단/권한/성능을 구분한다. 발표자·최종자료·리허설은 아직 미확정이다.
 

@@ -1,7 +1,7 @@
 # 팀 헌장 · 두바퀴
 
 - 작성일: 2026-11-02 KST
-- 버전·상태: v0.13 / 사용자 API·팀 통합 인계 경로 책임 반영 초안, 팀 검토 전
+- 버전·상태: v0.14 / 사용자 API·P11 사례·팀 통합 인계 책임 반영 초안, 팀 검토 전
 - 작성 형식: [공식 팀 헌장 템플릿 — 공개본 제외 자료](../../docs/PUBLIC-SOURCES.md)
 - 주제 기준: [주제 제안서 v0.7](TOPIC.md)
 
@@ -35,6 +35,7 @@
 | --- | --- | --- | --- |
 | README.md·AGENTS.md·.gitignore·.gitattributes·.env.example | R01 | R04 비밀/환경·R05 재현 | 공통 규칙·설정 항목 취합·진입 링크 |
 | infra/README.md·vm-preflight.md·compose.yaml | R01 | R04 영속성·R02/R03 연결·R05 VM | 이미지/볼륨/네트워크·배포·업데이트·복구 |
+| infra/postgres-compose.yaml·postgres-deployment.md | R01 | R04 저장/권한/마이그레이션·R05 재시작/복원 | 독립 DB 배포 준비·owner/runtime·비밀 주입·Credential 연결 조건. SQL 구현 소유권은 R04 유지 |
 | pyproject.toml·uv.lock·.python-version·.github/workflows/quality.yml | R01 | R02/R03/R04 의존성·R05 품질 | Python3.12·uv·Ruff·CI 공통 환경 |
 | docs/PUBLICATION.md·docs/PYTHON-DEVELOPMENT.md·scripts/dev/public-files.json·export_public.py | R01 | R04 비밀/제외 기준·R05 재현 | 로컬 보존·Git 공개 범위·선택적 내보내기·Python 기준·업로드 전 검토 |
 | src/ttareungi_support/channels/discord_bot.py | R04 | R02 본체 계약·R01 Compose/비밀·R05 비공개/오류 | Discord Gateway·초기 응답·모의 사용자 매핑·최종 전송. 구현 전 |
@@ -49,7 +50,7 @@
 | workflows/*-handoff.json·*-state.json·*-dlq.json·*-errors.json | R04 | R02 공개 계약·R05 오류/복구 | Jira·조회·알림·저장·처리권·DLQ |
 | knowledge/manifest.json·public/·restricted/ | R03 | R04 권한/모의 정책·R05 근거 | 지식·출처·적용 범위·버전/권한 |
 | data/users.json·records.json | R04 | R03 권한 입력·R05 정답 연결 | 모의 사용자/소유권·API공급 방법 |
-| cases/common.json·team.json·team-extended.json·requests/ | R05 | R02/R03/R04 관련 기대값 | 공통 판정 유지·시나리오/기능/데이터 연결 |
+| cases/common.json·team.json·team-extended.json·p11-entry.json·requests/ | R05 | R02/R03/R04 관련 기대값 | 공통 판정 유지·시나리오/기능/데이터 연결 |
 | runs/public/·docs/project/images/·docs/project/EXECUTION-RESULT.md | R05 | 전원 담당 증거·R01 제출 | 공개 JSON/Markdown 요약·실패/재시험·결과서. 원시 runs/화면은 로컬/팀 내부·제출 패키지로 구분 |
 | scripts/README.md·scripts/dev/ | R01 | R04 저장/배포·R05 재현 | 공통 사용법 취합·환경/배포 도구 |
 | scripts/test/ | R05 | R02/R03/R04 대상 기능 | 시험·검색 비교·측정 재현. R03이 검색 평가 로직 제공 |
@@ -138,7 +139,11 @@ Discord 이용자 입구와 Jira 티켓 관리는 사용자 결정이며 주제 
 | 2026-11-02 | 시민 요청·정상 신규 문의 전체 티켓화·자동 답변 후 종료 및 담당 이관 반영 | TOPIC v0.2와 범위 일치 |
 
 - 2026-11-04 v0.11 변경: infra/vm-preflight.md를 R01 환경/배포 안내 경로로 추가. 기존 R04 저장·R05 재현 검토 책임은 유지한다.
+- 2026-11-05 v0.12 변경: PostgreSQL 전용 Compose/배포 준비 안내의 R01 편집·R04 저장/권한·R05 복원 검토 경로를 추가. 실제 VM DB 채택/적용·역할 검토 완료를 뜻하지 않는다.
 
 - 2026-11-04 R05 인계 추가: cases/team-extended.json은 R05 주 담당, R02/R03/R04 관련 기대값 검토다. 파일은 r05/p06-flow-cases의 병합 후보에 있으며 이 책임 등록이 구현 병합·시험 통과를 뜻하지 않는다.
 
 - 2026-11-05 v0.13 변경: R04 사용자 API 후보와 R01 통합 인계 경로 책임 명시. 기능 대리 편집·검토 승인·VM 배포 완료를 부여하지 않는다.
+- 2026-11-05 v0.13: cases/p11-entry.json을 R05 소유·R02/R04 검토의 P11 골격 전용 임시 사례로 등록했다. team-extended.json의 기존 책임은 유지한다. 사용자가 R01에게 run_cases.py의 hook 실패 중단·관련 회귀시험 대리 수정을 인계했으며, 범위와 검증은 개발 원장의 P13/P25 기록을 따른다. 이후 시험 도구 책임은 R05가 유지한다.
+
+- 2026-11-05 v0.14: 사용자 API/팀 통합 인계와 P11 사례·R01 hook 대리 수정 인계를 함께 보존한다. 별도 역할 승인이나 새 배포 권한을 부여하지 않는다.

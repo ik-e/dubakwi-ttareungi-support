@@ -1,0 +1,51 @@
+{
+  "run_id": "20261105-141233-local-postgres-deploy-prep",
+  "execution_date": "2026-11-05",
+  "timezone": "Asia/Seoul",
+  "tasks": ["P04", "P18"],
+  "owner": "R01",
+  "reviewer": "R04 storage/permissions; R05 future runtime and restore validation",
+  "base_commit": "eb37e0f9ca4c348fe43c2b8a469db4df23992e92",
+  "blocked_storage_pr": {"number": 23, "commit": "a2d8fcab5373a8b1b95e4905cbadf40baaa278bf", "state": "changes_requested"},
+  "environment": "local Windows, Python3.12.10, Docker Compose5.6.1; registry metadata lookup only",
+  "configuration_version": "infra/postgres-compose.yaml initial preparation and postgres-deployment.md v0.1; VM not applied",
+  "image": {
+    "tag": "postgres:16.15-bookworm",
+    "registry_inspection": "docker buildx imagetools inspect",
+    "index_digest": "sha256:e8a07d2c7579b038938cdba6c539e580e5001caf9ea203d397b5cc83e76bd938",
+    "linux_amd64_manifest": "sha256:cf5d353f55240ecc2f811827a15c7d1f2d562f08019b49dca12b5a59f4ab5962",
+    "linux_arm64_v8_manifest": "sha256:c7d8cf162cb365b478761fa957ff4e58c2cd0ee748c6084056955de0dda9abf4",
+    "source_revision": "9d15534160ade17f2b6c455a39ee967c49b1937d",
+    "vm_architecture_rechecked": false
+  },
+  "compose_checks": {
+    "valid_config": "pass",
+    "single_postgres_service": true,
+    "n8n_service_included": false,
+    "published_ports": [],
+    "host_network": false,
+    "dedicated_external_volume": true,
+    "existing_external_network": true,
+    "file_secrets": 3,
+    "plaintext_password_in_environment": false,
+    "tcp_auth": "scram-sha-256",
+    "digest_pinned": true,
+    "automatic_migration_mount": false,
+    "missing_required_value_cases": [
+      {"variable": "DUBAKWI_POSTGRES_DATA_VOLUME", "blocked": true},
+      {"variable": "DUBAKWI_POSTGRES_N8N_NETWORK", "blocked": true},
+      {"variable": "DUBAKWI_POSTGRES_BOOTSTRAP_PASSWORD_FILE", "blocked": true},
+      {"variable": "DUBAKWI_POSTGRES_OWNER_PASSWORD_FILE", "blocked": true},
+      {"variable": "DUBAKWI_POSTGRES_RUNTIME_PASSWORD_FILE", "blocked": true}
+    ]
+  },
+  "test_data": "temporary fake secret files and fake resource names only; no real credentials",
+  "effects": {"vm_calls": 0, "docker_resource_mutations": 0, "real_secret_generation": 0, "credential_registration": 0, "workflow_changes": 0},
+  "local_document_checks": {"files": 20, "links": 437, "anchors": 50, "errors": 0},
+  "public_candidate_checks": {"files": 136, "links": 511, "errors": 0},
+  "json_diff_checks": "pass",
+  "review_topics": ["image/storage/driver compatibility", "network and TLS boundary", "owner/runtime roles and grants", "fresh/upgrade migration order", "backup/restore ownership, ACLs and snapshots", "n8n Credential fields and workflow IDs"],
+  "not_run": ["VM resources and architecture verification", "VM PostgreSQL startup", "role/DB provisioning commands", "SQL migration application", "TCP authentication", "backup/restore", "restart persistence", "n8n Credential connection", "S1 or P19 acceptance"],
+  "limits": ["Preparation validation does not adopt or deploy a service database.", "PR23 fixes, reviewed main SQL, D01 and R04 review remain application conditions.", "No dedicated internal:true network was created; existing Docker bridge peers/TLS must be reviewed.", "tscan/Gitleaks unavailable; public-candidate audit is only a partial substitute."],
+  "report": "report.md"
+}
