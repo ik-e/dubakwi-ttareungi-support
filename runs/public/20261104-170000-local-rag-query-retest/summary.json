@@ -1,0 +1,141 @@
+{
+  "executed_at": "2026-11-04T17:25:43+09:00",
+  "environment": "local n8n 1.120.4, text-embedding-3-large, in-memory demo partitions",
+  "search_workflow_sha256": "ac037b2b4e5f7697e91a4343948d0ceaeb89f67bd210c5a3a7fe9ba806f5fa71",
+  "index": "local authenticated webhook test copy of manual workflow",
+  "cases": [
+    {
+      "id": "Q02",
+      "question": "대여가 안 돼요",
+      "expected_doc": "rental-guide",
+      "expected_section": "연결과 대여 실패",
+      "status": "ok",
+      "results": [
+        {
+          "doc": "rental-guide",
+          "section": "연결과 대여 실패",
+          "score": 0.5597,
+          "access_level": "public"
+        },
+        {
+          "doc": "rental-guide",
+          "section": "QR 인식 또는 잠금 해제가 어려운 경우",
+          "score": 0.4479,
+          "access_level": "public"
+        },
+        {
+          "doc": "return-guide",
+          "section": "임시잠금",
+          "score": 0.4389,
+          "access_level": "public"
+        },
+        {
+          "doc": "return-guide",
+          "section": "반납이 완료되지 않을 때",
+          "score": 0.4129,
+          "access_level": "public"
+        },
+        {
+          "doc": "rental-guide",
+          "section": "대여 준비와 시작",
+          "score": 0.4084,
+          "access_level": "public"
+        }
+      ],
+      "expected_first": true
+    },
+    {
+      "id": "Q13",
+      "question": "바구니에 물건을 놓고 왔어요",
+      "expected_doc": "support-followup",
+      "expected_section": "분실물·습득물",
+      "status": "ok",
+      "results": [
+        {
+          "doc": "support-followup",
+          "section": "분실물·습득물",
+          "score": 0.6316,
+          "access_level": "public"
+        },
+        {
+          "doc": "support-followup",
+          "section": "분실물 접수 — 교육용 가상 설정",
+          "score": 0.5813,
+          "access_level": "public"
+        },
+        {
+          "doc": "return-guide",
+          "section": "반납이 완료되지 않을 때",
+          "score": 0.5279,
+          "access_level": "public"
+        },
+        {
+          "doc": "breakdown-report",
+          "section": "방치·도난 신고",
+          "score": 0.5104,
+          "access_level": "public"
+        },
+        {
+          "doc": "return-guide",
+          "section": "임시잠금",
+          "score": 0.4553,
+          "access_level": "public"
+        }
+      ],
+      "expected_first": true
+    },
+    {
+      "id": "return",
+      "question": "반납이 안돼서 대여 중으로 떠요",
+      "expected_doc": "return-guide",
+      "expected_section": null,
+      "status": "ok",
+      "results": [
+        {
+          "doc": "return-guide",
+          "section": "반납이 완료되지 않을 때",
+          "score": 0.3926,
+          "access_level": "public"
+        },
+        {
+          "doc": "return-guide",
+          "section": "임시잠금",
+          "score": 0.3727,
+          "access_level": "public"
+        },
+        {
+          "doc": "return-guide",
+          "section": "반납 방법",
+          "score": 0.3626,
+          "access_level": "public"
+        },
+        {
+          "doc": "fees-refund-guide",
+          "section": "기본 이용시간과 추가요금",
+          "score": 0.3582,
+          "access_level": "public"
+        },
+        {
+          "doc": "rental-guide",
+          "section": "대여 취소",
+          "score": 0.339,
+          "access_level": "public"
+        }
+      ],
+      "expected_first": true
+    },
+    {
+      "id": "WF03",
+      "question": "따릉이를 해외 여행에 가져가서 한 달 동안 써도 되나요?",
+      "expected_doc": null,
+      "expected_section": null,
+      "status": "empty",
+      "results": [],
+      "expected_first": true
+    }
+  ],
+  "limitations": [
+    "Local search copy bound to local credentials; manual index JSON and server authorization not tested.",
+    "Four cases only; not R05 official judgment or VM test."
+  ]
+}
