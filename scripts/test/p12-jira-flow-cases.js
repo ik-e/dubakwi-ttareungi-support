@@ -2,10 +2,19 @@
 // n8n을 실행하지 않는 구조·분기 시험이며 실제 Jira 호출 증거가 아니다.
 const fs = require("fs");
 const path = require("path");
+const crypto = require("crypto");
+const labelFor = (scope, owner, rid) => "dubakwi-" + crypto.createHash("sha256").update(JSON.stringify([scope, owner, rid])).digest("hex").slice(0, 40);
 
 const root = path.resolve(__dirname, "../..");
 const workflow = JSON.parse(fs.readFileSync(path.join(root, "workflows", "dubakwi-handoff.json"), "utf8"));
 const nodes = new Map(workflow.nodes.map((node) => [node.name, node]));
+
+const linkFields = (over = {}) => ({
+  labels: [labelFor("dubakwi-team", "citizen-a", "req-1")],
+  description: ["[두바퀴 문의 접수]", "case_id: case-1", "first_request_id: req-1"].join("\n"),
+  status: {statusCategory: {key: "indeterminate"}},
+  ...over,
+});
 
 const stateRef = (rev) => ({
   scope: "dubakwi-team", request_id: "req-1", owner_id: "citizen-a", input_hash: "a".repeat(64), execution_id: "exec-1", state_revision: rev,
@@ -78,7 +87,8 @@ expect(r.body.error_code === null && r.body.ticket_id === "JBYS-10", "close succ
 expect(["created_or_reused", "context_saved", "closed"].every((k) => r.body.effects[k].status === "confirmed"), "close effects", r.body.effects);
 expect(r.body.state_ref.state_revision === 3, "bind result must replace state_ref", r.body.state_ref);
 const create = r.calls.find((c) => c.node === "H05 Jira 티켓 생성").req;
-expect(create.body.fields.labels[0] === "dubakwi-req-1" && create.body.fields.project.key === "JBYS", "create body", create);
+expect(create.body.fields.labels[0] === labelFor("dubakwi-team", "citizen-a", "req-1") && create.body.fields.project.key === "JBYS", "create body", create);
+expect(create.body.fields.description.split("\n").includes("case_id: case-1") && create.body.fields.description.split("\n").includes("first_request_id: req-1"), "description must carry the case identity lines", create);
 expect(!/010-1234-5678|a@b\.com/.test(JSON.stringify(r.calls)), "personal data reached Jira", r.calls);
 expect(r.calls.map((c) => c.op ?? c.node).join(">").indexOf("prepare") === 0, "prepare must precede Jira", r.calls);
 
@@ -93,7 +103,7 @@ r = run("wait", happy);
 expect(r.body.error_code === null && r.body.effects.created_or_reused.status === "confirmed" && r.body.effects.closed.status === "none", "wait", r.body);
 
 // 4. 같은 first_request_id가 이미 있으면 새로 만들지 않는다(WF-09)
-r = run("close", withJira({"H29 Jira 기존 건 조회": {statusCode: 200, body: {issues: [{id: "10004", key: "JBYS-2"}]}}}));
+r = run("close", withJira({"H29 Jira 기존 건 조회": {statusCode: 200, body: {issues: [{id: "10004", key: "JBYS-2", fields: linkFields()}]}}}));
 expect(r.body.ticket_id === "JBYS-2" && !r.calls.some((c) => c.node === "H05 Jira 티켓 생성"), "duplicate must reuse", r);
 
 // 5. 중복 조회 실패면 생성하지 않는다
@@ -141,7 +151,7 @@ for (const map of ["{}", "__ASSIGNEE_MAP_JSON__", "not json", '{"security":"acct
 }
 
 // 13. 보완(wait)에서 기존 Jira 이슈를 재사용하면 보완 횟수를 Jira에 남기고, 새로 만든 경우에는 추가로 쓰지 않는다
-const existing = {"H29 Jira 기존 건 조회": {statusCode: 200, body: {id: "10004", key: "JBYS-2", fields: {labels: ["dubakwi-req-1"], status: {statusCategory: {key: "indeterminate"}}}}}};
+const existing = {"H29 Jira 기존 건 조회": {statusCode: 200, body: {id: "10004", key: "JBYS-2", fields: linkFields()}}};
 r = run("wait", withJira(existing), {req: {ticket_id: "JBYS-2", attempt: 3}});
 const note = r.calls.find((c) => c.node === "H46 Jira 보완 횟수 저장");
 expect(r.body.error_code === null && r.body.effects.context_saved.status === "confirmed" && note && /보완 횟수: 3/.test(note.req.body.body), "attempt must be saved on reuse", r);
@@ -155,9 +165,11 @@ for (const bad of [{statusCode: 403, body: {}}, {statusCode: 503, body: {}}, und
 
 // 14. 키로 재사용하는 이슈는 JBYS 문의이고 이 문의 label이 있어야 한다(다른 이슈에는 쓰지 않는다)
 for (const [name, body] of [
-  ["other label", {id: "1", key: "JBYS-9", fields: {labels: ["dubakwi-someone-else"]}}],
-  ["no labels", {id: "1", key: "JBYS-9", fields: {labels: []}}],
-  ["other project", {id: "2", key: "OTHER-1", fields: {labels: ["dubakwi-req-1"]}}],
+  ["other label", {id: "1", key: "JBYS-9", fields: linkFields({labels: ["dubakwi-someone-else"]})}],
+  ["no labels", {id: "1", key: "JBYS-9", fields: linkFields({labels: []})}],
+  ["other project", {id: "2", key: "OTHER-1", fields: linkFields()}],
+  ["other case", {id: "3", key: "JBYS-9", fields: linkFields({description: "case_id: case-other\nfirst_request_id: req-1"})}],
+  ["no description", {id: "4", key: "JBYS-9", fields: linkFields({description: ""})}],
 ]) {
   r = run("close", withJira({"H29 Jira 기존 건 조회": {statusCode: 200, body}}), {req: {ticket_id: body.key}});
   expect(r.body.error_code === "tickets_down" && r.body.effects.created_or_reused.error_code === "ticket_not_linked", `${name} must not be reused`, r.body);
@@ -165,8 +177,44 @@ for (const [name, body] of [
 }
 
 // 15. 이미 완료된 이슈를 다시 닫는 재시도는 Jira 쓰기 없이 성공으로 끝난다
-const done = {"H29 Jira 기존 건 조회": {statusCode: 200, body: {id: "10004", key: "JBYS-2", fields: {labels: ["dubakwi-req-1"], status: {statusCategory: {key: "done"}}}}}};
+const done = {"H29 Jira 기존 건 조회": {statusCode: 200, body: {id: "10004", key: "JBYS-2", fields: linkFields({status: {statusCategory: {key: "done"}}})}}};
 r = run("close", withJira(done), {req: {ticket_id: "JBYS-2"}});
 expect(r.body.error_code === null && r.body.effects.closed.status === "confirmed" && !r.calls.some((c) => c.node === "H08 Jira 안내 종료"), "already resolved close must be idempotent and not write", r);
 
-console.log("P12 handoff Jira flow: 15 scenarios passed");
+// 16. 검색 결과가 여러 건이거나 이 문의 것이 아니면 재사용도 새 생성도 하지 않는다
+const search = (issues) => withJira({"H29 Jira 기존 건 조회": {statusCode: 200, body: {issues}}});
+const mine = {id: "10004", key: "JBYS-2", fields: linkFields()};
+const writes = ["H05 Jira 티켓 생성", "H17 티켓 연결 저장", "H32 Jira 전환 조회", "H08 Jira 안내 종료", "H09 Jira 맥락 저장·배정"];
+for (const [name, issues, code] of [
+  ["two results", [mine, {id: "10005", key: "JBYS-3", fields: linkFields()}], "ticket_ambiguous"],
+  ["other case", [{id: "1", key: "JBYS-9", fields: linkFields({description: "case_id: case-other\nfirst_request_id: req-1"})}], "ticket_not_linked"],
+  ["other first request", [{id: "1", key: "JBYS-9", fields: linkFields({description: "case_id: case-1\nfirst_request_id: req-other"})}], "ticket_not_linked"],
+  ["other owner label", [{id: "1", key: "JBYS-9", fields: linkFields({labels: [labelFor("dubakwi-team", "citizen-b", "req-1")]})}], "ticket_not_linked"],
+  ["other scope label", [{id: "1", key: "JBYS-9", fields: linkFields({labels: [labelFor("other-scope", "citizen-a", "req-1")]})}], "ticket_not_linked"],
+  ["no description", [{id: "1", key: "JBYS-9", fields: linkFields({description: ""})}], "ticket_not_linked"],
+  ["other project key", [{id: "1", key: "OTHER-5", fields: linkFields()}], "ticket_not_linked"],
+]) {
+  r = run("close", search(issues));
+  expect(r.body.error_code === "tickets_down" && r.body.effects.created_or_reused.error_code === code, `${name} must not be reused`, r.body);
+  expect(!r.calls.some((c) => writes.includes(c.node)), `${name} must not create, bind or write`, r.calls);
+}
+r = run("close", search([mine]));
+expect(r.body.error_code === null && r.body.ticket_id === "JBYS-2" && !r.calls.some((c) => c.node === "H05 Jira 티켓 생성"), "a single matching result is reused", r.body);
+
+// 17. 요청 ID 변환 충돌 방지: req.a·req/a·req_a와 다른 scope·소유자는 서로 다른 label이어야 한다
+const seen = new Set();
+for (const [scope, owner, rid] of [
+  ["dubakwi-team", "citizen-a", "req.a"],
+  ["dubakwi-team", "citizen-a", "req/a"],
+  ["dubakwi-team", "citizen-a", "req_a"],
+  ["other-scope", "citizen-a", "req.a"],
+  ["dubakwi-team", "citizen-b", "req.a"],
+]) {
+  r = run("close", happy, {req: {first_request_id: rid, state_ref: {...stateRef(1), scope, owner_id: owner}}});
+  const made = r.calls.find((c) => c.node === "H05 Jira 티켓 생성").req.body.fields.labels[0];
+  expect(made === labelFor(scope, owner, rid) && !seen.has(made), `label for ${scope}/${owner}/${rid} must be unique`, made);
+  seen.add(made);
+}
+expect(seen.size === 5, "five distinct labels", [...seen]);
+
+console.log("P12 handoff Jira flow: 17 scenarios passed");

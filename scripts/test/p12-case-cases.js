@@ -2,6 +2,8 @@
 // n8n·PostgreSQL·Jira를 실제로 실행하지 않는 구조·분기 시험이며 DB 함수 자체는 infra/db/verification/case-contract.sql이 맡는다.
 const fs = require("fs");
 const path = require("path");
+const crypto = require("crypto");
+const labelFor = (scope, owner, rid) => "dubakwi-" + crypto.createHash("sha256").update(JSON.stringify([scope, owner, rid])).digest("hex").slice(0, 40);
 
 const root = path.resolve(__dirname, "../..");
 const workflow = JSON.parse(fs.readFileSync(path.join(root, "workflows", "dubakwi-state.json"), "utf8"));
@@ -55,7 +57,19 @@ const expect = (cond, msg, value) => {
   if (!cond) throw new Error(`${msg}: ${JSON.stringify(value)}`);
 };
 const needVerification = () => ({request_id: "req-2", mode: "error", state_ref: null, support: null, facts: null, response: null, http_status: 503, error_code: "case_verification_required"});
-const jiraIssue = (category, text = "보완 횟수: 1") => ({statusCode: 200, body: {key: "JBYS-10", fields: {status: {statusCategory: {key: category}}, description: text, comment: {comments: [{body: "[두바퀴 담당자 이관]\n보완 횟수: 2"}]}}}});
+const jiraIssue = (category, text = "보완 횟수: 1", over = {}) => ({
+  statusCode: 200,
+  body: {
+    key: "JBYS-10",
+    fields: {
+      labels: [labelFor("dubakwi-team", "citizen-a", "req-1")],
+      status: {statusCategory: {key: category}},
+      description: ["case_id: case-abc", "first_request_id: req-1", text].join("\n"),
+      comment: {comments: [{body: "[두바퀴 담당자 이관]\n보완 횟수: 2"}]},
+      ...over,
+    },
+  },
+});
 const ownedCase = {ok: true, found: true, owner_match: true, busy: false, jira_issue_key: "JBYS-10", first_request_id: "req-1"};
 const base = (over) => ({state_apply: needVerification, case_lookup: () => ownedCase, case_begin: () => ({mode: "proceed"}), jira: jiraIssue("indeterminate"), ...over});
 
@@ -92,6 +106,18 @@ for (const [name, fake] of [
 ]) {
   r = run(beginInput(), fake);
   expect(r.result.mode === "error" && r.result.http_status === 503 && !r.calls.some((c) => c.sql === "case_begin"), `${name} must fail closed`, r);
+}
+
+
+// 4b. Jira 이슈가 이 case의 것이 아니면(키·소유자 label·case_id) 이어 가지 않는다
+for (const [name, jira] of [
+  ["other label", jiraIssue("indeterminate", "보완 횟수: 1", {labels: [labelFor("dubakwi-team", "citizen-b", "req-1")]})],
+  ["other scope", jiraIssue("indeterminate", "보완 횟수: 1", {labels: [labelFor("other-scope", "citizen-a", "req-1")]})],
+  ["other case", jiraIssue("indeterminate", "보완 횟수: 1", {description: "case_id: case-other\nfirst_request_id: req-1"})],
+  ["other key", {statusCode: 200, body: {key: "JBYS-99", fields: jiraIssue("indeterminate").body.fields}}],
+]) {
+  r = run(beginInput(), base({jira}));
+  expect(r.result.mode === "error" && r.result.http_status === 503 && r.result.error_code === "case_verification_required" && !r.calls.some((c) => c.sql === "case_begin"), `${name} must not continue the case`, r);
 }
 
 // 5. case_ref가 없거나 이미 판정된 begin은 보완 경로를 타지 않는다

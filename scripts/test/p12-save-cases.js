@@ -2,6 +2,8 @@
 // n8n·PostgreSQL·Jira를 실제로 실행하지 않는 구조·분기 시험이다.
 const fs = require("fs");
 const path = require("path");
+const crypto = require("crypto");
+const labelFor = (scope, owner, rid) => "dubakwi-" + crypto.createHash("sha256").update(JSON.stringify([scope, owner, rid])).digest("hex").slice(0, 40);
 
 const root = path.resolve(__dirname, "../..");
 const workflow = JSON.parse(fs.readFileSync(path.join(root, "workflows", "dubakwi-state.json"), "utf8"));
@@ -58,10 +60,16 @@ function run(input, jira) {
 const expect = (cond, msg, value) => {
   if (!cond) throw new Error(`${msg}: ${JSON.stringify(value)}`);
 };
-const issue = (labels) => ({statusCode: 200, body: {key: "JBYS-10", fields: {labels, status: {name: "Pending"}}}});
+const linked = (over = {}) => ({
+  labels: [labelFor("dubakwi-team", "citizen-a", "req-1")],
+  description: "case_id: case-1\nfirst_request_id: req-1",
+  status: {name: "Pending"},
+  ...over,
+});
+const issue = (fields) => ({statusCode: 200, body: {key: "JBYS-10", fields}});
 
 // 1. Jira 문맥 확인 통과 → finish로 저장하고 ok:true, 새 state_ref
-let r = run(saveInput(), issue(["dubakwi-req-1"]));
+let r = run(saveInput(), issue(linked()));
 expect(r.result.ok === true && r.result.state_ref.state_revision === 4 && r.result.error_code === null, "save success", r.result);
 expect(r.calls.map((c) => c.jira ?? c.sql).join(",").endsWith("finish") && r.calls[0].jira.startsWith("/rest/api/2/issue/JBYS-10"), "jira check then finish", r.calls);
 expect(r.result.recovery && r.result.recovery.mode === "manual_required", "save result must carry recovery", r.result);
@@ -71,9 +79,13 @@ for (const [name, input, jira, code] of [
   ["jira 5xx", saveInput(), {statusCode: 503, body: {}}, "tickets_down"],
   ["jira 404", saveInput(), {statusCode: 404, body: {}}, "tickets_down"],
   ["no response", saveInput(), undefined, "tickets_down"],
-  ["other label", saveInput(), issue(["dubakwi-other"]), "state_error"],
-  ["other key", saveInput(), {statusCode: 200, body: {key: "JBYS-99", fields: {labels: ["dubakwi-req-1"]}}}, "tickets_down"],
-  ["version given", saveInput({expected_case_version: 5}), issue(["dubakwi-req-1"]), "tickets_down"],
+  ["other label", saveInput(), issue(linked({labels: ["dubakwi-other"]})), "state_error"],
+  ["other owner", saveInput(), issue(linked({labels: [labelFor("dubakwi-team", "citizen-b", "req-1")]})), "state_error"],
+  ["other scope", saveInput(), issue(linked({labels: [labelFor("other-scope", "citizen-a", "req-1")]})), "state_error"],
+  ["other case", saveInput(), issue(linked({description: "case_id: case-other\nfirst_request_id: req-1"})), "state_error"],
+  ["no description", saveInput(), issue(linked({description: ""})), "state_error"],
+  ["other key", saveInput(), {statusCode: 200, body: {key: "JBYS-99", fields: linked()}}, "tickets_down"],
+  ["version given", saveInput({expected_case_version: 5}), issue(linked()), "tickets_down"],
 ]) {
   r = run(input, jira);
   expect(r.result.ok === false && r.result.error_code === code && r.result.state_ref.state_revision === 3, `${name} must fail closed`, r.result);
@@ -82,7 +94,7 @@ for (const [name, input, jira, code] of [
 }
 
 // 3. 계약 오류는 Jira·SQL 호출 없이 거절(기존 동작 유지)
-r = run(saveInput({ticket_id: ""}), issue(["dubakwi-req-1"]));
+r = run(saveInput({ticket_id: ""}), issue(linked()));
 expect(r.result.ok === false && r.result.error_code === "invalid_state_request" && r.calls.length === 0, "invalid save", r);
 
 // 4. save가 아닌 명령은 Jira를 거치지 않는다

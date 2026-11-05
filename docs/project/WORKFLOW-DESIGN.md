@@ -3,7 +3,7 @@
 전체 구성·상태 관계·기능/시나리오 추적은 [최상위 시스템 설계서](SYSTEM-DESIGN.md)를 먼저 읽는다. 이 문서는 노드·엣지와 업무 계약의 상세 원본이다.
 
 - 작성: 2026-11-02 / 개정: 2026-11-05 KST
-- 버전·상태: **v0.15 / P12 handoff Jira 생성·종료·이관·조회·보완 횟수와 state save·case_ref 초안 반영(변경 행: H04·H05·H08·H09·H11·H17·H21·H22·H45~H48, 실행 증거 [runs/public/20261105-192700-team-n8n-r04-jira-close](../../runs/public/20261105-192700-team-n8n-r04-jira-close/report.md))**. 이전 v0.14 /  P11 support 골격 JSON·역할 프롬프트 초안·B05 사용자 응답 검증 추가**, 공동 검토 전. 골격은 로컬 Code 시험과 로컬 n8n Webhook 호출까지 확인했고 VM 실행·공식 판정은 전.
+- 버전·상태: **v0.15 / P12 handoff Jira 생성·종료·이관·조회·보완 횟수와 state save·case_ref 초안 반영(변경 행: H04·H05(충돌 방지 label·문의 연결 검증)·H08·H09·H11·H17·H21·H22·H45~H48, 실행 증거 [runs/public/20261105-192700-team-n8n-r04-jira-close](../../runs/public/20261105-192700-team-n8n-r04-jira-close/report.md))**. 이전 v0.14 /  P11 support 골격 JSON·역할 프롬프트 초안·B05 사용자 응답 검증 추가**, 공동 검토 전. 골격은 로컬 Code 시험과 로컬 n8n Webhook 호출까지 확인했고 VM 실행·공식 판정은 전.
 - [공식 템플릿 — 공개본 제외 자료](../../docs/PUBLIC-SOURCES.md)의 8개 절 유지. 범위는 [TOPIC](TOPIC.md), 역할은 [팀 헌장](TEAM-CHARTER.md), 배정·구현 순서는 [개발 계획](../DEVELOPMENT-PLAN.md).
 - **티켓 최초 생성 위치를 뒤로 이동**했다. 일반 안내는 답변·검증 후 생성/종료, 정보 부족은 보완 질문 준비 후 생성/대기, 긴급은 분류 직후 생성/이관한다.
 
@@ -457,7 +457,7 @@ B28은 먼저 error_code=null && state_saved=true && 최신 state_ref를 확인�
 | H02 고정 기능 검사 | Code | WebhookBody.body | ToolCtx | kind=process/lookup, actor·owner·key·역할·action 검사. disabled 조회는 skip |
 | H03 기능 분기 | Switch | ToolCtx.kind | ToolCtx | out0 lookup;out1 skip;out2 process→H14 생성 계획 저장;fallback invalid |
 | H04 본인 대상 조회 | HTTP Request | actor_id,target_ticket_id | Raw | GET http://dubakwi-user-api:8801/records/<id>?requester=<actor> (내부 Header Auth, full response·neverError·timeout 1.5초, 1회 시도(호출자 B15 시간 제한 안에 끝내려고 재시도 없음)). 서버가 owner를 판정하며 requester는 서버 확인 actor만 사용 |
-| H05 티켓 생성·재사용 | HTTP Request | TicketRequest | Raw | H15 저장 확인 뒤 H23~H25가 label `dubakwi-<first_request_id>`로 기존 건을 먼저 찾고 없을 때만 POST /rest/api/2/issue(프로젝트 JBYS·유형 10006·가린 요약/설명). 주소는 자리표시자 __JIRA_BASE_URL__(가져올 때 환경 값으로 치환, 변수 기능은 라이선스 없음), 인증은 n8n Jira Credential. 중복 조회 실패면 생성하지 않는다. 쓰기 timeout 3.5초·재시도 없음 |
+| H05 티켓 생성·재사용 | HTTP Request | TicketRequest | Raw | H15 저장 확인 뒤 H23~H25가 문의 label `dubakwi-<SHA-256(scope,소유자,첫 요청 ID) 앞 40자>`(요청 ID 문자 변환 충돌 없음, scope·소유자 포함)로 기존 건을 먼저 찾는다. 결과가 1건이고 키(JBYS-숫자)·label·본문의 case_id·first_request_id 줄이 모두 일치할 때만 재사용하고, 여러 건이면 ticket_ambiguous, 일치하지 않으면 ticket_not_linked로 실패해 생성·재사용·쓰기를 하지 않는다. 기존 건이 없을 때만 POST /rest/api/2/issue(프로젝트 JBYS·유형 10006·가린 요약/설명). 주소는 자리표시자 __JIRA_BASE_URL__(가져올 때 환경 값으로 치환, 변수 기능은 라이선스 없음), 인증은 n8n Jira Credential. 중복 조회 실패면 생성하지 않는다. 쓰기 timeout 3.5초·재시도 없음 |
 | H06 티켓 식별 확인 | Code | Raw+H02.ToolCtx | ToolCtx | 생성/조회 결과를 created/failed/unknown으로 분리,알려진 Jira ID/key 보존·has_ticket 판정. state_ref는 H14의 현재 값 복원 |
 | H07 티켓 결과 분기 | Switch | ToolCtx.action | ToolCtx | H18 저장결과 검증 후 out0 close;out1 wait;out2 handoff;fallback failed. 다음 외부 동작 준비가 저장되지 않으면 fallback |
 | H08 안내·거절 종료 | HTTP Request | ticket_id,answer,facts,status,attempt | Raw | H17 bind(next_step=H08) 저장 뒤 H31~H33이 전환 목록을 읽어 이름(Resolved/완료)으로 전환을 고르고(전환 ID 고정 금지) 필요한 Resolution을 허용 값에서 고른다. 맥락 댓글과 종료를 한 번의 POST로 보낸다. Resolution 값이 없거나 전환이 없으면 호출 없이 closed=failed·partial_effect·recovery(close,jira_ref) |
