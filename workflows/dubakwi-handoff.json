@@ -1,6 +1,6 @@
 {
   "id": "dubakwiHandoff01",
-  "name": "dubakwi-handoff · P12 state-gated fail-closed",
+  "name": "dubakwi-handoff · P12 Jira 연동",
   "nodes": [
     {
       "name": "H01 도구 요청",
@@ -81,83 +81,6 @@
       "position": [
         780,
         -100
-      ]
-    },
-    {
-      "name": "H15 저장 결과 판정",
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
-      "parameters": {
-        "jsCode": "const original = $('H02 요청 계약 검사').item.json.request;\nconst state = $json;\nconst effect = () => ({status:'none'});\nconst effects = () => ({created_or_reused:effect(),context_saved:effect(),closed:effect(),assigned:effect(),alert:effect()});\nif (state.ok !== true || state.skipped === true || !state.state_ref) return [{json:{route:'respond',body:{request_id:original.request_id,ticket_id:original.ticket_id??null,case_version:null,state_saved:false,state_ref:null,recovery:{version:1,mode:'manual_required',action:'create',args:null,reference:null,reason:'Jira 실행 전 상태 저장 실패'},effects:effects(),error_code:'state_error'},http_status:200}}];\nreturn [{json:{route:'fail',op:'fail',state_ref:state.state_ref,args:{status:'failed',current_step:'H05',error_code:'tickets_down'},request:original}}];"
-      },
-      "position": [
-        1040,
-        -100
-      ]
-    },
-    {
-      "name": "H16 실패 상태 저장 필요",
-      "type": "n8n-nodes-base.if",
-      "typeVersion": 2.2,
-      "parameters": {
-        "conditions": {
-          "options": {
-            "version": 2,
-            "caseSensitive": true,
-            "leftValue": ""
-          },
-          "combinator": "and",
-          "conditions": [
-            {
-              "id": "p12-fail",
-              "leftValue": "={{ $json.route === 'fail' }}",
-              "rightValue": "",
-              "operator": {
-                "type": "boolean",
-                "operation": "true",
-                "singleValue": true
-              }
-            }
-          ]
-        },
-        "options": {}
-      },
-      "position": [
-        1300,
-        -100
-      ]
-    },
-    {
-      "name": "H17 Jira 미연결 상태 저장",
-      "type": "n8n-nodes-base.executeWorkflow",
-      "typeVersion": 1.2,
-      "parameters": {
-        "source": "database",
-        "workflowId": {
-          "__rl": true,
-          "value": "dubakwiState01",
-          "mode": "list",
-          "cachedResultName": "dubakwi-state"
-        },
-        "options": {
-          "waitForSubWorkflow": true
-        }
-      },
-      "position": [
-        1560,
-        -180
-      ]
-    },
-    {
-      "name": "H18 안전 응답 구성",
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
-      "parameters": {
-        "jsCode": "const original = $('H02 요청 계약 검사').item.json.request;\nconst result = $json;\nconst effect = () => ({status:'none'});\nreturn [{json:{body:{request_id:original.request_id,ticket_id:original.ticket_id??null,case_version:null,state_saved:result.ok===true&&result.skipped!==true,state_ref:result.state_ref??null,recovery:{version:1,mode:'manual_required',action:'create',args:null,reference:null,reason:'Jira 어댑터 미연결로 외부 작업 차단'},effects:{created_or_reused:effect(),context_saved:effect(),closed:effect(),assigned:effect(),alert:effect()},error_code:'tickets_down'},http_status:200}}];"
-      },
-      "position": [
-        1820,
-        -180
       ]
     },
     {
@@ -261,6 +184,735 @@
         1300,
         300
       ]
+    },
+    {
+      "name": "H15 저장 결과 판정",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "parameters": {
+        "jsCode": "const E = () => ({status:'none'});\nconst mkEffects = () => ({created_or_reused:E(),context_saved:E(),closed:E(),assigned:E(),alert:E()});\nconst maskText = (s) => String(s ?? '').replace(/\\b0\\d{1,2}[-. ]?\\d{3,4}[-. ]?\\d{4}\\b/g,'***-****-****').replace(/[\\w.+-]+@[\\w-]+\\.[\\w.-]+/g,'***@***');\nconst original = $('H02 요청 계약 검사').item.json.request;\nconst st = $json;\nconst effects = mkEffects();\nconst okRef = st.ok === true && st.skipped !== true && st.state_ref && typeof st.state_ref === 'object';\nif (!okRef) return [{json:{route:'respond',http_status:200,body:{request_id:original.request_id,ticket_id:original.ticket_id??null,case_version:null,state_saved:false,state_ref:null,recovery:{version:1,mode:'manual_required',action:'create',args:null,reference:null,reason:'Jira 실행 전 상태 저장 실패'},effects,error_code:'state_error'}}}];\nreturn [{json:{route:'jira',ctx:{request:original,state_ref:st.state_ref,ticket:null,effects,error_code:null,recovery:null}}}];"
+      },
+      "position": [
+        780,
+        0
+      ]
+    },
+    {
+      "name": "H16 Jira 실행 허용",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "parameters": {
+        "conditions": {
+          "options": {
+            "version": 2,
+            "caseSensitive": true,
+            "leftValue": ""
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "h16-cond",
+              "leftValue": "={{ $json.route === 'jira' }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "position": [
+        1040,
+        0
+      ]
+    },
+    {
+      "name": "H23 중복 조회 준비",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "parameters": {
+        "jsCode": "const E = () => ({status:'none'});\nconst mkEffects = () => ({created_or_reused:E(),context_saved:E(),closed:E(),assigned:E(),alert:E()});\nconst maskText = (s) => String(s ?? '').replace(/\\b0\\d{1,2}[-. ]?\\d{3,4}[-. ]?\\d{4}\\b/g,'***-****-****').replace(/[\\w.+-]+@[\\w-]+\\.[\\w.-]+/g,'***@***');\nconst ctx = $json.ctx;\nconst r = ctx.request;\nconst label = 'dubakwi-' + String(r.first_request_id).replace(/[^A-Za-z0-9_-]/g, '_').slice(0, 80);\nctx.label = label;\nlet req;\nif (r.ticket_id) req = {mode:'key', method:'GET', path:'/rest/api/2/issue/' + encodeURIComponent(r.ticket_id) + '?fields=status,labels'};\nelse req = {mode:'label', method:'GET', path:'/rest/api/2/search/jql?jql=' + encodeURIComponent('project = JBYS AND labels = \"' + label + '\"') + '&maxResults=2&fields=status,labels'};\nreturn [{json:{ctx, req}}];"
+      },
+      "position": [
+        1300,
+        0
+      ]
+    },
+    {
+      "name": "H29 Jira 기존 건 조회",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "onError": "continueRegularOutput",
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $vars.DUBAKWI_JIRA_BASE + $json.req.path }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "jiraSoftwareCloudApi",
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true,
+              "neverError": true
+            }
+          },
+          "timeout": 2000
+        }
+      },
+      "credentials": {
+        "jiraSoftwareCloudApi": {
+          "name": "dubakwi-Jira SW Cloud account"
+        }
+      },
+      "position": [
+        1560,
+        0
+      ]
+    },
+    {
+      "name": "H24 생성 판정",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "parameters": {
+        "jsCode": "const E = () => ({status:'none'});\nconst mkEffects = () => ({created_or_reused:E(),context_saved:E(),closed:E(),assigned:E(),alert:E()});\nconst maskText = (s) => String(s ?? '').replace(/\\b0\\d{1,2}[-. ]?\\d{3,4}[-. ]?\\d{4}\\b/g,'***-****-****').replace(/[\\w.+-]+@[\\w-]+\\.[\\w.-]+/g,'***@***');\nconst prev = $('H23 중복 조회 준비').item.json;\nconst ctx = prev.ctx;\nconst r = ctx.request;\nconst sc = Number($json.statusCode ?? 0);\nconst body = $json.body;\nconst fail = (code) => { ctx.effects.created_or_reused = {status:'failed', error_code:code}; ctx.error_code = 'tickets_down'; return [{json:{route:'done', ctx}}]; };\nconst known = (id, key, reused) => { ctx.ticket = {id:String(id), key, reused}; ctx.effects.created_or_reused = {status:'confirmed', id:key}; return [{json:{route:'known', ctx}}]; };\nif (prev.req.mode === 'key') {\n  if (sc === 200 && body && body.key) return known(body.id, body.key, true);\n  return fail(sc === 404 ? 'ticket_not_found' : 'jira_read_failed');\n}\n// 중복 조회가 실패하면 중복 여부를 알 수 없으므로 생성하지 않는다.\nif (sc !== 200 || !body || !Array.isArray(body.issues)) return fail('jira_search_failed');\nif (body.issues.length >= 1) return known(body.issues[0].id, body.issues[0].key, true);\nconst facts = r.context ?? {};\nconst lines = [\n  '[두바퀴 문의 접수]',\n  '요약: ' + maskText(facts.summary),\n  '유형: ' + r.category + ' / 우선순위: ' + r.priority + ' / 보완 횟수: ' + r.attempt,\n  '근거: ' + (r.sources || []).map((s) => s.doc + '#' + s.section).join(', '),\n  'case_id: ' + r.case_id,\n  'first_request_id: ' + r.first_request_id,\n];\nconst createBody = {fields:{project:{key:'JBYS'}, issuetype:{id:'10006'}, summary:maskText(r.title).slice(0, 200), description:lines.join('\\n'), labels:[ctx.label]}};\nreturn [{json:{route:'create', ctx, req:{method:'POST', path:'/rest/api/2/issue', body:createBody}}}];"
+      },
+      "position": [
+        1820,
+        0
+      ]
+    },
+    {
+      "name": "H25 생성 필요",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "parameters": {
+        "conditions": {
+          "options": {
+            "version": 2,
+            "caseSensitive": true,
+            "leftValue": ""
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "h25-cond",
+              "leftValue": "={{ $json.route === 'create' }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "position": [
+        2080,
+        0
+      ]
+    },
+    {
+      "name": "H05 Jira 티켓 생성",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "onError": "continueRegularOutput",
+      "parameters": {
+        "method": "={{ $json.req.method }}",
+        "url": "={{ $vars.DUBAKWI_JIRA_BASE + $json.req.path }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "jiraSoftwareCloudApi",
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true,
+              "neverError": true
+            }
+          },
+          "timeout": 3500
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($json.req.body) }}"
+      },
+      "credentials": {
+        "jiraSoftwareCloudApi": {
+          "name": "dubakwi-Jira SW Cloud account"
+        }
+      },
+      "position": [
+        2340,
+        0
+      ]
+    },
+    {
+      "name": "H06 티켓 식별 확인",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "parameters": {
+        "jsCode": "const E = () => ({status:'none'});\nconst mkEffects = () => ({created_or_reused:E(),context_saved:E(),closed:E(),assigned:E(),alert:E()});\nconst maskText = (s) => String(s ?? '').replace(/\\b0\\d{1,2}[-. ]?\\d{3,4}[-. ]?\\d{4}\\b/g,'***-****-****').replace(/[\\w.+-]+@[\\w-]+\\.[\\w.-]+/g,'***@***');\nconst prev = $('H24 생성 판정').item.json;\nconst ctx = prev.ctx;\nif (prev.route === 'create') {\n  const sc = Number($json.statusCode ?? 0);\n  const body = $json.body;\n  if (sc === 201 && body && body.key && body.id) {\n    ctx.ticket = {id:String(body.id), key:body.key, reused:false};\n    ctx.effects.created_or_reused = {status:'confirmed', id:body.key};\n  } else if (sc >= 400 && sc < 500) {\n    ctx.effects.created_or_reused = {status:'failed', error_code:'create_rejected'};\n    ctx.error_code = 'tickets_down';\n  } else {\n    // 응답 없음·5xx는 생성됐는지 알 수 없다. 같은 label로 재조회해 확인한다.\n    ctx.effects.created_or_reused = {status:'unknown', error_code:'ticket_unknown'};\n    ctx.error_code = 'ticket_unknown';\n    ctx.recovery = {version:1, mode:'manual_required', action:'create', args:null, reference:null, reason:'Jira 생성 결과 미확인, label ' + ctx.label + '로 재조회'};\n  }\n}\nreturn [{json:{route: ctx.ticket ? 'bind' : 'done', ctx}}];"
+      },
+      "position": [
+        2600,
+        0
+      ]
+    },
+    {
+      "name": "H26 티켓 연결 필요",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "parameters": {
+        "conditions": {
+          "options": {
+            "version": 2,
+            "caseSensitive": true,
+            "leftValue": ""
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "h26-cond",
+              "leftValue": "={{ $json.route === 'bind' }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "position": [
+        2860,
+        0
+      ]
+    },
+    {
+      "name": "H30 연결 입력 구성",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "parameters": {
+        "jsCode": "const E = () => ({status:'none'});\nconst mkEffects = () => ({created_or_reused:E(),context_saved:E(),closed:E(),assigned:E(),alert:E()});\nconst maskText = (s) => String(s ?? '').replace(/\\b0\\d{1,2}[-. ]?\\d{3,4}[-. ]?\\d{4}\\b/g,'***-****-****').replace(/[\\w.+-]+@[\\w-]+\\.[\\w.-]+/g,'***@***');\nconst ctx = $json.ctx;\nconst r = ctx.request;\nconst next = {close:'H08', handoff:'H09', wait:'B32'}[r.action];\nreturn [{json:{op:'bind', state_ref:ctx.state_ref, args:{jira_issue_id:ctx.ticket.id, key:ctx.ticket.key, case_id:r.case_id, first_request_id:r.first_request_id, next_step:next}, ctx}}];"
+      },
+      "position": [
+        3120,
+        0
+      ]
+    },
+    {
+      "name": "H17 티켓 연결 저장",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "parameters": {
+        "source": "database",
+        "workflowId": {
+          "__rl": true,
+          "value": "dubakwiState01",
+          "mode": "list",
+          "cachedResultName": "dubakwi-state"
+        },
+        "options": {
+          "waitForSubWorkflow": true
+        }
+      },
+      "position": [
+        3380,
+        0
+      ]
+    },
+    {
+      "name": "H18 연결 저장 판정",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "parameters": {
+        "jsCode": "const E = () => ({status:'none'});\nconst mkEffects = () => ({created_or_reused:E(),context_saved:E(),closed:E(),assigned:E(),alert:E()});\nconst maskText = (s) => String(s ?? '').replace(/\\b0\\d{1,2}[-. ]?\\d{3,4}[-. ]?\\d{4}\\b/g,'***-****-****').replace(/[\\w.+-]+@[\\w-]+\\.[\\w.-]+/g,'***@***');\nconst ctx = $('H30 연결 입력 구성').item.json.ctx;\nconst st = $json;\nconst r = ctx.request;\nif (st.ok === true && st.skipped !== true && st.state_ref && typeof st.state_ref === 'object') {\n  ctx.state_ref = st.state_ref;\n  return [{json:{route:r.action, ctx}}];\n}\n// 알려진 Jira ID는 유지하고 이후 변경은 하지 않는다.\nctx.error_code = 'state_error';\nctx.recovery = {version:1, mode:'payload', action:'bind', args:{jira_issue_id:ctx.ticket.id, key:ctx.ticket.key, case_id:r.case_id, first_request_id:r.first_request_id, next_step:{close:'H08',handoff:'H09',wait:'B32'}[r.action]}, reference:null, reason:'bind 저장 실패'};\nreturn [{json:{route:'done', ctx}}];"
+      },
+      "position": [
+        3640,
+        0
+      ]
+    },
+    {
+      "name": "H07 종료 분기",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "parameters": {
+        "conditions": {
+          "options": {
+            "version": 2,
+            "caseSensitive": true,
+            "leftValue": ""
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "h07-cond",
+              "leftValue": "={{ $json.route === 'close' }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "position": [
+        3900,
+        0
+      ]
+    },
+    {
+      "name": "H27 이관 분기",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "parameters": {
+        "conditions": {
+          "options": {
+            "version": 2,
+            "caseSensitive": true,
+            "leftValue": ""
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "h27-cond",
+              "leftValue": "={{ $json.route === 'handoff' }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "position": [
+        4160,
+        300
+      ]
+    },
+    {
+      "name": "H31 종료 전환 조회 준비",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "parameters": {
+        "jsCode": "const E = () => ({status:'none'});\nconst mkEffects = () => ({created_or_reused:E(),context_saved:E(),closed:E(),assigned:E(),alert:E()});\nconst maskText = (s) => String(s ?? '').replace(/\\b0\\d{1,2}[-. ]?\\d{3,4}[-. ]?\\d{4}\\b/g,'***-****-****').replace(/[\\w.+-]+@[\\w-]+\\.[\\w.-]+/g,'***@***');\nconst ctx = $json.ctx;\nreturn [{json:{ctx, req:{method:'GET', path:'/rest/api/2/issue/' + encodeURIComponent(ctx.ticket.key) + '/transitions?expand=transitions.fields'}}}];"
+      },
+      "position": [
+        4420,
+        -300
+      ]
+    },
+    {
+      "name": "H32 Jira 전환 조회",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "onError": "continueRegularOutput",
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $vars.DUBAKWI_JIRA_BASE + $json.req.path }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "jiraSoftwareCloudApi",
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true,
+              "neverError": true
+            }
+          },
+          "timeout": 2000
+        }
+      },
+      "credentials": {
+        "jiraSoftwareCloudApi": {
+          "name": "dubakwi-Jira SW Cloud account"
+        }
+      },
+      "position": [
+        4680,
+        -300
+      ]
+    },
+    {
+      "name": "H33 종료 계획",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "parameters": {
+        "jsCode": "const E = () => ({status:'none'});\nconst mkEffects = () => ({created_or_reused:E(),context_saved:E(),closed:E(),assigned:E(),alert:E()});\nconst maskText = (s) => String(s ?? '').replace(/\\b0\\d{1,2}[-. ]?\\d{3,4}[-. ]?\\d{4}\\b/g,'***-****-****').replace(/[\\w.+-]+@[\\w-]+\\.[\\w.-]+/g,'***@***');\nconst ctx = $('H31 종료 전환 조회 준비').item.json.ctx;\nconst r = ctx.request;\nconst sc = Number($json.statusCode ?? 0);\nconst transitions = sc === 200 && $json.body && Array.isArray($json.body.transitions) ? $json.body.transitions : null;\nconst refCap = (reason) => ({version:1, mode:'jira_ref', action:'close', args:null, reference:{jira_issue_id:ctx.ticket.id, case_id:r.case_id, owner_id:ctx.state_ref.owner_id}, reason});\nconst stop = (status, code, reason) => { ctx.effects.closed = {status, id:ctx.ticket.key, error_code:code}; ctx.error_code = 'partial_effect'; ctx.recovery = refCap(reason); return [{json:{route:'done', ctx}}]; };\nif (!transitions) return stop(sc >= 400 && sc < 500 ? 'failed' : 'unknown', 'transition_lookup_failed', '종료 전환 조회 실패');\n// 전환 ID는 현재 상태에 따라 달라지므로 이름으로 찾는다.\nconst t = transitions.find((x) => /^(resolved|done|완료)$/i.test(x.name) || /^(resolved|done|완료)$/i.test(x.to && x.to.name));\nif (!t) return stop('failed', 'transition_unavailable', '현재 상태에서 Resolved 전환이 없음');\nconst fields = {};\nconst res = t.fields && t.fields.resolution;\nif (res && res.required) {\n  const allowed = Array.isArray(res.allowedValues) ? res.allowedValues : [];\n  const pick = allowed.find((v) => /^(done|완료|fixed|resolved)$/i.test(v.name)) || allowed[0];\n  if (!pick) return stop('failed', 'resolution_unavailable', 'JBYS에 사용할 Resolution 값이 없음');\n  fields.resolution = {id: pick.id};\n}\nconst comment = ['[두바퀴 안내 종료]', '처리: ' + (r.close_status || 'closed_guidance'), '안내: ' + maskText(r.answer), '근거: ' + (r.sources || []).map((s) => s.doc + '#' + s.section).join(', ')].join('\\n');\nreturn [{json:{route:'transition', ctx, req:{method:'POST', path:'/rest/api/2/issue/' + encodeURIComponent(ctx.ticket.key) + '/transitions', body:{transition:{id:t.id}, fields, update:{comment:[{add:{body:comment}}]}}}}}];"
+      },
+      "position": [
+        4940,
+        -300
+      ]
+    },
+    {
+      "name": "H34 종료 실행 가능",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "parameters": {
+        "conditions": {
+          "options": {
+            "version": 2,
+            "caseSensitive": true,
+            "leftValue": ""
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "h34-cond",
+              "leftValue": "={{ $json.route === 'transition' }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "position": [
+        5200,
+        -300
+      ]
+    },
+    {
+      "name": "H08 Jira 안내 종료",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "onError": "continueRegularOutput",
+      "parameters": {
+        "method": "={{ $json.req.method }}",
+        "url": "={{ $vars.DUBAKWI_JIRA_BASE + $json.req.path }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "jiraSoftwareCloudApi",
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true,
+              "neverError": true
+            }
+          },
+          "timeout": 3500
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($json.req.body) }}"
+      },
+      "credentials": {
+        "jiraSoftwareCloudApi": {
+          "name": "dubakwi-Jira SW Cloud account"
+        }
+      },
+      "position": [
+        5460,
+        -300
+      ]
+    },
+    {
+      "name": "H36 종료 판정",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "parameters": {
+        "jsCode": "const E = () => ({status:'none'});\nconst mkEffects = () => ({created_or_reused:E(),context_saved:E(),closed:E(),assigned:E(),alert:E()});\nconst maskText = (s) => String(s ?? '').replace(/\\b0\\d{1,2}[-. ]?\\d{3,4}[-. ]?\\d{4}\\b/g,'***-****-****').replace(/[\\w.+-]+@[\\w-]+\\.[\\w.-]+/g,'***@***');\nconst ctx = $('H33 종료 계획').item.json.ctx;\nconst r = ctx.request;\nconst sc = Number($json.statusCode ?? 0);\nif (sc === 204) {\n  ctx.effects.context_saved = {status:'confirmed', id:ctx.ticket.key};\n  ctx.effects.closed = {status:'confirmed', id:ctx.ticket.key};\n  return [{json:{route:'done', ctx}}];\n}\nctx.effects.closed = {status: sc >= 400 && sc < 500 ? 'failed' : 'unknown', id:ctx.ticket.key, error_code:'close_failed'};\nctx.error_code = 'partial_effect';\nctx.recovery = {version:1, mode:'jira_ref', action:'close', args:null, reference:{jira_issue_id:ctx.ticket.id, case_id:r.case_id, owner_id:ctx.state_ref.owner_id}, reason:'Jira 종료 전환 실패'};\nreturn [{json:{route:'done', ctx}}];"
+      },
+      "position": [
+        5980,
+        -300
+      ]
+    },
+    {
+      "name": "H37 담당 후보 조회 준비",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "parameters": {
+        "jsCode": "const E = () => ({status:'none'});\nconst mkEffects = () => ({created_or_reused:E(),context_saved:E(),closed:E(),assigned:E(),alert:E()});\nconst maskText = (s) => String(s ?? '').replace(/\\b0\\d{1,2}[-. ]?\\d{3,4}[-. ]?\\d{4}\\b/g,'***-****-****').replace(/[\\w.+-]+@[\\w-]+\\.[\\w.-]+/g,'***@***');\nconst ctx = $json.ctx;\nreturn [{json:{ctx, req:{method:'GET', path:'/rest/api/2/user/assignable/search?project=JBYS&maxResults=10'}}}];"
+      },
+      "position": [
+        4420,
+        300
+      ]
+    },
+    {
+      "name": "H38 Jira 담당 후보 조회",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "onError": "continueRegularOutput",
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $vars.DUBAKWI_JIRA_BASE + $json.req.path }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "jiraSoftwareCloudApi",
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true,
+              "neverError": true
+            }
+          },
+          "timeout": 2000
+        }
+      },
+      "credentials": {
+        "jiraSoftwareCloudApi": {
+          "name": "dubakwi-Jira SW Cloud account"
+        }
+      },
+      "position": [
+        4680,
+        300
+      ]
+    },
+    {
+      "name": "H39 배정 계획",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "parameters": {
+        "jsCode": "const E = () => ({status:'none'});\nconst mkEffects = () => ({created_or_reused:E(),context_saved:E(),closed:E(),assigned:E(),alert:E()});\nconst maskText = (s) => String(s ?? '').replace(/\\b0\\d{1,2}[-. ]?\\d{3,4}[-. ]?\\d{4}\\b/g,'***-****-****').replace(/[\\w.+-]+@[\\w-]+\\.[\\w.-]+/g,'***@***');\nconst ctx = $('H37 담당 후보 조회 준비').item.json.ctx;\nconst r = ctx.request;\nconst sc = Number($json.statusCode ?? 0);\nconst refCap = (action, reason) => ({version:1, mode:'jira_ref', action, args:null, reference:{jira_issue_id:ctx.ticket.id, case_id:r.case_id, owner_id:ctx.state_ref.owner_id}, reason});\nconst stop = (status, code, reason) => { ctx.effects.assigned = {status, id:ctx.ticket.key, error_code:code}; ctx.error_code = 'partial_effect'; ctx.recovery = refCap('assign', reason); return [{json:{route:'done', ctx}}]; };\n// 역할별 담당 매핑은 R01·R04 확정 전이다. 확정되기 전에는 배정 가능한 활성 사용자 중 첫 계정만 쓴다.\nconst users = sc === 200 && Array.isArray($json.body) ? $json.body.filter((u) => u.active && u.accountType === 'atlassian') : null;\nif (!users) return stop(sc >= 400 && sc < 500 ? 'failed' : 'unknown', 'assignee_lookup_failed', '배정 후보 조회 실패');\nif (users.length === 0) return stop('failed', 'assignee_unavailable', '배정 가능한 담당자가 없음');\nconst comment = ['[두바퀴 담당자 이관]', '역할: ' + r.assignee_role, '우선순위: ' + r.priority, '요약: ' + maskText((r.context || {}).summary), '확인한 사실: ' + (((r.context || {}).confirmed) || []).map((f) => f.key).join(', '), '부족한 정보: ' + (((r.context || {}).missing) || []).join(', '), '보완 횟수: ' + r.attempt].join('\\n');\nreturn [{json:{route:'assign', ctx, req:{method:'PUT', path:'/rest/api/2/issue/' + encodeURIComponent(ctx.ticket.key), body:{fields:{assignee:{accountId:users[0].accountId}}, update:{comment:[{add:{body:comment}}]}}}}}];"
+      },
+      "position": [
+        4940,
+        300
+      ]
+    },
+    {
+      "name": "H40 배정 실행 가능",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "parameters": {
+        "conditions": {
+          "options": {
+            "version": 2,
+            "caseSensitive": true,
+            "leftValue": ""
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "h40-cond",
+              "leftValue": "={{ $json.route === 'assign' }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "position": [
+        5200,
+        300
+      ]
+    },
+    {
+      "name": "H09 Jira 맥락 저장·배정",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "onError": "continueRegularOutput",
+      "parameters": {
+        "method": "={{ $json.req.method }}",
+        "url": "={{ $vars.DUBAKWI_JIRA_BASE + $json.req.path }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "jiraSoftwareCloudApi",
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true,
+              "neverError": true
+            }
+          },
+          "timeout": 3500
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($json.req.body) }}"
+      },
+      "credentials": {
+        "jiraSoftwareCloudApi": {
+          "name": "dubakwi-Jira SW Cloud account"
+        }
+      },
+      "position": [
+        5460,
+        300
+      ]
+    },
+    {
+      "name": "H42 배정 판정",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "parameters": {
+        "jsCode": "const E = () => ({status:'none'});\nconst mkEffects = () => ({created_or_reused:E(),context_saved:E(),closed:E(),assigned:E(),alert:E()});\nconst maskText = (s) => String(s ?? '').replace(/\\b0\\d{1,2}[-. ]?\\d{3,4}[-. ]?\\d{4}\\b/g,'***-****-****').replace(/[\\w.+-]+@[\\w-]+\\.[\\w.-]+/g,'***@***');\nconst ctx = $('H39 배정 계획').item.json.ctx;\nconst r = ctx.request;\nconst sc = Number($json.statusCode ?? 0);\nif (sc === 204) {\n  ctx.effects.context_saved = {status:'confirmed', id:ctx.ticket.key};\n  ctx.effects.assigned = {status:'confirmed', id:ctx.ticket.key};\n  return [{json:{route:'alert', op:'prepare', state_ref:ctx.state_ref, args:{current_step:'H11'}, ctx}}];\n}\nctx.effects.assigned = {status: sc >= 400 && sc < 500 ? 'failed' : 'unknown', id:ctx.ticket.key, error_code:'assign_failed'};\nctx.error_code = 'partial_effect';\nctx.recovery = {version:1, mode:'jira_ref', action:'assign', args:null, reference:{jira_issue_id:ctx.ticket.id, case_id:r.case_id, owner_id:ctx.state_ref.owner_id}, reason:'Jira 맥락 저장·배정 실패'};\nreturn [{json:{route:'done', ctx}}];"
+      },
+      "position": [
+        5980,
+        300
+      ]
+    },
+    {
+      "name": "H10 배정 확인",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "parameters": {
+        "conditions": {
+          "options": {
+            "version": 2,
+            "caseSensitive": true,
+            "leftValue": ""
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "h10-cond",
+              "leftValue": "={{ $json.route === 'alert' }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "position": [
+        6240,
+        300
+      ]
+    },
+    {
+      "name": "H19 알림 의도 저장",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "parameters": {
+        "source": "database",
+        "workflowId": {
+          "__rl": true,
+          "value": "dubakwiState01",
+          "mode": "list",
+          "cachedResultName": "dubakwi-state"
+        },
+        "options": {
+          "waitForSubWorkflow": true
+        }
+      },
+      "position": [
+        6500,
+        300
+      ]
+    },
+    {
+      "name": "H20 알림 실행 허용",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "parameters": {
+        "jsCode": "const E = () => ({status:'none'});\nconst mkEffects = () => ({created_or_reused:E(),context_saved:E(),closed:E(),assigned:E(),alert:E()});\nconst maskText = (s) => String(s ?? '').replace(/\\b0\\d{1,2}[-. ]?\\d{3,4}[-. ]?\\d{4}\\b/g,'***-****-****').replace(/[\\w.+-]+@[\\w-]+\\.[\\w.-]+/g,'***@***');\nconst ctx = $('H42 배정 판정').item.json.ctx;\nconst r = ctx.request;\nconst st = $json;\nif (!(st.ok === true && st.skipped !== true && st.state_ref && typeof st.state_ref === 'object')) {\n  // 성공한 담당 지정은 유지하고 알림은 호출하지 않는다.\n  ctx.error_code = 'state_error';\n  ctx.recovery = {version:1, mode:'jira_ref', action:'alert', args:null, reference:{jira_issue_id:ctx.ticket.id, case_id:r.case_id, owner_id:ctx.state_ref.owner_id}, reason:'알림 의도 저장 실패'};\n  return [{json:{route:'done', ctx}}];\n}\nctx.state_ref = st.state_ref;\nreturn [{json:{route:'send', ctx, req:{url:'http://data-api:8800/alerts', body:{ticket_id:ctx.ticket.key, role:r.assignee_role, priority:r.priority, summary:maskText((r.context || {}).summary).slice(0, 200)}}}}];"
+      },
+      "position": [
+        6760,
+        300
+      ]
+    },
+    {
+      "name": "H43 알림 실행 허용",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "parameters": {
+        "conditions": {
+          "options": {
+            "version": 2,
+            "caseSensitive": true,
+            "leftValue": ""
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "h43-cond",
+              "leftValue": "={{ $json.route === 'send' }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "position": [
+        7280,
+        300
+      ]
+    },
+    {
+      "name": "H11 담당 알림",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "onError": "continueRegularOutput",
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $json.req.url }}",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($json.req.body) }}",
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true,
+              "neverError": true
+            }
+          },
+          "timeout": 2000
+        }
+      },
+      "position": [
+        7540,
+        300
+      ]
+    },
+    {
+      "name": "H44 알림 판정",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "parameters": {
+        "jsCode": "const E = () => ({status:'none'});\nconst mkEffects = () => ({created_or_reused:E(),context_saved:E(),closed:E(),assigned:E(),alert:E()});\nconst maskText = (s) => String(s ?? '').replace(/\\b0\\d{1,2}[-. ]?\\d{3,4}[-. ]?\\d{4}\\b/g,'***-****-****').replace(/[\\w.+-]+@[\\w-]+\\.[\\w.-]+/g,'***@***');\nconst ctx = $('H20 알림 실행 허용').item.json.ctx;\nconst r = ctx.request;\nconst sc = Number($json.statusCode ?? 0);\nif (sc >= 200 && sc < 300) {\n  ctx.effects.alert = {status:'confirmed', id:ctx.ticket.key};\n  return [{json:{route:'done', ctx}}];\n}\nctx.effects.alert = {status: sc >= 400 && sc < 500 ? 'failed' : 'unknown', id:ctx.ticket.key, error_code:'alert_failed'};\nctx.error_code = 'partial_effect';\nctx.recovery = {version:1, mode:'jira_ref', action:'alert', args:null, reference:{jira_issue_id:ctx.ticket.id, case_id:r.case_id, owner_id:ctx.state_ref.owner_id}, reason:'담당 알림 실패'};\nreturn [{json:{route:'done', ctx}}];"
+      },
+      "position": [
+        8060,
+        300
+      ]
+    },
+    {
+      "name": "H12 티켓 결과 구성",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "parameters": {
+        "jsCode": "const E = () => ({status:'none'});\nconst mkEffects = () => ({created_or_reused:E(),context_saved:E(),closed:E(),assigned:E(),alert:E()});\nconst maskText = (s) => String(s ?? '').replace(/\\b0\\d{1,2}[-. ]?\\d{3,4}[-. ]?\\d{4}\\b/g,'***-****-****').replace(/[\\w.+-]+@[\\w-]+\\.[\\w.-]+/g,'***@***');\nconst ctx = $json.ctx;\nconst r = ctx.request;\nconst e = ctx.effects;\nconst ok = (x) => x.status === 'confirmed';\nconst success = ctx.error_code === null && ok(e.created_or_reused) && (r.action === 'wait' ? true : r.action === 'close' ? ok(e.context_saved) && ok(e.closed) : ok(e.context_saved) && ok(e.assigned) && ok(e.alert));\nlet error_code = success ? null : (ctx.error_code ?? (ctx.ticket ? 'partial_effect' : 'tickets_down'));\nconst recovery = success ? {version:1, mode:'manual_required', action:'inspect_only', args:null, reference:null, reason:null} : (ctx.recovery ?? {version:1, mode:'manual_required', action:'inspect_only', args:null, reference:null, reason:'효과 미확인'});\nreturn [{json:{route:'respond', http_status:200, body:{request_id:r.request_id, ticket_id:ctx.ticket ? ctx.ticket.key : (r.ticket_id ?? null), case_version:null, state_saved:error_code !== 'state_error' && !!ctx.state_ref, state_ref:ctx.state_ref ?? null, recovery, effects:e, error_code}}}];"
+      },
+      "position": [
+        8580,
+        0
+      ]
     }
   ],
   "connections": {
@@ -315,57 +967,6 @@
         ]
       ]
     },
-    "H15 저장 결과 판정": {
-      "main": [
-        [
-          {
-            "node": "H16 실패 상태 저장 필요",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "H16 실패 상태 저장 필요": {
-      "main": [
-        [
-          {
-            "node": "H17 Jira 미연결 상태 저장",
-            "type": "main",
-            "index": 0
-          }
-        ],
-        [
-          {
-            "node": "H13 도구 응답",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "H17 Jira 미연결 상태 저장": {
-      "main": [
-        [
-          {
-            "node": "H18 안전 응답 구성",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "H18 안전 응답 구성": {
-      "main": [
-        [
-          {
-            "node": "H13 도구 응답",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
     "H21 조회 실행 여부": {
       "main": [
         [
@@ -396,6 +997,432 @@
       ]
     },
     "H22 조회 결과 정규화": {
+      "main": [
+        [
+          {
+            "node": "H13 도구 응답",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "H15 저장 결과 판정": {
+      "main": [
+        [
+          {
+            "node": "H16 Jira 실행 허용",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "H16 Jira 실행 허용": {
+      "main": [
+        [
+          {
+            "node": "H23 중복 조회 준비",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "H13 도구 응답",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "H23 중복 조회 준비": {
+      "main": [
+        [
+          {
+            "node": "H29 Jira 기존 건 조회",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "H29 Jira 기존 건 조회": {
+      "main": [
+        [
+          {
+            "node": "H24 생성 판정",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "H24 생성 판정": {
+      "main": [
+        [
+          {
+            "node": "H25 생성 필요",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "H25 생성 필요": {
+      "main": [
+        [
+          {
+            "node": "H05 Jira 티켓 생성",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "H06 티켓 식별 확인",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "H05 Jira 티켓 생성": {
+      "main": [
+        [
+          {
+            "node": "H06 티켓 식별 확인",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "H06 티켓 식별 확인": {
+      "main": [
+        [
+          {
+            "node": "H26 티켓 연결 필요",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "H26 티켓 연결 필요": {
+      "main": [
+        [
+          {
+            "node": "H30 연결 입력 구성",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "H12 티켓 결과 구성",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "H30 연결 입력 구성": {
+      "main": [
+        [
+          {
+            "node": "H17 티켓 연결 저장",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "H17 티켓 연결 저장": {
+      "main": [
+        [
+          {
+            "node": "H18 연결 저장 판정",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "H18 연결 저장 판정": {
+      "main": [
+        [
+          {
+            "node": "H07 종료 분기",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "H07 종료 분기": {
+      "main": [
+        [
+          {
+            "node": "H31 종료 전환 조회 준비",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "H27 이관 분기",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "H27 이관 분기": {
+      "main": [
+        [
+          {
+            "node": "H37 담당 후보 조회 준비",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "H12 티켓 결과 구성",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "H31 종료 전환 조회 준비": {
+      "main": [
+        [
+          {
+            "node": "H32 Jira 전환 조회",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "H32 Jira 전환 조회": {
+      "main": [
+        [
+          {
+            "node": "H33 종료 계획",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "H33 종료 계획": {
+      "main": [
+        [
+          {
+            "node": "H34 종료 실행 가능",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "H34 종료 실행 가능": {
+      "main": [
+        [
+          {
+            "node": "H08 Jira 안내 종료",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "H12 티켓 결과 구성",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "H08 Jira 안내 종료": {
+      "main": [
+        [
+          {
+            "node": "H36 종료 판정",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "H36 종료 판정": {
+      "main": [
+        [
+          {
+            "node": "H12 티켓 결과 구성",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "H37 담당 후보 조회 준비": {
+      "main": [
+        [
+          {
+            "node": "H38 Jira 담당 후보 조회",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "H38 Jira 담당 후보 조회": {
+      "main": [
+        [
+          {
+            "node": "H39 배정 계획",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "H39 배정 계획": {
+      "main": [
+        [
+          {
+            "node": "H40 배정 실행 가능",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "H40 배정 실행 가능": {
+      "main": [
+        [
+          {
+            "node": "H09 Jira 맥락 저장·배정",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "H12 티켓 결과 구성",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "H09 Jira 맥락 저장·배정": {
+      "main": [
+        [
+          {
+            "node": "H42 배정 판정",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "H42 배정 판정": {
+      "main": [
+        [
+          {
+            "node": "H10 배정 확인",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "H10 배정 확인": {
+      "main": [
+        [
+          {
+            "node": "H19 알림 의도 저장",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "H12 티켓 결과 구성",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "H19 알림 의도 저장": {
+      "main": [
+        [
+          {
+            "node": "H20 알림 실행 허용",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "H20 알림 실행 허용": {
+      "main": [
+        [
+          {
+            "node": "H43 알림 실행 허용",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "H43 알림 실행 허용": {
+      "main": [
+        [
+          {
+            "node": "H11 담당 알림",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "H12 티켓 결과 구성",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "H11 담당 알림": {
+      "main": [
+        [
+          {
+            "node": "H44 알림 판정",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "H44 알림 판정": {
+      "main": [
+        [
+          {
+            "node": "H12 티켓 결과 구성",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "H12 티켓 결과 구성": {
       "main": [
         [
           {

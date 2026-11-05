@@ -34,20 +34,22 @@ if (prepared.route !== "prepare" || prepared.op !== "prepare" || prepared.args.c
 }
 
 if (workflow.id !== "dubakwiHandoff01") throw new Error(`unexpected workflow id: ${workflow.id}`);
-for (const nodeName of ["H14 Jira 전 상태 저장", "H17 Jira 미연결 상태 저장"]) {
+for (const nodeName of ["H14 Jira 전 상태 저장", "H17 티켓 연결 저장", "H19 알림 의도 저장"]) {
   if (nodes.get(nodeName)?.parameters.workflowId?.value !== "dubakwiState01") {
     throw new Error(`${nodeName} does not pin dubakwiState01`);
   }
 }
-// Jira HTTP는 D01 필드·Credential 확인 전까지 막는다. 허용하는 HTTP는 사용자 API 본인 기록 조회 하나뿐이다.
-const httpNodes = workflow.nodes.filter((node) => node.type === "n8n-nodes-base.httpRequest");
-for (const node of httpNodes) {
+// 허용하는 HTTP: 사용자 API 본인 기록 조회, 과정 알림 API, Jira(변수 기반 주소 + n8n Jira Credential)뿐이다.
+for (const node of workflow.nodes.filter((n) => n.type === "n8n-nodes-base.httpRequest")) {
   const url = String(node.parameters.url ?? "");
-  if (node.name !== "H04 본인 기록 조회" || !url.startsWith("=http://dubakwi-user-api:8801/records/")) {
-    throw new Error(`unexpected HTTP node before Jira fields are confirmed: ${node.name}`);
-  }
-  if (node.parameters.method !== "GET") throw new Error("lookup must be GET");
+  const isUserApi = node.name === "H04 본인 기록 조회" && url.startsWith("=http://dubakwi-user-api:8801/records/");
+  const isAlert = node.name === "H11 담당 알림" && node.parameters.url === "={{ $json.req.url }}";
+  const isJira = url === "={{ $vars.DUBAKWI_JIRA_BASE + $json.req.path }}" &&
+    node.parameters.nodeCredentialType === "jiraSoftwareCloudApi" &&
+    node.credentials?.jiraSoftwareCloudApi?.name === "dubakwi-Jira SW Cloud account";
+  if (!isUserApi && !isAlert && !isJira) throw new Error(`unexpected HTTP node: ${node.name}`);
 }
+if (JSON.stringify(workflow).includes("atlassian.net")) throw new Error("Jira domain must not be written in the workflow");
 
 // 본인/타인 조회: H02 → H21 → H04 → H22 → H13 연결과 결과 판정.
 const lookupRoute = execute({body: {

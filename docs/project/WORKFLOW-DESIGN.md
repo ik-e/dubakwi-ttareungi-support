@@ -457,19 +457,19 @@ B28은 먼저 error_code=null && state_saved=true && 최신 state_ref를 확인�
 | H02 고정 기능 검사 | Code | WebhookBody.body | ToolCtx | kind=process/lookup, actor·owner·key·역할·action 검사. disabled 조회는 skip |
 | H03 기능 분기 | Switch | ToolCtx.kind | ToolCtx | out0 lookup;out1 skip;out2 process→H14 생성 계획 저장;fallback invalid |
 | H04 본인 대상 조회 | HTTP Request | actor_id,target_ticket_id | Raw | GET http://dubakwi-user-api:8801/records/<id>?requester=<actor> (내부 Header Auth, full response·neverError·timeout 1.5초, 네트워크 오류 포함 총 2회). 서버가 owner를 판정하며 requester는 서버 확인 actor만 사용 |
-| H05 티켓 생성·재사용 | HTTP Request | TicketRequest | Raw | H15 저장 확인 후에만 Jira 생성/기존 건 확인. 신규 correlation_key=first_request_id,생성 시 가린 context/answer/sources·attempt와 연결 ID도 저장. 종료·담당 전환은 하지 않음. 생성 원시 응답은 다음 H06 |
+| H05 티켓 생성·재사용 | HTTP Request | TicketRequest | Raw | H15 저장 확인 뒤 H23~H25가 label `dubakwi-<first_request_id>`로 기존 건을 먼저 찾고 없을 때만 POST /rest/api/2/issue(프로젝트 JBYS·유형 10006·가린 요약/설명). 주소는 n8n 변수 DUBAKWI_JIRA_BASE, 인증은 n8n Jira Credential. 중복 조회 실패면 생성하지 않는다. 쓰기 timeout 3.5초·재시도 없음 |
 | H06 티켓 식별 확인 | Code | Raw+H02.ToolCtx | ToolCtx | 생성/조회 결과를 created/failed/unknown으로 분리,알려진 Jira ID/key 보존·has_ticket 판정. state_ref는 H14의 현재 값 복원 |
 | H07 티켓 결과 분기 | Switch | ToolCtx.action | ToolCtx | H18 저장결과 검증 후 out0 close;out1 wait;out2 handoff;fallback failed. 다음 외부 동작 준비가 저장되지 않으면 fallback |
-| H08 안내·거절 종료 | HTTP Request | ticket_id,answer,facts,status,attempt | Raw | H17이 close 준비를 저장한 경우만 Jira 맥락/안내 갱신·종료. 신규 생성에서 이미 저장된 값은 불필요하게 덮지 않음. 실패 시 필요한 가린 복구 인자를 H12에 보존 |
-| H09 맥락 저장·담당 지정 | HTTP Request | ticket_id,CaseFacts,role,priority | Raw | H17이 handoff 준비를 저장한 경우만 Jira 맥락·보완 횟수·담당 갱신. 실패 시 가린 TicketRequest 또는 Jira 복원 참조를 H12에 보존 |
+| H08 안내·거절 종료 | HTTP Request | ticket_id,answer,facts,status,attempt | Raw | H17 bind(next_step=H08) 저장 뒤 H31~H33이 전환 목록을 읽어 이름(Resolved/완료)으로 전환을 고르고(전환 ID 고정 금지) 필요한 Resolution을 허용 값에서 고른다. 맥락 댓글과 종료를 한 번의 POST로 보낸다. Resolution 값이 없거나 전환이 없으면 호출 없이 closed=failed·partial_effect·recovery(close,jira_ref) |
+| H09 맥락 저장·담당 지정 | HTTP Request | ticket_id,CaseFacts,role,priority | Raw | H17 bind(next_step=H09) 뒤 H37~H39가 배정 가능한 활성 사용자를 조회해 PUT /issue/<key>로 담당과 맥락 댓글을 한 번에 저장. 역할별 담당 매핑은 미확정이라 현재는 후보 첫 계정을 쓰고 없으면 assigned=failed(assignee_unavailable) |
 | H10 배정 확인 | If | H09 효과 | Raw | true=맥락·담당 확인→H19 알림 의도 저장;false=부분실패 H12. 전달 완료 알림 선행 금지 |
-| H11 담당 알림 | HTTP Request | ticket_id,role,priority,가린 요약 | Raw | H20 저장 확인 후 POST /alerts. 알림 수락은 사람 인수 아님. 가린 대상/메시지·역할을 복구 인자로 보존 |
+| H11 담당 알림 | HTTP Request | ticket_id,role,priority,가린 요약 | Raw | H19 prepare(current_step=H11) 확인 뒤 POST http://data-api:8800/alerts. body 스키마는 과정 data-api 기준 미검증이며 실패 시 alert=failed/unknown·partial_effect. 알림 수락은 사람 인수 아님 |
 | H12 티켓·조회 결과 | Code | Raw/ToolCtx | TicketResult/LookupResult | H02 입력·H06 ID·최신 state_ref·각 Effect 합성. TicketResult.state_saved/error_code가 효과보다 우선,실패에 recovery 캡슐 포함. lookup은 owner·가림·반환 봉투1개 |
 | H13 도구 응답 | Respond to Webhook | TicketResult/LookupResult | TicketResult/LookupResult | request_id 포함 봉투1개. wait 완료는 후속 B32 저장확인 필요 |
 | H14 생성 계획 저장 | Execute Sub-workflow | StateCommand.prepare + state_ref | StateResult | R04의 고정 저장 경계. current_step=H05,생성/재사용 의도와 원 실행ID 기록. 저장 후 새 state_ref 반환 |
 | H15 생성 실행 허용 | If | ok=true && skipped=false && 유효 state_ref | StateResult | true만 H05,false는 state_error·state_saved=false로 H12. prepare 실패에 Jira 호출0 |
 | H16 티켓 확인 여부 | If | ToolCtx.has_ticket | ToolCtx | true 알려진 ID를 H17에 바인딩,false H12. 생성 실패·미확인에 임의 ID 생성 금지 |
-| H17 티켓 연결·다음 단계 저장 | Execute Sub-workflow | StateCommand.bind + known Jira ID | StateResult | ID/key를 즉시 보존하고 action별 next_step=H08/H09/B32를 같은 저장에서 준비. expected_state_revision 검증 |
+| H17 티켓 연결·다음 단계 저장 | Execute Sub-workflow | StateCommand.bind + known Jira ID | StateResult | H30이 ID/key·case_id·first_request_id·next_step(H08/H09/B32)을 구성. 저장 실패 시 이후 Jira 변경 0·known ID 유지·recovery(bind,payload) 반환. DLQ 기록은 handoff가 아니라 호출자 X03이 recovery로 수행(중복 기록 방지) |
 | H18 연결 저장 판정 | Code | StateResult + H06.ToolCtx | ToolCtx | ok=true·skipped=false·유효한 새 StateRef만 현재 state_ref 교체·H07 정상 action 허용. 실패는 action=failed,state_error,known Jira ID 보존 |
 | H19 알림 의도 저장 | Execute Sub-workflow | StateCommand.prepare + 최신 state_ref | StateResult | current_step=H11 기록. H17 반환 revision 사용,알림 대상·가린 복구 인자 유지 |
 | H20 알림 실행 허용 | If | ok=true && skipped=false && 유효 state_ref | StateResult | true H11,false state_error로 H12. 성공한 담당 지정은 유지하고 알림 호출0 |
