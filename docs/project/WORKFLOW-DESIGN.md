@@ -2,8 +2,8 @@
 
 전체 구성·상태 관계·기능/시나리오 추적은 [최상위 시스템 설계서](SYSTEM-DESIGN.md)를 먼저 읽는다. 이 문서는 노드·엣지와 업무 계약의 상세 원본이다.
 
-- 작성: 2026-11-02 / 개정: 2026-11-04 KST
-- 버전·상태: **v0.14 / P11 support 골격 JSON·역할 프롬프트 초안·B05 사용자 응답 검증 추가**, 공동 검토 전. 골격은 로컬 Code 시험과 로컬 n8n Webhook 호출까지 확인했고 VM 실행·공식 판정은 전.
+- 작성: 2026-11-02 / 개정: 2026-11-05 KST
+- 버전·상태: **v0.15 / P12 handoff Jira 생성·종료·이관·조회·보완 횟수와 state save·case_ref 초안 반영(변경 행: H04·H05·H08·H09·H11·H17·H21·H22·H45~H48, 실행 증거 [runs/public/20261105-192700-team-n8n-r04-jira-close](../../runs/public/20261105-192700-team-n8n-r04-jira-close/report.md))**. 이전 v0.14 /  P11 support 골격 JSON·역할 프롬프트 초안·B05 사용자 응답 검증 추가**, 공동 검토 전. 골격은 로컬 Code 시험과 로컬 n8n Webhook 호출까지 확인했고 VM 실행·공식 판정은 전.
 - [공식 템플릿 — 공개본 제외 자료](../../docs/PUBLIC-SOURCES.md)의 8개 절 유지. 범위는 [TOPIC](TOPIC.md), 역할은 [팀 헌장](TEAM-CHARTER.md), 배정·구현 순서는 [개발 계획](../DEVELOPMENT-PLAN.md).
 - **티켓 최초 생성 위치를 뒤로 이동**했다. 일반 안내는 답변·검증 후 생성/종료, 정보 부족은 보완 질문 준비 후 생성/대기, 긴급은 분류 직후 생성/이관한다.
 
@@ -476,6 +476,7 @@ B28은 먼저 error_code=null && state_saved=true && 최신 state_ref를 확인�
 | H21 조회 실행 여부 | If | H02 결과 | ToolCtx | route=lookup이면 H04,아니면 H13. enabled=false 조회는 H02가 skipped로 종료 |
 | H22 조회 결과 정규화 | Code | H04 Raw+H02 요청 | LookupResult | 200+owner 일치만 ok(가린 연락처만 masked_phone/masked_email,masked=가린 필드 수). 403·404·owner 불일치는 같은 denied(record=null,error_code=null,존재 여부 미노출). 401·5xx·시간 초과·형식 오류는 error(lookup_error). enabled=true인데 target_ticket_id=null이면 H02가 400 invalid_tool_request |
 | H45~H48 보완 횟수 갱신 | If·Code·HTTP Request | 재사용한 Jira 티켓의 TicketRequest(action=wait) | TicketResult | 기존 이슈를 재사용하는 wait만 POST /issue/<key>/comment에 "보완 횟수: N"과 가린 요약을 남긴다(다음 요청의 case_ref가 이 값의 최댓값을 읽음). 새로 만든 이슈는 설명에 이미 있어 쓰지 않는다. 저장 실패는 context_saved=failed/unknown·partial_effect·recovery(context_update)로 반환해 호출자가 한도를 놓치지 않게 한다 |
+| H 시간 예산 | - | 호출 timeout | - | handoff 호출별 timeout은 조회 2초·쓰기 3.5초·알림 2초·사용자 API 1.5초(재시도 없음)다. 종료 경로 최악 약 11초(조회 2+전환 조회 2+종료 3.5+기존 건 조회 2+DB), 생성 후 이관 경로 최악 약 13초 + PostgreSQL 3회다. 호출자 B27은 15초 이상, B15는 2.5초 이상이어야 한다 |
 
 ### 4.5. P11 골격 구현 상태
 

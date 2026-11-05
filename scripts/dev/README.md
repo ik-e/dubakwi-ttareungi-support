@@ -22,3 +22,16 @@ git add --dry-run .
 사용하며 기존 출력은 덮어쓰지 않는다. Git 공개 경로 변경 시 필요하면 이 보조 목록도 갱신한다.
 
 [Python 기준](../../docs/PYTHON-DEVELOPMENT.md)·[문서 검사](../test/README.md)
+
+## n8n 가져오기용 사본 만들기 (R04)
+
+`workflows/dubakwi-handoff.json`은 Jira 주소(`__JIRA_BASE_URL__`)와 역할별 담당 계정(`__ASSIGNEE_MAP_JSON__`)을
+자리표시자로만 둔다. 값은 Git 밖에서 넣는다. 담당 매핑이 없으면 handoff는 배정하지 않고 안전하게 실패한다.
+
+```sh
+uv run --locked python scripts/dev/render_n8n_workflow.py --source workflows/dubakwi-handoff.json --jira-base https://<jira-host> --assignee-map-file <Git 밖 경로>/assignee-map.json --output runs/private-render/dubakwi-handoff.json
+```
+
+- 출력은 Git 제외 경로인 `runs/`(공개용 `runs/public` 제외)에만 쓴다. 값이 안전하지 않으면(따옴표·공백·http 등) 만들지 않는다.
+- 만든 사본을 n8n에 가져온 뒤 Credential(`dubakwi-internal-key`, `dubakwi-Jira SW Cloud account`)과 state 하위 워크플로우를 연결한다. 이 도구는 Credential ID를 다루지 않는다.
+- `dubakwi-state.json`의 Jira 확인 노드(S09·S16)도 같은 `__JIRA_BASE_URL__`를 쓰므로 같은 방법으로 사본을 만든다.

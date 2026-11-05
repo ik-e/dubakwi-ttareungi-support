@@ -141,7 +141,7 @@ for (const map of ["{}", "__ASSIGNEE_MAP_JSON__", "not json", '{"security":"acct
 }
 
 // 13. 보완(wait)에서 기존 Jira 이슈를 재사용하면 보완 횟수를 Jira에 남기고, 새로 만든 경우에는 추가로 쓰지 않는다
-const existing = {"H29 Jira 기존 건 조회": {statusCode: 200, body: {id: "10004", key: "JBYS-2"}}};
+const existing = {"H29 Jira 기존 건 조회": {statusCode: 200, body: {id: "10004", key: "JBYS-2", fields: {labels: ["dubakwi-req-1"], status: {statusCategory: {key: "indeterminate"}}}}}};
 r = run("wait", withJira(existing), {req: {ticket_id: "JBYS-2", attempt: 3}});
 const note = r.calls.find((c) => c.node === "H46 Jira 보완 횟수 저장");
 expect(r.body.error_code === null && r.body.effects.context_saved.status === "confirmed" && note && /보완 횟수: 3/.test(note.req.body.body), "attempt must be saved on reuse", r);
@@ -153,4 +153,20 @@ for (const bad of [{statusCode: 403, body: {}}, {statusCode: 503, body: {}}, und
   expect(r.body.error_code === "partial_effect" && r.body.ticket_id === "JBYS-2" && r.body.recovery.action === "context_update" && r.body.effects.context_saved.error_code === "attempt_update_failed", "attempt update failure must not look like success", r.body);
 }
 
-console.log("P12 handoff Jira flow: 13 scenarios passed");
+// 14. 키로 재사용하는 이슈는 JBYS 문의이고 이 문의 label이 있어야 한다(다른 이슈에는 쓰지 않는다)
+for (const [name, body] of [
+  ["other label", {id: "1", key: "JBYS-9", fields: {labels: ["dubakwi-someone-else"]}}],
+  ["no labels", {id: "1", key: "JBYS-9", fields: {labels: []}}],
+  ["other project", {id: "2", key: "OTHER-1", fields: {labels: ["dubakwi-req-1"]}}],
+]) {
+  r = run("close", withJira({"H29 Jira 기존 건 조회": {statusCode: 200, body}}), {req: {ticket_id: body.key}});
+  expect(r.body.error_code === "tickets_down" && r.body.effects.created_or_reused.error_code === "ticket_not_linked", `${name} must not be reused`, r.body);
+  expect(!r.calls.some((c) => ["H17 티켓 연결 저장", "H32 Jira 전환 조회", "H08 Jira 안내 종료", "H09 Jira 맥락 저장·배정", "H46 Jira 보완 횟수 저장"].includes(c.node)), `${name} must not be bound or written`, r.calls);
+}
+
+// 15. 이미 완료된 이슈를 다시 닫는 재시도는 Jira 쓰기 없이 성공으로 끝난다
+const done = {"H29 Jira 기존 건 조회": {statusCode: 200, body: {id: "10004", key: "JBYS-2", fields: {labels: ["dubakwi-req-1"], status: {statusCategory: {key: "done"}}}}}};
+r = run("close", withJira(done), {req: {ticket_id: "JBYS-2"}});
+expect(r.body.error_code === null && r.body.effects.closed.status === "confirmed" && !r.calls.some((c) => c.node === "H08 Jira 안내 종료"), "already resolved close must be idempotent and not write", r);
+
+console.log("P12 handoff Jira flow: 15 scenarios passed");
