@@ -177,6 +177,20 @@ class SourceDisplayTest(unittest.TestCase):
         self.assertNotIn("근거:", render_private_response({"answer": "a", "sources": []}))
 
 
+class CaseErrorMessageTest(unittest.TestCase):
+    def test_case_ref_errors_get_specific_notices(self) -> None:
+        from services.discord_bot.adapter import GENERIC_FAILURE_MESSAGE, failure_message
+
+        expected = {
+            "invalid_case_ref": "알 수 없는 문의 번호입니다.",
+            "case_access_denied": "이 문의에 접근할 수 없습니다.",
+            "case_closed": "종료된 문의입니다. 새 문의로 접수해 주세요.",
+        }
+        for code, message in expected.items():
+            self.assertEqual(message, failure_message([code]))
+        self.assertEqual(GENERIC_FAILURE_MESSAGE, failure_message(["user_lookup_unavailable"]))
+
+
 class SupportResponseShapeTest(unittest.TestCase):
     def test_reads_ticket_id_from_nested_ticket_object(self) -> None:
         result = render_private_response(

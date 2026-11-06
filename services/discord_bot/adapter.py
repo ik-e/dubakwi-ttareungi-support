@@ -89,6 +89,10 @@ _CODE_MESSAGES = {
         "처리 결과 확인이 필요하며, 같은 요청은 자동으로 다시 실행하지 않습니다."
     ),
     "request_conflict": ("같은 요청 번호로 다른 내용이 들어왔습니다. 새 문의로 다시 보내 주세요."),
+    # Same wording as the state workflow, so the citizen sees one message wherever it is raised.
+    "invalid_case_ref": "알 수 없는 문의 번호입니다.",
+    "case_access_denied": "이 문의에 접근할 수 없습니다.",
+    "case_closed": "종료된 문의입니다. 새 문의로 접수해 주세요.",
     "case_busy": (
         "같은 문의의 이전 요청이 처리 중이거나 확인 중입니다. 잠시 후 다시 시도해 주세요. "
         "계속되면 새 문의로 보내 주세요"
