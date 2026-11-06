@@ -37,12 +37,39 @@
           {"step": 3,
            "body": {"request_id": "tc01-3", "user": "citizen-a", "question": "대여소 이름도 정확히 모르겠어요.", "case_ref": "{step1.case_ref}", "attempt": 3},
            "expect": {"status": 200, "equals": {"route": "담당자 이관"}},
-           "assert": [{"path": "ticket.ticket_id", "op": "exists"}]}
+           "assert": [{"path": "ticket.ticket_id", "op": "exists"}, {"path": "reason", "op": "in", "value": ["attempt_limit"]}]}
         ],
         "checks": ["case 전체 티켓 1건(step1 생성, step2/3 재사용), 최종 handed_off·보완 횟수 3", "세 요청 모두 completed·같은 case_id·first_request_id=tc01-1", "담당 알림은 step3에서 1건"],
         "manual": ["step3 이관 맥락에 step1~3 진술·missing 항목 유지"],
         "variants": [{"id": "TC01-v1", "change": "step2 attempt를 1로 보냄", "expect": "서버 횟수 2로 계산"}],
+        "path_split": "요청에 attempt를 보내는 경로다. attempt 없이 서버 계산만 보는 경로는 TC01b",
         "open_items": ["보완 한도 attempt 3 이관(R02 확정값)"],
+        "run_status": "not_run"
+      }
+    },
+    {
+      "name": "TC01b attempt 없이 case_ref로만 보완 왕복 후 한도 이관",
+      "x_dubakwi": {
+        "id": "TC01b", "scenario": ["S2", "S3"], "functions": ["F02", "F03", "F07", "F08"], "producers": ["R04", "R02"],
+        "boundary": "보완 횟수를 요청의 attempt가 아니라 서버가 Jira 댓글 '보완 횟수: N'(R04 H45~H48)으로 센다",
+        "steps": [
+          {"step": 1,
+           "body": {"request_id": "tc01b-1", "user": "citizen-a", "question": "반납했는데 앱에 아직 이용 중으로 나와요."},
+           "expect": {"status": 200, "equals": {"route": "보완 질문", "ticket": null}},
+           "assert": [{"path": "case_ref", "op": "exists"}]},
+          {"step": 2,
+           "body": {"request_id": "tc01b-2", "user": "citizen-a", "question": "따릉이 앱이고 자전거 번호는 잘 기억이 안 나요.", "case_ref": "{step1.case_ref}"},
+           "expect": {"status": 200, "equals": {"route": "보완 질문"}},
+           "assert": [{"path": "case_ref", "op": "same_as", "value": {"step": 1, "path": "case_ref"}}]},
+          {"step": 3,
+           "body": {"request_id": "tc01b-3", "user": "citizen-a", "question": "대여소 이름도 정확히 모르겠어요.", "case_ref": "{step1.case_ref}"},
+           "expect": {"status": 200, "equals": {"route": "담당자 이관"}},
+           "assert": [{"path": "ticket.ticket_id", "op": "exists"}, {"path": "reason", "op": "in", "value": ["attempt_limit"]}]}
+        ],
+        "checks": ["Jira 댓글 '보완 횟수' 1→2→3 기록, 최종 handed_off", "case 전체 티켓 1건, 담당 알림 step3에서 1건", "보완 횟수 저장 실패 시 context_saved=failed/unknown·partial_effect·recovery(context_update)로 반환되어 한도를 놓치지 않음"],
+        "manual": [],
+        "known_gap": "R02 공유(2026-11-06): R04 수정 전에는 이 경로가 한도에 닿지 않을 수 있다. 실패하면 TC01·WF-02b 결과와 나눠 기록하고 R04 수정 후 새 실행으로 재시험한다",
+        "open_items": ["R04 수정 커밋 확인", "attempt를 생략한 요청을 B02가 받는지(attempt 기본값 1) R02 확인"],
         "run_status": "not_run"
       }
     },
@@ -90,7 +117,10 @@
         "assert": [{"path": "reason", "op": "exists"}],
         "checks": ["티켓 정확히 1건 생성", "DLQ 1건 state_error·생성 ID 보존·recovery에 bind 최소 인자", "bind 실패 뒤 종료·배정 호출 0·생성 재호출 0·state_saved=false", "운영 알림 1건"],
         "manual": ["안내 완료·접수 완료를 주장하지 않음"],
-        "variants": [{"id": "TC06-v1", "change": "finish만 실패", "expect": "DLQ state_error·가린 Response 보존·성공한 종료/알림 반복 0"}],
+        "variants": [
+          {"id": "TC06-v1", "change": "finish만 실패", "expect": "DLQ state_error·가린 Response 보존·성공한 종료/알림 반복 0"},
+          {"id": "TC06-v2", "change": "Jira 종료(H08)만 실패", "expect": "200 담당자 이관·reason=partial_effect·확인된 ticket_id 표시, 처리 상태 unknown, DLQ recovery(close, jira_ref)(R02 로컬 예행 기준)"}
+        ],
         "open_items": ["저장 실패 시 응답 ticket_id 표시 여부(R02/R04 합의)"],
         "run_status": "not_run"
       }
@@ -145,6 +175,64 @@
         "checks": ["긴급 알림 정확히 1건(재알림 0)", "긴급 티켓 handed_off 유지·재생성 0", "조회 결과 error"],
         "manual": ["T-DEMO-02 상태를 추측하지 않고 조회하지 못했다고 안내"],
         "open_items": ["초동 근거 부족(R03)"],
+        "run_status": "not_run"
+      }
+    },
+    {
+      "name": "TC14 이관 뒤 같은 case 재요청은 재배정·재알림 없음",
+      "x_dubakwi": {
+        "id": "TC14", "scenario": ["S3", "S7"], "functions": ["F02", "F07"], "producers": ["R04", "R02"],
+        "boundary": "알림 성공 표식이 있는 case에 새 요청이 오면 Jira 표식을 확인하고 배정·알림을 다시 하지 않는다(R04 first-connection 6번)",
+        "steps": [
+          {"step": 1,
+           "body": {"request_id": "tc14-1", "user": "citizen-a", "question": "11월 2일 오후에 1시간권을 결제했는데 대여가 안 됐어요. 환불해 주세요. 따릉이 앱에서 카드로 결제했어요.", "attempt": 1},
+           "expect": {"status": 200, "equals": {"route": "담당자 이관"}},
+           "assert": [{"path": "ticket.ticket_id", "op": "exists"}, {"path": "case_ref", "op": "exists"}]},
+          {"step": 2,
+           "body": {"request_id": "tc14-2", "user": "citizen-a", "question": "결제 영수증 시각은 오후 3시 10분이었어요.", "case_ref": "{step1.case_ref}", "attempt": 2},
+           "expect": {"status": 200, "equals": {"route": "담당자 이관"}},
+           "assert": [{"path": "ticket.ticket_id", "op": "same_as", "value": {"step": 1, "path": "ticket.ticket_id"}}]}
+        ],
+        "checks": ["case 전체 Jira 이슈 1건", "담당 배정 1회·담당 알림 1건(step2에서 재배정·재알림 0)", "step2 맥락 저장(R04 반복 이관 문맥 저장)", "DLQ 0"],
+        "manual": ["step2 응답이 새 접수처럼 안내하지 않음"],
+        "open_items": ["R04 PR #27 병합·VM 반영 후 실행"],
+        "run_status": "not_run"
+      }
+    },
+    {
+      "name": "TC15 알림 결과 미확인은 partial_effect 유지와 같은 DLQ 갱신",
+      "x_dubakwi": {
+        "id": "TC15", "scenario": ["S8"], "functions": ["F07", "F09"], "producers": ["R04"],
+        "requires": "R04 시험용 설정: 담당 알림을 시도한 뒤 결과를 확인하지 못하게(알림 시도 표식만 남고 성공 표식 없음)",
+        "boundary": "자동 재알림 0, partial_effect와 수동 확인 복구 자료 유지, 같은 case 재요청은 같은 alert_marker DLQ 항목 갱신(R04 first-connection 7번, migration 007)",
+        "steps": [
+          {"step": 1,
+           "body": {"request_id": "tc15-1", "user": "citizen-a", "question": "11월 2일 오후에 1시간권을 결제했는데 대여가 안 됐어요. 환불해 주세요. 따릉이 앱에서 카드로 결제했어요.", "attempt": 1},
+           "expect": {"status": 200, "equals": {"route": "담당자 이관", "reason": "partial_effect"}},
+           "assert": [{"path": "ticket.ticket_id", "op": "exists"}, {"path": "case_ref", "op": "exists"}]},
+          {"step": 2,
+           "body": {"request_id": "tc15-2", "user": "citizen-a", "question": "결제 영수증 시각은 오후 3시 10분이었어요.", "case_ref": "{step1.case_ref}", "attempt": 2},
+           "expect": {"status": 200, "equals": {"route": "담당자 이관", "reason": "partial_effect"}},
+           "assert": [{"path": "ticket.ticket_id", "op": "same_as", "value": {"step": 1, "path": "ticket.ticket_id"}}]}
+        ],
+        "checks": ["step1 DLQ recovery.action=alert 1건", "step2 DLQ recovery.action=alert_marker, 같은 case·failed_step·error_code면 같은 dlq_id·deduplicated=true·최신 request_id로 갱신", "case당 DLQ는 alert 1건과 alert_marker 1건 이하", "자동 재알림 0(알림 호출 총 1회)", "처리 상태 unknown 유지, 접수 완료로 저장하지 않음"],
+        "manual": ["두 응답 모두 '담당자에게 전달 완료'라고 단정하지 않음"],
+        "open_items": ["알림 결과 미확인 고장 주입 방법(R04)", "DLQ 행·dlq_id 확인 방법(R04/R01, runtime 계정은 조회만)"],
+        "run_status": "not_run"
+      }
+    },
+    {
+      "name": "TC16 state·DLQ 저장 이중 실패 안전 종료",
+      "body": {"request_id": "tc16", "user": "citizen-a", "question": "어제 정기권을 샀는데 앱에 이용권이 안 보여요. 결제는 됐어요.", "attempt": 1},
+      "expect": {"status": 200, "equals": {"route": "담당자 이관"}},
+      "x_dubakwi": {
+        "id": "TC16", "scenario": ["S8"], "functions": ["F08", "F09"], "producers": ["R04", "R02"],
+        "requires": "R04/R01 시험용 설정: 같은 DB 장애로 state 저장과 DLQ 기록이 모두 실패(시험 DB·시험 scope 한정, 운영 DB 변경 금지)",
+        "boundary": "두 저장이 모두 실패하면 n8n 실행 기록·운영 알림에 남기고 접수 성공을 약속하지 않는다(STORAGE-DESIGN). 별도 저장소로 감추지 않는다",
+        "assert": [{"path": "reason", "op": "exists"}],
+        "checks": ["n8n 실행 기록에 저장 실패가 남음", "운영 알림 시도 1건", "자동 재시도·반복 진입 0", "알려진 Jira ID가 있으면 응답·실행 기록에 보존, 이후 종료·배정·알림 0", "장애 해제 후 같은 request_id 재전송이 새 처리로 중복 생성하지 않음(R04 기대값 확인)"],
+        "manual": ["'접수 완료'·'처리 완료'라고 답하지 않음"],
+        "open_items": ["이중 실패 시 HTTP 상태·route·reason 계약(R02/R04). 200 담당자 이관은 R05 가정", "장애 해제 후 재전송 기대값(R04)"],
         "run_status": "not_run"
       }
     }

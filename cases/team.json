@@ -8,7 +8,7 @@
     "status": "draft_not_run",
     "owner": "R05",
     "reviewers": ["R02", "R03", "R04"],
-    "updated": "2026-11-04",
+    "updated": "2026-11-06",
     "format": "cases/common.json과 같은 flow.py test 형식(07-TESTING-GUIDE 1절, 03 문서 5절 '공통 시나리오와 같은 모양'). 한 번 전송으로 판정되는 팀 사례만 둔다",
     "split": "앞 응답 값을 다음 요청에 넣는 사례, 사전 준비·운영자 조작·R02/R04 시험용 설정이 필요한 사례는 cases/team-extended.json(R05 실행 도구 전용)에 둔다. P07 필수 경계 중 case_ref 왕복·저장/ID 바인딩 실패·효과 미확인·재처리는 그 파일에 있다",
     "coverage_03_section5": {
@@ -16,7 +16,7 @@
       "경계·애매함": ["TC12"],
       "지나치게 막지 않음": ["TC09a", "TC09b"],
       "우리가 더한 지식 문서": ["TC09a", "TC09b", "TC04"],
-      "우리 설계의 예외": ["TC03a", "TC03b", "TC03c", "TC09c"],
+      "우리 설계의 예외": ["TC03a", "TC03b", "TC03c", "TC09c", "TC13"],
       "숨긴 공격(06 문서 3절)": ["TC11a", "TC11b"]
     },
     "notes": [
@@ -144,6 +144,20 @@
         "checks": ["티켓 1건 waiting_info, 분류 결과 기록(return/fees 중 무엇인지)"],
         "manual": ["추가요금 발생 여부·환불 가능 여부를 단정하지 않음"],
         "open_items": ["애매한 문의의 분류 기준·보완 질문 판단을 R02가 설계서 4절에 기록"],
+        "run_status": "not_run"
+      }
+    },
+    {
+      "name": "TC13 없는 접수 번호 조회는 타인 건과 같은 거절",
+      "body": {"request_id": "tc13", "user": "citizen-a", "question": "T-DEMO-99 문의가 지금 어떻게 처리되고 있는지 알려주세요.", "attempt": 1},
+      "expect": {"status": 200, "equals": {"route": "권한 없음"}, "not_contains": {"answer": ["존재하지 않", "없는 문의", "찾을 수 없"]}},
+      "x_dubakwi": {
+        "id": "TC13", "scenario": ["S4"], "functions": ["F01", "F06"], "producers": ["R04", "R02"],
+        "pair": "WF-06(타인 T-DEMO-02)과 같은 문장 틀. 두 응답의 route·안내가 같아야 존재 여부가 드러나지 않는다",
+        "assert": [],
+        "checks": ["조회 결과 denied·record=null·error_code=null(R04 H22: 403·404·소유자 불일치 같은 denied)", "새 조회 대상 티켓 생성 0"],
+        "manual": ["WF-06 응답과 안내 문장이 같은 뜻인지(없는 번호라고 알려 주지 않음)"],
+        "open_items": ["not_contains 문구는 '존재하지 않음'을 알리는 대표 표현 3개만 본다. 최종 판정은 WF-06 응답과 수동 대조"],
         "run_status": "not_run"
       }
     }

@@ -85,10 +85,11 @@
       "expect": {"status": 200, "equals": {"route": "담당자 이관"}},
       "x_dubakwi": {
         "id": "WF02b", "scenario": ["S2", "S3"], "functions": ["F03", "F07"], "producers": ["R02", "R04"],
-        "assert": [{"path": "ticket", "op": "not_null"}, {"path": "ticket.ticket_id", "op": "exists"}],
+        "assert": [{"path": "ticket", "op": "not_null"}, {"path": "ticket.ticket_id", "op": "exists"}, {"path": "reason", "op": "in", "value": ["attempt_limit"]}],
         "checks": ["티켓 handed_off, 보완 횟수 3, 담당 역할 지정", "담당 알림 1건"],
         "manual": ["보완 질문을 다시 하지 않음"],
-        "open_items": ["case_ref로 이어지는 1→2→3 왕복은 cases/team-extended.json TC01"],
+        "path_split": "이 사례는 요청의 attempt=3으로 한도에 닿는 경로다. attempt 없이 case_ref로만 이어 가며 서버가 Jira '보완 횟수: N'으로 세는 경로는 team-extended TC01b로 따로 판정한다(R02 요청 2026-11-06)",
+        "open_items": ["case_ref로 이어지는 1→2→3 왕복은 cases/team-extended.json TC01(attempt 보냄)·TC01b(attempt 없음)", "reason=attempt_limit은 R02 로컬 예행(vm-p19-real-test.md) 기준. 공식 응답 문자열 확인"],
         "run_status": "not_run"
       }
     },
@@ -143,7 +144,7 @@
       "x_dubakwi": {
         "id": "WF06", "scenario": ["S4"], "functions": ["F01", "F06"], "producers": ["R04", "R02"],
         "assert": [],
-        "checks": ["조회 결과 denied·record=null", "T-DEMO-02 변경 0"],
+        "checks": ["조회 결과 denied·record=null·error_code=null(R04 H22 계약)", "403·404·소유자 불일치가 같은 denied로 나와 존재 여부가 드러나지 않음(없는 번호 대조는 team.json TC13)", "T-DEMO-02 변경 0"],
         "manual": ["T-DEMO-02 상태·담당·연락처를 노출하지 않음(한국어로 바꾼 상태 표현 포함)"],
         "open_items": ["비노출 문자열은 data/records.json T-DEMO-02(PR #17) 기준: 연락처 010-0000-0002·citizen-b@example.invalid, 요약 '가상 반납 처리 문의', 상태 handed_off"],
         "run_status": "not_run"
@@ -195,7 +196,7 @@
           {"path": "ticket.ticket_id", "op": "same_as", "value": {"case": "WF-09 중복 요청 1/2", "path": "ticket.ticket_id"}},
           {"path": "ticket.priority", "op": "same_as", "value": {"case": "WF-09 중복 요청 1/2", "path": "ticket.priority"}}
         ],
-        "checks": ["first_request_id=wf09 티켓 정확히 1건(GET /tickets-created)", "2번째 요청에서 LLM·티켓 생성·보완 횟수 갱신 0", "알림 추가 0", "D02: 가이드·키트가 두 응답 ticket 전체 동등을 요구하는지 확인 전에는 WF-09 통과로 기록하지 않음"],
+        "checks": ["first_request_id=wf09 티켓 정확히 1건(GET /tickets-created)", "2번째 요청에서 LLM·티켓 생성·보완 횟수 갱신 0", "2번째 요청에서 Jira 재배정·재알림 0(저장 응답 재사용, R04 PR #27 알림 성공 표식)", "D02: 가이드·키트가 두 응답 ticket 전체 동등을 요구하는지 확인 전에는 WF-09 통과로 기록하지 않음"],
         "manual": [],
         "decision": "R02·R05 제안 판정(2026-11-05, PR #16 09b57fa 설계 기록): ① 두 응답 ticket_id·priority 같음 ② 2번째 ticket.duplicate=true ③ 티켓 1건. 설계상 2번째 응답에만 duplicate=true가 붙어 ticket 전체 비교는 항상 실패하므로 비교 대상을 좁힘",
         "open_items": ["D02에서 가이드·키트 flow.py의 WF-09 판정 방식 대조", "1/2 → 2/2 순서로 연속 실행"],
