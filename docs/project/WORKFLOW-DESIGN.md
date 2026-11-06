@@ -841,9 +841,9 @@ flowchart TD
 | --- | --- | --- | --- | --- |
 | E01 예상 밖 오류 | Error Trigger | n8n event | ErrorCtx | 본체·하위 지정,자기 지정 없음 |
 | E02 오류 가림 | Code | n8n event | ErrorCtx | execution/node/code,원문·키 제거 |
-| E03 운영 알림 | HTTP Request | StateResult+E02.ErrorCtx | Raw | 알림 body는 E02의 가린 원 오류에서 구성,상태 기록 결과만 합성. POST /alerts 실패도 E04 진행 |
+| E03 운영 알림 | HTTP Request | StateResult+E02.ErrorCtx | Raw | 설계 대상이며 현재 `dubakwi-errors` 준비본에는 미구현. 구현 전에는 DLQ의 `effects.alert=none`, `alert_backend_unconfigured`로 남기며 Discord/Jira 알림 성공을 주장하지 않음 |
 | E04 오류 보관 | Execute Sub-workflow | DlqWriteRequest | DlqResult | 고정 DLQ put_dlq. 원 request 모르면 null 허용,recovery=manual_required. 실행ID만으로 업무 재실행하지 않음. 저장 실패는 실행 기록 운영 확인 |
-| E05 중단 요청 상태 확인 | Execute Sub-workflow | 원 execution ID·가린 오류 | StateResult | 원 실행으로 소유 요청이 확인되면 unknown/failed 기록,없으면 skipped. 실패도 E03/E04 진행,모르는 시민 요청을 추정 갱신하지 않음 |
+| E05 중단 요청 상태 확인 | Execute Sub-workflow | 원 execution ID·가린 오류 | StateResult | 원 실행으로 소유 요청이 확인되면 unknown/failed 기록,없으면 skipped. `continueRegularOutput`으로 state 하위 실행이 throw해도 E02의 가린 문맥으로 E04를 계속 시도함. 모르는 시민 요청을 추정 갱신하지 않음 |
 
 ```mermaid
 flowchart TD
@@ -857,6 +857,13 @@ flowchart TD
   E03 -->|"E107 main:0"| E04
   E05 -->|"E126 main:0"| E03
 ```
+
+현재 준비본의 연결 조건은 다음과 같다.
+
+- `DUBAKWI_SCOPE`는 시민 입력이나 PR에 넣지 않고 R01이 n8n 서비스 환경변수로 주입한다. 환경변수 반영에는 통제된 n8n 재시작과 재시작 뒤 health 확인이 필요하다. 값이 없으면 `storage_ready=false`로 state·DLQ 호출을 막는다. n8n 기본 설정은 Code 노드의 $env 접근을 막으므로 E02는 접근 예외를 무시하고, 가져올 때 치환하는 자리표시자 __DUBAKWI_SCOPE__ 값을 대신 쓴다. 치환값은 support의 scope(dubakwi-dev)와 같아야 하고, 같은 문자열이 비교식에도 있으므로 `const importedScope` 대입값만 치환한다(`scripts/dev/render_n8n_workflow.py --scope`, PR #27. 전체 치환은 저장을 항상 차단)(둘 다 없으면 저장을 막고 E07로 안전 종료).
+- R01은 검토된 시험 사본의 Workflow Settings에서 `dubakwi-errors`를 Error Workflow로 지정한다. 오류 워크플로우 자신에게는 지정하지 않아 재귀 실행을 막는다.
+- 연결 검증은 비공개 시험 사본에 의도적 Code 예외를 한 번 주입해 state 성공/실패와 무관하게 가린 DLQ 요청이 시도되는지 확인한다. 기존 P11/P19 게시본은 이 확인 전에 변경하지 않는다.
+- 운영 알림 노드는 아직 없으므로 Error Workflow·DLQ 연결 완료와 Discord/Jira 운영 알림 완료를 구분한다.
 
 ### 7.3. 기본 노드에 붙이는 오류 엣지
 
