@@ -330,9 +330,32 @@ class RunnerTests(unittest.TestCase):
             },
         ]
         self.write_cases({"name": "T", "x_dubakwi": {"id": "T", "steps": steps}})
-        summary, _ = self.run_tool()
+        summary, path = self.run_tool()
         self.assertEqual(self.webhook_calls()[1]["case_ref"], "case-77")
         self.assertEqual(summary["cases"][0]["status"], "pass")
+        same_as = [c for c in summary["cases"][0]["checks"] if c["kind"] == "x:same_as"][0]
+        self.assertEqual(same_as["expected"], {"same_as": "step1", "path": "case_ref"})
+        self.assertNotIn("case-77", path.read_text(encoding="utf-8"))
+
+    def test_failed_same_as_does_not_publish_earlier_value(self):
+        replies = iter([("case-secret-1", "보완 질문"), ("case-other-2", "보완 질문")])
+
+        def reply(request):
+            case_ref, route = next(replies)
+            return 200, ok_body(request, route=route, case_ref=case_ref)
+
+        FakeServer.reply = reply
+        same = {"path": "case_ref", "op": "same_as", "value": {"step": 1, "path": "case_ref"}}
+        steps = [
+            {"step": 1, "body": req("f1"), "expect": {"status": 200}},
+            {"step": 2, "body": req("f2"), "expect": {"status": 200}, "assert": [same]},
+        ]
+        self.write_cases({"name": "F", "x_dubakwi": {"id": "F", "steps": steps}})
+        summary, path = self.run_tool()
+        self.assertEqual(summary["cases"][0]["status"], "fail")
+        public = path.read_text(encoding="utf-8")
+        self.assertNotIn("case-secret-1", public)
+        self.assertNotIn("case-other-2", public)
 
     def test_same_as_across_cases_compares_earlier_case_response(self):
         tickets = iter(

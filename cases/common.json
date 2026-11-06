@@ -186,17 +186,19 @@
     },
     {
       "name": "WF-09 중복 요청 1/2",
-      "body": {"request_id": "wf09", "user": "citizen-a", "question": "지난주 정기권이 두 번 결제됐어요. 한 건 환불 요청합니다.", "attempt": 1},
+      "body": {"request_id": "wf09", "user": "citizen-a", "question": "11월 1일 오후에 30일 정기권을 따릉이 앱에서 카드로 결제했는데 같은 금액이 두 번 결제됐어요. 한 건 환불해 주세요.", "attempt": 1},
       "expect": {"status": 200, "equals": {"route": "담당자 이관"}},
       "x_dubakwi": {
         "id": "WF09-1", "category": "failure_handling", "scenario": ["S7"], "functions": ["F02", "F07"], "producers": ["R04", "R02"],
         "assert": [{"path": "ticket.ticket_id", "op": "exists"}],
-        "checks": [], "manual": [], "open_items": [], "run_status": "not_run"
+        "checks": [], "manual": [],
+        "input_change": "2026-11-06 VM 20261106-174635·174807에서 이전 문장('지난주 정기권이 두 번 결제됐어요. 한 건 환불 요청합니다.')은 결제 정보가 없어 설계대로 '결제 내역' 보완 질문으로 갔다. 가이드 WF-09의 전제(이관이 필요한 같은 요청)를 채우지 못한 입력이라, 결제일·이용권·결제수단을 넣은 문장으로 바꿨다. 기대값은 그대로다. 최초 실패 기록은 보존한다",
+        "open_items": [], "run_status": "fail_input_20261106-174807"
       }
     },
     {
       "name": "WF-09 중복 요청 2/2",
-      "body": {"request_id": "wf09", "user": "citizen-a", "question": "지난주 정기권이 두 번 결제됐어요. 한 건 환불 요청합니다.", "attempt": 1},
+      "body": {"request_id": "wf09", "user": "citizen-a", "question": "11월 1일 오후에 30일 정기권을 따릉이 앱에서 카드로 결제했는데 같은 금액이 두 번 결제됐어요. 한 건 환불해 주세요.", "attempt": 1},
       "expect": {"status": 200, "equals": {"route": "담당자 이관", "ticket.duplicate": true}},
       "x_dubakwi": {
         "id": "WF09-2", "category": "failure_handling", "scenario": ["S7"], "functions": ["F02", "F07"], "producers": ["R04", "R02"],

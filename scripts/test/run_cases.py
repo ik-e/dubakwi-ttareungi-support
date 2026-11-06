@@ -389,14 +389,19 @@ def judge_step(step, result, earlier_cases, step_results):
             add("not_contains", path, value, not flow_contains(actual, value))
     for item in step["assert"]:
         value = item.get("value")
+        shown = value
         if item["op"] == "same_as":
+            # Compare against the earlier response, but record only the reference: the
+            # resolved value can be a Jira key or case_ref that must stay out of public files.
             if "case" in value:
                 ref = earlier_cases.get(value["case"])
+                shown = {"same_as": f"case {value['case']}", "path": value["path"]}
             else:
                 ref = step_results.get(value["step"], {}).get("body")
+                shown = {"same_as": f"step{value['step']}", "path": value["path"]}
             value = resolve(ref, value["path"]) if ref is not None else MISSING
         actual = resolve(body, item["path"]) if body is not None else MISSING
-        add(f"x:{item['op']}", item["path"], value, check(item["op"], actual, value))
+        add(f"x:{item['op']}", item["path"], shown, check(item["op"], actual, value))
     return out
 
 
