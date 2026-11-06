@@ -8,7 +8,12 @@ from pathlib import Path
 
 from make_verifier_fault import MODEL, SOURCE, VERIFIER, WRITER, WRITER_MODEL, build
 from make_vm_p19_bundle import FORBIDDEN, HANDOFF_URL, SEARCH_URL, SUPPORT_PATH, build_all
-from make_vm_p19_real_bundle import SCOPE_NODES
+from make_vm_p19_real_bundle import (
+    IMPORTED_SCOPE_LINE,
+    SCOPE_NODES,
+    build_errors,
+    check_errors_scope,
+)
 from make_vm_p19_real_bundle import build_support as build_real_support
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -126,6 +131,51 @@ class SupportSkeletonTest(unittest.TestCase):
         self.assertNotIn("dubakwi-dev", text)
         self.assertEqual(copy["settings"]["errorWorkflow"], "errors-x")
         self.assertFalse(copy["active"])
+
+    def errors_fixture(self) -> dict:
+        # R04 7426eb9 E02의 scope 부분과 같은 구조다. 대입값과 비교식에 자리표시자가 두 번 있다.
+        code = "\n".join(
+            [
+                "const readEnvScope = () => { try { return $env.DUBAKWI_SCOPE || ''; } catch (error) { return ''; } };",
+                IMPORTED_SCOPE_LINE,
+                "const envScope = readEnvScope() || (importedScope !== '__DUBAKWI_SCOPE__' ? importedScope : '');",
+                "return [{json: {storage_ready: envScope.length > 0, scope: envScope || null}}];",
+            ]
+        )
+        state = {"__rl": True, "value": "dubakwiState01", "mode": "list"}
+        dlq = {"__rl": True, "value": "dubakwiDlq0001", "mode": "list"}
+        return {
+            "id": "dubakwiErrors01",
+            "nodes": [
+                {"name": "E02 오류 가림과 안전 차단", "parameters": {"jsCode": code}},
+                {"name": "E05 중단 요청 상태 확인", "parameters": {"workflowId": state}},
+                {"name": "E04 오류 보관", "parameters": {"workflowId": dlq}},
+            ],
+        }
+
+    def test_errors_copy_replaces_only_imported_scope_assignment(self) -> None:
+        options = {"scope": "scope-x", "state_id": "state-x", "dlq_id": "dlq-x"}
+        copy = build_errors(self.errors_fixture(), options)
+        code = copy["nodes"][0]["parameters"]["jsCode"]
+        self.assertIn("const importedScope = 'scope-x';", code)
+        self.assertIn("importedScope !== '__DUBAKWI_SCOPE__'", code)
+        self.assertEqual(copy["nodes"][1]["parameters"]["workflowId"]["value"], "state-x")
+        self.assertEqual(copy["nodes"][2]["parameters"]["workflowId"]["value"], "dlq-x")
+        self.assertFalse(copy["active"])
+        if shutil.which("node"):
+            self.assertTrue(check_errors_scope(copy, "scope-x"))
+            broken = json.loads(json.dumps(self.errors_fixture()))
+            text = broken["nodes"][0]["parameters"]["jsCode"]
+            broken["nodes"][0]["parameters"]["jsCode"] = text.replace(
+                "__DUBAKWI_SCOPE__", "scope-x"
+            )
+            self.assertFalse(check_errors_scope(broken, "scope-x"))
+
+    def test_errors_copy_rejects_errors_without_imported_scope(self) -> None:
+        workflow = self.errors_fixture()
+        workflow["nodes"][0]["parameters"]["jsCode"] = "return [{json: {}}];"
+        with self.assertRaises(ValueError):
+            build_errors(workflow, {"scope": "scope-x", "state_id": "s", "dlq_id": "d"})
 
 
 if __name__ == "__main__":
