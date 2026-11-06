@@ -92,7 +92,7 @@ function runWorkflow(workflow, webhookItem, b04Response, overrides = {}) {
   const outputs = new Map();
   const visited = [];
   const startedAt = Date.now();
-  const timing = { ticketTimeout: null, ticketRemaining: null, respondedMs: null };
+  const timing = { ticketTimeout: null, ticketRemaining: null, respondedMs: null, writerTimeout: null, verifierTimeout: null, answerRemaining: null, answerReserved: null };
   const contractFailures = [];
   const calls = { llm: 0, search: 0, lookup: 0, process: 0, saves: 0, prepares: 0, fails: 0, dlq: 0, alerts: 0, begin: 0 };
   const sent = { process: [], search: [], begin: null, fail: null, dlq: null, logs: [] };
@@ -116,6 +116,7 @@ function runWorkflow(workflow, webhookItem, b04Response, overrides = {}) {
     const p = node.parameters;
     let json = input;
     let port = 0;
+    let modelTimeout = null;
     switch (node.type) {
       case 'n8n-nodes-base.webhook':
       case 'n8n-nodes-base.respondToWebhook':
@@ -165,17 +166,35 @@ function runWorkflow(workflow, webhookItem, b04Response, overrides = {}) {
         else throw new Error(`허용되지 않은 하위 호출: ${input.op}`);
         break;
       }
-      case '@n8n/n8n-nodes-langchain.chainLlm':
+      case '@n8n/n8n-nodes-langchain.chainLlm': {
         evalExpr(p.text, scope);
+        const modelName = name.startsWith('B10') ? 'L01 분류 모델' : name.startsWith('B19') ? 'L02 답변 모델' : 'L03 검증 모델';
+        modelTimeout = Number(evalExpr(nodes.get(modelName).parameters.options.timeout, scope));
+        if (!Number.isFinite(modelTimeout) || modelTimeout <= 0) contractFailures.push(`${modelName}: 유효한 timeout 없음`);
+        if (name.startsWith('B19')) timing.writerTimeout = modelTimeout;
+        if (name.startsWith('B20')) timing.verifierTimeout = modelTimeout;
         calls.llm += 1;
         json = name.startsWith('B10') ? env.triage : name.startsWith('B19') ? env.writer : env.verifier;
+        const simulatedDelay = env.advanceAfter?.[name.split(' ')[0]];
+        if (Number.isFinite(simulatedDelay) && simulatedDelay > modelTimeout) json = { error: { message: 'simulated model timeout' } };
         break;
+      }
       default:
         throw new Error(`시험 도구가 지원하지 않는 노드: ${node.type} (${name})`);
     }
     // 'timeout'은 B27이 계산한 제한 시간을 모두 쓴 경우다(최악 경로 시험).
     const delay = env.advanceAfter?.[name.split(' ')[0]];
-    if (delay) clock.shift(delay === 'timeout' ? timing.ticketTimeout : delay);
+    if (delay) {
+      const elapsed = delay === 'timeout' ? timing.ticketTimeout
+        : delay === 'model-limit' ? modelTimeout
+          : modelTimeout === null ? delay : Math.min(delay, modelTimeout);
+      clock.shift(elapsed);
+    }
+    if (name.startsWith('B17')) {
+      timing.answerRemaining = Date.parse(json.deadline_at) - Date.now();
+      const tb = json.time_budget;
+      timing.answerReserved = tb.ticket_min_ms + tb.tail_ms + tb.answer_overhead_ms;
+    }
     if (name.startsWith('B36')) timing.respondedMs = Date.now() - startedAt;
     outputs.set(name, json);
     const targets = workflow.connections[name]?.main?.[port] ?? [];
@@ -343,9 +362,10 @@ const FLOWS = [
   ['FL52', 'S2', '위험 단서 없는 반납 긴급은 낮춤', ask({ question: '잠금장치가 안 잠겨요.' }), { triage: { text: triage({ type: 'return', urgency: 'high', missing: ['bike_id'] }) } }, flow({ route: '보완 질문', process: 1 })],
   ['FL53', 'S5', '위험 단서 있으면 반납 유형도 긴급 유지', ask({ question: '반납하다가 넘어져 다쳤어요.' }), { triage: { text: triage({ type: 'return', urgency: 'high', missing: ['bike_id'] }) } }, handoff('urgent', { priority: 'high' })],
   ['FL54', 'S5', '고장 유형 긴급은 낮추지 않음', ask({ question: '자전거에서 연기가 나요.' }), { triage: { text: triage({ type: 'breakdown', urgency: 'high' }) } }, handoff('urgent', { priority: 'high' })],
-  ['FL55', '시간', '분류 뒤 시한 초과면 검색 없이 이관', ask(), { advanceAfter: { B10: 21000 } }, handoff('deadline_exceeded', { llm: 1, search: 0 })],
+  // 시한 소진은 모델 밖의 선행 처리 지연으로 주입한다. 모델 자체 초과는 FL92가 timeout으로 검증한다.
+  ['FL55', '시간', '분류 뒤 시한 초과면 검색 없이 이관', ask(), { advanceAfter: { B07: 21000 } }, handoff('deadline_exceeded', { llm: 1, search: 0 })],
   ['FL56', '시간', '검색 뒤 답변 시간 부족이면 이관', ask(), { advanceAfter: { B14: 14000 } }, handoff('deadline_exceeded', { llm: 1, search: 1, action: 'handoff' })],
-  ['FL57', '시간', '시한 초과여도 긴급은 이관 유지', ask(), { triage: { text: triage({ type: 'security', urgency: 'high' }) }, advanceAfter: { B10: 21000 } }, handoff('urgent', { priority: 'high', process: 1 })],
+  ['FL57', '시간', '시한 초과여도 긴급은 이관 유지', ask(), { triage: { text: triage({ type: 'security', urgency: 'high' }) }, advanceAfter: { B07: 21000 } }, handoff('urgent', { priority: 'high', process: 1 })],
   ['FL58', '표시', '근거 표시를 답변에 보존하면 통과', ask(), { search: (r) => ({ statusCode: 200, body: { request_id: r.request_id, status: 'ok', error_code: null, evidence: [{ ...EVIDENCE, text: '[실제 안내] QR을 스캔해 대여합니다.' }] } }), writer: { text: JSON.stringify({ answer: '[실제 안내] QR을 스캔해 대여합니다.', cited_source_ids: ['c1'] }) } }, flow({ route: '자동 답변', answerHas: '[실제 안내]' })],
   ['FL59', '표시', '근거 표시 누락은 이관', ask(), { search: (r) => ({ statusCode: 200, body: { request_id: r.request_id, status: 'ok', error_code: null, evidence: [{ ...EVIDENCE, text: '[실제 안내] QR을 스캔해 대여합니다.' }] } }), writer: { text: JSON.stringify({ answer: 'QR을 스캔해 대여합니다.', cited_source_ids: ['c1'] }) } }, handoff('verification_failed', { noWriterText: true })],
   ['FL60', '표시', '근거와 다른 표시는 이관', ask(), { search: (r) => ({ statusCode: 200, body: { request_id: r.request_id, status: 'ok', error_code: null, evidence: [{ ...EVIDENCE, text: '[실제 안내] QR을 스캔해 대여합니다.' }] } }), writer: { text: JSON.stringify({ answer: '[가상 설정] QR을 스캔해 대여합니다.', cited_source_ids: ['c1'] }) } }, handoff('verification_failed', { noWriterText: true })],
@@ -366,11 +386,16 @@ const FLOWS = [
   // 시간 예산(설계서 7.5): 각 호출이 제한 시간을 모두 써도 B36 응답이 20초 안이어야 한다.
   ['FL77', '시간', '모든 호출이 제한을 다 쓰면 답변 대신 이관하고 20초 안 응답', ask(), { advanceAfter: { B04: 1500, B10: 4000, B14: 3000, B27: 'timeout', B35: 1500 } }, handoff('deadline_exceeded', { llm: 1, search: 1, ticketTimeout: 8000, maxResponseMs: 20000 })],
   ['FL78', '시간', '답변 경로 LLM 최대 시간 뒤 티켓 제한은 남은 시간만큼', ask(), { advanceAfter: { B10: 2000, B14: 1000, B19: 4000, B20: 3000, B27: 'timeout', B35: 1500 } }, flow({ route: '자동 답변', llm: 3, ticketTimeout: 6500, maxResponseMs: 20000 })],
-  ['FL79', '시간', '분류 뒤 검색·티켓·마무리 시간이 없으면 검색 없이 이관', ask(), { advanceAfter: { B10: 10000 } }, handoff('deadline_exceeded', { llm: 1, search: 0, ticketTimeout: 6500 })],
+  ['FL79', '시간', '분류 뒤 검색·티켓·마무리 시간이 없으면 검색 없이 이관', ask(), { advanceAfter: { B07: 10000 } }, handoff('deadline_exceeded', { llm: 1, search: 0, ticketTimeout: 6500 })],
   ['FL80', '시간', '긴급 선이관 뒤 시간이 없으면 후속 검색 생략', ask(), { triage: { text: triage({ type: 'security', urgency: 'high' }) }, advanceAfter: { B04: 1500, B10: 4000, B27: 'timeout', B35: 1500 } }, handoff('urgent', { priority: 'high', process: 1, search: 0, ticketTimeout: 11000, maxResponseMs: 20000 })],
   ['FL81', '시간', '티켓 호출이 제한을 다 쓰면 효과 미확인으로 이관하고 20초 안', ask(), { process: () => ({ error: { message: 'timeout' } }), advanceAfter: { B10: 2000, B27: 'timeout', X04: 1500, B35: 1500 } }, handoff('ticket_unknown', { dlq: 1, alerts: 1, ticket: null, process: 1, failStatus: 'unknown', maxResponseMs: 19600 })],
   // R04·R05 합의(2026-11-06): 모든 응답은 20초 안. B27은 20초까지 남은 시간으로 끊고, 끊기면 효과 미확인(재생성·재알림 0)이다.
   ['FL87', '시간', '보통 경로의 티켓 제한은 20초까지 남은 시간 − 마무리', ask(), { advanceAfter: { B10: 2000, B14: 1000, B19: 2000 } }, flow({ route: '자동 답변', llm: 3, ticketTimeout: 11500 })],
+  ['FL88', '시간', 'VM257 남은14.941초에서도 모델 제한을 줄여 정상 경로 시도', ask(), { advanceAfter: { B07: 543, B10: 2252, B14: 2264, B19: 2000, B20: 1100 } }, flow({ route: '자동 답변', llm: 3, process: 1, saves: 1, adaptiveBudget: true, maxResponseMs: 20000 })],
+  ['FL89', '시간', 'VM279 남은15.120초에서도 모델 제한을 줄여 정상 경로 시도', ask(), { advanceAfter: { B07: 837, B10: 1857, B14: 2186, B19: 2000, B20: 1100 } }, flow({ route: '자동 답변', llm: 3, process: 1, saves: 1, adaptiveBudget: true, maxResponseMs: 20000 })],
+  ['FL90', '시간', '최소 작성3초·검증2초와 Jira·마무리 예약이 없으면 이관', ask(), { advanceAfter: { B07: 1100, B10: 2000, B14: 3000 } }, handoff('deadline_exceeded', { llm: 1, process: 1 })],
+  ['FL91', '시간', '동적 모델 제한과 티켓 제한을 모두 사용해도 마무리 시간을 남김', ask(), { advanceAfter: { B07: 500, B10: 2000, B14: 3000, B19: 'model-limit', B20: 'model-limit', B27: 'timeout', B35: 1500 } }, flow({ route: '자동 답변', llm: 3, adaptiveBudget: true, maxResponseMs: 20000 })],
+  ['FL92', '시간', '줄인 작성 제한을 넘으면 검증을 우회하지 않고 LLM 장애로 이관', ask(), { advanceAfter: { B07: 500, B10: 2000, B14: 3000, B19: 5000 } }, handoff('llm_down', { llm: 3, process: 1, adaptiveBudget: true, maxResponseMs: 20000 })],
   // R05 TC01b: attempt 없이 case_ref만 보내도 서버 횟수로 3회째 한도 이관한다.
   ['FL82', 'S2', 'attempt 생략 신규 요청은 받아서 보완 질문', ask({ question: '반납했는데 안 됐어요' }), { triage: { text: RETURN_ASK } }, flow({ route: '보완 질문', sentAttempt: 1 })],
   ['FL83', 'S2', 'attempt 생략 case_ref 세 번째는 attempt_limit', ask({ case_ref: 'case-1' }), { triage: { text: RETURN_ASK }, ...earlier(2) }, handoff('attempt_limit', { sentAttempt: 3 })],
@@ -427,6 +452,12 @@ function evaluate(workflow, [id, group, title, body, second, expected], flowCase
   if ('failRevision' in e) check('fail_revision', result.sent.fail?.state_ref?.state_revision, e.failRevision);
   if ('maxResponseMs' in e && !(result.timing.respondedMs <= e.maxResponseMs)) failures.push(`응답 시각 ${result.timing.respondedMs}ms > ${e.maxResponseMs}ms`);
   // 시험 도구 자체의 실행 시간(수 ms)만큼 줄어들 수 있어 50ms 범위로 본다.
+  if (e.adaptiveBudget) {
+    const { writerTimeout: w, verifierTimeout: v, answerRemaining: remaining, answerReserved: reserved } = result.timing;
+    if (!(w >= 3000 && w <= 4000 && v >= 2000 && v <= 3000)) failures.push(`동적 모델 한도 범위 위반: ${w}/${v}`);
+    if (!(w + v < 7000)) failures.push(`시간 부족 경로에서 모델 최대합이 줄지 않음: ${w + v}`);
+    if (w + v + reserved > remaining + 30) failures.push('모델 한도가 Jira·마무리 예약을 침범함');
+  }
   if ('ticketTimeout' in e && !(result.timing.ticketTimeout <= e.ticketTimeout && result.timing.ticketTimeout > e.ticketTimeout - 50)) failures.push(`ticket_timeout: 기대 ${e.ticketTimeout}, 실제 ${result.timing.ticketTimeout}`);
   if ('dlqRecoveryAction' in e) check('dlq_recovery_action', result.sent.dlq?.recovery?.action, e.dlqRecoveryAction);
   // R04 DLQ D02가 만드는 중복 제거 키(scope·_dedupe_ref·failed_step·error_code)를 support 요청으로 확인한다.
@@ -503,7 +534,9 @@ function checkTimeBudget(workflow) {
   const ms = (prefix) => Number(node(prefix).parameters.options.timeout);
   for (const prefix of ['L01', 'L02', 'L03']) if (node(prefix).parameters.options.maxRetries !== 0) failures.push(`${prefix}: LLM 재시도는 0이어야 함`);
   if (ms('B14') > tb.search_ms || ms('B15') > tb.search_ms) failures.push('B14·B15 제한이 search_ms보다 큼');
-  if (ms('L02') + ms('L03') > tb.answer_ms) failures.push('L02+L03 제한이 answer_ms보다 큼');
+  if (tb.writer_max_ms + tb.verifier_max_ms > tb.answer_ms) failures.push('모델 최대합이 answer_ms보다 큼');
+  if (tb.writer_min_ms > tb.writer_max_ms || tb.verifier_min_ms > tb.verifier_max_ms || tb.answer_overhead_ms < 500) failures.push('동적 모델 최소/최대/여유 예산 오류');
+  for (const prefix of ['L02', 'L03']) if (!String(node(prefix).parameters.options.timeout).includes('answer_time_budget')) failures.push(`${prefix}: 실제 제한이 B17 배정값을 쓰지 않음`);
   if (ms('B35') + ms('X04') > tb.tail_ms) failures.push('B35+X04 제한이 tail_ms보다 큼');
   // B11 판단 시점의 최악값에서도 이관 티켓과 마무리 시간이 남아야 한다.
   if (ms('B04') + ms('L01') + tb.search_ms + tb.ticket_min_ms + tb.tail_ms > deadline) failures.push('분류 최악값 뒤 티켓 최소 시간이 남지 않음');
