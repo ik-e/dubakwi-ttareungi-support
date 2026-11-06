@@ -517,6 +517,7 @@ B28은 먼저 error_code=null && state_saved=true && 최신 state_ref를 확인�
 | state `error_code` | support는 저장된 칸을 읽지 않고 SaveResult·StateResult·BeginResult의 값만 소비 | 스키마 변경 불필요 |
 | 저장 경계 | R04 `1b83d18`: support는 `save`만 호출, 내부에서 Jira 확인 뒤 finish. DLQ는 X03만 기록. 처리권 없는 fail은 skipped. wait도 Jira에 보완 횟수 기록 | PR #27 미병합. [로컬 가짜 Jira 시험](../../runs/public/20261105-194144-local-n8n-p19-fake-jira-fdd0be1/summary.json)으로 소비 확인. support를 통한 실제 Jira·VM·공식 판정 미실행 |
 | 알려진 한계 | 한도 이관 뒤 같은 case의 새 요청과 같은 요청 재시도에서 재배정·재알림 반복 | R04 PR #27 `e0ff365`에서 알림 시도·성공 표식으로 수정. support 소비는 로컬 Code로 호환 확인. `alert_marker`는 `f306778`에서 DLQ에 허용되고 같은 case는 같은 DLQ로 갱신됨(로컬 Code·임시 PostgreSQL 확인). 시도 표식만 남은 문의도 `33e68d9`부터 `alert_marker`로 같은 DLQ에 합쳐짐(`15e3c5a` 로컬 Code 확인). support를 통한 종단·실제 Jira·동시 요청 생성 원자성은 미확인 |
+| 실패 문의 후속 | 같은 요청 재전송 409 `request_requires_review`, 같은 `case_ref` 후속 409 `case_busy`, 새 문의 정상 | 완료 제한: 실패 문의 연속 처리 미지원, 원 요청 재개 미구현([7.6](#76-실패-문의의-후속-처리-제한-완료-제한)) |
 | 실제 연결 묶음 | [`make_vm_p19_real_bundle.py`](../../scripts/test/make_vm_p19_real_bundle.py), [대응표](../../scripts/test/vm-p19-real-test.md) | 로컬 임시 PostgreSQL 예행으로 실제 state·DLQ 호출 확인. 실제 Jira·VM·공식 판정 미실행 |
 | DLQ 요청 | X03a는 `jira_issue_id`·`jira_issue_key`·`last_execution_id`와 Effect 5칸을 보냄. 하위 호출은 `alwaysOutputData`로 항목 없어도 진행 | 로컬 시험이 R04의 S02·D02 코드로 요청을 대조함 |
 
@@ -1044,6 +1045,20 @@ R02 적용(2026-11-06, 강사 피드백 "호출별 timeout·재시도를 합쳐�
 - **재시도(R04 제안, 2026-11-05):** LLM은 재시도하지 않는다. GET 조회는 제한적으로 재시도할 수 있다. 생성·종료·배정은 무조건 재시도하지 않고 Jira 재조회로 미반영이 확인된 경우만 재시도한다. 7.4절의 401·403 무재시도와 총 2회 이하는 유지한다.
 
 결정이 필요한 것: R05 제안(목표 8초·상한 25초·시한 20초)의 팀 확정, 티켓 최소 5초와 R04 handoff 최악 13초의 차이(R04), WF-11의 6초에 이관 티켓 생성 포함 여부(R05·R04), VM에서 답변 경로 축소 정도(R01 재측정).
+
+### 7.6. 실패 문의의 후속 처리 제한 (완료 제한)
+
+R01 결정(2026-11-06, PR #39): **실패한 문의의 연속 처리는 현재 지원하지 않으며, 원 요청 재개는 미구현이다.** 재개 드라이버가 없어 state `fail`은 실패·미확인을 기록만 하고, DLQ `resolve`는 DLQ 항목만 정리한다. 운영자 확인이나 DLQ 정리 뒤에도 그 문의는 다시 이어지지 않는다. STORAGE-DESIGN 4.2의 운영자 확인 후 조건부 재개는 설계만 있고 구현되지 않았다.
+
+| 상황 | 결과 | 비고 |
+| --- | --- | --- |
+| 실패한 요청을 같은 `request_id`로 재전송 | 409 `request_requires_review` | 원 실행이 아직 `processing`으로 남았으면 `request_in_progress`. 자동 재실행 0 |
+| 같은 `case_ref`로 후속 질문 | 409 `case_busy` | 문의에 `processing`·`failed`·`unknown` 요청이 있으면 busy. 실패로 남은 경우 해제되지 않는다. 앞 요청이 정상 처리 중일 때도 같은 코드다 |
+| 새 문의(새 `request_id`, `case_ref` 없음) | 정상 처리 | 보완 횟수가 1부터 다시 세어지고, 이관되면 별도 Jira 티켓이 생길 수 있다 |
+
+- **확인 범위:** 임시 PostgreSQL 16(#27 `86d78e7` `001`~`007`)에서 state·case 함수를 직접 호출했고, support는 state 응답을 그대로 전달한다(FL35·FL85·FL86). n8n·Discord·VM 종단은 미실행이다.
+- **정상 시험 조건:** `request_id`는 실행마다 새로 만든다. 실패 주입 문의는 이후 정상 보완·한도 시험에 재사용하지 않는다. 실패 주입 뒤 남은 행을 `resolve`로 복구 완료 처리하지 않는다. 새 문의 성공을 기존 실패 문의의 복구 성공으로 기록하지 않는다.
+- **시민 안내:** `case_busy`는 정상 처리 중에도 나므로 모든 경우에 새 문의를 유도하지 않는다. 안내 문구와 Discord 어댑터의 오류 안내(같은 문의 연결값으로 다시 시도)는 R04가 맞춘다.
 
 ## 8. 64~79일차에서 가져온 것
 
