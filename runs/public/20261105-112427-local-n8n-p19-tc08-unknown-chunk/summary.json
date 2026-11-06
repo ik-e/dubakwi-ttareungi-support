@@ -1,0 +1,61 @@
+{
+  "label": "tc08-v1-unknown-chunk",
+  "scope": "unknown_chunk 사본과 원본을 로컬 n8n에 동시 게시. B21 Code 거절 확인. 공식 판정이 아니다.",
+  "environment": "local n8n 2.42.6, mock search·state·handoff·dlq, 원본 호출은 gpt-4.1-mini",
+  "mode": "unknown_chunk",
+  "copy_sha256": "09cc164cdbe99d56eabaf3bf4cc97ef8338f58416117f4b384310ba0bf0b3a48",
+  "results": [
+    {
+      "path": "dubakwi-support-tc08",
+      "status": 200,
+      "route": "담당자 이관",
+      "reason": "verification_failed",
+      "has_ticket": true,
+      "writer_text_sent": false
+    },
+    {
+      "path": "dubakwi-support",
+      "status": 200,
+      "route": "자동 답변",
+      "reason": null,
+      "has_ticket": false,
+      "writer_text_sent": false
+    },
+    {
+      "path": "dubakwi-support-tc08",
+      "status": 200,
+      "route": "담당자 이관",
+      "reason": "verification_failed",
+      "has_ticket": true,
+      "writer_text_sent": false
+    },
+    {
+      "path": "dubakwi-support",
+      "status": 200,
+      "route": "자동 답변",
+      "reason": null,
+      "has_ticket": false,
+      "writer_text_sent": false
+    },
+    {
+      "path": "dubakwi-support-tc08",
+      "status": 200,
+      "route": "담당자 이관",
+      "reason": "verification_failed",
+      "has_ticket": true,
+      "writer_text_sent": false
+    },
+    {
+      "path": "dubakwi-support",
+      "status": 200,
+      "route": "자동 답변",
+      "reason": null,
+      "has_ticket": false,
+      "writer_text_sent": false
+    }
+  ],
+  "limits": [
+    "사본 해시는 원본 워크플로우가 바뀌면 달라짐",
+    "VM 미실행"
+  ]
+}

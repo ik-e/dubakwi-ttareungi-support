@@ -1,0 +1,95 @@
+{
+  "label": "fake-jira-168c79c",
+  "executed_at_kst": "2026-11-05",
+  "environment": "local n8n 2.42.6, 임시 PostgreSQL 16.15 001~006, 임시 사용자 API, R04 168c79c state·DLQ·handoff, 로컬 가짜 Jira, 시험용 담당 매핑, R03 PR #31 06e9223 검색·색인, gpt-4.1-mini",
+  "scope": "실제 support와 R04 하위 기능의 계약 연결 확인. 실제 Jira 호출 0건. 실제 S1 통과·VM·공식 판정이 아니다. 실행 ID는 로컬 n8n 번호다.",
+  "s1_execution": {
+    "first": 20108,
+    "replay": 20117
+  },
+  "results": [
+    {
+      "case": "대표 문장 S1",
+      "http": 200,
+      "route": "자동 답변",
+      "note": "가짜 Jira 생성·종료, completed, DLQ 0"
+    },
+    {
+      "case": "같은 요청 재전송",
+      "http": 200,
+      "route": "자동 답변",
+      "note": "저장 응답 재사용, 티켓 추가 0"
+    },
+    {
+      "case": "Jira 종료 500",
+      "http": 200,
+      "route": "담당자 이관",
+      "note": "partial_effect, known JBYS-2, DLQ close"
+    },
+    {
+      "case": "case_ref 보완 1~2회",
+      "http": 200,
+      "route": "보완 질문",
+      "note": "같은 티켓 재사용, label 검증 통과"
+    },
+    {
+      "case": "case_ref 보완 3회",
+      "http": 200,
+      "route": "담당자 이관",
+      "note": "attempt_limit, 배정"
+    },
+    {
+      "case": "한도 뒤 추가 요청 2회",
+      "http": 200,
+      "route": "담당자 이관",
+      "note": "attempt_limit, 같은 티켓에 배정·알림 반복. R04 미반영 항목"
+    },
+    {
+      "case": "WF-03 문장",
+      "http": 200,
+      "route": "담당자 이관",
+      "note": "no_evidence"
+    },
+    {
+      "case": "TC04 문장",
+      "http": 200,
+      "route": "담당자 이관",
+      "note": "needs_human"
+    },
+    {
+      "case": "긴급",
+      "http": 200,
+      "route": "담당자 이관",
+      "note": "priority high"
+    },
+    {
+      "case": "없는 case_ref",
+      "http": 400,
+      "route": null,
+      "note": "invalid_case_ref"
+    },
+    {
+      "case": "다른 사용자의 case_ref",
+      "http": 403,
+      "route": null,
+      "note": "case_access_denied"
+    },
+    {
+      "case": "본인 조회",
+      "http": 200,
+      "route": "자동 답변",
+      "note": "상태 안내"
+    },
+    {
+      "case": "타인 조회",
+      "http": 200,
+      "route": "권한 없음",
+      "note": "case_access_denied"
+    }
+  ],
+  "not_executed": [
+    "support를 통한 실제 Jira 호출",
+    "VM 실제 연결",
+    "R05 공식 판정"
+  ]
+}

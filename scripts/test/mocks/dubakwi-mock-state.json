@@ -1,0 +1,54 @@
+{
+  "id": "dubakwiState01",
+  "name": "dubakwi-mock-state",
+  "active": false,
+  "nodes": [
+    {
+      "parameters": {
+        "inputSource": "passthrough"
+      },
+      "id": "aa0caa05-05ed-5310-885e-2e6dd5c19b8d",
+      "name": "Mock 입력",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        0,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// 시험 전용 mock. 실제 state 구현이 아니며 저장하지 않는다.\nreturn $input.all().map((item) => {\n  const r = item.json;\n  const bump = (ref) => ({ ...ref, state_revision: ref.state_revision + 1 });\n  if (r.op === 'begin') {\n    const id = r.request.request_id;\n    const prior = r.request.case_ref === 'case-prior-2' ? 2 : 0;\n    return { json: { request_id: id, mode: 'proceed', state_ref: { scope: r.scope, request_id: id, owner_id: r.actor.id, input_hash: r.input_hash, execution_id: r.execution_id, state_revision: 0 }, support: { case_id: r.request.case_ref ?? `case-${id}`, owner_id: r.actor.id, ticket_id: prior ? 'T-MOCK-PRIOR' : null, first_request_id: id, attempt: prior, version: null, status: 'received' }, facts: { summary: '', reported: [], confirmed: [], attempted_actions: [], missing: [], uncertainties: [], evidence_refs: [] }, response: null, http_status: 200, error_code: null } };\n  }\n  if (r.op === 'prepare') return { json: { request_id: r.state_ref.request_id, ok: true, skipped: false, state_ref: bump(r.state_ref), error_code: null } };\n  if (r.op === 'save') return { json: { request_id: r.state_ref.request_id, ok: true, state_ref: bump(r.state_ref), error_code: null, recovery: null } };\n  if (r.op === 'fail') return { json: { request_id: r.state_ref?.request_id ?? null, ok: true, skipped: !r.state_ref, state_ref: r.state_ref ? bump(r.state_ref) : null, error_code: null } };\n  return { json: { request_id: null, ok: false, skipped: false, state_ref: null, error_code: 'mock_unknown_op' } };\n});\n"
+      },
+      "id": "98a89d5a-930a-56ff-a38a-30d76246e774",
+      "name": "Mock 처리",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        250,
+        0
+      ]
+    }
+  ],
+  "connections": {
+    "Mock 입력": {
+      "main": [
+        [
+          {
+            "node": "Mock 처리",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": false
+  },
+  "tags": []
+}

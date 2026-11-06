@@ -1,0 +1,163 @@
+{
+  "label": "fake-jira-87ee11c",
+  "executed_at_kst": "2026-11-06",
+  "base_commit": "fe4e530",
+  "environment": "local n8n 2.42.6, 임시 PostgreSQL 16.15(001~007), 임시 팀 사용자 API(87ee11c services·data), R04 87ee11c state·DLQ·handoff, 가짜 Jira(label·담당자 흉내), gpt-4.1-mini, R03 PR #31 06e9223 검색·색인, support 실제 연결 사본(scope dubakwi-local-real)",
+  "scope": "R04 요청으로 #27 87ee11c 소비를 support 경유로 확인. 실제 Jira 호출 0건. errors 7426eb9는 이 실행에 연결하지 않았다. 실제 S1·VM·R05 공식 판정이 아니다. 답변 원문은 앞부분만 확인하고 남기지 않는다.",
+  "calls": [
+    {
+      "request": "s1-a",
+      "execution_id": 20753,
+      "http": 200,
+      "route": "자동 답변",
+      "reason": null,
+      "note": "6.8초, rental-guide QR 절·5자리"
+    },
+    {
+      "request": "s1-a 재전송",
+      "execution_id": 20762,
+      "http": 200,
+      "route": "자동 답변",
+      "reason": null,
+      "note": "저장 응답 재사용 0.1초, 티켓 추가 0"
+    },
+    {
+      "request": "close-fail",
+      "execution_id": 20764,
+      "http": 200,
+      "route": "담당자 이관",
+      "reason": "partial_effect",
+      "note": "가짜 Jira 종료 500, known JBYS-2, DLQ close"
+    },
+    {
+      "request": "lim-1",
+      "execution_id": 20773,
+      "http": 200,
+      "route": "보완 질문",
+      "reason": null,
+      "note": ""
+    },
+    {
+      "request": "lim-2",
+      "execution_id": 20780,
+      "http": 200,
+      "route": "보완 질문",
+      "reason": null,
+      "note": "case_ref"
+    },
+    {
+      "request": "lim-3",
+      "execution_id": 20787,
+      "http": 200,
+      "route": "담당자 이관",
+      "reason": "attempt_limit",
+      "note": "JBYS-3 배정·알림, 시도·성공 표식 저장"
+    },
+    {
+      "request": "lim-4",
+      "execution_id": 20795,
+      "http": 200,
+      "route": "담당자 이관",
+      "reason": "attempt_limit",
+      "note": "같은 JBYS-3, 성공 표식으로 재배정·재알림 생략"
+    },
+    {
+      "request": "lim-5",
+      "execution_id": 20802,
+      "http": 200,
+      "route": "담당자 이관",
+      "reason": "attempt_limit",
+      "note": "같은 JBYS-3, 생략 유지"
+    },
+    {
+      "request": "wf03",
+      "execution_id": 20809,
+      "http": 200,
+      "route": "담당자 이관",
+      "reason": "no_evidence",
+      "note": ""
+    },
+    {
+      "request": "tc04",
+      "execution_id": 20819,
+      "http": 200,
+      "route": "담당자 이관",
+      "reason": "needs_human",
+      "note": ""
+    },
+    {
+      "request": "urgent",
+      "execution_id": 20827,
+      "http": 200,
+      "route": "담당자 이관",
+      "reason": "urgent",
+      "note": "priority high, security 표식"
+    },
+    {
+      "request": "ref-bad",
+      "execution_id": 20837,
+      "http": 400,
+      "route": null,
+      "reason": "invalid_case_ref",
+      "note": ""
+    },
+    {
+      "request": "ref-other",
+      "execution_id": 20839,
+      "http": 403,
+      "route": null,
+      "reason": "case_access_denied",
+      "note": ""
+    },
+    {
+      "request": "look-mine",
+      "execution_id": 20841,
+      "http": 200,
+      "route": "자동 답변",
+      "reason": null,
+      "note": ""
+    },
+    {
+      "request": "look-other",
+      "execution_id": 20850,
+      "http": 200,
+      "route": "권한 없음",
+      "reason": "case_access_denied",
+      "note": ""
+    },
+    {
+      "request": "s1-a processing 뒤 재전송",
+      "execution_id": 20859,
+      "http": 409,
+      "route": null,
+      "reason": "request_in_progress",
+      "note": "완료된 행을 processing으로 바꿔 예상 밖 중단을 흉내 냄. error 문장: 기존 요청을 먼저 확인해야 합니다."
+    }
+  ],
+  "request_state": {
+    "completed": 11,
+    "unknown": 1,
+    "note": "close-fail만 unknown/partial_effect"
+  },
+  "dead_letters": [
+    {
+      "request": "close-fail",
+      "failed_step": "B29",
+      "error_code": "partial_effect",
+      "jira_issue_key": "JBYS-2",
+      "recovery_action": "close"
+    }
+  ],
+  "fake_jira": {
+    "issues": 8,
+    "JBYS-3": "lim-3~5 공유, 댓글 2, dubakwi-alert-attempted-support·dubakwi-alert-sent-support 각 1회",
+    "JBYS-6": "urgent, security 표식 각 1회"
+  },
+  "not_verified": [
+    "processing_status=failed로 바꾼 재전송은 테이블 제약으로 갱신이 거부되어 확인하지 못함(행은 processing 유지)",
+    "errors 경유 예상 밖 중단",
+    "실제 Jira·VM",
+    "동시 요청"
+  ],
+  "fake_jira_change": "handoff 87ee11c가 쓰는 update.labels add와 fields.assignee를 흉내 내도록 scripts/test/fake_jira.py 보강"
+}

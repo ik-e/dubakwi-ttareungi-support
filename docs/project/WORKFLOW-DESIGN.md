@@ -2,8 +2,8 @@
 
 전체 구성·상태 관계·기능/시나리오 추적은 [최상위 시스템 설계서](SYSTEM-DESIGN.md)를 먼저 읽는다. 이 문서는 노드·엣지와 업무 계약의 상세 원본이다.
 
-- 작성: 2026-11-02 / 개정: 2026-11-05 KST
-- 버전·상태: **v0.15 / P12 handoff Jira 생성·종료·이관·조회·보완 횟수와 state save·case_ref 초안 반영(변경 행: H04·H05(충돌 방지 label·문의 연결 검증)·H08·H09·H11·H17·H21·H22·H45~H48·H 시간 예산(응답 20초 기준, 합의 대기), 실행 증거 [runs/public/20261105-192700-team-n8n-r04-jira-close](../../runs/public/20261105-192700-team-n8n-r04-jira-close/report.md))**. 이전 v0.14 /  P11 support 골격 JSON·역할 프롬프트 초안·B05 사용자 응답 검증 추가**, 공동 검토 전. 골격은 로컬 Code 시험과 로컬 n8n Webhook 호출까지 확인했고 VM 실행·공식 판정은 전.
+- 작성: 2026-11-02 / 개정: 2026-11-06 KST
+- 버전·상태: **v0.17 / P19 B17 동적 모델 제한(전체20초·Jira/마무리 예약 유지), 사용자 지시 R01 대리 수정 후보 / P19 support 본체 연결(B04 팀 사용자 API, 7.5 시간 예산 20초 안 응답, 7.6 실패 문의 후속 제한)과 P12 handoff 변경 행(R04 v0.15) 통합**, 공동 검토 전. support는 로컬 Code·로컬 n8n(실제 LLM·검색·가짜 Jira·임시 PostgreSQL) 종단까지 확인했고, VM 실제 연동·공식 판정은 전이다. **v0.15 / P12 handoff Jira 생성·종료·이관·조회·보완 횟수와 state save·case_ref 초안 반영(변경 행: H04·H05(충돌 방지 label·문의 연결 검증)·H08·H09·H11·H17·H21·H22·H45~H48·H 시간 예산(응답 20초 기준, 합의 대기), 실행 증거 [runs/public/20261105-192700-team-n8n-r04-jira-close](../../runs/public/20261105-192700-team-n8n-r04-jira-close/report.md))**. 이전 v0.14 /  P11 support 골격 JSON·역할 프롬프트 초안·B05 사용자 응답 검증 추가**, 공동 검토 전. 골격은 로컬 Code 시험과 로컬 n8n Webhook 호출까지 확인했고 VM 실행·공식 판정은 전.
 - [공식 템플릿 — 공개본 제외 자료](../../docs/PUBLIC-SOURCES.md)의 8개 절 유지. 범위는 [TOPIC](TOPIC.md), 역할은 [팀 헌장](TEAM-CHARTER.md), 배정·구현 순서는 [개발 계획](../DEVELOPMENT-PLAN.md).
 - **티켓 최초 생성 위치를 뒤로 이동**했다. 일반 안내는 답변·검증 후 생성/종료, 정보 부족은 보완 질문 준비 후 생성/대기, 긴급은 분류 직후 생성/이관한다.
 
@@ -328,7 +328,7 @@ R03이 승인된 지식을 검색 가능한 상태로 준비한다. 색인·메�
 
 #### 4.1.1. 역할 프롬프트 초안 (R02 내부 구현)
 
-6.5절에 따라 프롬프트 문구는 R02가 정한다. 출력 형식은 6.4.2절 공통 출력이 원본이며 아래 문구가 이를 바꾸지 않는다. 실제 모델·JSON 출력 방식은 D03 확인 전이다. 아직 support.json에 넣지 않았고 P19에서 B10/B19/B20에 연결한다.
+6.5절에 따라 프롬프트 문구는 R02가 정한다. 출력 형식은 6.4.2절 공통 출력이 원본이며 아래 문구가 이를 바꾸지 않는다. P19 작업 브랜치에서 B10/B19/B20에 연결했다. 로컬 n8n에서 gpt-4.1-mini로 실행했으며 Basic LLM Chain의 역할 인정 여부는 D03에서 확인한다.
 
 **L01 triage (B10)** 시스템 지시:
 
@@ -343,7 +343,17 @@ R03이 승인된 지식을 검색 가능한 상태로 준비한다. 색인·메�
  "facts":{"summary":"한 문장 요약","reported":[{"key":"","value":"","origin":"user"}],
           "confirmed":[],"attempted_actions":[],"missing":[],"uncertainties":[],"evidence_refs":[]},
  "target_ticket_id":"질문에 적힌 기존 문의 번호 또는 null"}
+필수 항목 키: rental=app_or_qr,symptom,attempted_actions(방법 문의면 없음) / return=bike_id,station_or_place,returned_at,lock_state / breakdown=bike_id_or_place,symptom(신고 방법 문의면 없음) / fees=usage_date,charge_detail(일반 기준 문의면 없음) / followup=target_ticket_id / security=exposure_detail.
 규칙:
+- 방법·절차·기준을 묻는 일반 문의는 개인 사건이 아니므로 missing을 []로 둔다. 예: "QR로 대여하는 방법 알려주세요", "반납 방법을 다시 알려주세요", "비밀번호 찾는 방법".
+- 증상을 말하더라도 마지막에 해결 방법·절차를 다시 알려 달라고 요청하면 일반 문의다. missing을 []로 둔다. 예: "앱 로그인이 안 돼요. 비회원으로 대여하는 방법을 알려주세요", "대여가 끊겼대요. 대여 방법을 다시 알려주세요".
+- 방법을 묻지 않고 문제만 말하거나 환불·정정 같은 개별 처리를 요청하면 개별 사건이다.
+- 필수 항목은 이용자의 개별 사건을 확인해야 할 때만 missing에 넣는다. 예: "반납했는데 앱에 이용 중으로 나와요"는 return의 누락 항목을 묻는다.
+- type=security는 개인정보 노출·사칭 링크 입력·계정 도용 진술일 때만 쓴다. 비밀번호 찾기 같은 일반 방법 문의는 unknown이다.
+- 질문에 문의 번호가 있으면 target_ticket_id에 그대로 적고 missing에 넣지 않는다. 본인 문의 상태 조회는 needs_human=false다.
+- 필수 항목과 같은 뜻의 내용이 질문에 있으면 표현이 달라도 있는 것으로 본다. 그 항목 키로 reported에 적고 missing에서 뺀다. reported의 value는 질문 원문 일부를 그대로 옮긴다.
+- 항목 대응: 날짜·요일·시각 표현은 usage_date 또는 returned_at, 이용권 종류·금액·결제 수단은 charge_detail, 대여소·지명은 station_or_place, 앱·QR 언급은 app_or_qr. 예: "10월 3일에 일일권을 앱에서 카드로 샀어요"는 usage_date="10월 3일", charge_detail="일일권을 앱에서 카드로" 이다.
+- 출력 예: "10월 3일에 일일권을 앱에서 카드로 샀는데 두 번 결제됐어요. 환불해 주세요" → {"type":"fees","urgency":"normal","missing":[],"needs_human":true,"facts":{"summary":"일일권 중복 결제 환불 요청","reported":[{"key":"usage_date","value":"10월 3일","origin":"user"},{"key":"charge_detail","value":"일일권을 앱에서 카드로","origin":"user"}],"confirmed":[],"attempted_actions":[],"missing":[],"uncertainties":[],"evidence_refs":[]},"target_ticket_id":null}
 - 사용자가 직접 말한 사실만 reported에 적는다. 추측해서 채우지 않고 모르면 missing에 넣는다.
 - urgency=high는 부상·주행 위험 진술, 개인정보 노출·사칭 링크 입력 진술일 때만.
 - needs_human=true는 개별 요금 정정·환불 판단·현장 조치 요청·보안 침해 판단처럼 사람이 결정해야 할 때.
@@ -371,8 +381,12 @@ R03이 승인된 지식을 검색 가능한 상태로 준비한다. 색인·메�
 규칙:
 - cited_source_ids에는 이번 evidence에 있는 chunk_id만 그대로 적는다. 새 출처를 만들지 않는다.
 - 근거에 없는 금액, 환불 가능 여부, 안전 판단, 처리 완료 약속을 쓰지 않는다.
+- 모든 문장은 인용한 근거에 있는 내용만 쓴다. 인사말, 맺음말, 근거에 없는 권유·연락처·해결 방법을 덧붙이지 않는다.
+- 질문에 답하는 데 필요한 내용만 쓴다. 질문과 무관한 근거는 인용하지 않는다.
+- 근거 text 앞의 [실제 안내] 또는 [가상 설정] 표시를 답변에 그대로 보존한다. 각 문장 맨 앞에 그 문장의 근거 표시를 쓰고, 두 종류를 한 문장에 섞지 않는다. 표시를 바꾸거나 새로 만들지 않는다. 근거 text에 표시가 없으면 답변에도 쓰지 않는다. 예: "[실제 안내] 앱에서 QR을 스캔합니다. [가상 설정] 시연에서는 담당자가 확인합니다."
 - 근거가 질문에 답하기에 부족하면 answer를 빈 문자열로 두고 cited_source_ids를 []로 둔다.
-- 연락처·카드번호 등 개인정보를 답에 쓰지 않는다.
+- 문의자나 다른 사람의 연락처·카드번호 등 개인정보를 답에 쓰지 않는다.
+- 문의처를 안내할 때 인용한 근거 text에 공개 대표번호가 있으면 그 번호를 그대로 쓰고, 번호를 빼거나 다른 말로 바꾸지 않는다. 인용한 근거 text에 번호가 없으면 어떤 번호도 쓰지 않는다.
 ```
 
 **L03 verifier (B20)** 시스템 지시:
@@ -382,9 +396,19 @@ R03이 승인된 지식을 검색 가능한 상태로 준비한다. 색인·메�
 입력: writer JSON, writer가 받은 것과 같은 evidence.
 아래 JSON 하나만 출력한다.
 {"grounded":true|false,"policy_ok":true|false,"issues":["문제 설명"]}
-- grounded: answer의 모든 주장이 인용한 chunk의 text로 뒷받침되면 true.
-- policy_ok: 금액·환불·안전 확정, 처리 완료 약속, 개인정보 노출, 제한 문서 내용이 없으면 true.
-- 하나라도 의심되면 false로 두고 issues에 적는다. 확신이 없으면 false.
+검사 절차:
+1. answer를 문장별로 나눈다.
+2. 문장마다 구체 사실(숫자·자릿수·기간·시간·금액·연락처·메뉴·절차·해결 방법)을 뽑아 인용한 evidence의 text에서 찾는다. 찾지 못한 사실이 하나라도 있으면 grounded=false이고 그 사실을 issues에 적는다. 일반 상식이어도 evidence에 없으면 통과시키지 않는다.
+3. 반대 방향은 검사하지 않는다. evidence에 있는데 answer에 없는 내용은 문제가 아니다. 연락처 번호나 절차 일부를 뺐다는 이유로 false로 두거나 issues에 적지 않는다.
+예시 (evidence: "오류가 계속되면 1599-0120 또는 상담원에게 문의한다."):
+- "오류가 계속되면 고객센터에 문의하세요." → grounded=true. 번호 생략과 말 바꿈은 문제가 아니다.
+- "자전거 번호는 7자리입니다." → grounded=false. 7자리가 evidence에 없다.
+- "앱을 지웠다 다시 설치하면 해결됩니다." → grounded=false. 이 해결 방법이 evidence에 없다.
+다른 규칙:
+- 표시가 해당 근거의 표시와 다르면 grounded=false다. [실제 안내]가 붙어 있어도 문장 내용이 evidence에 없으면 grounded=false다.
+- "항상", "어떤 경우에도", "반드시" 같은 단정이나 안전 보장이 evidence에 없으면 grounded=false이고 policy_ok=false다.
+- policy_ok: 금액·환불·안전 확정, 접수·처리·환불을 이미 했다는 주장이나 완료 약속, 개인정보 노출, 제한 문서 내용이 없으면 true.
+- answer에 적힌 사실이 evidence에 있는지 확신이 없으면 false로 두고 issues에 적는다.
 ```
 
 최종 통과는 B21 Code가 두 boolean, issues=[], 인용 ID 대조를 함께 검사해 결정한다(6.4.2).
@@ -393,10 +417,10 @@ R03이 승인된 지식을 검색 가능한 상태로 준비한다. 색인·메�
 
 | 구조 | 어디 (노드) | 목적 | 기준값 · 최대 횟수 | 확인한 시나리오 |
 | --- | --- | --- | --- | --- |
-| 분기 | B12/B18 | 보완·안내·조회·이관·긴급 | 허용 enum·아래 우선순위 | S1~S5,미실행 |
-| 병렬 | B13→B14/B15→B16 | RAG·본인 조회 | 각 봉투1개,Append,실제 직렬 실행 가능·시간 합산 측정 | WF12,미실행 |
-| 루프 | 요청 사이 보완 | 같은 티켓 보완 | attempt1/2,3 이관 | WF02/02b,미실행 |
-| 루프 | B30→B13→B24→B26 false | 긴급 우선전달 뒤 안내 | retrieval_done으로1회,티켓 재처리0 | WF12,미실행 |
+| 분기 | B12/B18 | 보완·안내·조회·이관·긴급 | 허용 enum·아래 우선순위 | S1~S5,mock 로컬 확인·공식 미실행 |
+| 병렬 | B13→B14/B15→B16 | RAG·본인 조회 | 각 봉투1개,Append,실제 직렬 실행 가능·시간 합산 측정 | WF12,mock 로컬 확인·공식 미실행 |
+| 루프 | 요청 사이 보완 | 같은 티켓 보완 | attempt1/2,3 이관 | WF02/02b,mock 로컬 확인·공식 미실행 |
+| 루프 | B30→B13→B24→B26 false | 긴급 우선전달 뒤 안내 | retrieval_done으로1회,티켓 재처리0 | WF12,mock 로컬 확인·공식 미실행 |
 
 B11은 긴급→분류 파싱/정책 판정 실패→attempt>=3→필수정보 부족→사람 판단→검색·조회 순이다. 일반 사람 판단 건은 필수 맥락이 없으면 먼저 보완하고,한도 도달 또는 정보가 갖춰지면 이관한다. 긴급은 보완을 기다리지 않는다. B17/B18은 긴급 후속 또는 조회거절이면 fixed,그 외 필요한 검색/조회 실패·근거 없음이면 handoff,본인 상태 단독 성공이면 fixed,나머지 유효 근거는 write다. B21 검증 실패는 handoff이며 일반 신규 티켓 생성보다 먼저 판단한다.
 
@@ -478,6 +502,47 @@ B28은 먼저 error_code=null && state_saved=true && 최신 state_ref를 확인�
 | H45~H48 보완 횟수 갱신 | If·Code·HTTP Request | 재사용한 Jira 티켓의 TicketRequest(action=wait) | TicketResult | 기존 이슈를 재사용하는 wait만 POST /issue/<key>/comment에 "보완 횟수: N"과 가린 요약을 남긴다(다음 요청의 case_ref가 이 값의 최댓값을 읽음). 새로 만든 이슈는 설명에 이미 있어 쓰지 않는다. 저장 실패는 context_saved=failed/unknown·partial_effect·recovery(context_update)로 반환해 호출자가 한도를 놓치지 않게 한다. 알림 시도 표식(dubakwi-alert-attempted-<역할>)만 있고 이번 요청의 문맥 표식이 없는 문의도 같은 경로(H48~H47)로 문맥만 저장하며, 저장 전에는 context_saved를 confirmed로 표시하지 않고 알림은 다시 보내지 않는다(partial_effect·recovery alert_marker 유지, 저장 실패 시 context_update) |
 | H 시간 예산 | - | 호출 timeout | - | handoff 호출별 timeout은 조회 2초·쓰기 3.5초·알림 2초·사용자 API 1.5초(재시도 없음)이며 종료 경로의 세 호출만 아래처럼 더 짧다. 종료(자동 답변) 경로는 H29 기존 건 조회 1.5·H32 전환 조회 1.5·H08 종료 2.5초로 HTTP 합계 최악 5.5초이고 상태 DB를 더해도 약 7초다(R02 요청에 따라 조회·종료 timeout을 줄임. 실제 Jira 실행 기록의 호출별 최대는 조회 0.37초·전환 조회 0.23초·종료 1.21초로 표본이 작음), 생성 후 이관 경로 최악 약 13초 + PostgreSQL 3회다. 응답은 어떤 경우에도 요청 시한 20초 안이며 25초는 R05 실패선이라 처리 시간으로 쓰지 않는다. 호출자 B27은 20초까지 남은 시간에서 3.5초를 빼 최소 5초·최대 15초로 제한하므로 최악 경로를 끝까지 기다린다고 가정하지 않는다. B27이 먼저 끊기면 생성 결과를 알 수 없으므로 ticket_unknown으로 이관하고 티켓 재생성·재종료·재알림은 하지 않는다. support가 state에 unknown을 남기면 같은 요청 재전송은 HTTP409 request_requires_review로 막힌다(기록하지 못해 processing으로 남은 경우 request_in_progress). partial_effect는 handoff 응답에서 생성 등 일부 효과가 확인됐지만 후속 단계가 실패한 경우이며, B27 전 B11·B17 시간 조건에 걸린 경우만 deadline_exceeded로 이관한다. B15는 2.5초 이상이어야 한다. 위 수치는 초기 기준값이며 R02·R05 합의와 실제 VM 측정 전이다 |
 
+### 4.4.1. P19 mock 연결 구현 상태
+
+원본 파일: [`workflows/dubakwi-support.json`](../../workflows/dubakwi-support.json). 2026-11-04 R02 작성, 팀 검토 전. B01~B39, L01~L03, X01~X07을 연결했다. **search·state·handoff·dlq는 mock이므로 실제 S1 통과가 아니다.**
+
+| 구분 | 구현 | 설계와 다른 점·남은 확인 |
+| --- | --- | --- |
+| 저장 호출 | B07a·B37a·B32a·X06a·X03a Set 노드로 고정 명령만 만들어 하위 워크플로우에 전달 | 설계표에 없는 내부 노드. `input_hash`는 B07a에서 SHA-256으로 계산 |
+| 하위 ID | `dubakwi-state`=`dubakwiState01`, `dubakwi-dlq`=`dubakwiDlq0001` | R04 구현 ID와 맞추거나 R01 배포 때 교체 필요 |
+| 내부 호출 | B14·B15·B27은 `dubakwi-internal-key` Header Auth(`X-Internal-Key`)로 `127.0.0.1:5678/webhook/dubakwi-search`·`dubakwi-handoff` 호출 | 검색 경로·헤더·응답 필드는 R03 확인(2026-11-04), 로컬 연결 확인. handoff는 R04 확인 필요 |
+| 근거 표시 | R03 기본안에 따라 시민 답변에 `[실제 안내]`·`[가상 설정]`을 보존. Evidence.text 앞 표시를 쓰고 전용 필드는 추가하지 않음. B21이 인용 근거와 답변의 표시 일치를 검사 | 표시 없는 근거에는 요구하지 않음 |
+| scope | 원본은 로컬 개발값 `dubakwi-dev`. VM 사본은 [`make_vm_p19_real_bundle.py`](../../scripts/test/make_vm_p19_real_bundle.py)의 필수 `--scope`로 B07a·X06a·X03a를 치환하고, 원본 값이 남으면 사본을 만들지 않음 | R01이 정한 VM scope와 errors의 `DUBAKWI_SCOPE`를 같게 둠. n8n 환경 변수로 읽는 방식은 `DUBAKWI_SCOPE` 미설정 문제 때문에 쓰지 않음(R04 요청 2026-11-06) |
+| LLM Credential | 과정 공통 ID `openAiCourse0001` 사용 | 이름만으로는 로컬 n8n에서 권한 오류가 나서 ID를 넣음. 비밀값은 없음. VM은 R01이 배포 사본에서 L01~L03과 각 Header Auth를 실제 Credential ID로 연결·확인 |
+| VM 게시 | 운영 경로는 P11 게시본 유지. R01 PR #22가 B14·L01~L03 부분 연결을, 이후 [전용 mock 사본 시험](../../scripts/test/vm-p19-mock-test.md)이 `06863b3` 전체 흐름 연결을 확인. 사본은 시험 뒤 비활성화 | 실제 data-api 사용자 조회·B14·L01~L03 + mock state·handoff·dlq 범위의 20사례 첫 실행 20/20(R01 보고). 실제 state·DLQ·Jira 성공과 공식 판정이 아니며 WF-11 시간 기준 통과도 아니다(LN07 8.184초) |
+| TC08 | 운영 JSON에는 스위치를 넣지 않음. [`make_verifier_fault.py`](../../scripts/test/make_verifier_fault.py)가 경로 `dubakwi-support-tc08`, 별도 ID·webhookId의 사본 생성 | [원본과 동시 게시 확인](../../runs/public/20261105-104900-local-n8n-p19-tc08-parallel/summary.json). 모드 3종(`grounded`, `unparsable`, TC08-v1용 [`unknown_chunk`](../../runs/public/20261105-112427-local-n8n-p19-tc08-unknown-chunk/summary.json))은 같은 경로라 하나만 게시 |
+| B04·B05 사용자 조회 | B04는 팀 사용자 API를 `dubakwi-internal-key`로 호출(2026-11-06, R04 요청). B05는 팀 형식 `{id,role,access_levels}`과 이전 data-api 형식을 모두 처리 | R04 PR #26 계약: `http://dubakwi-user-api:8801/employees/<id>`, `X-Internal-Key`. 과정 data-api 비교 시험은 `make_vm_p19_bundle.py --data-api` 사본으로만 한다. [임시 API 로컬 확인](../../runs/public/20261105-150536-local-n8n-p19-user-api/summary.json), VM 미실행 |
+| 시민 ticket_id | Jira 키(예: `JBYS-1`)를 그대로 응답 | R04 동의(2026-11-05). 실제 Jira 생성은 미실행 |
+| state `error_code` | support는 저장된 칸을 읽지 않고 SaveResult·StateResult·BeginResult의 값만 소비 | 스키마 변경 불필요 |
+| 저장 경계 | R04 `1b83d18`: support는 `save`만 호출, 내부에서 Jira 확인 뒤 finish. DLQ는 X03만 기록. 처리권 없는 fail은 skipped. wait도 Jira에 보완 횟수 기록 | PR #27 미병합. [로컬 가짜 Jira 시험](../../runs/public/20261105-194144-local-n8n-p19-fake-jira-fdd0be1/summary.json)으로 소비 확인. support를 통한 실제 Jira·VM·공식 판정 미실행 |
+| 알려진 한계 | 한도 이관 뒤 같은 case의 새 요청과 같은 요청 재시도에서 재배정·재알림 반복 | R04 PR #27 `e0ff365`에서 알림 시도·성공 표식으로 수정. support 소비는 로컬 Code로 호환 확인. `alert_marker`는 `f306778`에서 DLQ에 허용되고 같은 case는 같은 DLQ로 갱신됨(로컬 Code·임시 PostgreSQL 확인). 시도 표식만 남은 문의도 `33e68d9`부터 `alert_marker`로 같은 DLQ에 합쳐짐(`15e3c5a` 로컬 Code 확인). support를 통한 종단·실제 Jira·동시 요청 생성 원자성은 미확인 |
+| 실패 문의 후속 | 같은 요청 재전송 409 `request_requires_review`, 같은 `case_ref` 후속 409 `case_busy`, 새 문의 정상 | 완료 제한: 실패 문의 연속 처리 미지원, 원 요청 재개 미구현([7.6](#76-실패-문의의-후속-처리-제한-완료-제한)) |
+| 실제 연결 묶음 | [`make_vm_p19_real_bundle.py`](../../scripts/test/make_vm_p19_real_bundle.py), [대응표](../../scripts/test/vm-p19-real-test.md) | 로컬 임시 PostgreSQL 예행으로 실제 state·DLQ 호출 확인. 실제 Jira·VM·공식 판정 미실행 |
+| DLQ 요청 | X03a는 `jira_issue_id`·`jira_issue_key`·`last_execution_id`와 Effect 5칸을 보냄. 하위 호출은 `alwaysOutputData`로 항목 없어도 진행 | 로컬 시험이 R04의 S02·D02 코드로 요청을 대조함 |
+
+로컬 확인(2026-11-04): Code 시험 [89/89](../../runs/public/20261104-113327-local-p19-flow/summary.json). 로컬 n8n 2.42.6에서 `scripts/test/mocks/`의 mock과 실제 gpt-4.1-mini로 Webhook 18개를 3회 실행해 모두 18/18 통과했다([1회](../../runs/public/20261104-113005-local-n8n-p19-mock-run1/summary.json), [2회](../../runs/public/20261104-113036-local-n8n-p19-mock-run2/summary.json), [3회](../../runs/public/20261104-113113-local-n8n-p19-mock-run3/summary.json)). 이 저장 결과 전에 Credential 권한 오류(2/18)와 분류 프롬프트 문제(12/18)가 있었고 수정했다. 해당 시도의 결과 파일은 남기지 않았다. TC08 grounded=false 사본도 이관을 1회 확인했다.
+
+R05 PR #13 문장 대조(2026-11-04): 실제 모델·mock 하위 기능으로 사례별 3회 [경로를 확인](../../runs/public/20261104-141023-local-n8n-p19-r05-routes/summary.json)했다. WF-01은 2/3로 불안정하고 첫 실행이 8.1초였으며, TC04는 0/3으로 보완 질문이 나왔다. WF-05는 이관이 나와 R05 기대값과 달랐고 TC09a·b는 mock 근거로 검증 실패 이관이라 실제 지식 재시험이 필요하다. 이후 L01 프롬프트와 B11 사실 대조를 고쳐 다시 3회 실행했다. [1차 수정](../../runs/public/20261104-141603-local-n8n-p19-r05-routes-prompt2/summary.json)은 WF-01 3/3, TC04 0/3이었고 [2차 수정](../../runs/public/20261104-141856-local-n8n-p19-r05-routes-prompt3/summary.json)은 WF-01·TC04 3/3이다. WF-05는 기대값 조율이 남았다. TC09a·b는 mock 근거에서 검증 실패 이관이라 실제 지식 재시험이 필요하다. 같은 문장으로 조정한 결과라 새 문장에서 재확인해야 한다. [회귀 Webhook 18/18](../../runs/public/20261104-142053-local-n8n-p19-after-prompt3/summary.json), [로컬 Code 95/95](../../runs/public/20261104-142216-local-p19-flow-prompt3/summary.json).
+
+품질·시간 보강(2026-11-04): 승인 전 지식을 쓰는 시험용 검색(`build_knowledge_search_mock.py`)으로 R05 사례를 3회 실행해 [WF-05 외 모두 통과](../../runs/public/20261104-150036-local-n8n-p19-r05-final2/summary.json)했다. L03은 일부러 넣은 근거 밖 문장 5종을 [수정 전 2종](../../runs/public/20261104-144342-local-n8n-p19-l03-before/summary.json)에서 [수정 후 5종 모두 거절](../../runs/public/20261104-144531-local-n8n-p19-l03-after/summary.json)했다. B21은 없는 조치 주장과 인용 근거에 없는 번호를 Code로도 거절한다. 조정에 쓰지 않은 새 문장은 [첫 묶음 40/54](../../runs/public/20261104-144726-local-n8n-p19-holdout/summary.json), 규칙 보강 뒤 [다른 새 묶음 30/36](../../runs/public/20261104-145044-local-n8n-p19-holdout2-new/summary.json)이다. 남은 실패는 문의 분류의 흔들림과 시험용 검색의 한계이며 추가 조정 없이 기록한다. B11·B17은 `deadline_at`을 검사해 `deadline_exceeded`로 이관하고 LLM 모델은 8초·재시도 1회로 제한했다. [조회 8초 지연은 2.7초에 이관](../../runs/public/20261104-145844-local-n8n-p19-time-regression/summary.json)했고 [잘못된 모델 사본은 HTTP 200 이관](../../runs/public/20261104-150028-local-n8n-p19-llm-down/summary.json)을 확인했다. 시간 값은 D05 실측 전 초기값이다. 로컬 Code [107/107](../../runs/public/20261104-150355-local-p19-flow-quality/summary.json).
+
+근거 표시 반영(2026-11-04): R03 기본안에 따라 시민 답변에 표시를 보존했다. [R05 사례 3회](../../runs/public/20261104-154004-local-n8n-p19-labels-r05/summary.json)는 WF-05 외 통과이며, TC09c 1회는 LLM 8초 제한으로 `llm_down` 이관 후 재시도 없이 기록했다(응답 11.0초). L03은 표시 추가 직후 [단정 문장 1종을 통과](../../runs/public/20261104-154449-local-n8n-p19-labels-l03-first/summary.json)시켜 고쳤고 [수정 후 5종 모두 거절](../../runs/public/20261104-153724-local-n8n-p19-labels-l03/summary.json)했다. 표시 없는 시험 근거에서 [회귀 17/19](../../runs/public/20261104-153857-local-n8n-p19-labels-regression/summary.json)가 나와 mock을 합의 형식으로 고친 뒤 [19/19](../../runs/public/20261104-154307-local-n8n-p19-labels-regression-fixed/summary.json)를 확인했다. 표시 없는 근거에 모델이 표시를 붙이면 이관되므로 R03 결과는 표시를 포함해야 한다. 로컬 Code [111/111](../../runs/public/20261104-154449-local-p19-flow-labels/summary.json).
+
+R03 검색 연결(2026-11-04): R03 `25a178a`의 `dubakwi-search`와 색인을 로컬 n8n 2.42.6에 올려 전체 흐름으로 호출했다. state·handoff·dlq는 mock, 색인은 Webhook 트리거 사본, 사용자는 과정 data-api 직원이다. 수정 전 [1차](../../runs/public/20261104-162058-local-n8n-p19-r03-search-first/summary.json)·[2차](../../runs/public/20261104-162058-local-n8n-p19-r03-search-first-second/summary.json) 실패를 거쳐 R05 사례 3회가 [모두 통과](../../runs/public/20261104-161508-local-n8n-p19-r03-search-r05/summary.json)했고 제한 문서와 canary는 응답에 없었다. [근거 밖 문장 5종 거절](../../runs/public/20261104-161649-local-n8n-p19-r03-search-l03/summary.json), [회귀](../../runs/public/20261104-161956-local-n8n-p19-r03-regression/summary.json), [로컬 Code 115개](../../runs/public/20261104-162058-local-p19-flow-r03/summary.json)를 확인했다. 시민의 내부 자료 요청은 B11이 `restricted_access`로 검색 없이 거절하고, 긴급 검색어는 초동 안내를 우선한다. 내부 호출 주소는 R01 안내(2026-11-05)에 따라 `http://127.0.0.1:5678/webhook/` 기준을 유지한다. VM 내부 실호출 전이므로 주소 확정이나 연결 통과가 아니다.
+
+최신 커밋 재시험(2026-11-04): R03 `7ad9eda`로 R05 사례 27개 중 19개를 3회 실행해 [응답 칸 통과](../../runs/public/20261104-164309-local-n8n-p19-r03-7ad9eda-r05/summary.json)했고 인용 문서와 표시를 기록했다. R04 `dbb41f9`의 [state](../../runs/public/20261104-164547-local-n8n-p19-r04-dbb41f9-state/summary.json)와 [handoff](../../runs/public/20261104-164640-local-n8n-p19-r04-dbb41f9-handoff/summary.json) 골격은 사본에 ID·Credential을 지정해 호출했으며, 저장소·Jira 미연결로 안전 차단(`state_backend_unconfigured`)을 확인했다. 정상 업무 완료 시험이 아니다.
+
+main 반영 재시험(2026-11-05): main `0e44fdb`에 병합된 R03 `dubakwi-search`·색인으로 R05 `155da4c` 사례 27개 중 19개를 3회 실행해 [응답 칸 통과(flow.py 칸만 판정, x_dubakwi·티켓·알림 미판정)](../../runs/public/20261105-101139-local-n8n-p19-main-0e44fdb-r05/summary.json)했고 제한 문서 인용은 없었다. [회귀 19/19](../../runs/public/20261105-101335-local-n8n-p19-main-regression/summary.json)와 [로컬 Code](../../runs/public/20261105-101530-local-p19-flow-main/summary.json)도 확인했다. state·handoff·dlq는 mock, 사용자는 대체값이며 공식 판정이 아니다.
+
+Credential 주의: 이름만 있는 Header Auth를 가져오면 n8n이 같은 종류의 다른 Credential에 연결하는 것을 로컬에서 확인했다(B14가 `dubakwi-team-key`로 연결되어 403). 가져온 뒤 B01·B14·B15·B27의 연결을 확인해야 한다. 78일차 `flow.py check`는 코스 Credential ID가 아닌 B01을 오류로 거절하므로 80일차 도구 확인이 필요하다.
+
+남은 한계: 실제 state·handoff·dlq·Jira 연결, 저장 게이트, 실패·복구, R05 실행 도구, 공통 WF 공식 판정은 미실행이다. VM 실행은 `06863b3`의 mock 연결 시험까지이며, 이후의 save 실패 처리 수정(`dc6eb8e`)과 사용자 API 전환은 VM에서 실행하지 않았다. L03 오판 한계(번호 생략 오판, 지어낸 내용 일부 통과)는 유지된다. 동시 실행 중복은 mock에서 검증하지 않았다. B27 8초 제한은 티켓 API까지 느려지면 WF-11 6초를 넘을 수 있어 R04와 정해야 한다. 지식은 승인 전이고 시험용 검색은 실제 벡터 검색이 아니므로 답변 품질은 R03 구현 뒤 다시 평가한다.
+
 ### 4.5. P11 골격 구현 상태
 
 원본 파일: [`workflows/dubakwi-support.json`](../../workflows/dubakwi-support.json). 2026-11-03 R02 작성, 팀 검토 전.
@@ -487,7 +552,7 @@ B28은 먼저 error_code=null && state_saved=true && 최신 state_ref를 확인�
 | B01 문의 수신 | Webhook POST `dubakwi-support`, Header Auth, responseNode | Credential 이름 `dubakwi-team-key`만 넣고 ID·값은 넣지 않음. VM에서 연결. 경로는 팀 헌장의 `POST /webhook/dubakwi-support`를 유지 |
 | B02 입력 검사 | 본문 객체, request_id/user 1~64자, question trim 1~500자, attempt 정수≥1, channel/context/case_ref 문자열 검사. 명백한 주입 정규식 차단(question+context) | `codes`는 공통 코드 `invalid_input`을 먼저 두고 세부 사유(`question_empty` 등)를 뒤에 둠. 주입 패턴은 초기 목록이며 명령형만 차단하고 가능 여부 질문·경험 서술은 통과시킴. 글자 사이를 띄운 한국어 지시는 공백을 없앤 문장으로도 검사. 타인 기록 요청은 권한 문제라 여기서 막지 않음 |
 | B03 입력 통과 | If input_ok. false → B33(E087) | 없음 |
-| B04 사용자 확인 | GET `http://data-api:8800/employees/<user>`, full response·neverError·timeout 1.5초 | n8n 컨테이너 안에서는 `localhost:8800`에 연결되지 않아 서비스 이름을 사용. 과정 data-api 실호출 확인. 시민 사용자 공급(R04 P09)의 API 주소와 인증은 R04 확인 필요. 응답 형식은 6.4.1 기준에 R04 동의 |
+| B04 사용자 확인 | GET `http://dubakwi-user-api:8801/employees/<user>`, Header Auth `dubakwi-internal-key`(`X-Internal-Key`), full response·neverError·timeout 1.5초 | n8n 컨테이너 안에서는 서비스 이름을 사용. 2026-11-05까지는 과정 data-api를 호출했고 그 실호출은 확인함. 팀 사용자 API는 임시 API 로컬 확인만 했고 원본 B04로 VM 호출은 미실행. 응답 형식은 6.4.1 기준에 R04 동의 |
 | B05 등록·권한 확인 | 200 응답의 구조·필수 ID·요청 사용자 일치·권한 조합을 6.4.1 기준으로 검증해 Actor 구성. 404 → 400 `unknown_user`, 그 외 → 503 `user_lookup_error` | 권한 조합과 오류 계약은 R04·R05가 PR #11 제안서에 동의(2026-11-05, R02 취합). 과정 형식의 dept 매핑은 미확정이라 최소 권한만 부여 |
 | B06 사용자 통과 | If actor_ok. false → B33(E088) | 없음 |
 | M01 골격 mock | B07~B32 대신 route=담당자 이관, reason=skeleton_mock, ticket=null과 “실제 접수·티켓 생성·이관 없음” 안내 응답 | P19에서 실제 노드로 교체. route는 공통 enum을 지키기 위한 값이며 mock 응답은 업무 성공이 아님 |
@@ -575,7 +640,7 @@ StateRef·BeginRequest/BeginResult·StateCommand/StateResult·SaveResult·Recove
 
 ### 6.2. 정상 엣지
 
-Ctx는 기존 필드 보존. B05 통과 actor 필수,B08 proceed support 필수·ticket null 가능,B28 생성확인 뒤 known ID 필수,B17 이후 Evidence 출처·권한 필수. AI 자원 포트는 업무 JSON과 구분한다. 실제 실행 예시는 아직 없다.
+Ctx는 기존 필드 보존. B05 통과 actor 필수,B08 proceed support 필수·ticket null 가능,B28 생성확인 뒤 known ID 필수,B17 이후 Evidence 출처·권한 필수. AI 자원 포트는 업무 JSON과 구분한다. 실행 예시는 P19 mock 로컬 결과이며 실연동 예시는 아직 없다. P19 구현은 E006·E040·E110·E097·E098을 각각 B07a·B37a·B32a·X06a·X03a를 거쳐 연결한다.
 
 | 엣지 ID·연결선 | 포트 | 필수 필드 | 선택 필드 | 변환 로직 | 예시·검증 상태 |
 | --- | --- | --- | --- | --- | --- |
@@ -623,6 +688,11 @@ Ctx는 기존 필드 보존. B05 통과 actor 필수,B08 proceed support 필수�
 | E042 B33 → B34 | main:0 | Ctx (6.1/저장계약 필수) | Ctx 선택 | 동일 컨텍스트 유지 | 6.3/저장소6.1 가상 예시·실행 전 |
 | E043 B34 → B35 | true:0 | Ctx (6.1/저장계약 필수) | Ctx 선택 | 동일 컨텍스트 유지 | 6.3/저장소6.1 가상 예시·실행 전 |
 | E044 B35 → B36 | main:0 | Raw (6.1/저장계약 필수) | Raw 선택 | 응답은 B33 참조 | 6.3/저장소6.1 가상 예시·실행 전 |
+| E127 B07a → B07 | main:0 | BeginRequest (6.1/저장계약 필수) | BeginRequest 선택 | BeginRequest만 전달 | P19 mock 로컬 실행 |
+| E128 B37a → B37 | main:0 | StateCommand (6.1/저장계약 필수) | StateCommand 선택 | prepare 명령만 전달 | P19 mock 로컬 실행 |
+| E129 B32a → B32 | main:0 | SaveRequest (6.1/저장계약 필수) | SaveRequest 선택 | SaveRequest만 전달 | P19 mock 로컬 실행 |
+| E130 X06a → X06 | main:0 | StateCommand (6.1/저장계약 필수) | StateCommand 선택 | fail 명령만 전달 | P19 mock 로컬 실행 |
+| E131 X03a → X03 | main:0 | DlqWriteRequest (6.1/저장계약 필수) | DlqWriteRequest 선택 | DLQ 요청만 전달 | P19 mock 로컬 실행 |
 | E045 L01 → B10 | ai_languageModel:0 | LanguageModel (6.1/저장계약 필수) | LanguageModel 선택 | 동일 컨텍스트 유지 | 6.3/저장소6.1 가상 예시·실행 전 |
 | E046 L02 → B19 | ai_languageModel:0 | LanguageModel (6.1/저장계약 필수) | LanguageModel 선택 | 동일 컨텍스트 유지 | 6.3/저장소6.1 가상 예시·실행 전 |
 | E047 L03 → B20 | ai_languageModel:0 | LanguageModel (6.1/저장계약 필수) | LanguageModel 선택 | 동일 컨텍스트 유지 | 6.3/저장소6.1 가상 예시·실행 전 |
@@ -753,7 +823,7 @@ Source는 승인 Evidence에서 doc/section/score를 선택해 만든다. 점수
 
 분류/한도 분기는 이번 support.attempt를 사용한다. B25→H02의 TicketRequest.attempt와 최종 SaveRequest.attempt는 그 값을 그대로 넘기고 R04는 Jira 문맥에 같은 값으로 저장한다. 생성·보완/상태 갱신·최종 저장·복구가 같은 요청에서 여러 번 수행돼도 매번 +1하지 않는다. 동일 요청 복구는 캡슐/Jira의 확인된 값을 사용하고 동일 값 대입으로 재개한다. Jira에 기록되지 않은 실패를 자동 다음 보완 요청으로 바꾸지 않는다. 기존 유효 case의 횟수를 읽지 못하면 기본1로 추정하지 않고 error/확인 필요로 처리한다.
 
-WF09의 재전송은 저장된 응답의 복사본을 사용한다. 이관 ticket이 있는 replay는 B08에서 복사본의 ticket.duplicate=true로 표시하고 ticket_id·priority·업무 결과는 유지한다. 최초 응답·저장 원본은 변경하지 않고 LLM/Jira/횟수 갱신0이다. ticket=null인 비이관 결과는 null 그대로다. 가이드의 같은 티켓 판정과 duplicate 표시는 모두 보존하며, 실제 공통 도구가 전체 객체 동등성을 요구하는지 D02에서 R02/R05가 확인한다. 확인 전 WF09 통과로 기록하지 않는다.
+WF09의 재전송은 저장된 응답의 복사본을 사용한다. 이관 ticket이 있는 replay는 B08에서 복사본의 ticket.duplicate=true로 표시하고 ticket_id·priority·업무 결과는 유지한다. 최초 응답·저장 원본은 변경하지 않고 LLM/Jira/횟수 갱신0이다. ticket=null인 비이관 결과는 null 그대로다. 가이드의 같은 티켓 판정과 duplicate 표시는 모두 보존하며, 실제 공통 도구가 전체 객체 동등성을 요구하는지 D02에서 R02/R05가 확인한다. 확인 전 WF09 통과로 기록하지 않는다. R02·R05 제안 판정은 ① 두 응답의 ticket_id·priority 같음 ② 2번째 duplicate=true ③ 티켓 1건이다(2026-11-05). 두 응답 ticket 전체 동등은 설계상 실패하므로 가이드·키트 요구를 D02에서 확인한다.
 
 ### 6.5. 공통 계약 변경과 역할별 결정의 경계
 
@@ -944,10 +1014,65 @@ HTTP는 비2xx full response·네트워크 오류 continueRegularOutput을 인�
 | 티켓 생성 명확 실패/생성 여부 불명 | tickets_down/ticket_unknown | X dlq_alert,HTTP200·담당자 이관·사유. known ID 없으면 ticket=null. WF04는 DLQ1·알림1 |
 | 생성 후 종료/배정/알림 실패 | partial_effect | 재처리 필요 시 X dlq_alert,recovery·known ID·Effect 보존. 확인 못한 완료 주장 금지 |
 | 문의 저장 경계 실패 | state_error | X dlq_alert,복구 가능한 finish 인자 또는 manual_required 기록. 알려진 ID 보존,자동 반복 진입0 |
+| save의 Jira 문맥 미확인 (R04 PR #23 `365c419`, 병합·실연결 전) | tickets_down | X dlq_alert,HTTP200·담당자 이관. 요청은 completed로 바꾸지 않고 fail로 unknown 기록, 재전송은409 request_requires_review. 알려진 ID 보존,완료로 답하지 않음 |
 
 X01은 위 표로 effect_plan을 정하고 X02가 실행한다. 알림·DLQ 자체 장애는 동일한 오류 워크플로우를 무한 호출하지 않고 가린 n8n 실행 기록으로 운영 확인한다. 실제 HTTP401/403은 재시도하지 않는다. 기타 재시도는 제공 API의 멱등성과 잔여 시간 안에서만,총2회 이하로 제한한다. 호출별 timeout·재시도 설정과 일반20초/조회1.5초 초기값·WF11 전체 한도는 R02/R04/R05가 실제 연동 전에 공동 확정하며 역할별로 서로 다른 값을 숨겨 쓰지 않는다. 현 시점에 성능이 검증된 수치가 아니다.
 
 Jira에는 가린 facts,최소 상태에는 가린 최종 응답을 두고 감사 로그에는 request_id·불투명 사용자ID·노드·route·reason·시도·시간·가림건수·근거ID만 남긴다. 문의 원문·답변 원문·연락처·Credential을 그대로 기록하지 않는다. 실제 실행 시험과 결과는 cases/runs/실행 결과서에 둔다.
+
+### 7.5. D05 시간·재시도 예산
+
+R02 적용(2026-11-06, 강사 피드백 "호출별 timeout·재시도를 합쳐도 전체 응답 기준을 지키도록"). 2026-11-05 초안의 제안값을 적용하고, 남은 시간으로 다음 단계 시작 여부를 정하는 시간 예산을 넣었다. R04·R05 검토 전이고 전체 기준 20초는 R05 결정 전 초기값이다. 로컬 실측은 [2026-11-05 노드별 실측](../../runs/public/20261105-170800-local-n8n-p19-real-rehearsal/summary.json)이며 Jira를 포함하지 않는다.
+
+| 호출 | 2026-11-05 | 적용 | 로컬 중앙값/최대 |
+| --- | --- | --- | --- |
+| B04 사용자 조회 | 1.5초 | 유지 | 4ms / 23ms |
+| L01 분류 | 8초, 재시도 1회 | **4초, 재시도 없음** | 1.2초 / 2.0초 |
+| B14 검색 | 5초 | **3초** | 0.8초 / 1.4초 |
+| B15 조회 | 2.5초 | 유지(B14와 병렬) | 측정 안 함 |
+| L02 작성 | 8초, 재시도 1회 | **B17 배정 3~4초, 재시도 없음** | 1.8초 / 2.1초 |
+| L03 검증 | 8초, 재시도 1회 | **B17 배정 2~3초, 재시도 없음** | 0.8초 / 1.1초 |
+| B27 티켓 | 15초 고정 | **20초까지 남은 시간 − 마무리 3.5초, 최소 5초·최대 15초** | R04: 조회 2초·쓰기 3.5초·알림 2초, 경로별 최악 종료 약 11초·생성 후 이관 약 13초(+PostgreSQL 3회), 실측 대부분 1~4초(초기 기준값). 로컬 생성 약 2.02초, 상태 전환 약 2.31초 |
+| B35 기록, X04 알림 | 각 1.5초 | 유지(응답 전 실행이라 마무리 예약에 포함) | - |
+| state·DLQ | 설정 없음 | 유지 | 13ms / 60ms. PostgreSQL 장애 대기 시간은 측정 필요 |
+
+**R04·R05 합의(2026-11-06):** 모든 응답은 **20초 안**이다. 25초는 R05 G06 실패선(20초 + 측정·전송 여유 5초)이라 처리 시간으로 쓰지 않는다. 한때 B27만 25초 기준으로 계산했던 `dc1f081`은 이 합의로 되돌렸다. B27은 20초까지 남은 시간으로 끊고, 끊기면 handoff 효과가 이미 일어났을 수 있으므로 **효과 미확인**(`ticket_unknown`)으로 처리한다: 재생성·재종료·재알림 0(B27 재시도 없음), DLQ·실패 알림 기록, state `unknown`이라 같은 요청 재전송은 409 `request_requires_review`, 시민 안내는 "문의를 정상적으로 접수했는지 확인하지 못했습니다. 담당자 확인이 필요합니다." 보통 경로(B27 도착 5초)는 11.5초를 기다린다(FL87). R04 handoff 최악 13초보다 짧은 경우는 효과 미확인으로 남는 것을 감수한다.
+
+**시간 예산(B02 `TIME_BUDGET`):** 전체20초, 검색3초, 답변 최대7초(작성 최대4초·검증 최대3초), 답변 최소5초(작성3초·검증2초), 티켓 최소5초·최대15초, 마무리3.5초(B35·X04 3초 + 저장/응답 여유0.5초)를 유지한다. B17은 답변 단계 사이 처리0.5초를 추가 예약하고 남은 시간에서 티켓·마무리·추가예약을 뺀 값과7초 중 작은 값을 두 모델에 배정한다. 최대비율4:3으로 나누되 작성최소3초·검증최소2초를 보장하며 실제 L02/L03 timeout도 같은 `answer_time_budget`을 읽는다. 최대7초를 전부 예약할 수 없어도 최소5초가 있으면 시작하며, 시간이 더 부족하면 기존처럼 이관한다. 짧아진 모델 제한으로 llm_down 이관이 늘 가능성은 실제 시험으로 확인한다. 전체20초 시한/재시도0/검증·저장게이트는 바꾸지 않는다.
+
+| 지점 | 조건 | 부족할 때 |
+| --- | --- | --- |
+| B11 분류 뒤 | 남은 시간 ≥ 검색 3 + 티켓 5 + 마무리 3.5 = 11.5초 | 검색 없이 `deadline_exceeded` 이관 |
+| B17 검색 뒤 | 남은 시간 ≥ 최소답변5 + 티켓5 + 마무리3.5 + 단계간여유0.5 = 14초. 가용답변=min(7초, 남은시간−9초)를 L02/L03 실제 제한에 배정 | 최소예산 미달은 답변 없이 `deadline_exceeded` 이관. 실제 모델 제한 초과는 `llm_down` 이관 |
+| B30 긴급 선이관 뒤 | 남은 시간 ≥ 검색 3 + 마무리 3.5 = 6.5초 | 후속 검색 생략, 고정 긴급 안내로 응답 |
+| B27 | 제한 = 20초까지 남은 시간 − 3.5초를 5~15초로 자름 | 초과하면 효과 미확인(`ticket_unknown`)으로 이관. 재생성·재종료·재알림 0, 재전송 409 `request_requires_review`(FL81) |
+
+- **최악 경로:** 모든 호출이 제한을 다 쓰는 경우를 로컬 Code 시험 FL77~FL81로 확인했다. 답변 경로는 이관으로 바뀌어 18초, LLM 최대 뒤 답변은 18초, 긴급은 18초, 티켓 실패는 실패 알림·기록 포함 19.5초에 응답한다. 처음 마무리 예약 3초로는 티켓 실패 경로가 정확히 20초에 걸려 시계 오차로 1ms 넘는 경우가 있어 0.5초 여유를 더했다. 2026-11-05 설정으로 같은 시험을 돌리면 25초·26.5초로 실패한다.
+- **n8n 확인:** HTTP Request의 timeout에 식을 넣으면 로컬 n8n 2.42.6이 따른다. 남은 시간 4초·9초·30초 시험에서 각각 3.5초·8.5초·15초에 끊겼다(마무리 0.5초 시험 사본, 확인 뒤 비활성화).
+- **실제 LLM 재시험(2026-11-06):** 로컬 n8n, gpt-4.1-mini, R03 PR #31 `06e9223` 색인, mock 하위 기능으로 [대표 문장 30회 모두 자동 답변](../../runs/public/20261106-093924-local-n8n-p19-time-budget-live/summary.json)(5자리·QR 절 30회), WF01 문장 10/10, 비슷한 문장 13/20(이관 7회는 모두 `verification_failed`)이다. `llm_down`·`deadline_exceeded`는 0회다. 적용 전 같은 조건은 30/30·10/10·14/20이었다. 응답 왕복은 대표 문장 중앙값 4.8초·최대 8.8초, WF01 중앙값 4.9초·최대 6.0초다. Jira·VM은 포함하지 않는다.
+- **보장 범위:** B02 이후 n8n 처리 시간과 state 저장(PostgreSQL, 제한 없음)은 예산에 넣지 않았다. B11 이전 단계(B04 1.5초, L01 4초)는 B11 조건으로 보장한다.
+- **티켓 시간 줄어듦(R04 확인 필요):** B27은 B25 도달이 늦을수록 15초보다 짧아진다. 답변 경로는 보통 10.5~12.5초, 최악은 5~8초다. R04 handoff 최악 약 13초보다 짧으면 support가 먼저 끊고 `ticket_unknown`으로 기록하는 동안 handoff는 Jira를 계속 바꿀 수 있다. 재전송은 문의 label 재조회로 같은 티켓을 다시 찾는다.
+- **B17 대리 수정(2026-11-06, 사용자 지시 R01 대리 수정 후보):** VM257/279의 남은14.941초/15.120초는 이전15.5초게이트에반복차단됐다. 새계산은각각작성약3.394초+검증2.547초, 작성3.497초+검증2.623초를배정해두모델의실제제한을함께줄인다(예시계산이며새실측아님). 모델/티켓최대시간·응답계약은유지한다. R04/R05 영향검토와새VM정상시험은별도이며, 이전실패증거와LN07 8.184초는보존한다.
+- **R05 시간 기준 제안(2026-11-06, `r05/p07-r04-contract-cases` `d3d6515`):** WF-01 목표 8초(기록용, 3회), 모든 응답 상한 25초(실패 기준), 20초 시한을 넘으면 `deadline_exceeded` 이관. 위 예산은 최악 경로도 20초 안에 응답하도록 짜여 25초 상한 안이고, B27은 15초를 기다리기 전에 남은 시간으로 제한을 정한다. WF-01 8초는 로컬 일반 응답 4.3~6.4초로 안이지만 VM mock LN07은 8.184초여서 VM 재측정이 필요하다.
+- **B27 근거 수치(R04 요청, 2026-11-06):** `87ee11c` 가짜 Jira 예행의 n8n 실행 기록에서 B27 시작 시각을 읽었다([기록](../../runs/public/20261106-120545-local-n8n-p19-b27-time-evidence/summary.json)). 이관 경로(한도·근거 없음·사람 판단·긴급)는 B27이 1.4~2.3초에 시작해 제한 14.2~15초로 R04 생성 후 이관 최악 약 13초를 다 기다린다. 자동 답변(종료) 경로는 5.5~6.4초에 시작해 제한 10.1~11.0초로 R04 종료 최악 약 11초와 같거나 조금 짧고, LLM이 느린 경우(대표 문장 최대 왕복 8.8초)는 약 8초로 줄어든다. 그래서 handoff 종료 경로의 최악을 약 8초 안으로 줄일 수 있는지가 R04 조정 대상이다. B27이 끊기면 `ticket_unknown`, B27 전 시간 조건에 걸리면 `deadline_exceeded`로 이관한다.
+- **WF-11(R05 질문, 2026-11-06):** R02가 "티켓이 느릴 때"라고 한 것은 B27 handoff(Jira 생성·종료)다. WF-11은 조회 지연 사례이고 가이드 값은 `max_seconds` 6초다. support는 과정 data-api의 tickets를 호출하지 않고, 본인 문의 조회는 B15(handoff 조회 경로, 2.5초)로 한다. 조회가 느리면 B15가 2.5초에 끊고 `lookup_error`로 이관하는데, 이관에는 B27 티켓 생성이 따른다. 추정(측정 아님): 분류 1.2~2.0초 + B15 2.5초 + B27 생성 약 2.0~4.3초 = 약 5.7~8.8초로 6초를 넘을 수 있다. 이전 mock 시험(티켓 즉시 응답)은 2.7초에 이관했다. 6초 안에 들려면 B27 생성이 약 1.5초 안이어야 해서, WF-11에서 지연을 어디에 넣는지(B15 경로 또는 Jira)와 6초에 이관 티켓 생성을 포함할지를 R05·R04와 정해야 한다.
+- **재시도(R04 제안, 2026-11-05):** LLM은 재시도하지 않는다. GET 조회는 제한적으로 재시도할 수 있다. 생성·종료·배정은 무조건 재시도하지 않고 Jira 재조회로 미반영이 확인된 경우만 재시도한다. 7.4절의 401·403 무재시도와 총 2회 이하는 유지한다.
+
+결정이 필요한 것: WF-11 6초에 이관 티켓 생성을 포함할지와 지연 주입 위치(R05·R04, 가이드 확인), VM에서 답변 경로 축소 정도와 handoff 실측(R01 재측정). 20초 안 응답과 B27 효과 미확인 처리는 R04·R05 합의로 확정하고, 실제 n8n·VM 측정 전까지 수치는 초기 기준값으로 둔다.
+
+### 7.6. 실패 문의의 후속 처리 제한 (완료 제한)
+
+R01 결정(2026-11-06, PR #39): **실패한 문의의 연속 처리는 현재 지원하지 않으며, 원 요청 재개는 미구현이다.** 재개 드라이버가 없어 state `fail`은 실패·미확인을 기록만 하고, DLQ `resolve`는 DLQ 항목만 정리한다. 운영자 확인이나 DLQ 정리 뒤에도 그 문의는 다시 이어지지 않는다. STORAGE-DESIGN 4.2의 운영자 확인 후 조건부 재개는 설계만 있고 구현되지 않았다.
+
+| 상황 | 결과 | 비고 |
+| --- | --- | --- |
+| 실패한 요청을 같은 `request_id`로 재전송 | 409 `request_requires_review` | 원 실행이 아직 `processing`으로 남았으면 `request_in_progress`. 자동 재실행 0 |
+| 같은 `case_ref`로 후속 질문 | 409 `case_busy` | 문의에 `processing`·`failed`·`unknown` 요청이 있으면 busy. 실패로 남은 경우 해제되지 않는다. 앞 요청이 정상 처리 중일 때도 같은 코드다 |
+| 새 문의(새 `request_id`, `case_ref` 없음) | 정상 처리 | 보완 횟수가 1부터 다시 세어지고, 이관되면 별도 Jira 티켓이 생길 수 있다 |
+
+- **확인 범위:** 임시 PostgreSQL 16(#27 `86d78e7` `001`~`007`)에서 state·case 함수를 직접 호출했고, support는 state 응답을 그대로 전달한다(FL35·FL85·FL86). n8n·Discord·VM 종단은 미실행이다.
+- **정상 시험 조건:** `request_id`는 실행마다 새로 만든다. 실패 주입 문의는 이후 정상 보완·한도 시험에 재사용하지 않는다. 실패 주입 뒤 남은 행을 `resolve`로 복구 완료 처리하지 않는다. 새 문의 성공을 기존 실패 문의의 복구 성공으로 기록하지 않는다.
+- **시민 안내:** `case_busy`는 정상 처리 중에도 나므로 모든 경우에 새 문의를 유도하지 않는다. 안내 문구와 Discord 어댑터의 오류 안내(같은 문의 연결값으로 다시 시도)는 R04가 맞춘다.
 
 ## 8. 64~79일차에서 가져온 것
 

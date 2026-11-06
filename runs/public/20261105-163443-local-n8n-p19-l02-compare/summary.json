@@ -1,0 +1,201 @@
+{
+  "label": "l02-public-number-compare",
+  "executed_at_kst": "2026-11-05",
+  "environment": "local n8n 2.42.6, course data-api, gpt-4.1-mini, main search, R03 PR #31 c02205d 색인, mock state·handoff·dlq",
+  "scope": "L02 공개 대표번호 규칙 수정 전후 반복 호출. 답변 원문은 남기지 않는다. VM·공식 판정이 아니다.",
+  "workflow_sha256_without_credential_ids": "6f164f5333370e253d6da98e80f593f933e60fe60c731f8d732081369f756e33",
+  "before": {
+    "대표 문장": {
+      "n": 20,
+      "auto": 17
+    },
+    "WF01": {
+      "n": 10,
+      "auto": 10
+    },
+    "QR로 대여하는 방법": {
+      "n": 20,
+      "tally": {
+        "자동 답변/None": 12,
+        "담당자 이관/verification_failed": 8
+      },
+      "in_auto": {
+        "5자리": 12,
+        "대표번호": 0,
+        "고객센터만": 0,
+        "챗봇": 0,
+        "QR절": 12
+      }
+    },
+    "QR 대여 방법": {
+      "n": 10,
+      "tally": {
+        "자동 답변/None": 5,
+        "담당자 이관/verification_failed": 5
+      },
+      "in_auto": {
+        "5자리": 5,
+        "대표번호": 0,
+        "고객센터만": 1,
+        "챗봇": 0,
+        "QR절": 5
+      }
+    },
+    "TC09b": {
+      "n": 15,
+      "tally": {
+        "자동 답변/None": 15
+      },
+      "in_auto": {
+        "5자리": 0,
+        "대표번호": 0,
+        "고객센터만": 15,
+        "챗봇": 0,
+        "QR절": 0
+      }
+    }
+  },
+  "first_revision_discarded": {
+    "why": "프롬프트 예시의 번호가 근거에 번호가 없는 답변에 들어가 R05 TC09b가 B21 번호 검사로 0/3 이관",
+    "results": {
+      "new_rep": {
+        "n": 30,
+        "tally": {
+          "자동 답변/None": 30
+        },
+        "in_auto": {
+          "5자리": 30,
+          "대표번호": 30,
+          "고객센터만": 0,
+          "챗봇": 0,
+          "QR절": 30
+        }
+      },
+      "new_wf01": {
+        "n": 10,
+        "tally": {
+          "자동 답변/None": 10
+        },
+        "in_auto": {
+          "5자리": 10,
+          "대표번호": 10,
+          "고객센터만": 0,
+          "챗봇": 0,
+          "QR절": 10
+        }
+      },
+      "new_sib": {
+        "n": 20,
+        "tally": {
+          "자동 답변/None": 17,
+          "담당자 이관/verification_failed": 3
+        },
+        "in_auto": {
+          "5자리": 17,
+          "대표번호": 17,
+          "고객센터만": 0,
+          "챗봇": 0,
+          "QR절": 17
+        }
+      },
+      "new_qr": {
+        "n": 10,
+        "tally": {
+          "자동 답변/None": 10
+        },
+        "in_auto": {
+          "5자리": 10,
+          "대표번호": 10,
+          "고객센터만": 0,
+          "챗봇": 0,
+          "QR절": 10
+        }
+      }
+    },
+    "regression": "runs/public/20261105-161950-local-n8n-p19-l02-regression/summary.json",
+    "r05": "runs/public/20261105-162034-local-n8n-p19-l02-r05/summary.json"
+  },
+  "final": {
+    "new_rep": {
+      "n": 30,
+      "tally": {
+        "자동 답변/None": 29,
+        "담당자 이관/llm_down": 1
+      },
+      "in_auto": {
+        "5자리": 29,
+        "대표번호": 29,
+        "고객센터만": 0,
+        "챗봇": 0,
+        "QR절": 29
+      }
+    },
+    "new_wf01": {
+      "n": 10,
+      "tally": {
+        "자동 답변/None": 10
+      },
+      "in_auto": {
+        "5자리": 10,
+        "대표번호": 10,
+        "고객센터만": 0,
+        "챗봇": 0,
+        "QR절": 10
+      }
+    },
+    "new_sib": {
+      "n": 20,
+      "tally": {
+        "자동 답변/None": 13,
+        "담당자 이관/verification_failed": 7
+      },
+      "in_auto": {
+        "5자리": 13,
+        "대표번호": 13,
+        "고객센터만": 0,
+        "챗봇": 0,
+        "QR절": 13
+      }
+    },
+    "new_qr": {
+      "n": 10,
+      "tally": {
+        "자동 답변/None": 10
+      },
+      "in_auto": {
+        "5자리": 10,
+        "대표번호": 10,
+        "고객센터만": 0,
+        "챗봇": 0,
+        "QR절": 10
+      }
+    },
+    "new_tc09b": {
+      "n": 15,
+      "tally": {
+        "자동 답변/None": 15
+      },
+      "in_auto": {
+        "5자리": 0,
+        "대표번호": 0,
+        "고객센터만": 15,
+        "챗봇": 0,
+        "QR절": 0
+      }
+    }
+  },
+  "remaining": {
+    "verification_failed": "QR로 대여하는 방법 문장에서 L03이 말 바꿈과 인용 문서 간 차이를 실패로 판단",
+    "llm_down": "대표 문장 30회 중 1회. 호출 오류 원인 미확인",
+    "wf03": "R05 WF-03 3회 중 1회 보완 질문. L02 이전 분류 단계 결과"
+  },
+  "regression": {
+    "support_skeleton_live": "runs/public/20261105-163143-local-n8n-p19-l02-regression-2/summary.json",
+    "r05_route_compare": "runs/public/20261105-163225-local-n8n-p19-l02-r05-2/summary.json"
+  },
+  "not_executed": [
+    "VM 재색인과 VM 재시험",
+    "실제 state·handoff·dlq·Jira",
+    "공통 WF 공식 판정"
+  ]
+}

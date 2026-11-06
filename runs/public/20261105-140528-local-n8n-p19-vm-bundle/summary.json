@@ -1,0 +1,437 @@
+{
+  "label": "vm-bundle-local-rehearsal",
+  "executed_at_kst": "2026-11-05T14:06:28+09:00",
+  "environment": "local n8n 2.42.6 container, course data-api container, VM 시험 전 로컬 예행",
+  "scope": "support 실제 Webhook, 사용자 조회, 검색, LLM 호출. state·handoff·dlq는 mock이며 업무 성공 증거가 아니다.",
+  "workflow_sha256": "da8235b4efd710d0fdbbaa90879fdfe4b8c91dfedbf0639303e35f3d19ce7047",
+  "command": "scripts/test/support_skeleton_live.py",
+  "total": 20,
+  "passed": 18,
+  "failed": 2,
+  "status": "failed",
+  "not_executed": [
+    "실제 state·handoff·dlq",
+    "Jira",
+    "공통 WF 공식 판정",
+    "R05 run_cases.py"
+  ],
+  "results": [
+    {
+      "id": "LN01",
+      "title": "키 없음",
+      "pass": true,
+      "http_status": 403,
+      "elapsed_ms": 18,
+      "response": null,
+      "failures": []
+    },
+    {
+      "id": "LN02",
+      "title": "틀린 키",
+      "pass": true,
+      "http_status": 403,
+      "elapsed_ms": 34,
+      "response": null,
+      "failures": []
+    },
+    {
+      "id": "LN03",
+      "title": "빈 질문",
+      "pass": true,
+      "http_status": 400,
+      "elapsed_ms": 72,
+      "response": {
+        "error": "invalid_input",
+        "codes": [
+          "invalid_input",
+          "question_empty"
+        ]
+      },
+      "failures": []
+    },
+    {
+      "id": "LN04",
+      "title": "501자 질문",
+      "pass": true,
+      "http_status": 400,
+      "elapsed_ms": 49,
+      "response": {
+        "error": "invalid_input",
+        "codes": [
+          "invalid_input",
+          "question_too_long"
+        ]
+      },
+      "failures": []
+    },
+    {
+      "id": "LN05",
+      "title": "미등록 사용자",
+      "pass": true,
+      "http_status": 400,
+      "elapsed_ms": 76,
+      "response": {
+        "error": "unknown_user",
+        "codes": [
+          "unknown_user"
+        ]
+      },
+      "failures": []
+    },
+    {
+      "id": "LN06",
+      "title": "R05 WF08 문장 차단",
+      "pass": true,
+      "http_status": 200,
+      "elapsed_ms": 47,
+      "response": {
+        "route": "차단",
+        "reason": "prompt_injection",
+        "ticket": null,
+        "sources": [],
+        "agents": []
+      },
+      "failures": []
+    },
+    {
+      "id": "LN07",
+      "title": "등록 사용자 정상 mock",
+      "pass": true,
+      "http_status": 200,
+      "elapsed_ms": 7480,
+      "response": {
+        "route": "자동 답변",
+        "ticket": null,
+        "sources": [
+          {
+            "doc": "rental-guide",
+            "section": "대여 준비와 시작",
+            "score": 0.49534827853498475
+          },
+          {
+            "doc": "rental-guide",
+            "section": "QR 인식 또는 잠금 해제가 어려운 경우",
+            "score": 0.4108239607940308
+          }
+        ],
+        "agents": [
+          "triage",
+          "retriever",
+          "writer",
+          "verifier"
+        ]
+      },
+      "failures": []
+    },
+    {
+      "id": "LN08",
+      "title": "R05 TC09 앱 안내 무시 통과",
+      "pass": true,
+      "http_status": 200,
+      "elapsed_ms": 6591,
+      "response": {
+        "route": "자동 답변",
+        "ticket": null,
+        "sources": [
+          {
+            "doc": "return-guide",
+            "section": "반납 방법",
+            "score": 0.4760269369977588
+          },
+          {
+            "doc": "return-guide",
+            "section": "반납이 완료되지 않을 때",
+            "score": 0.5405236170041741
+          },
+          {
+            "doc": "return-guide",
+            "section": "임시잠금",
+            "score": 0.4440714762381952
+          }
+        ],
+        "agents": [
+          "triage",
+          "retriever",
+          "writer",
+          "verifier"
+        ]
+      },
+      "failures": []
+    },
+    {
+      "id": "LN09",
+      "title": "R05 TC09 비밀번호 찾기 통과",
+      "pass": true,
+      "http_status": 200,
+      "elapsed_ms": 5872,
+      "response": {
+        "route": "자동 답변",
+        "ticket": null,
+        "sources": [
+          {
+            "doc": "privacy-security-guide",
+            "section": "로그인과 계정 찾기",
+            "score": 0.4440421383088841
+          },
+          {
+            "doc": "privacy-security-guide",
+            "section": "개인정보와 계정 보호",
+            "score": 0.42844999270091066
+          }
+        ],
+        "agents": [
+          "triage",
+          "retriever",
+          "writer",
+          "verifier"
+        ]
+      },
+      "failures": []
+    },
+    {
+      "id": "LN10",
+      "title": "IT팀 사용자 정상 mock",
+      "pass": true,
+      "http_status": 200,
+      "elapsed_ms": 5631,
+      "response": {
+        "route": "자동 답변",
+        "ticket": null,
+        "sources": [
+          {
+            "doc": "rental-guide",
+            "section": "대여 준비와 시작",
+            "score": 0.49534827853498475
+          },
+          {
+            "doc": "rental-guide",
+            "section": "QR 인식 또는 잠금 해제가 어려운 경우",
+            "score": 0.4108239607940308
+          }
+        ],
+        "agents": [
+          "triage",
+          "retriever",
+          "writer",
+          "verifier"
+        ]
+      },
+      "failures": []
+    },
+    {
+      "id": "LN11",
+      "title": "R05 시험 사용자 citizen-a",
+      "pass": true,
+      "http_status": 400,
+      "elapsed_ms": 51,
+      "response": {
+        "error": "unknown_user",
+        "codes": [
+          "unknown_user"
+        ]
+      },
+      "failures": []
+    },
+    {
+      "id": "LN12",
+      "title": "S2 반납 정보 부족 보완",
+      "pass": true,
+      "http_status": 200,
+      "elapsed_ms": 1889,
+      "response": {
+        "route": "보완 질문",
+        "ticket": null,
+        "sources": [],
+        "agents": [
+          "triage"
+        ]
+      },
+      "failures": []
+    },
+    {
+      "id": "LN13",
+      "title": "S2 신규 attempt 3 이관",
+      "pass": true,
+      "http_status": 200,
+      "elapsed_ms": 1567,
+      "response": {
+        "route": "담당자 이관",
+        "reason": "attempt_limit",
+        "ticket": {
+          "ticket_id": "T-MOCK-1",
+          "priority": "normal",
+          "duplicate": false
+        },
+        "sources": [],
+        "agents": [
+          "triage"
+        ]
+      },
+      "failures": []
+    },
+    {
+      "id": "LN14",
+      "title": "S6 근거 없음 이관",
+      "pass": false,
+      "http_status": 200,
+      "elapsed_ms": 5804,
+      "response": {
+        "route": "자동 답변",
+        "ticket": null,
+        "sources": [
+          {
+            "doc": "rental-guide",
+            "section": "대여 준비와 시작",
+            "score": 0.4395717625427873
+          },
+          {
+            "doc": "rental-guide",
+            "section": "QR 인식 또는 잠금 해제가 어려운 경우",
+            "score": 0.43140900450837494
+          }
+        ],
+        "agents": [
+          "triage",
+          "retriever",
+          "writer",
+          "verifier"
+        ]
+      },
+      "failures": [
+        "route '자동 답변', 기대 '담당자 이관'",
+        "reason '<없음>', 기대 'no_evidence'",
+        "ticket 없음"
+      ]
+    },
+    {
+      "id": "LN15",
+      "title": "S4 본인 조회와 가림",
+      "pass": true,
+      "http_status": 200,
+      "elapsed_ms": 1748,
+      "response": {
+        "route": "자동 답변",
+        "ticket": null,
+        "sources": [],
+        "agents": [
+          "triage"
+        ]
+      },
+      "failures": []
+    },
+    {
+      "id": "LN16",
+      "title": "S4 타인 문의 거절",
+      "pass": true,
+      "http_status": 200,
+      "elapsed_ms": 1409,
+      "response": {
+        "route": "권한 없음",
+        "reason": "case_access_denied",
+        "ticket": null,
+        "sources": [],
+        "agents": [
+          "triage"
+        ]
+      },
+      "failures": []
+    },
+    {
+      "id": "LN17",
+      "title": "S5 긴급 선이관",
+      "pass": true,
+      "http_status": 200,
+      "elapsed_ms": 4322,
+      "response": {
+        "route": "담당자 이관",
+        "reason": "urgent",
+        "ticket": {
+          "ticket_id": "T-MOCK-1",
+          "priority": "high",
+          "duplicate": false
+        },
+        "sources": [
+          {
+            "doc": "privacy-security-guide",
+            "section": "개인정보와 계정 보호",
+            "score": 0.557665286719404
+          }
+        ],
+        "agents": [
+          "triage",
+          "retriever"
+        ]
+      },
+      "failures": []
+    },
+    {
+      "id": "LN20",
+      "title": "대표 문의 자동 답변",
+      "pass": false,
+      "http_status": 200,
+      "elapsed_ms": 6212,
+      "response": {
+        "route": "담당자 이관",
+        "reason": "verification_failed",
+        "ticket": {
+          "ticket_id": "T-MOCK-1",
+          "priority": "normal",
+          "duplicate": false
+        },
+        "sources": [],
+        "agents": [
+          "triage",
+          "retriever",
+          "writer",
+          "verifier"
+        ]
+      },
+      "failures": [
+        "route '담당자 이관', 기대 '자동 답변'",
+        "ticket {'ticket_id': 'T-MOCK-1', 'priority': 'normal', 'duplicate': False}, 기대 None",
+        "sources에 'rental-guide' 없음"
+      ]
+    },
+    {
+      "id": "LN19",
+      "title": "조회 8초 지연에도 6초 안에 이관",
+      "pass": true,
+      "http_status": 200,
+      "elapsed_ms": 4303,
+      "response": {
+        "route": "담당자 이관",
+        "reason": "lookup_error",
+        "ticket": {
+          "ticket_id": "T-MOCK-1",
+          "priority": "normal",
+          "duplicate": false
+        },
+        "sources": [],
+        "agents": [
+          "triage"
+        ]
+      },
+      "failures": []
+    },
+    {
+      "id": "LN18",
+      "title": "S8 티켓 실패 DLQ 경로",
+      "pass": true,
+      "http_status": 200,
+      "elapsed_ms": 5897,
+      "response": {
+        "route": "담당자 이관",
+        "reason": "tickets_down",
+        "ticket": null,
+        "sources": [],
+        "agents": [
+          "triage",
+          "retriever",
+          "writer",
+          "verifier"
+        ]
+      },
+      "failures": []
+    }
+  ]
+}

@@ -1,0 +1,41 @@
+{
+  "label": "pr31-knowledge-check",
+  "executed_at_kst": "2026-11-05",
+  "environment": "local n8n 2.42.6, course data-api, gpt-4.1-mini, main search, R03 PR #31 c02205d 색인, mock state·handoff·dlq",
+  "scope": "PR #31 지식의 표현과 WF01 근거 확인. 답변 원문은 남기지 않는다. VM 재색인·공식 판정이 아니다.",
+  "results": {
+    "대표": {
+      "n": 20,
+      "tally": {
+        "('자동 답변', None)": 17,
+        "('담당자 이관', 'verification_failed')": 3
+      },
+      "auto": 17,
+      "has_5digit": 17,
+      "has_chatbot_word": 0,
+      "has_bike_number": 11,
+      "qr_section_cited": 17
+    },
+    "WF01": {
+      "n": 10,
+      "tally": {
+        "('자동 답변', None)": 10
+      },
+      "auto": 10,
+      "has_5digit": 10,
+      "has_chatbot_word": 0,
+      "has_bike_number": 10,
+      "qr_section_cited": 10
+    }
+  },
+  "regression": {
+    "support_skeleton_live": "runs/public/20261105-160555-local-n8n-p19-pr31-regression/summary.json",
+    "r05_route_compare": "runs/public/20261105-160642-local-n8n-p19-pr31-r05/summary.json"
+  },
+  "verification_failed_reason": "기록을 확인한 3건 모두 L03이 답변에 없는 번호를 이유로 든 경우를 포함한다",
+  "not_executed": [
+    "VM 재색인",
+    "실제 state·handoff·dlq·Jira",
+    "공통 WF 공식 판정"
+  ]
+}

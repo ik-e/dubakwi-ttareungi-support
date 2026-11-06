@@ -1,0 +1,52 @@
+{
+  "label": "state",
+  "scope": "R04 dbb41f9 state 실제 골격 + 나머지 mock. 사본에 ID만 지정.",
+  "not_executed": [
+    "실제 DB",
+    "Jira",
+    "VM",
+    "공통 WF 공식 판정"
+  ],
+  "results": [
+    {
+      "case": "s1-guidance",
+      "status": 200,
+      "route": "담당자 이관",
+      "reason": "state_backend_unconfigured",
+      "ticket": null,
+      "seconds": 1.0
+    },
+    {
+      "case": "s2-ask",
+      "status": 200,
+      "route": "담당자 이관",
+      "reason": "state_backend_unconfigured",
+      "ticket": null,
+      "seconds": 0.1
+    },
+    {
+      "case": "s4-lookup",
+      "status": 200,
+      "route": "담당자 이관",
+      "reason": "state_backend_unconfigured",
+      "ticket": null,
+      "seconds": 0.1
+    },
+    {
+      "case": "s5-urgent",
+      "status": 200,
+      "route": "담당자 이관",
+      "reason": "state_backend_unconfigured",
+      "ticket": null,
+      "seconds": 0.1
+    },
+    {
+      "case": "s7-inject",
+      "status": 200,
+      "route": "차단",
+      "reason": "prompt_injection",
+      "ticket": null,
+      "seconds": 0.0
+    }
+  ]
+}

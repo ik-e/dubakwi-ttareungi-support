@@ -1,0 +1,376 @@
+{
+  "label": "labels-regression",
+  "executed_at_kst": "2026-11-04T15:40:01+09:00",
+  "environment": "local n8n 2.42.6 container, course data-api container",
+  "scope": "support 실제 Webhook과 LLM 호출. state·search·handoff·dlq는 mock이며 업무 성공 증거가 아니다.",
+  "workflow_sha256": "1f1f94c4a119b902fd0749d3392c46be84d53dfc4665d55acda24ab35e4c0e45",
+  "command": "scripts/test/support_skeleton_live.py",
+  "total": 19,
+  "passed": 17,
+  "failed": 2,
+  "status": "failed",
+  "not_executed": [
+    "VM 배포",
+    "실제 search·state·handoff·dlq",
+    "Jira",
+    "공통 WF 공식 판정",
+    "R05 run_cases.py"
+  ],
+  "results": [
+    {
+      "id": "LN01",
+      "title": "키 없음",
+      "pass": true,
+      "http_status": 403,
+      "elapsed_ms": 41,
+      "response": null,
+      "failures": []
+    },
+    {
+      "id": "LN02",
+      "title": "틀린 키",
+      "pass": true,
+      "http_status": 403,
+      "elapsed_ms": 36,
+      "response": null,
+      "failures": []
+    },
+    {
+      "id": "LN03",
+      "title": "빈 질문",
+      "pass": true,
+      "http_status": 400,
+      "elapsed_ms": 730,
+      "response": {
+        "error": "invalid_input",
+        "codes": [
+          "invalid_input",
+          "question_empty"
+        ]
+      },
+      "failures": []
+    },
+    {
+      "id": "LN04",
+      "title": "501자 질문",
+      "pass": true,
+      "http_status": 400,
+      "elapsed_ms": 53,
+      "response": {
+        "error": "invalid_input",
+        "codes": [
+          "invalid_input",
+          "question_too_long"
+        ]
+      },
+      "failures": []
+    },
+    {
+      "id": "LN05",
+      "title": "미등록 사용자",
+      "pass": true,
+      "http_status": 400,
+      "elapsed_ms": 70,
+      "response": {
+        "error": "unknown_user",
+        "codes": [
+          "unknown_user"
+        ]
+      },
+      "failures": []
+    },
+    {
+      "id": "LN06",
+      "title": "R05 WF08 문장 차단",
+      "pass": true,
+      "http_status": 200,
+      "elapsed_ms": 59,
+      "response": {
+        "route": "차단",
+        "reason": "prompt_injection",
+        "ticket": null,
+        "sources": [],
+        "agents": []
+      },
+      "failures": []
+    },
+    {
+      "id": "LN07",
+      "title": "등록 사용자 정상 mock",
+      "pass": false,
+      "http_status": 200,
+      "elapsed_ms": 4790,
+      "response": {
+        "route": "담당자 이관",
+        "reason": "verification_failed",
+        "ticket": {
+          "ticket_id": "T-MOCK-1",
+          "priority": "normal",
+          "duplicate": false
+        },
+        "sources": [],
+        "agents": [
+          "triage",
+          "retriever",
+          "writer",
+          "verifier"
+        ]
+      },
+      "failures": [
+        "route '담당자 이관', 기대 '자동 답변'",
+        "ticket {'ticket_id': 'T-MOCK-1', 'priority': 'normal', 'duplicate': False}, 기대 None",
+        "sources 없음"
+      ]
+    },
+    {
+      "id": "LN08",
+      "title": "R05 TC09 앱 안내 무시 통과",
+      "pass": true,
+      "http_status": 200,
+      "elapsed_ms": 3750,
+      "response": {
+        "route": "담당자 이관",
+        "reason": "verification_failed",
+        "ticket": {
+          "ticket_id": "T-MOCK-1",
+          "priority": "normal",
+          "duplicate": false
+        },
+        "sources": [],
+        "agents": [
+          "triage",
+          "retriever",
+          "writer",
+          "verifier"
+        ]
+      },
+      "failures": []
+    },
+    {
+      "id": "LN09",
+      "title": "R05 TC09 비밀번호 찾기 통과",
+      "pass": true,
+      "http_status": 200,
+      "elapsed_ms": 3186,
+      "response": {
+        "route": "담당자 이관",
+        "reason": "verification_failed",
+        "ticket": {
+          "ticket_id": "T-MOCK-1",
+          "priority": "normal",
+          "duplicate": false
+        },
+        "sources": [],
+        "agents": [
+          "triage",
+          "retriever",
+          "writer",
+          "verifier"
+        ]
+      },
+      "failures": []
+    },
+    {
+      "id": "LN10",
+      "title": "IT팀 사용자 정상 mock",
+      "pass": false,
+      "http_status": 200,
+      "elapsed_ms": 3325,
+      "response": {
+        "route": "담당자 이관",
+        "reason": "verification_failed",
+        "ticket": {
+          "ticket_id": "T-MOCK-1",
+          "priority": "normal",
+          "duplicate": false
+        },
+        "sources": [],
+        "agents": [
+          "triage",
+          "retriever",
+          "writer",
+          "verifier"
+        ]
+      },
+      "failures": [
+        "route '담당자 이관', 기대 '자동 답변'",
+        "ticket {'ticket_id': 'T-MOCK-1', 'priority': 'normal', 'duplicate': False}, 기대 None",
+        "sources 없음"
+      ]
+    },
+    {
+      "id": "LN11",
+      "title": "R05 시험 사용자 citizen-a",
+      "pass": true,
+      "http_status": 400,
+      "elapsed_ms": 54,
+      "response": {
+        "error": "unknown_user",
+        "codes": [
+          "unknown_user"
+        ]
+      },
+      "failures": []
+    },
+    {
+      "id": "LN12",
+      "title": "S2 반납 정보 부족 보완",
+      "pass": true,
+      "http_status": 200,
+      "elapsed_ms": 1714,
+      "response": {
+        "route": "보완 질문",
+        "ticket": null,
+        "sources": [],
+        "agents": [
+          "triage"
+        ]
+      },
+      "failures": []
+    },
+    {
+      "id": "LN13",
+      "title": "S2 신규 attempt 3 이관",
+      "pass": true,
+      "http_status": 200,
+      "elapsed_ms": 1639,
+      "response": {
+        "route": "담당자 이관",
+        "reason": "attempt_limit",
+        "ticket": {
+          "ticket_id": "T-MOCK-1",
+          "priority": "normal",
+          "duplicate": false
+        },
+        "sources": [],
+        "agents": [
+          "triage"
+        ]
+      },
+      "failures": []
+    },
+    {
+      "id": "LN14",
+      "title": "S6 근거 없음 이관",
+      "pass": true,
+      "http_status": 200,
+      "elapsed_ms": 1393,
+      "response": {
+        "route": "담당자 이관",
+        "reason": "no_evidence",
+        "ticket": {
+          "ticket_id": "T-MOCK-1",
+          "priority": "normal",
+          "duplicate": false
+        },
+        "sources": [],
+        "agents": [
+          "triage"
+        ]
+      },
+      "failures": []
+    },
+    {
+      "id": "LN15",
+      "title": "S4 본인 조회와 가림",
+      "pass": true,
+      "http_status": 200,
+      "elapsed_ms": 1306,
+      "response": {
+        "route": "자동 답변",
+        "ticket": null,
+        "sources": [],
+        "agents": [
+          "triage"
+        ]
+      },
+      "failures": []
+    },
+    {
+      "id": "LN16",
+      "title": "S4 타인 문의 거절",
+      "pass": true,
+      "http_status": 200,
+      "elapsed_ms": 1465,
+      "response": {
+        "route": "권한 없음",
+        "reason": "case_access_denied",
+        "ticket": null,
+        "sources": [],
+        "agents": [
+          "triage"
+        ]
+      },
+      "failures": []
+    },
+    {
+      "id": "LN17",
+      "title": "S5 긴급 선이관",
+      "pass": true,
+      "http_status": 200,
+      "elapsed_ms": 1487,
+      "response": {
+        "route": "담당자 이관",
+        "reason": "urgent",
+        "ticket": {
+          "ticket_id": "T-MOCK-1",
+          "priority": "high",
+          "duplicate": false
+        },
+        "sources": [
+          {
+            "doc": "mock-rental-guide",
+            "section": "QR 대여",
+            "score": 0.9
+          }
+        ],
+        "agents": [
+          "triage",
+          "retriever"
+        ]
+      },
+      "failures": []
+    },
+    {
+      "id": "LN19",
+      "title": "조회 8초 지연에도 6초 안에 이관",
+      "pass": true,
+      "http_status": 200,
+      "elapsed_ms": 2904,
+      "response": {
+        "route": "담당자 이관",
+        "reason": "lookup_error",
+        "ticket": {
+          "ticket_id": "T-MOCK-1",
+          "priority": "normal",
+          "duplicate": false
+        },
+        "sources": [],
+        "agents": [
+          "triage"
+        ]
+      },
+      "failures": []
+    },
+    {
+      "id": "LN18",
+      "title": "S8 티켓 실패 DLQ 경로",
+      "pass": true,
+      "http_status": 200,
+      "elapsed_ms": 3572,
+      "response": {
+        "route": "담당자 이관",
+        "reason": "tickets_down",
+        "ticket": null,
+        "sources": [],
+        "agents": [
+          "triage",
+          "retriever",
+          "writer",
+          "verifier"
+        ]
+      },
+      "failures": []
+    }
+  ]
+}

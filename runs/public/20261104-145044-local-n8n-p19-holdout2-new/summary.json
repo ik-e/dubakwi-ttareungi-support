@@ -1,0 +1,455 @@
+{
+  "label": "holdout",
+  "scope": "프롬프트 조정에 쓰지 않은 새 문장. 지식 mock·mock 하위 기능 기준이며 공식 판정이 아니다.",
+  "expected_set_before_run": true,
+  "results": [
+    {
+      "id": "n-how-1",
+      "question": "정기권 환불 기준이 궁금해요.",
+      "accepted_routes": [
+        "자동 답변",
+        "담당자 이관"
+      ],
+      "passed": 3,
+      "runs": [
+        {
+          "route": "자동 답변",
+          "reason": null,
+          "priority": null,
+          "sources": [
+            "fees-refund-guide"
+          ],
+          "seconds": 4.7,
+          "pass": true
+        },
+        {
+          "route": "자동 답변",
+          "reason": null,
+          "priority": null,
+          "sources": [
+            "fees-refund-guide"
+          ],
+          "seconds": 3.2,
+          "pass": true
+        },
+        {
+          "route": "자동 답변",
+          "reason": null,
+          "priority": null,
+          "sources": [
+            "fees-refund-guide"
+          ],
+          "seconds": 3.4,
+          "pass": true
+        }
+      ]
+    },
+    {
+      "id": "n-how-2",
+      "question": "자전거 번호는 어디서 확인하나요?",
+      "accepted_routes": [
+        "자동 답변",
+        "담당자 이관"
+      ],
+      "passed": 3,
+      "runs": [
+        {
+          "route": "자동 답변",
+          "reason": null,
+          "priority": null,
+          "sources": [
+            "breakdown-report",
+            "rental-guide"
+          ],
+          "seconds": 3.5,
+          "pass": true
+        },
+        {
+          "route": "자동 답변",
+          "reason": null,
+          "priority": null,
+          "sources": [
+            "breakdown-report",
+            "rental-guide"
+          ],
+          "seconds": 3.4,
+          "pass": true
+        },
+        {
+          "route": "자동 답변",
+          "reason": null,
+          "priority": null,
+          "sources": [
+            "breakdown-report",
+            "rental-guide"
+          ],
+          "seconds": 3.5,
+          "pass": true
+        }
+      ]
+    },
+    {
+      "id": "n-how-3",
+      "question": "분실물을 찾으려면 어떻게 하나요?",
+      "accepted_routes": [
+        "자동 답변",
+        "담당자 이관"
+      ],
+      "passed": 3,
+      "runs": [
+        {
+          "route": "자동 답변",
+          "reason": null,
+          "priority": null,
+          "sources": [
+            "support-followup",
+            "support-followup"
+          ],
+          "seconds": 3.4,
+          "pass": true
+        },
+        {
+          "route": "자동 답변",
+          "reason": null,
+          "priority": null,
+          "sources": [
+            "support-followup",
+            "support-followup"
+          ],
+          "seconds": 3.7,
+          "pass": true
+        },
+        {
+          "route": "자동 답변",
+          "reason": null,
+          "priority": null,
+          "sources": [
+            "support-followup",
+            "support-followup"
+          ],
+          "seconds": 3.7,
+          "pass": true
+        }
+      ]
+    },
+    {
+      "id": "n-how-4",
+      "question": "페달이 헛돌면 어디에 신고해야 해요?",
+      "accepted_routes": [
+        "자동 답변",
+        "담당자 이관"
+      ],
+      "passed": 0,
+      "runs": [
+        {
+          "route": "보완 질문",
+          "reason": null,
+          "priority": null,
+          "sources": [],
+          "seconds": 1.2,
+          "pass": false
+        },
+        {
+          "route": "보완 질문",
+          "reason": null,
+          "priority": null,
+          "sources": [],
+          "seconds": 1.5,
+          "pass": false
+        },
+        {
+          "route": "보완 질문",
+          "reason": null,
+          "priority": null,
+          "sources": [],
+          "seconds": 1.5,
+          "pass": false
+        }
+      ]
+    },
+    {
+      "id": "n-ask-1",
+      "question": "반납했다고 문자가 안 와요.",
+      "accepted_routes": [
+        "보완 질문"
+      ],
+      "passed": 3,
+      "runs": [
+        {
+          "route": "보완 질문",
+          "reason": null,
+          "priority": null,
+          "sources": [],
+          "seconds": 1.4,
+          "pass": true
+        },
+        {
+          "route": "보완 질문",
+          "reason": null,
+          "priority": null,
+          "sources": [],
+          "seconds": 1.3,
+          "pass": true
+        },
+        {
+          "route": "보완 질문",
+          "reason": null,
+          "priority": null,
+          "sources": [],
+          "seconds": 1.3,
+          "pass": true
+        }
+      ]
+    },
+    {
+      "id": "n-ask-2",
+      "question": "결제가 이상해요.",
+      "accepted_routes": [
+        "보완 질문"
+      ],
+      "passed": 1,
+      "runs": [
+        {
+          "route": "보완 질문",
+          "reason": null,
+          "priority": null,
+          "sources": [],
+          "seconds": 1.3,
+          "pass": true
+        },
+        {
+          "route": "담당자 이관",
+          "reason": "needs_human",
+          "priority": "normal",
+          "sources": [],
+          "seconds": 1.1,
+          "pass": false
+        },
+        {
+          "route": "담당자 이관",
+          "reason": "needs_human",
+          "priority": "normal",
+          "sources": [],
+          "seconds": 1.3,
+          "pass": false
+        }
+      ]
+    },
+    {
+      "id": "n-ask-3",
+      "question": "자전거 안장이 망가졌어요.",
+      "accepted_routes": [
+        "보완 질문"
+      ],
+      "passed": 3,
+      "runs": [
+        {
+          "route": "보완 질문",
+          "reason": null,
+          "priority": null,
+          "sources": [],
+          "seconds": 1.2,
+          "pass": true
+        },
+        {
+          "route": "보완 질문",
+          "reason": null,
+          "priority": null,
+          "sources": [],
+          "seconds": 1.3,
+          "pass": true
+        },
+        {
+          "route": "보완 질문",
+          "reason": null,
+          "priority": null,
+          "sources": [],
+          "seconds": 1.2,
+          "pass": true
+        }
+      ]
+    },
+    {
+      "id": "n-ask-4",
+      "question": "QR을 찍어도 잠금이 안 풀려요.",
+      "accepted_routes": [
+        "보완 질문"
+      ],
+      "passed": 3,
+      "runs": [
+        {
+          "route": "보완 질문",
+          "reason": null,
+          "priority": null,
+          "sources": [],
+          "seconds": 1.3,
+          "pass": true
+        },
+        {
+          "route": "보완 질문",
+          "reason": null,
+          "priority": null,
+          "sources": [],
+          "seconds": 1.7,
+          "pass": true
+        },
+        {
+          "route": "보완 질문",
+          "reason": null,
+          "priority": null,
+          "sources": [],
+          "seconds": 1.3,
+          "pass": true
+        }
+      ]
+    },
+    {
+      "id": "n-human-1",
+      "question": "어제 저녁 1시간권을 앱에서 결제했는데 이중 결제됐어요. 취소해 주세요.",
+      "accepted_routes": [
+        "담당자 이관"
+      ],
+      "passed": 2,
+      "runs": [
+        {
+          "route": "보완 질문",
+          "reason": null,
+          "priority": null,
+          "sources": [],
+          "seconds": 1.3,
+          "pass": false
+        },
+        {
+          "route": "담당자 이관",
+          "reason": "needs_human",
+          "priority": "normal",
+          "sources": [],
+          "seconds": 1.4,
+          "pass": true
+        },
+        {
+          "route": "담당자 이관",
+          "reason": "needs_human",
+          "priority": "normal",
+          "sources": [],
+          "seconds": 2.0,
+          "pass": true
+        }
+      ]
+    },
+    {
+      "id": "n-urgent-1",
+      "question": "주행 중 브레이크가 안 들어 사고가 날 뻔했어요.",
+      "accepted_routes": [
+        "담당자 이관"
+      ],
+      "passed": 3,
+      "runs": [
+        {
+          "route": "담당자 이관",
+          "reason": "urgent",
+          "priority": "high",
+          "sources": [
+            "breakdown-report"
+          ],
+          "seconds": 1.4,
+          "pass": true
+        },
+        {
+          "route": "담당자 이관",
+          "reason": "urgent",
+          "priority": "high",
+          "sources": [
+            "breakdown-report"
+          ],
+          "seconds": 1.5,
+          "pass": true
+        },
+        {
+          "route": "담당자 이관",
+          "reason": "urgent",
+          "priority": "high",
+          "sources": [
+            "breakdown-report"
+          ],
+          "seconds": 2.2,
+          "pass": true
+        }
+      ]
+    },
+    {
+      "id": "n-urgent-2",
+      "question": "제 개인정보가 유출된 것 같아요.",
+      "accepted_routes": [
+        "담당자 이관"
+      ],
+      "passed": 3,
+      "runs": [
+        {
+          "route": "담당자 이관",
+          "reason": "urgent",
+          "priority": "high",
+          "sources": [
+            "privacy-security-guide"
+          ],
+          "seconds": 1.1,
+          "pass": true
+        },
+        {
+          "route": "담당자 이관",
+          "reason": "urgent",
+          "priority": "high",
+          "sources": [
+            "privacy-security-guide"
+          ],
+          "seconds": 1.2,
+          "pass": true
+        },
+        {
+          "route": "담당자 이관",
+          "reason": "urgent",
+          "priority": "high",
+          "sources": [
+            "privacy-security-guide"
+          ],
+          "seconds": 1.2,
+          "pass": true
+        }
+      ]
+    },
+    {
+      "id": "n-off-1",
+      "question": "맛집 추천해 주세요.",
+      "accepted_routes": [
+        "담당자 이관"
+      ],
+      "passed": 3,
+      "runs": [
+        {
+          "route": "담당자 이관",
+          "reason": "no_evidence",
+          "priority": "normal",
+          "sources": [],
+          "seconds": 1.3,
+          "pass": true
+        },
+        {
+          "route": "담당자 이관",
+          "reason": "no_evidence",
+          "priority": "normal",
+          "sources": [],
+          "seconds": 1.2,
+          "pass": true
+        },
+        {
+          "route": "담당자 이관",
+          "reason": "no_evidence",
+          "priority": "normal",
+          "sources": [],
+          "seconds": 1.2,
+          "pass": true
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,96 @@
+{
+  "executed_date": "2026-11-06 KST",
+  "task": "P19 adaptive B17 answer budget",
+  "source_base": "c4b97d77eae51ccb06565402eaf2bb778b8783fc",
+  "handoff": "User instructed R01 proxy-edit candidate using oral-handoff approach. No direct R02 confirmation provided here; original R02 branch preserved and candidate submitted for confirmation/review.",
+  "environment": "local Code graph simulation; external calls mocked",
+  "workflow_working_file_sha256": "f9e749382d723be8a78381fe8d54531784da003712a2828d2e76e88345e2ac41",
+  "workflow_git_lf_sha256": "86a15d5badd9171fee4f78614df7b2058eff08fd774b070e89da1a20c86fed69",
+  "changed_nodes": [
+    "B02 입력 검사",
+    "B17 근거 판정",
+    "L02 답변 모델",
+    "L03 검증 모델"
+  ],
+  "unchanged": [
+    "connections",
+    "settings",
+    "public Request/Response",
+    "overall20s",
+    "B27 and tail reservations",
+    "state/Jira saving gates",
+    "retries0"
+  ],
+  "allocation_examples": [
+    {
+      "remaining_ms": 14941,
+      "writer_ms": 3394,
+      "verifier_ms": 2547
+    },
+    {
+      "remaining_ms": 15120,
+      "writer_ms": 3497,
+      "verifier_ms": 2623
+    },
+    {
+      "remaining_ms": 14000,
+      "writer_ms": 3000,
+      "verifier_ms": 2000
+    }
+  ],
+  "checks": {
+    "flow_cases": {
+      "passed": 143,
+      "total": 143,
+      "new": [
+        "FL88",
+        "FL89",
+        "FL90",
+        "FL91",
+        "FL92"
+      ],
+      "details": "flow-cases.json"
+    },
+    "unittest": {
+      "total": 97,
+      "passed": 90,
+      "skipped_http": 7
+    },
+    "ruff": "passed;70files format checked",
+    "project_docs": {
+      "files": 20,
+      "links": 517,
+      "anchors": 54,
+      "errors": 0
+    },
+    "public_candidates": {
+      "files": 296,
+      "links": 643,
+      "errors": 0
+    },
+    "diff": "passed",
+    "secret_scan": "tscan unavailable; changed-text key/token patterns and Git candidate checks used, not a history guarantee"
+  },
+  "initial_test_failure": {
+    "passed": 141,
+    "total": 143,
+    "failed": [
+      "FL55",
+      "FL57"
+    ],
+    "reason": "Harness now respects model timeout; artificial21s successful L01 delay correctly became llm_down. Kept deadline/urgent expected outcomes and injected elapsed time into pre-model state handling instead."
+  },
+  "risks": [
+    "Shorter model timeout may increase llm_down; actual LLM/VM retest required",
+    "state/DB waits and scheduler overhead are not hard wall-clock bounded",
+    "handoff actual worst case can exceed existing minimum reservation; existing ticket_unknown handling remains"
+  ],
+  "not_executed": [
+    "new VM candidate import",
+    "actual LLM with new allocations",
+    "Jira normal close and DB completed",
+    "R04/R05 impact review",
+    "main merge"
+  ],
+  "details": "report.md"
+}

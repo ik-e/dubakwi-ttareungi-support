@@ -1,0 +1,27 @@
+{
+  "label": "llm-down",
+  "scope": "잘못된 모델 이름으로 만든 사본. 실제 장애 시 500 없이 이관되는지 확인. flow.py llm down 명령은 사용하지 않음.",
+  "results": [
+    {
+      "question": "QR로 대여하는 방법 알려주세요",
+      "status": 200,
+      "route": "담당자 이관",
+      "reason": "llm_down",
+      "seconds": 1.6
+    },
+    {
+      "question": "반납했는데 앱에 이용 중으로 나와요.",
+      "status": 200,
+      "route": "담당자 이관",
+      "reason": "llm_down",
+      "seconds": 0.7
+    },
+    {
+      "question": "사칭 링크에 비밀번호를 입력했어요.",
+      "status": 200,
+      "route": "담당자 이관",
+      "reason": "llm_down",
+      "seconds": 0.4
+    }
+  ]
+}

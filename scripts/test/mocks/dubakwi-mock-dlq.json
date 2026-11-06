@@ -1,0 +1,54 @@
+{
+  "id": "dubakwiDlq0001",
+  "name": "dubakwi-mock-dlq",
+  "active": false,
+  "nodes": [
+    {
+      "parameters": {
+        "inputSource": "passthrough"
+      },
+      "id": "31460a36-6b7a-5293-bd2a-eb2f4c1aeae8",
+      "name": "Mock 입력",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        0,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// 시험 전용 mock. 실제 DLQ에 저장하지 않는다.\nreturn $input.all().map(() => ({ json: { ok: true, dlq_id: 'dlq-mock', deduplicated: false, error_code: null } }));\n"
+      },
+      "id": "51524adc-aefb-5b8d-a1db-e9554b265b30",
+      "name": "Mock 처리",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        250,
+        0
+      ]
+    }
+  ],
+  "connections": {
+    "Mock 입력": {
+      "main": [
+        [
+          {
+            "node": "Mock 처리",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": false
+  },
+  "tags": []
+}

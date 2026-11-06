@@ -1,0 +1,98 @@
+{
+  "label": "l03-real-search",
+  "scope": "실제 R03 검색 근거 + B19 고정 답변 사본으로 L03 근거 밖 문장 거절 확인.",
+  "bad_sentences": {
+    "ad1": "환불 금액은 전액 자동으로 돌려드립니다.",
+    "ad2": "문의를 접수해 처리를 완료했습니다.",
+    "ad3": "자세한 내용은 고객센터 02-1234-5678로 문의하세요.",
+    "ad4": "이 방법은 어떤 경우에도 항상 안전합니다.",
+    "ad5": "앱을 삭제 후 재설치하면 대부분 해결됩니다.",
+    "ctrl": ""
+  },
+  "results": {
+    "ad1": [
+      [
+        "담당자 이관",
+        "verification_failed"
+      ],
+      [
+        "담당자 이관",
+        "verification_failed"
+      ],
+      [
+        "담당자 이관",
+        "verification_failed"
+      ]
+    ],
+    "ad2": [
+      [
+        "담당자 이관",
+        "verification_failed"
+      ],
+      [
+        "담당자 이관",
+        "verification_failed"
+      ],
+      [
+        "담당자 이관",
+        "verification_failed"
+      ]
+    ],
+    "ad3": [
+      [
+        "담당자 이관",
+        "verification_failed"
+      ],
+      [
+        "담당자 이관",
+        "verification_failed"
+      ],
+      [
+        "담당자 이관",
+        "verification_failed"
+      ]
+    ],
+    "ad4": [
+      [
+        "담당자 이관",
+        "verification_failed"
+      ],
+      [
+        "담당자 이관",
+        "verification_failed"
+      ],
+      [
+        "담당자 이관",
+        "verification_failed"
+      ]
+    ],
+    "ad5": [
+      [
+        "담당자 이관",
+        "verification_failed"
+      ],
+      [
+        "담당자 이관",
+        "verification_failed"
+      ],
+      [
+        "담당자 이관",
+        "verification_failed"
+      ]
+    ],
+    "ctrl": [
+      [
+        "자동 답변",
+        null
+      ],
+      [
+        "자동 답변",
+        null
+      ],
+      [
+        "자동 답변",
+        null
+      ]
+    ]
+  }
+}

@@ -1,0 +1,918 @@
+{
+  "label": "labels",
+  "executed_at_kst": "2026-11-04T15:44:49.895+09:00",
+  "environment": "local-code darwin node v22.23.3",
+  "scope": "P19 support Code 노드와 연결 로직. mock 하위 기능 통과이며 업무 성공·실연동 증거가 아니다.",
+  "method": "jsCode와 식을 Node.js로 실행하고 connections를 따라 진행, LLM·HTTP·하위 워크플로우는 대체값 사용",
+  "workflow": {
+    "path": "workflows/dubakwi-support.json",
+    "sha256": "1f1f94c4a119b902fd0749d3392c46be84d53dfc4665d55acda24ab35e4c0e45"
+  },
+  "git": {
+    "head": "1d3a5442c9b41f3f318f4f093d6cd4e1bb1cc076",
+    "working_tree_dirty": true
+  },
+  "command": "node scripts/test/support-skeleton-cases.js",
+  "total": 111,
+  "passed": 111,
+  "failed": 0,
+  "static_failures": [],
+  "status": "passed",
+  "not_executed": [
+    "VM 배포",
+    "R03 search 실연동",
+    "R04 state·handoff·dlq 실연동",
+    "Jira 실연동",
+    "WF 공식 판정"
+  ],
+  "results": [
+    {
+      "id": "LC01",
+      "group": "입력",
+      "title": "빈 질문",
+      "pass": true,
+      "http_status": 400,
+      "failures": []
+    },
+    {
+      "id": "LC02",
+      "group": "입력",
+      "title": "501자 질문",
+      "pass": true,
+      "http_status": 400,
+      "failures": []
+    },
+    {
+      "id": "LC03",
+      "group": "입력",
+      "title": "500자 경계 통과",
+      "pass": true,
+      "http_status": 200,
+      "failures": []
+    },
+    {
+      "id": "LC04",
+      "group": "입력",
+      "title": "attempt 0",
+      "pass": true,
+      "http_status": 400,
+      "failures": []
+    },
+    {
+      "id": "LC05",
+      "group": "입력",
+      "title": "본문이 배열",
+      "pass": true,
+      "http_status": 400,
+      "failures": []
+    },
+    {
+      "id": "LC06",
+      "group": "주입",
+      "title": "한국어 지시 무시",
+      "pass": true,
+      "http_status": 200,
+      "failures": []
+    },
+    {
+      "id": "LC07",
+      "group": "주입",
+      "title": "영어 지시 무시",
+      "pass": true,
+      "http_status": 200,
+      "failures": []
+    },
+    {
+      "id": "LC08",
+      "group": "주입",
+      "title": "context 주입",
+      "pass": true,
+      "http_status": 200,
+      "failures": []
+    },
+    {
+      "id": "LC09",
+      "group": "조회",
+      "title": "미등록 사용자 404",
+      "pass": true,
+      "http_status": 400,
+      "failures": []
+    },
+    {
+      "id": "LC10",
+      "group": "조회",
+      "title": "연결 실패",
+      "pass": true,
+      "http_status": 503,
+      "failures": []
+    },
+    {
+      "id": "LC11",
+      "group": "조회",
+      "title": "data-api 500",
+      "pass": true,
+      "http_status": 503,
+      "failures": []
+    },
+    {
+      "id": "LC12",
+      "group": "구조",
+      "title": "빈 객체 {}",
+      "pass": true,
+      "http_status": 503,
+      "failures": []
+    },
+    {
+      "id": "LC13",
+      "group": "구조",
+      "title": "빈 배열 []",
+      "pass": true,
+      "http_status": 503,
+      "failures": []
+    },
+    {
+      "id": "LC14",
+      "group": "구조",
+      "title": "본문 null",
+      "pass": true,
+      "http_status": 503,
+      "failures": []
+    },
+    {
+      "id": "LC15",
+      "group": "구조",
+      "title": "본문 문자열",
+      "pass": true,
+      "http_status": 503,
+      "failures": []
+    },
+    {
+      "id": "LC16",
+      "group": "ID",
+      "title": "팀 형식 다른 ID",
+      "pass": true,
+      "http_status": 503,
+      "failures": []
+    },
+    {
+      "id": "LC17",
+      "group": "ID",
+      "title": "과정 형식 다른 이름",
+      "pass": true,
+      "http_status": 503,
+      "failures": []
+    },
+    {
+      "id": "LC18",
+      "group": "ID",
+      "title": "ID가 숫자",
+      "pass": true,
+      "http_status": 503,
+      "failures": []
+    },
+    {
+      "id": "LC19",
+      "group": "ID",
+      "title": "ID가 공백",
+      "pass": true,
+      "http_status": 503,
+      "failures": []
+    },
+    {
+      "id": "LC20",
+      "group": "권한",
+      "title": "citizen에 restricted",
+      "pass": true,
+      "http_status": 503,
+      "failures": []
+    },
+    {
+      "id": "LC21",
+      "group": "권한",
+      "title": "정의되지 않은 role",
+      "pass": true,
+      "http_status": 503,
+      "failures": []
+    },
+    {
+      "id": "LC22",
+      "group": "권한",
+      "title": "role 누락",
+      "pass": true,
+      "http_status": 503,
+      "failures": []
+    },
+    {
+      "id": "LC23",
+      "group": "권한",
+      "title": "access_levels 누락",
+      "pass": true,
+      "http_status": 503,
+      "failures": []
+    },
+    {
+      "id": "LC24",
+      "group": "권한",
+      "title": "access_levels 비어 있음",
+      "pass": true,
+      "http_status": 503,
+      "failures": []
+    },
+    {
+      "id": "LC25",
+      "group": "권한",
+      "title": "access_levels에 숫자",
+      "pass": true,
+      "http_status": 503,
+      "failures": []
+    },
+    {
+      "id": "LC26",
+      "group": "권한",
+      "title": "정의되지 않은 level",
+      "pass": true,
+      "http_status": 503,
+      "failures": []
+    },
+    {
+      "id": "LC27",
+      "group": "권한",
+      "title": "support에 public 없음",
+      "pass": true,
+      "http_status": 503,
+      "failures": []
+    },
+    {
+      "id": "LC28",
+      "group": "권한",
+      "title": "access_levels 중복",
+      "pass": true,
+      "http_status": 503,
+      "failures": []
+    },
+    {
+      "id": "LC29",
+      "group": "권한",
+      "title": "과정 형식에 권한 필드 혼입",
+      "pass": true,
+      "http_status": 503,
+      "failures": []
+    },
+    {
+      "id": "LC30",
+      "group": "구조",
+      "title": "과정 형식 dept 누락",
+      "pass": true,
+      "http_status": 503,
+      "failures": []
+    },
+    {
+      "id": "LC31",
+      "group": "정상",
+      "title": "팀 형식 citizen",
+      "pass": true,
+      "http_status": 200,
+      "failures": []
+    },
+    {
+      "id": "LC32",
+      "group": "정상",
+      "title": "팀 형식 support",
+      "pass": true,
+      "http_status": 200,
+      "failures": []
+    },
+    {
+      "id": "LC33",
+      "group": "정상",
+      "title": "과정 형식 최소 권한",
+      "pass": true,
+      "http_status": 200,
+      "failures": []
+    },
+    {
+      "id": "LC34",
+      "group": "정상",
+      "title": "과정 형식 IT팀도 승격 없음",
+      "pass": true,
+      "http_status": 200,
+      "failures": []
+    },
+    {
+      "id": "LC35",
+      "group": "정상",
+      "title": "타인 기록 요청은 B02에서 막지 않음",
+      "pass": true,
+      "http_status": 200,
+      "failures": []
+    },
+    {
+      "id": "LC36",
+      "group": "권한",
+      "title": "요청 본문의 자기 선언 무시",
+      "pass": true,
+      "http_status": 200,
+      "failures": []
+    },
+    {
+      "id": "LC37",
+      "group": "주입",
+      "title": "R05 WF08 문장",
+      "pass": true,
+      "http_status": 200,
+      "failures": []
+    },
+    {
+      "id": "LC38",
+      "group": "오탐",
+      "title": "R05 TC09 앱 안내 무시",
+      "pass": true,
+      "http_status": 200,
+      "failures": []
+    },
+    {
+      "id": "LC39",
+      "group": "오탐",
+      "title": "R05 TC09 비밀번호 찾기",
+      "pass": true,
+      "http_status": 200,
+      "failures": []
+    },
+    {
+      "id": "LC40",
+      "group": "오탐",
+      "title": "규칙 무시 가능 여부 질문",
+      "pass": true,
+      "http_status": 200,
+      "failures": []
+    },
+    {
+      "id": "LC41",
+      "group": "오탐",
+      "title": "규칙을 무시한 과거 경험",
+      "pass": true,
+      "http_status": 200,
+      "failures": []
+    },
+    {
+      "id": "LC42",
+      "group": "오탐",
+      "title": "관리자 권한 변경 방법 질문",
+      "pass": true,
+      "http_status": 200,
+      "failures": []
+    },
+    {
+      "id": "LC43",
+      "group": "오탐",
+      "title": "관리자 권한 변경 절차 질문",
+      "pass": true,
+      "http_status": 200,
+      "failures": []
+    },
+    {
+      "id": "LC44",
+      "group": "주입",
+      "title": "규칙 무시 명령",
+      "pass": true,
+      "http_status": 200,
+      "failures": []
+    },
+    {
+      "id": "LC45",
+      "group": "주입",
+      "title": "관리자 모드 전환 명령",
+      "pass": true,
+      "http_status": 200,
+      "failures": []
+    },
+    {
+      "id": "LC46",
+      "group": "주입",
+      "title": "관리자 권한 변경 명령",
+      "pass": true,
+      "http_status": 200,
+      "failures": []
+    },
+    {
+      "id": "LC47",
+      "group": "주입",
+      "title": "R05 TC11b 글자 사이 띄어쓰기",
+      "pass": true,
+      "http_status": 200,
+      "failures": []
+    },
+    {
+      "id": "LC48",
+      "group": "주입",
+      "title": "R05 TC11a 뒤에 붙인 지시문",
+      "pass": true,
+      "http_status": 200,
+      "failures": []
+    },
+    {
+      "id": "LC49",
+      "group": "오탐",
+      "title": "일반 문장 띄어쓰기 변형",
+      "pass": true,
+      "http_status": 200,
+      "failures": []
+    },
+    {
+      "id": "LC50",
+      "group": "오탐",
+      "title": "띄어 쓴 규칙 무시 질문",
+      "pass": true,
+      "http_status": 200,
+      "failures": []
+    },
+    {
+      "id": "FL01",
+      "group": "S1",
+      "title": "정상 안내 종료",
+      "pass": true,
+      "http_status": 200,
+      "failures": []
+    },
+    {
+      "id": "FL02",
+      "group": "S6",
+      "title": "검색 근거 없음",
+      "pass": true,
+      "http_status": 200,
+      "failures": []
+    },
+    {
+      "id": "FL03",
+      "group": "S6",
+      "title": "검색 오류 봉투",
+      "pass": true,
+      "http_status": 200,
+      "failures": []
+    },
+    {
+      "id": "FL04",
+      "group": "S6",
+      "title": "검색 호출 실패",
+      "pass": true,
+      "http_status": 200,
+      "failures": []
+    },
+    {
+      "id": "FL05",
+      "group": "S6",
+      "title": "검색 결과 ID 불일치",
+      "pass": true,
+      "http_status": 200,
+      "failures": []
+    },
+    {
+      "id": "FL06",
+      "group": "S6",
+      "title": "시민에게 제한 근거 반환",
+      "pass": true,
+      "http_status": 200,
+      "failures": []
+    },
+    {
+      "id": "FL07",
+      "group": "S6",
+      "title": "검증 grounded=false",
+      "pass": true,
+      "http_status": 200,
+      "failures": []
+    },
+    {
+      "id": "FL08",
+      "group": "S6",
+      "title": "검증 파싱 불가",
+      "pass": true,
+      "http_status": 200,
+      "failures": []
+    },
+    {
+      "id": "FL09",
+      "group": "S6",
+      "title": "문자열 true 거절",
+      "pass": true,
+      "http_status": 200,
+      "failures": []
+    },
+    {
+      "id": "FL10",
+      "group": "S6",
+      "title": "제공되지 않은 chunk 인용",
+      "pass": true,
+      "http_status": 200,
+      "failures": []
+    },
+    {
+      "id": "FL11",
+      "group": "S6",
+      "title": "분류 LLM 장애",
+      "pass": true,
+      "http_status": 200,
+      "failures": []
+    },
+    {
+      "id": "FL12",
+      "group": "S6",
+      "title": "분류 형식 오류",
+      "pass": true,
+      "http_status": 200,
+      "failures": []
+    },
+    {
+      "id": "FL13",
+      "group": "S6",
+      "title": "답변 LLM 장애",
+      "pass": true,
+      "http_status": 200,
+      "failures": []
+    },
+    {
+      "id": "FL14",
+      "group": "S2",
+      "title": "반납 정보 부족 보완",
+      "pass": true,
+      "http_status": 200,
+      "failures": []
+    },
+    {
+      "id": "FL15",
+      "group": "S2",
+      "title": "신규 attempt 3 이관",
+      "pass": true,
+      "http_status": 200,
+      "failures": []
+    },
+    {
+      "id": "FL16",
+      "group": "S2",
+      "title": "case_ref 서버 횟수 우선",
+      "pass": true,
+      "http_status": 200,
+      "failures": []
+    },
+    {
+      "id": "FL17",
+      "group": "S2",
+      "title": "case_ref 두 번째 보완",
+      "pass": true,
+      "http_status": 200,
+      "failures": []
+    },
+    {
+      "id": "FL18",
+      "group": "S3",
+      "title": "사람 판단 이관",
+      "pass": true,
+      "http_status": 200,
+      "failures": []
+    },
+    {
+      "id": "FL19",
+      "group": "S4",
+      "title": "본인 상태 조회",
+      "pass": true,
+      "http_status": 200,
+      "failures": []
+    },
+    {
+      "id": "FL20",
+      "group": "S4",
+      "title": "타인 조회 거절",
+      "pass": true,
+      "http_status": 200,
+      "failures": []
+    },
+    {
+      "id": "FL21",
+      "group": "S4",
+      "title": "조회 장애 이관",
+      "pass": true,
+      "http_status": 200,
+      "failures": []
+    },
+    {
+      "id": "FL22",
+      "group": "S4",
+      "title": "타인 레코드 반환 차단",
+      "pass": true,
+      "http_status": 200,
+      "failures": []
+    },
+    {
+      "id": "FL23",
+      "group": "S4",
+      "title": "조회 가림 건수 전달",
+      "pass": true,
+      "http_status": 200,
+      "failures": []
+    },
+    {
+      "id": "FL24",
+      "group": "S5",
+      "title": "긴급 선이관 후 조회",
+      "pass": true,
+      "http_status": 200,
+      "failures": []
+    },
+    {
+      "id": "FL25",
+      "group": "S5",
+      "title": "긴급 티켓 실패는 즉시 응답",
+      "pass": true,
+      "http_status": 200,
+      "failures": []
+    },
+    {
+      "id": "FL26",
+      "group": "S5",
+      "title": "긴급 유지 + 조회 거절 병기",
+      "pass": true,
+      "http_status": 200,
+      "failures": []
+    },
+    {
+      "id": "FL27",
+      "group": "S8",
+      "title": "티켓 API 500",
+      "pass": true,
+      "http_status": 200,
+      "failures": []
+    },
+    {
+      "id": "FL28",
+      "group": "S8",
+      "title": "티켓 호출 결과 불명",
+      "pass": true,
+      "http_status": 200,
+      "failures": []
+    },
+    {
+      "id": "FL29",
+      "group": "S8",
+      "title": "생성 후 ID 저장 실패",
+      "pass": true,
+      "http_status": 200,
+      "failures": []
+    },
+    {
+      "id": "FL30",
+      "group": "S8",
+      "title": "생성 후 종료 실패",
+      "pass": true,
+      "http_status": 200,
+      "failures": []
+    },
+    {
+      "id": "FL31",
+      "group": "S8",
+      "title": "티켓 응답 형식 오류",
+      "pass": true,
+      "http_status": 200,
+      "failures": []
+    },
+    {
+      "id": "FL32",
+      "group": "S8",
+      "title": "최종 저장 준비 실패",
+      "pass": true,
+      "http_status": 200,
+      "failures": []
+    },
+    {
+      "id": "FL33",
+      "group": "S8",
+      "title": "최종 저장 실패",
+      "pass": true,
+      "http_status": 200,
+      "failures": []
+    },
+    {
+      "id": "FL34",
+      "group": "S7",
+      "title": "재전송 저장 결과 재사용",
+      "pass": true,
+      "http_status": 200,
+      "failures": []
+    },
+    {
+      "id": "FL35",
+      "group": "S7",
+      "title": "처리 중 요청",
+      "pass": true,
+      "http_status": 409,
+      "failures": []
+    },
+    {
+      "id": "FL36",
+      "group": "S7",
+      "title": "타 소유자 case_ref",
+      "pass": true,
+      "http_status": 403,
+      "failures": []
+    },
+    {
+      "id": "FL37",
+      "group": "S8",
+      "title": "begin 오류",
+      "pass": true,
+      "http_status": 200,
+      "failures": []
+    },
+    {
+      "id": "FL38",
+      "group": "S8",
+      "title": "begin 봉투 ID 불일치",
+      "pass": true,
+      "http_status": 200,
+      "failures": []
+    },
+    {
+      "id": "FL39",
+      "group": "가림",
+      "title": "답변 연락처 가림",
+      "pass": true,
+      "http_status": 200,
+      "failures": []
+    },
+    {
+      "id": "FL40",
+      "group": "가림",
+      "title": "질문 연락처는 검색어에서 가림",
+      "pass": true,
+      "http_status": 200,
+      "failures": []
+    },
+    {
+      "id": "FL42",
+      "group": "S4",
+      "title": "문의 번호가 있으면 누락·사람 판단 무시",
+      "pass": true,
+      "http_status": 200,
+      "failures": []
+    },
+    {
+      "id": "FL43",
+      "group": "S4",
+      "title": "질문에 없는 문의 번호는 버림",
+      "pass": true,
+      "http_status": 200,
+      "failures": []
+    },
+    {
+      "id": "FL44",
+      "group": "S3",
+      "title": "원문 단어로 재구성한 사실은 인정",
+      "pass": true,
+      "http_status": 200,
+      "failures": []
+    },
+    {
+      "id": "FL45",
+      "group": "S2",
+      "title": "원문에 없는 사실은 인정하지 않음",
+      "pass": true,
+      "http_status": 200,
+      "failures": []
+    },
+    {
+      "id": "FL46",
+      "group": "S6",
+      "title": "완료 주장 답변 거절",
+      "pass": true,
+      "http_status": 200,
+      "failures": []
+    },
+    {
+      "id": "FL47",
+      "group": "S6",
+      "title": "근거 없는 번호 답변 거절",
+      "pass": true,
+      "http_status": 200,
+      "failures": []
+    },
+    {
+      "id": "FL48",
+      "group": "S6",
+      "title": "근거에 있는 번호와 완료 표현 통과",
+      "pass": true,
+      "http_status": 200,
+      "failures": []
+    },
+    {
+      "id": "FL49",
+      "group": "S5",
+      "title": "긴 초동 근거는 문장 경계에서 자름",
+      "pass": true,
+      "http_status": 200,
+      "failures": []
+    },
+    {
+      "id": "FL50",
+      "group": "S1",
+      "title": "방법 문의는 필수 항목을 묻지 않음",
+      "pass": true,
+      "http_status": 200,
+      "failures": []
+    },
+    {
+      "id": "FL51",
+      "group": "S2",
+      "title": "방법 문의가 아니면 필수 항목 유지",
+      "pass": true,
+      "http_status": 200,
+      "failures": []
+    },
+    {
+      "id": "FL52",
+      "group": "S2",
+      "title": "위험 단서 없는 반납 긴급은 낮춤",
+      "pass": true,
+      "http_status": 200,
+      "failures": []
+    },
+    {
+      "id": "FL53",
+      "group": "S5",
+      "title": "위험 단서 있으면 반납 유형도 긴급 유지",
+      "pass": true,
+      "http_status": 200,
+      "failures": []
+    },
+    {
+      "id": "FL54",
+      "group": "S5",
+      "title": "고장 유형 긴급은 낮추지 않음",
+      "pass": true,
+      "http_status": 200,
+      "failures": []
+    },
+    {
+      "id": "FL55",
+      "group": "시간",
+      "title": "분류 뒤 시한 초과면 검색 없이 이관",
+      "pass": true,
+      "http_status": 200,
+      "failures": []
+    },
+    {
+      "id": "FL56",
+      "group": "시간",
+      "title": "검색 뒤 답변 시간 부족이면 이관",
+      "pass": true,
+      "http_status": 200,
+      "failures": []
+    },
+    {
+      "id": "FL57",
+      "group": "시간",
+      "title": "시한 초과여도 긴급은 이관 유지",
+      "pass": true,
+      "http_status": 200,
+      "failures": []
+    },
+    {
+      "id": "FL58",
+      "group": "표시",
+      "title": "근거 표시를 답변에 보존하면 통과",
+      "pass": true,
+      "http_status": 200,
+      "failures": []
+    },
+    {
+      "id": "FL59",
+      "group": "표시",
+      "title": "근거 표시 누락은 이관",
+      "pass": true,
+      "http_status": 200,
+      "failures": []
+    },
+    {
+      "id": "FL60",
+      "group": "표시",
+      "title": "근거와 다른 표시는 이관",
+      "pass": true,
+      "http_status": 200,
+      "failures": []
+    },
+    {
+      "id": "FL61",
+      "group": "표시",
+      "title": "긴급 초동 안내도 표시 유지",
+      "pass": true,
+      "http_status": 200,
+      "failures": []
+    },
+    {
+      "id": "FL41",
+      "group": "계약",
+      "title": "BeginRequest 서버 값",
+      "pass": true,
+      "http_status": 200,
+      "failures": []
+    }
+  ]
+}
