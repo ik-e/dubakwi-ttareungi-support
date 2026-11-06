@@ -90,6 +90,8 @@ function runWorkflow(workflow, webhookItem, b04Response, overrides = {}) {
   const nodes = new Map(workflow.nodes.map((node) => [node.name, node]));
   const outputs = new Map();
   const visited = [];
+  const startedAt = Date.now();
+  const timing = { ticketTimeout: null, ticketRemaining: null, respondedMs: null };
   const contractFailures = [];
   const calls = { llm: 0, search: 0, lookup: 0, process: 0, saves: 0, prepares: 0, fails: 0, dlq: 0, alerts: 0, begin: 0 };
   const sent = { process: [], search: [], begin: null, fail: null, dlq: null, logs: [] };
@@ -142,7 +144,12 @@ function runWorkflow(workflow, webhookItem, b04Response, overrides = {}) {
         if (name.startsWith('B04')) json = b04Response;
         else if (name.startsWith('B14')) { calls.search += 1; sent.search.push(body); json = env.search(body); }
         else if (name.startsWith('B15')) { calls.lookup += 1; json = env.lookup(body); }
-        else if (name.startsWith('B27')) { calls.process += 1; sent.process.push(body); json = env.process(body); }
+        else if (name.startsWith('B27')) {
+          calls.process += 1; sent.process.push(body);
+          timing.ticketTimeout = Number(evalExpr(p.options.timeout, scope));
+          timing.ticketRemaining = Date.parse(input.deadline_at) - Date.now();
+          json = env.process(body);
+        }
         else if (name.startsWith('X04')) { calls.alerts += 1; json = { statusCode: 200, body: {} }; }
         else { sent.logs.push(body); json = { logged: true }; }
         break;
@@ -165,7 +172,10 @@ function runWorkflow(workflow, webhookItem, b04Response, overrides = {}) {
       default:
         throw new Error(`시험 도구가 지원하지 않는 노드: ${node.type} (${name})`);
     }
-    if (env.advanceAfter?.[name.split(' ')[0]]) clock.shift(env.advanceAfter[name.split(' ')[0]]);
+    // 'timeout'은 B27이 계산한 제한 시간을 모두 쓴 경우다(최악 경로 시험).
+    const delay = env.advanceAfter?.[name.split(' ')[0]];
+    if (delay) clock.shift(delay === 'timeout' ? timing.ticketTimeout : delay);
+    if (name.startsWith('B36')) timing.respondedMs = Date.now() - startedAt;
     outputs.set(name, json);
     const targets = workflow.connections[name]?.main?.[port] ?? [];
     const next = [];
@@ -186,7 +196,7 @@ function runWorkflow(workflow, webhookItem, b04Response, overrides = {}) {
   }
 
   const final = outputs.get(B33);
-  return { visited, calls, sent, contractFailures, http_status: final.http_status, http_body: final.http_body, actor: final.actor, log: final.log, serialized: JSON.stringify([...outputs.entries()].filter(([key]) => key !== visited[0])) };
+  return { visited, calls, sent, timing, contractFailures, http_status: final.http_status, http_body: final.http_body, actor: final.actor, log: final.log, serialized: JSON.stringify([...outputs.entries()].filter(([key]) => key !== visited[0])) };
 }
 
 const ok = (body) => ({ statusCode: 200, body });
@@ -349,6 +359,12 @@ const FLOWS = [
   ['FL72', 'S6', '가능 여부 문의는 되묻지 않고 검색', ask({ question: '따릉이를 해외 여행에 가져가서 한 달 동안 써도 되나요?' }), { triage: { text: triage({ type: 'rental', missing: ['symptom'] }) } }, flow({ route: '자동 답변', search: 1 })],
   ['FL73', 'S2', '개별 문제의 안 되나요는 보완 질문 유지', ask({ question: '반납했는데 앱에 이용 중으로 나와요. 왜 안 되나요?' }), { triage: { text: triage({ type: 'return', missing: ['bike_id'] }) } }, flow({ route: '보완 질문' })],
   ['FL74', 'S8', 'Jira 종료 실패는 partial_effect로 known ID 보존', ask(), processResult({ ticket_id: 'JBYS-2', error_code: 'partial_effect', recovery: { version: 1, mode: 'jira_ref', action: 'close', args: null, reference: { jira_issue_id: '10004', case_id: 'case-1', owner_id: 'u01' }, reason: 'close failed' } }, { created_or_reused: { status: 'confirmed', id: 'JBYS-2' }, closed: { status: 'failed' } }), handoff('partial_effect', { dlq: 1, alerts: 1, saves: 0, ticketId: 'JBYS-2', dlqJira: { jira_issue_id: '10004', jira_issue_key: 'JBYS-2' }, dlqRecoveryAction: 'close' })],
+  // 시간 예산(설계서 7.5): 각 호출이 제한 시간을 모두 써도 B36 응답이 20초 안이어야 한다.
+  ['FL77', '시간', '모든 호출이 제한을 다 쓰면 답변 대신 이관하고 20초 안 응답', ask(), { advanceAfter: { B04: 1500, B10: 4000, B14: 3000, B27: 'timeout', B35: 1500 } }, handoff('deadline_exceeded', { llm: 1, search: 1, ticketTimeout: 8000, maxResponseMs: 20000 })],
+  ['FL78', '시간', '답변 경로 LLM 최대 시간 뒤 티켓 제한은 남은 시간만큼', ask(), { advanceAfter: { B10: 2000, B14: 1000, B19: 4000, B20: 3000, B27: 'timeout', B35: 1500 } }, flow({ route: '자동 답변', llm: 3, ticketTimeout: 6500, maxResponseMs: 20000 })],
+  ['FL79', '시간', '분류 뒤 검색·티켓·마무리 시간이 없으면 검색 없이 이관', ask(), { advanceAfter: { B10: 10000 } }, handoff('deadline_exceeded', { llm: 1, search: 0, ticketTimeout: 6500 })],
+  ['FL80', '시간', '긴급 선이관 뒤 시간이 없으면 후속 검색 생략', ask(), { triage: { text: triage({ type: 'security', urgency: 'high' }) }, advanceAfter: { B04: 1500, B10: 4000, B27: 'timeout', B35: 1500 } }, handoff('urgent', { priority: 'high', process: 1, search: 0, ticketTimeout: 11000, maxResponseMs: 20000 })],
+  ['FL81', '시간', '티켓 호출이 제한을 다 쓰고 실패해도 실패 알림·기록 포함 20초 안', ask(), { process: () => ({ error: { message: 'timeout' } }), advanceAfter: { B10: 2000, B27: 'timeout', X04: 1500, B35: 1500 } }, handoff('ticket_unknown', { dlq: 1, alerts: 1, ticket: null, maxResponseMs: 19600 })],
   ['FL41', '계약', 'BeginRequest 서버 값', ask({ role: 'security' }), {}, flow({ route: '자동 답변', beginShape: true })],
 ];
 
@@ -397,6 +413,9 @@ function evaluate(workflow, [id, group, title, body, second, expected], flowCase
   if ('dlqJira' in e) check('dlq_jira', { jira_issue_id: result.sent.dlq?.jira_issue_id, jira_issue_key: result.sent.dlq?.jira_issue_key }, e.dlqJira);
   if ('failStatus' in e) check('fail_status', result.sent.fail?.args?.status, e.failStatus);
   if ('failRevision' in e) check('fail_revision', result.sent.fail?.state_ref?.state_revision, e.failRevision);
+  if ('maxResponseMs' in e && !(result.timing.respondedMs <= e.maxResponseMs)) failures.push(`응답 시각 ${result.timing.respondedMs}ms > ${e.maxResponseMs}ms`);
+  // 시험 도구 자체의 실행 시간(수 ms)만큼 줄어들 수 있어 50ms 범위로 본다.
+  if ('ticketTimeout' in e && !(result.timing.ticketTimeout <= e.ticketTimeout && result.timing.ticketTimeout > e.ticketTimeout - 50)) failures.push(`ticket_timeout: 기대 ${e.ticketTimeout}, 실제 ${result.timing.ticketTimeout}`);
   if ('dlqRecoveryAction' in e) check('dlq_recovery_action', result.sent.dlq?.recovery?.action, e.dlqRecoveryAction);
   if (e.failShape) {
     const r = result.sent.fail;
@@ -447,9 +466,29 @@ function checkStatic(workflow) {
   for (const node of workflow.nodes) if (String(node.parameters?.jsCode ?? '').includes('structuredClone')) failures.push(`${node.name}: structuredClone 사용`);
   // 하위 워크플로우가 항목 없이 끝나도 흐름이 멈추면 응답이 빈 본문이 된다.
   for (const node of workflow.nodes) if (node.type === 'n8n-nodes-base.executeWorkflow' && node.alwaysOutputData !== true) failures.push(`${node.name}: alwaysOutputData 없음`);
+  failures.push(...checkTimeBudget(workflow));
   const text = JSON.stringify(workflow);
   if (/담당자가 이어서/.test(text)) failures.push('후속 처리 약속 문구가 남아 있음');
   if (text.includes('localhost:8800')) failures.push('data-api 주소: n8n 안에서는 data-api:8800을 사용해야 함');
+  return failures;
+}
+
+// 시간 예산과 노드 제한 값이 서로 맞는지 확인한다(설계서 7.5).
+function checkTimeBudget(workflow) {
+  const failures = [];
+  const node = (prefix) => workflow.nodes.find((item) => item.name.startsWith(prefix));
+  const code = node('B02').parameters.jsCode;
+  if (!/const TIME_BUDGET = /.test(code)) return ['B02에 TIME_BUDGET 없음'];
+  const tb = new Function(`${/const TIME_BUDGET = [^;]+;/.exec(code)[0]} return TIME_BUDGET;`)();
+  const deadline = Number(/const DEADLINE_MS = (\d+)/.exec(code)[1]);
+  const ms = (prefix) => Number(node(prefix).parameters.options.timeout);
+  for (const prefix of ['L01', 'L02', 'L03']) if (node(prefix).parameters.options.maxRetries !== 0) failures.push(`${prefix}: LLM 재시도는 0이어야 함`);
+  if (ms('B14') > tb.search_ms || ms('B15') > tb.search_ms) failures.push('B14·B15 제한이 search_ms보다 큼');
+  if (ms('L02') + ms('L03') > tb.answer_ms) failures.push('L02+L03 제한이 answer_ms보다 큼');
+  if (ms('B35') + ms('X04') > tb.tail_ms) failures.push('B35+X04 제한이 tail_ms보다 큼');
+  // B11 판단 시점의 최악값에서도 이관 티켓과 마무리 시간이 남아야 한다.
+  if (ms('B04') + ms('L01') + tb.search_ms + tb.ticket_min_ms + tb.tail_ms > deadline) failures.push('분류 최악값 뒤 티켓 최소 시간이 남지 않음');
+  if (!String(node('B27').parameters.options.timeout).includes('time_budget')) failures.push('B27 제한이 남은 시간을 쓰지 않음');
   return failures;
 }
 
