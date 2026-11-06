@@ -475,7 +475,7 @@ B28은 먼저 error_code=null && state_saved=true && 최신 state_ref를 확인�
 | H20 알림 실행 허용 | If | ok=true && skipped=false && 유효 state_ref | StateResult | true H11,false state_error로 H12. 성공한 담당 지정은 유지하고 알림 호출0 |
 | H21 조회 실행 여부 | If | H02 결과 | ToolCtx | route=lookup이면 H04,아니면 H13. enabled=false 조회는 H02가 skipped로 종료 |
 | H22 조회 결과 정규화 | Code | H04 Raw+H02 요청 | LookupResult | 200+owner 일치만 ok(가린 연락처만 masked_phone/masked_email,masked=가린 필드 수). 403·404·owner 불일치는 같은 denied(record=null,error_code=null,존재 여부 미노출). 401·5xx·시간 초과·형식 오류는 error(lookup_error). enabled=true인데 target_ticket_id=null이면 H02가 400 invalid_tool_request |
-| H45~H48 보완 횟수 갱신 | If·Code·HTTP Request | 재사용한 Jira 티켓의 TicketRequest(action=wait) | TicketResult | 기존 이슈를 재사용하는 wait만 POST /issue/<key>/comment에 "보완 횟수: N"과 가린 요약을 남긴다(다음 요청의 case_ref가 이 값의 최댓값을 읽음). 새로 만든 이슈는 설명에 이미 있어 쓰지 않는다. 저장 실패는 context_saved=failed/unknown·partial_effect·recovery(context_update)로 반환해 호출자가 한도를 놓치지 않게 한다 |
+| H45~H48 보완 횟수 갱신 | If·Code·HTTP Request | 재사용한 Jira 티켓의 TicketRequest(action=wait) | TicketResult | 기존 이슈를 재사용하는 wait만 POST /issue/<key>/comment에 "보완 횟수: N"과 가린 요약을 남긴다(다음 요청의 case_ref가 이 값의 최댓값을 읽음). 새로 만든 이슈는 설명에 이미 있어 쓰지 않는다. 저장 실패는 context_saved=failed/unknown·partial_effect·recovery(context_update)로 반환해 호출자가 한도를 놓치지 않게 한다. 알림 시도 표식(dubakwi-alert-attempted-<역할>)만 있고 이번 요청의 문맥 표식이 없는 문의도 같은 경로(H48~H47)로 문맥만 저장하며, 저장 전에는 context_saved를 confirmed로 표시하지 않고 알림은 다시 보내지 않는다(partial_effect·recovery alert_marker 유지, 저장 실패 시 context_update) |
 | H 시간 예산 | - | 호출 timeout | - | handoff 호출별 timeout은 조회 2초·쓰기 3.5초·알림 2초·사용자 API 1.5초(재시도 없음)다. 종료 경로 최악 약 11초(조회 2+전환 조회 2+종료 3.5+기존 건 조회 2+DB), 생성 후 이관 경로 최악 약 13초 + PostgreSQL 3회다. 호출자 B27은 15초 이상, B15는 2.5초 이상이어야 한다 |
 
 ### 4.5. P11 골격 구현 상태

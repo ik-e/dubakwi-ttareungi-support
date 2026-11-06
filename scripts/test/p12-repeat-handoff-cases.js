@@ -32,8 +32,15 @@ if (out.route !== "context" || out.ctx.context_label !== "dubakwi-context-" + "a
   throw new Error(`new supplement must route to context-only update: ${JSON.stringify(out)}`);
 }
 
+// 알림 시도 표식만 있고 이번 요청의 문맥 표식이 없으면: 문맥을 저장하기 전에는 confirmed로 표시하지 않고 문맥 저장 경로로 보낸다.
 out = execute(base(["dubakwi-alert-attempted-support"]));
-if (out.route !== "done" || out.ctx.error_code !== "partial_effect" || out.ctx.effects.alert.status !== "unknown" || out.ctx.recovery.action !== "alert_marker") {
+if (out.route !== "context" || out.ctx.context_label !== "dubakwi-context-" + "a".repeat(40) || out.ctx.effects.context_saved.status === "confirmed" || out.ctx.error_code !== "partial_effect" || out.ctx.effects.alert.status !== "unknown" || out.ctx.recovery.action !== "alert_marker") {
+  throw new Error(`attempt-only marker with new context must go to the context path unconfirmed: ${JSON.stringify(out)}`);
+}
+
+// 같은 문맥 표식이 이미 있으면 다시 쓰지 않고, 알림 결과 확인이 필요한 상태로 멈춘다.
+out = execute(base(["dubakwi-alert-attempted-support", "dubakwi-context-" + "a".repeat(40)]));
+if (out.route !== "done" || out.ctx.effects.context_saved.status !== "confirmed" || out.ctx.error_code !== "partial_effect" || out.ctx.effects.alert.status !== "unknown" || out.ctx.recovery.action !== "alert_marker") {
   throw new Error(`attempt-only marker must stop automatic repeat: ${JSON.stringify(out)}`);
 }
 const dlqCode = dlqWorkflow.nodes.find((node) => node.name === "D02 계약 검사와 안전 차단")?.parameters.jsCode;
@@ -63,4 +70,4 @@ if (markerEdges[0]?.[0]?.node !== "H50 Jira 알림 성공 표식" || markerEdges
   throw new Error("alert marker routing is incomplete");
 }
 
-console.log("P12 repeated assignment/alert suppression and DLQ handoff: 6/6 passed");
+console.log("P12 repeated assignment/alert suppression and DLQ handoff: 7/7 passed");

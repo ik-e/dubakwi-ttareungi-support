@@ -233,4 +233,14 @@ expect(r.body.error_code === null && r.body.effects.context_saved.status === "co
 expect(contextUpdate && contextUpdate.req.body.update.labels[0].add === "dubakwi-context-" + supplementHash.slice(0, 40) && /보완 횟수: 2/.test(contextUpdate.req.body.update.comment[0].add.body), "new supplement context and attempt must be stored", contextUpdate);
 expect(!r.calls.some((c) => ["H09 Jira 맥락 저장·배정", "H11 담당 알림"].includes(c.node)), "new supplement must not repeat assignment or alert", r.calls);
 
-console.log("P12 handoff Jira flow: 19 scenarios passed");
+// 20. 알림 시도 표식만 있는 문의에 새 문맥이 오면 문맥만 저장하고(재배정·재알림 없음) 알림 확인 필요 상태로 남긴다
+const attemptedOnly = {"H29 Jira 기존 건 조회": {statusCode: 200, body: {id: "10004", key: "JBYS-2", fields: linkFields({labels: [labelFor("dubakwi-team", "citizen-a", "req-1"), "dubakwi-alert-attempted-support"], assignee: {accountId: "acct"}})}}};
+const noAlertWork = (calls) => !calls.some((c) => ["H09 Jira 맥락 저장·배정", "H11 담당 알림", "H19 알림 의도 저장", "H50 Jira 알림 성공 표식"].includes(c.node));
+r = run("handoff", withJira(attemptedOnly), {req: {ticket_id: "JBYS-2"}});
+const savedContext = r.calls.find((c) => c.node === "H46 Jira 보완 횟수 저장");
+expect(savedContext && savedContext.req.body.update.labels.some((l) => l.add === "dubakwi-context-" + "a".repeat(40)) && noAlertWork(r.calls), "attempt-only marker must store the new context only", r.calls);
+expect(r.body.error_code === "partial_effect" && r.body.effects.context_saved.status === "confirmed" && r.body.effects.alert.status === "unknown" && r.body.recovery.action === "alert_marker", "attempt-only marker stays partial after the context is stored", r.body);
+r = run("handoff", withJira({...attemptedOnly, "H46 Jira 보완 횟수 저장": {statusCode: 503, body: {}}}), {req: {ticket_id: "JBYS-2"}});
+expect(r.body.error_code === "partial_effect" && r.body.effects.context_saved.status === "unknown" && r.body.effects.context_saved.error_code === "attempt_update_failed" && r.body.recovery.action === "context_update" && noAlertWork(r.calls), "a failed context save must never look confirmed", r.body);
+
+console.log("P12 handoff Jira flow: 21 scenarios passed");
