@@ -235,7 +235,7 @@ n8n 원시 노드 입출력에는 사용자 입력·외부 응답이 포함될 �
 
 E05의 fail은 state_ref가 없을 수 있다. 이때 서버 scope와 원 execution_id로 소유 레코드를 확인해 현재 revision을 얻는 운영 경로만 허용한다. 시민이 보낸 execution_id로 조회·수정하지 않는다. 외부 성공 여부가 불명이면 unknown이며,실패를 확인한 경우만 failed다.
 
-Begin의 pending은 request_in_progress/case_busy/request_requires_review 중 이유를 보존해 HTTP409로 반환한다. conflict는 request_conflict409,invalid_case_ref400,case_access_denied403,case_closed409를 구분하며 지원 문맥을 노출하지 않는다. B08/B09는 이 상태를 일반 장애로 바꾸거나 상태 쓰기를 실행하지 않는다. 물리 오류나 잘못된 봉투는 mode=error다.
+Begin의 pending은 request_in_progress/case_busy/request_requires_review 중 이유를 보존해 HTTP409로 반환한다. conflict는 request_conflict409,invalid_case_ref400,case_access_denied403,case_closed409를 구분하며 지원 문맥을 노출하지 않는다. B08/B09는 이 상태를 일반 장애로 바꾸거나 상태 쓰기를 실행하지 않는다. 물리 오류나 잘못된 봉투는 mode=error다. 호출자는 409의 codes로 두 경우를 구분해 안내한다: request_in_progress는 "처리 중이다", request_requires_review는 "처리 결과 확인이 필요하며, 같은 요청은 자동으로 다시 실행하지 않습니다"(R02 제안). 어느 쪽도 접수·완료·자동 복구를 약속하지 않는다.
 
 SupportCase.version은 실제 Jira 문의 버전을 확인했을 때 그 값,지원하지 않으면 null이다. SaveRequest.expected_case_version은 이에만 대응한다. 자동화 요청 사이 경합은3.1의 같은 case 활성 요청 단독 처리권으로 막는다. 담당자가 Jira에서 직접 바꾼 상태까지 로컬 revision이 보장하지 않으므로 Jira 변경 직전 owner·열림 상태·허용 전이를 다시 확인한다. 외부 전환 충돌은 덮어쓰지 않고 실패/재확인으로 남긴다.
 

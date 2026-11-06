@@ -150,8 +150,13 @@ const sample = {execution: {id: "execution-3", error: {message: "boom", node: {n
 const blocked = execute(sample, blockedEnv)[0].json;
 if (blocked.storage_ready !== false) throw new Error(`blocked env must block storage safely: ${JSON.stringify(blocked)}`);
 // 가져올 때 치환한 scope는 env가 막혀 있어도 쓸 수 있다.
-const importedCode = codeNode.parameters.jsCode.replace("'__DUBAKWI_SCOPE__'", "'dubakwi-team'");
+const assignment = /(const importedScope = ')__DUBAKWI_SCOPE__(';)/;
+const importedCode = codeNode.parameters.jsCode.replace(assignment, "$1dubakwi-dev$2");
 const imported = new Function("$json", "$env", importedCode)(sample, blockedEnv)[0].json;
-if (imported.storage_ready !== true || imported.scope !== "dubakwi-team") throw new Error(`imported scope must be used when env is blocked: ${JSON.stringify(imported)}`);
+if (imported.storage_ready !== true || imported.scope !== "dubakwi-dev") throw new Error(`imported scope must be used when env is blocked: ${JSON.stringify(imported)}`);
 
+// 전체 문자열 치환은 비교식까지 바꿔 저장이 항상 막힌다(대입문만 치환해야 한다).
+const globalReplaced = codeNode.parameters.jsCode.split("__DUBAKWI_SCOPE__").join("dubakwi-dev");
+const blockedByGlobal = new Function("$json", "$env", globalReplaced)(sample, blockedEnv)[0].json;
+if (blockedByGlobal.storage_ready !== false) throw new Error("global replacement must keep storage blocked");
 console.log("P20 state/DLQ double-failure and redaction: 16/16 passed");
