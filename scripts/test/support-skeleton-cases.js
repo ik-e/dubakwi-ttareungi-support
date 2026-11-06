@@ -77,6 +77,7 @@ const storageCheck = (file, prefix) => {
   return new Function('$json', code);
 };
 const STATE_CHECK = storageCheck('dubakwi-state.json', 'S02');
+const dedupeKeys = new Set();
 const DLQ_CHECK = storageCheck('dubakwi-dlq.json', 'D02');
 function checkStorageContract(input, failures) {
   const check = input.op === 'put' ? DLQ_CHECK : STATE_CHECK;
@@ -374,6 +375,8 @@ const FLOWS = [
   ['FL82', 'S2', 'attempt 생략 신규 요청은 받아서 보완 질문', ask({ question: '반납했는데 안 됐어요' }), { triage: { text: RETURN_ASK } }, flow({ route: '보완 질문', sentAttempt: 1 })],
   ['FL83', 'S2', 'attempt 생략 case_ref 세 번째는 attempt_limit', ask({ case_ref: 'case-1' }), { triage: { text: RETURN_ASK }, ...earlier(2) }, handoff('attempt_limit', { sentAttempt: 3 })],
   ['FL84', 'S2', 'attempt 생략 case_ref 두 번째는 보완 질문', ask({ case_ref: 'case-1' }), { triage: { text: RETURN_ASK }, ...earlier(1) }, flow({ route: '보완 질문', sentAttempt: 2, sentTicket: 'T-1' })],
+  ['FL75', 'S8', '알림 표식 미확인 alert_marker는 같은 case DLQ 키로 기록', ask({ request_id: 'lc-req-a' }), processResult({ ticket_id: 'JBYS-2', error_code: 'partial_effect', recovery: { version: 1, mode: 'jira_ref', action: 'alert_marker', args: null, reference: { jira_issue_id: '10004', case_id: 'case-1', owner_id: 'u01' }, reason: 'marker unknown' } }, { created_or_reused: { status: 'confirmed', id: 'JBYS-2' }, assigned: { status: 'confirmed', id: 'JBYS-2' }, alert: { status: 'confirmed', id: 'JBYS-2' } }), handoff('partial_effect', { dlq: 1, ticketId: 'JBYS-2', dlqRecoveryAction: 'alert_marker', dlqDedupe: { case_id: 'case-1', ref: 'case:case-1:alert_marker' } })],
+  ['FL76', 'S8', '다른 요청의 alert_marker도 같은 DLQ 키', ask({ request_id: 'lc-req-b' }), processResult({ ticket_id: 'JBYS-2', error_code: 'partial_effect', recovery: { version: 1, mode: 'jira_ref', action: 'alert_marker', args: null, reference: { jira_issue_id: '10004', case_id: 'case-1', owner_id: 'u01' }, reason: 'marker unknown' } }, { created_or_reused: { status: 'confirmed', id: 'JBYS-2' }, assigned: { status: 'confirmed', id: 'JBYS-2' }, alert: { status: 'confirmed', id: 'JBYS-2' } }), handoff('partial_effect', { dlq: 1, ticketId: 'JBYS-2', dlqRecoveryAction: 'alert_marker', dlqDedupe: { case_id: 'case-1', ref: 'case:case-1:alert_marker' } })],
   ['FL41', '계약', 'BeginRequest 서버 값', ask({ role: 'security' }), {}, flow({ route: '자동 답변', beginShape: true })],
 ];
 
@@ -426,6 +429,13 @@ function evaluate(workflow, [id, group, title, body, second, expected], flowCase
   // 시험 도구 자체의 실행 시간(수 ms)만큼 줄어들 수 있어 50ms 범위로 본다.
   if ('ticketTimeout' in e && !(result.timing.ticketTimeout <= e.ticketTimeout && result.timing.ticketTimeout > e.ticketTimeout - 50)) failures.push(`ticket_timeout: 기대 ${e.ticketTimeout}, 실제 ${result.timing.ticketTimeout}`);
   if ('dlqRecoveryAction' in e) check('dlq_recovery_action', result.sent.dlq?.recovery?.action, e.dlqRecoveryAction);
+  // R04 DLQ D02가 만드는 중복 제거 키(scope·_dedupe_ref·failed_step·error_code)를 support 요청으로 확인한다.
+  if (e.dlqDedupe) {
+    const payload = DLQ_CHECK(JSON.parse(JSON.stringify(result.sent.dlq ?? {})))[0].json.payload ?? {};
+    check('dlq_case_id', result.sent.dlq?.case_id, e.dlqDedupe.case_id);
+    check('dlq_dedupe_ref', payload._dedupe_ref, e.dlqDedupe.ref);
+    dedupeKeys.add(JSON.stringify([payload.scope, payload._dedupe_ref, payload.failed_step, payload.error_code]));
+  }
   if (e.failShape) {
     const r = result.sent.fail;
     check('fail_scope', r?.scope, 'dubakwi-dev');
@@ -514,6 +524,7 @@ function main() {
   };
   const results = [...CASES.map((item) => safe(item, false)), ...FLOWS.map((item) => safe(item, true))];
   const staticFailures = checkStatic(workflow);
+  if (dedupeKeys.size > 1) staticFailures.push(`alert_marker DLQ 키가 요청마다 다름: ${[...dedupeKeys].join(' / ')}`);
   const passed = results.filter((item) => item.pass).length;
   const allPass = passed === results.length && staticFailures.length === 0;
   for (const item of results) {

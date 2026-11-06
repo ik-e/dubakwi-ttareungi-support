@@ -2,8 +2,8 @@
 
 전체 구성·상태 관계·기능/시나리오 추적은 [최상위 시스템 설계서](SYSTEM-DESIGN.md)를 먼저 읽는다. 이 문서는 노드·엣지와 업무 계약의 상세 원본이다.
 
-- 작성: 2026-11-02 / 개정: 2026-11-04 KST
-- 버전·상태: **v0.14 / P11 support 골격 JSON·역할 프롬프트 초안·B05 사용자 응답 검증, P19 mock 연결 추가**, 공동 검토 전. P19 작업 브랜치는 로컬 Code·n8n 호출과 R01의 VM 연결 시험(`06863b3`, 실제 사용자 조회·검색·모델 + 전용 mock state·handoff·dlq)까지 확인했다. 실제 state·DLQ·Jira 연결과 공식 판정은 전.
+- 작성: 2026-11-02 / 개정: 2026-11-06 KST
+- 버전·상태: **v0.16 / P19 support 본체 연결(B04 팀 사용자 API, 7.5 시간 예산 20초 안 응답, 7.6 실패 문의 후속 제한)과 P12 handoff 변경 행(R04 v0.15) 통합**, 공동 검토 전. support는 로컬 Code·로컬 n8n(실제 LLM·검색·가짜 Jira·임시 PostgreSQL) 종단까지 확인했고, VM 실제 연동·공식 판정은 전이다. **v0.15 / P12 handoff Jira 생성·종료·이관·조회·보완 횟수와 state save·case_ref 초안 반영(변경 행: H04·H05(충돌 방지 label·문의 연결 검증)·H08·H09·H11·H17·H21·H22·H45~H48·H 시간 예산(응답 20초 기준, 합의 대기), 실행 증거 [runs/public/20261105-192700-team-n8n-r04-jira-close](../../runs/public/20261105-192700-team-n8n-r04-jira-close/report.md))**. 이전 v0.14 /  P11 support 골격 JSON·역할 프롬프트 초안·B05 사용자 응답 검증 추가**, 공동 검토 전. 골격은 로컬 Code 시험과 로컬 n8n Webhook 호출까지 확인했고 VM 실행·공식 판정은 전.
 - [공식 템플릿 — 공개본 제외 자료](../../docs/PUBLIC-SOURCES.md)의 8개 절 유지. 범위는 [TOPIC](TOPIC.md), 역할은 [팀 헌장](TEAM-CHARTER.md), 배정·구현 순서는 [개발 계획](../DEVELOPMENT-PLAN.md).
 - **티켓 최초 생성 위치를 뒤로 이동**했다. 일반 안내는 답변·검증 후 생성/종료, 정보 부족은 보완 질문 준비 후 생성/대기, 긴급은 분류 직후 생성/이관한다.
 
@@ -480,23 +480,27 @@ B28은 먼저 error_code=null && state_saved=true && 최신 state_ref를 확인�
 | H01 도구 요청 | Webhook | TicketRequest/LookupRequest | WebhookBody | 내부 Header Auth, responseNode |
 | H02 고정 기능 검사 | Code | WebhookBody.body | ToolCtx | kind=process/lookup, actor·owner·key·역할·action 검사. disabled 조회는 skip |
 | H03 기능 분기 | Switch | ToolCtx.kind | ToolCtx | out0 lookup;out1 skip;out2 process→H14 생성 계획 저장;fallback invalid |
-| H04 본인 대상 조회 | HTTP Request | actor_id,target_ticket_id | Raw | GET /tickets/<id>?requester=<actor>, 서버 owner 판정 |
-| H05 티켓 생성·재사용 | HTTP Request | TicketRequest | Raw | H15 저장 확인 후에만 Jira 생성/기존 건 확인. 신규 correlation_key=first_request_id,생성 시 가린 context/answer/sources·attempt와 연결 ID도 저장. 종료·담당 전환은 하지 않음. 생성 원시 응답은 다음 H06 |
+| H04 본인 대상 조회 | HTTP Request | actor_id,target_ticket_id | Raw | GET http://dubakwi-user-api:8801/records/<id>?requester=<actor> (내부 Header Auth, full response·neverError·timeout 1.5초, 1회 시도(호출자 B15 시간 제한 안에 끝내려고 재시도 없음)). 서버가 owner를 판정하며 requester는 서버 확인 actor만 사용 |
+| H05 티켓 생성·재사용 | HTTP Request | TicketRequest | Raw | H15 저장 확인 뒤 H23~H25가 문의 label `dubakwi-<SHA-256(scope,소유자,첫 요청 ID) 앞 40자>`(요청 ID 문자 변환 충돌 없음, scope·소유자 포함)로 기존 건을 먼저 찾는다. 결과가 1건이고 키(JBYS-숫자)·label·본문의 case_id·first_request_id 줄이 모두 일치할 때만 재사용하고, 여러 건이면 ticket_ambiguous, 일치하지 않으면 ticket_not_linked로 실패해 생성·재사용·쓰기를 하지 않는다. 기존 건이 없을 때만 POST /rest/api/2/issue(프로젝트 JBYS·유형 10006·가린 요약/설명). 주소는 자리표시자 __JIRA_BASE_URL__(가져올 때 환경 값으로 치환, 변수 기능은 라이선스 없음), 인증은 n8n Jira Credential. 중복 조회 실패면 생성하지 않는다. 쓰기 timeout 3.5초·재시도 없음 |
 | H06 티켓 식별 확인 | Code | Raw+H02.ToolCtx | ToolCtx | 생성/조회 결과를 created/failed/unknown으로 분리,알려진 Jira ID/key 보존·has_ticket 판정. state_ref는 H14의 현재 값 복원 |
 | H07 티켓 결과 분기 | Switch | ToolCtx.action | ToolCtx | H18 저장결과 검증 후 out0 close;out1 wait;out2 handoff;fallback failed. 다음 외부 동작 준비가 저장되지 않으면 fallback |
-| H08 안내·거절 종료 | HTTP Request | ticket_id,answer,facts,status,attempt | Raw | H17이 close 준비를 저장한 경우만 Jira 맥락/안내 갱신·종료. 신규 생성에서 이미 저장된 값은 불필요하게 덮지 않음. 실패 시 필요한 가린 복구 인자를 H12에 보존 |
-| H09 맥락 저장·담당 지정 | HTTP Request | ticket_id,CaseFacts,role,priority | Raw | H17이 handoff 준비를 저장한 경우만 Jira 맥락·보완 횟수·담당 갱신. 실패 시 가린 TicketRequest 또는 Jira 복원 참조를 H12에 보존 |
+| H08 안내·거절 종료 | HTTP Request | ticket_id,answer,facts,status,attempt | Raw | H17 bind(next_step=H08) 저장 뒤 H31~H33이 전환 목록을 읽어 이름(Resolved/완료)으로 전환을 고르고(전환 ID 고정 금지) 필요한 Resolution을 허용 값에서 고른다. 맥락 댓글과 종료를 한 번의 POST로 보낸다. Resolution 값이 없거나 전환이 없으면 호출 없이 closed=failed·partial_effect·recovery(close,jira_ref) |
+| H09 맥락 저장·담당 지정 | HTTP Request | ticket_id,CaseFacts,role,priority | Raw | H17 bind(next_step=H09) 뒤 H37~H39가 배정 가능한 활성 사용자 목록을 조회하고, 가져올 때 치환하는 자리표시자 __ASSIGNEE_MAP_JSON__의 역할→계정 매핑으로 담당을 정한다. 매핑이 없거나(미치환 포함) 그 계정이 배정 가능 후보가 아니면 첫 후보로 대신 배정하지 않고 PUT 없이 assigned=failed(assignee_unmapped/assignee_not_assignable)·partial_effect·recovery(assign)로 둔다. 배정되면 PUT /issue/<key>로 담당과 맥락 댓글을 한 번에 저장 |
 | H10 배정 확인 | If | H09 효과 | Raw | true=맥락·담당 확인→H19 알림 의도 저장;false=부분실패 H12. 전달 완료 알림 선행 금지 |
-| H11 담당 알림 | HTTP Request | ticket_id,role,priority,가린 요약 | Raw | H20 저장 확인 후 POST /alerts. 알림 수락은 사람 인수 아님. 가린 대상/메시지·역할을 복구 인자로 보존 |
+| H11 담당 알림 | HTTP Request | ticket_id,role,priority,가린 요약 | Raw | H19 prepare(current_step=H11) 확인 뒤 POST http://data-api:8800/alerts. body 스키마는 과정 data-api 기준 미검증이며 실패 시 alert=failed/unknown·partial_effect. 알림 수락은 사람 인수 아님 |
 | H12 티켓·조회 결과 | Code | Raw/ToolCtx | TicketResult/LookupResult | H02 입력·H06 ID·최신 state_ref·각 Effect 합성. TicketResult.state_saved/error_code가 효과보다 우선,실패에 recovery 캡슐 포함. lookup은 owner·가림·반환 봉투1개 |
 | H13 도구 응답 | Respond to Webhook | TicketResult/LookupResult | TicketResult/LookupResult | request_id 포함 봉투1개. wait 완료는 후속 B32 저장확인 필요 |
 | H14 생성 계획 저장 | Execute Sub-workflow | StateCommand.prepare + state_ref | StateResult | R04의 고정 저장 경계. current_step=H05,생성/재사용 의도와 원 실행ID 기록. 저장 후 새 state_ref 반환 |
 | H15 생성 실행 허용 | If | ok=true && skipped=false && 유효 state_ref | StateResult | true만 H05,false는 state_error·state_saved=false로 H12. prepare 실패에 Jira 호출0 |
 | H16 티켓 확인 여부 | If | ToolCtx.has_ticket | ToolCtx | true 알려진 ID를 H17에 바인딩,false H12. 생성 실패·미확인에 임의 ID 생성 금지 |
-| H17 티켓 연결·다음 단계 저장 | Execute Sub-workflow | StateCommand.bind + known Jira ID | StateResult | ID/key를 즉시 보존하고 action별 next_step=H08/H09/B32를 같은 저장에서 준비. expected_state_revision 검증 |
+| H17 티켓 연결·다음 단계 저장 | Execute Sub-workflow | StateCommand.bind + known Jira ID | StateResult | H30이 ID/key·case_id·first_request_id·next_step(H08/H09/B32)을 구성. 저장 실패 시 이후 Jira 변경 0·known ID 유지·recovery(bind,payload) 반환. DLQ 기록은 handoff가 아니라 호출자 X03이 recovery로 수행(중복 기록 방지) |
 | H18 연결 저장 판정 | Code | StateResult + H06.ToolCtx | ToolCtx | ok=true·skipped=false·유효한 새 StateRef만 현재 state_ref 교체·H07 정상 action 허용. 실패는 action=failed,state_error,known Jira ID 보존 |
 | H19 알림 의도 저장 | Execute Sub-workflow | StateCommand.prepare + 최신 state_ref | StateResult | current_step=H11 기록. H17 반환 revision 사용,알림 대상·가린 복구 인자 유지 |
 | H20 알림 실행 허용 | If | ok=true && skipped=false && 유효 state_ref | StateResult | true H11,false state_error로 H12. 성공한 담당 지정은 유지하고 알림 호출0 |
+| H21 조회 실행 여부 | If | H02 결과 | ToolCtx | route=lookup이면 H04,아니면 H13. enabled=false 조회는 H02가 skipped로 종료 |
+| H22 조회 결과 정규화 | Code | H04 Raw+H02 요청 | LookupResult | 200+owner 일치만 ok(가린 연락처만 masked_phone/masked_email,masked=가린 필드 수). 403·404·owner 불일치는 같은 denied(record=null,error_code=null,존재 여부 미노출). 401·5xx·시간 초과·형식 오류는 error(lookup_error). enabled=true인데 target_ticket_id=null이면 H02가 400 invalid_tool_request |
+| H45~H48 보완 횟수 갱신 | If·Code·HTTP Request | 재사용한 Jira 티켓의 TicketRequest(action=wait) | TicketResult | 기존 이슈를 재사용하는 wait만 POST /issue/<key>/comment에 "보완 횟수: N"과 가린 요약을 남긴다(다음 요청의 case_ref가 이 값의 최댓값을 읽음). 새로 만든 이슈는 설명에 이미 있어 쓰지 않는다. 저장 실패는 context_saved=failed/unknown·partial_effect·recovery(context_update)로 반환해 호출자가 한도를 놓치지 않게 한다. 알림 시도 표식(dubakwi-alert-attempted-<역할>)만 있고 이번 요청의 문맥 표식이 없는 문의도 같은 경로(H48~H47)로 문맥만 저장하며, 저장 전에는 context_saved를 confirmed로 표시하지 않고 알림은 다시 보내지 않는다(partial_effect·recovery alert_marker 유지, 저장 실패 시 context_update) |
+| H 시간 예산 | - | 호출 timeout | - | handoff 호출별 timeout은 조회 2초·쓰기 3.5초·알림 2초·사용자 API 1.5초(재시도 없음)이며 종료 경로의 세 호출만 아래처럼 더 짧다. 종료(자동 답변) 경로는 H29 기존 건 조회 1.5·H32 전환 조회 1.5·H08 종료 2.5초로 HTTP 합계 최악 5.5초이고 상태 DB를 더해도 약 7초다(R02 요청에 따라 조회·종료 timeout을 줄임. 실제 Jira 실행 기록의 호출별 최대는 조회 0.37초·전환 조회 0.23초·종료 1.21초로 표본이 작음), 생성 후 이관 경로 최악 약 13초 + PostgreSQL 3회다. 응답은 어떤 경우에도 요청 시한 20초 안이며 25초는 R05 실패선이라 처리 시간으로 쓰지 않는다. 호출자 B27은 20초까지 남은 시간에서 3.5초를 빼 최소 5초·최대 15초로 제한하므로 최악 경로를 끝까지 기다린다고 가정하지 않는다. B27이 먼저 끊기면 생성 결과를 알 수 없으므로 ticket_unknown으로 이관하고 티켓 재생성·재종료·재알림은 하지 않는다. support가 state에 unknown을 남기면 같은 요청 재전송은 HTTP409 request_requires_review로 막힌다(기록하지 못해 processing으로 남은 경우 request_in_progress). partial_effect는 handoff 응답에서 생성 등 일부 효과가 확인됐지만 후속 단계가 실패한 경우이며, B27 전 B11·B17 시간 조건에 걸린 경우만 deadline_exceeded로 이관한다. B15는 2.5초 이상이어야 한다. 위 수치는 초기 기준값이며 R02·R05 합의와 실제 VM 측정 전이다 |
 
 ### 4.4.1. P19 mock 연결 구현 상태
 
@@ -907,9 +911,9 @@ flowchart TD
 | --- | --- | --- | --- | --- |
 | E01 예상 밖 오류 | Error Trigger | n8n event | ErrorCtx | 본체·하위 지정,자기 지정 없음 |
 | E02 오류 가림 | Code | n8n event | ErrorCtx | execution/node/code,원문·키 제거 |
-| E03 운영 알림 | HTTP Request | StateResult+E02.ErrorCtx | Raw | 알림 body는 E02의 가린 원 오류에서 구성,상태 기록 결과만 합성. POST /alerts 실패도 E04 진행 |
+| E03 운영 알림 | HTTP Request | StateResult+E02.ErrorCtx | Raw | 설계 대상이며 현재 `dubakwi-errors` 준비본에는 미구현. 구현 전에는 DLQ의 `effects.alert=none`, `alert_backend_unconfigured`로 남기며 Discord/Jira 알림 성공을 주장하지 않음 |
 | E04 오류 보관 | Execute Sub-workflow | DlqWriteRequest | DlqResult | 고정 DLQ put_dlq. 원 request 모르면 null 허용,recovery=manual_required. 실행ID만으로 업무 재실행하지 않음. 저장 실패는 실행 기록 운영 확인 |
-| E05 중단 요청 상태 확인 | Execute Sub-workflow | 원 execution ID·가린 오류 | StateResult | 원 실행으로 소유 요청이 확인되면 unknown/failed 기록,없으면 skipped. 실패도 E03/E04 진행,모르는 시민 요청을 추정 갱신하지 않음 |
+| E05 중단 요청 상태 확인 | Execute Sub-workflow | 원 execution ID·가린 오류 | StateResult | 원 실행으로 소유 요청이 확인되면 unknown/failed 기록,없으면 skipped. `continueRegularOutput`으로 state 하위 실행이 throw해도 E02의 가린 문맥으로 E04를 계속 시도함. 모르는 시민 요청을 추정 갱신하지 않음 |
 
 ```mermaid
 flowchart TD
@@ -923,6 +927,13 @@ flowchart TD
   E03 -->|"E107 main:0"| E04
   E05 -->|"E126 main:0"| E03
 ```
+
+현재 준비본의 연결 조건은 다음과 같다.
+
+- `DUBAKWI_SCOPE`는 시민 입력이나 PR에 넣지 않고 R01이 n8n 서비스 환경변수로 주입한다. 환경변수 반영에는 통제된 n8n 재시작과 재시작 뒤 health 확인이 필요하다. 값이 없으면 `storage_ready=false`로 state·DLQ 호출을 막는다. n8n 기본 설정은 Code 노드의 $env 접근을 막으므로 E02는 접근 예외를 무시하고, 가져올 때 치환하는 자리표시자 __DUBAKWI_SCOPE__ 값을 대신 쓴다. 치환값은 support의 scope(dubakwi-dev)와 같아야 하고, 같은 문자열이 비교식에도 있으므로 `const importedScope` 대입값만 치환한다(`scripts/dev/render_n8n_workflow.py --scope`, PR #27. 전체 치환은 저장을 항상 차단)(둘 다 없으면 저장을 막고 E07로 안전 종료).
+- R01은 검토된 시험 사본의 Workflow Settings에서 `dubakwi-errors`를 Error Workflow로 지정한다. 오류 워크플로우 자신에게는 지정하지 않아 재귀 실행을 막는다.
+- 연결 검증은 비공개 시험 사본에 의도적 Code 예외를 한 번 주입해 state 성공/실패와 무관하게 가린 DLQ 요청이 시도되는지 확인한다. 기존 P11/P19 게시본은 이 확인 전에 변경하지 않는다.
+- 운영 알림 노드는 아직 없으므로 Error Workflow·DLQ 연결 완료와 Discord/Jira 운영 알림 완료를 구분한다.
 
 ### 7.3. 기본 노드에 붙이는 오류 엣지
 

@@ -1,0 +1,40 @@
+{
+  "run_id": "20261106-104806-local-daily-drafts",
+  "owner": "R01",
+  "tasks": [
+    "P14",
+    "P24"
+  ],
+  "cutoffs": {
+    "DAY80": "2026-11-05 end of day; retrospectively compiled",
+    "DAY81": "2026-11-06 10:48 KST interim"
+  },
+  "format": "official DAILY-LOG-TEMPLATE five sections",
+  "original_day80_sha256": "50177c6de4a1ede5208c111da350cef71ef6ddefe94872a1599d7abe7a0be1bb",
+  "source_report_files_modified": false,
+  "full_scenario_totals": "not aggregated",
+  "bench_n5_p50": "not measured",
+  "instructor_feedback": "not received; no invented feedback",
+  "checks": {
+    "official_five_sections": "passed both files",
+    "original_draft_hash": "matched",
+    "docs": {
+      "files": 20,
+      "links": 478,
+      "anchors": 52,
+      "errors": 0
+    },
+    "public_candidates": {
+      "files": 181,
+      "links": 585,
+      "errors": 0
+    },
+    "diff": "passed",
+    "limited_secret_patterns": "no matches; not full secret/PII scan"
+  },
+  "not_run": [
+    "service tests",
+    "VM changes",
+    "Discord posting"
+  ]
+}

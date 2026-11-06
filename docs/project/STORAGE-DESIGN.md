@@ -150,7 +150,7 @@ dead_letters는 **처리하지 못했거나 성공 여부가 불명확해 확인
 | revision | bigint,NOT NULL,초기0 | 동시 재처리 방지용 조건부 갱신 |
 | created_at,updated_at,resolved_at | timestamptz,resolved_at만NULL 허용 | 생성·변경·해결 시각 |
 
-동일 (scope,failure_key)는 활성 실패1건으로 관리한다. 요청이 확인되면 failure_key는 request_id/failed_step의 고정 구조 해시,요청을 모르면 원래 workflow/execution/node/error_code의 고정 구조 해시로 만든다. 예상 실패와 Error Workflow가 같은 실패를 중복 기록하면 같은 항목을 갱신한다. resolved 뒤 같은 단계가 다시 실패하면 원 항목을 재개하고 시각·사유를 갱신한다. 상세 시도 이력은 n8n 실행 기록을 참조한다. replay_status/updated_at 조회 인덱스를 후보로 둔다. 요청·소유권이 확인되지 않은 항목은 기록 조회만 하고 업무 재실행하지 않는다.
+동일 (scope,failure_key)는 활성 실패1건으로 관리한다. 요청이 확인되면 failure_key는 request_id/failed_step의 고정 구조 해시,요청을 모르면 원래 workflow/execution/node/error_code의 고정 구조 해시로 만든다. `alert_marker`만 재요청 ID 대신 case 식별을 사용하되 **같은 scope·case·failed_step·error_code**일 때만 같은 항목을 갱신한다. 같은 case라도 실패 단계나 오류 코드가 다르면 확인·복구 작업이 다르므로 별도 DLQ로 보존한다. 따라서 이 계약은 “case당 무조건 하나”가 아니다. 예상 실패와 Error Workflow가 같은 실패를 중복 기록하면 같은 항목을 갱신한다. resolved 뒤 같은 단계가 다시 실패하면 원 항목을 재개하고 시각·사유를 갱신한다. 상세 시도 이력은 n8n 실행 기록을 참조한다. replay_status/updated_at 조회 인덱스를 후보로 둔다. 요청·소유권이 확인되지 않은 항목은 기록 조회만 하고 업무 재실행하지 않는다.
 
 DLQ 기록은 최소 상태 저장이 실패한 경우에도 시도할 수 있어야 하므로 request_state 행이 반드시 존재해야 하는 물리 외래키로 막지 않는다. 두 저장이 같은 DB 장애로 모두 실패하면 가능한 n8n 실행 기록·운영 알림에 남기고 접수 성공을 약속하지 않는다. 별도 저장소를 추가해 모든 장애를 감추는 구조는 범위에 넣지 않는다.
 
@@ -205,7 +205,7 @@ n8n 원시 노드 입출력에는 사용자 입력·외부 응답이 포함될 �
 
 물리 PostgreSQL 채택 시 R04는 SQL/저장 기능을 준비하고 R02는 본체에 연결한다. 기존 HTTP Request 노드는 논리 호출 위치를 나타내므로 실제로는 Postgres 노드·하위 워크플로우·HTTP 어댑터 중 선택해 명세를 갱신한다. 확인되지 않은 endpoint나 트랜잭션 경계를 구현 완료로 표시하지 않는다.
 
-현재 준비본은 parameterized JSON 1개만 받는 `dubakwi_service.state_apply`와 `dubakwi_service.dlq_apply` 함수로 상태 명령과 DLQ 갱신을 원자적으로 수행한다. 신규 요청의 begin은 DB에서 처리할 수 있지만,기존 case_ref의 소유자·열림 상태는 Jira가 원본이므로 Jira 확인 전에는 `case_verification_required`로 중단한다. 이 중단을 정상 처리나 저장 완료로 집계하지 않는다.
+현재 준비본은 parameterized JSON 1개만 받는 `dubakwi_service.state_apply`와 `dubakwi_service.dlq_apply` 함수로 상태 명령과 DLQ 갱신을 원자적으로 수행한다. 신규 요청의 begin은 DB에서 처리할 수 있지만,기존 case_ref의 소유자·열림 상태는 Jira가 원본이므로 Jira 확인 전에는 `case_verification_required`로 중단한다. 이 중단을 정상 처리나 저장 완료로 집계하지 않는다. save는 dubakwi-state의 S07~S11이 Jira 이슈(ticket_id)를 조회해 key·문의 label(scope·소유자·첫 요청 ID 해시)·본문의 case_id·first_request_id가 모두 일치할 때만 같은 워크플로우에서 finish로 저장하고 ok:true를 반환한다. 조회 실패·불일치·expected_case_version 제공(버전 확인 미지원)은 SQL 호출 없이 ok:false(tickets_down/state_error)와 finish 복구 정보로 끝난다. DB의 save 분기는 계속 fail-closed 방어선으로 남긴다. case_ref는 005~006 적용 뒤 dubakwi-state의 S12~S20이 case_lookup(읽기 전용) → Jira 이슈의 문의 연결(키·label·case_id) 검증과 열림·기존 보완 횟수 확인 → case_begin 순으로 처리한다. 알 수 없는 case 400 invalid_case_ref, 타인 403 case_access_denied(내용 없음), 종료 409 case_closed, 같은 case 진행 중 409 case_busy이며 Jira 조회 장애는 case 없음/종료로 단정하지 않고 503 error다. 005~006 적용 전에는 기존대로 case_verification_required로 멈춘다.
 
 공통 data-api 시험 모드와 Jira 실연동 모드는 티켓·상태·DLQ의 물리 저장을 어댑터로 구분한다. 공통 시험의 DLQ1건 판정과 실제 경로의 보존 여부를 각각 확인한다. 무조건 두 저장소에 이중 기록해 건수·소유권·원본을 혼동하지 않는다. 모의 시험 통과가 실제 Jira 종료·DB 복구의 증거는 아니다.
 
@@ -224,7 +224,7 @@ n8n 원시 노드 입출력에는 사용자 입력·외부 응답이 포함될 �
 | DlqWriteRequest | op:put,scope:string,request_id:string／null,case_id:string／null,failed_step:string,error_code:string,effects:object,recovery:RecoveryCapsule | 그 외4.1의 known ID/요약/시도/원 실행 포함. failure_key는 R04 서버가4.1 규칙으로 생성 |
 | DlqResult | ok:boolean,dlq_id:string／null,deduplicated:boolean,error_code:string／null | 실제 보관/기존 항목 갱신 확인만ok=true. 실패해도 호출자는 알림·최종 오류 응답으로 진행 |
 | SaveResult | request_id:string,ok:boolean,state_ref:StateRef／null,error_code:string／null,recovery:RecoveryCapsule | Jira 문맥 확인과 finish 저장이 모두 확인돼야ok=true. 둘 중 실패면후속응답은저장미확인·known ID 보존 |
-| RecoveryCapsule | version:1,mode:payload/jira_ref/manual_required,action:create/bind/context_update/close/assign/alert/finish/inspect_only,args:object／null,reference:object／null,reason:string／null | 실패 작업만. payload는허용가린인자,jira_ref는Jira ID/case/owner와읽을필드,manual_required는추정실행0 |
+| RecoveryCapsule | version:1,mode:payload/jira_ref/manual_required,action:create/bind/context_update/close/assign/alert/alert_marker/finish/inspect_only,args:object／null,reference:object／null,reason:string／null | 실패 작업만. payload는허용가린인자,jira_ref는Jira ID/case/owner와읽을필드,manual_required는추정실행0. alert_marker는 알림 성공 뒤 Jira 중복방지 표식 저장이 미확인인 상태로, 알림을 다시 보내지 않고 표식과 실제 효과를 확인하는 작업 |
 
 | 명령 | args와 후조건 | 실패·미확인 |
 | --- | --- | --- |
@@ -235,7 +235,7 @@ n8n 원시 노드 입출력에는 사용자 입력·외부 응답이 포함될 �
 
 E05의 fail은 state_ref가 없을 수 있다. 이때 서버 scope와 원 execution_id로 소유 레코드를 확인해 현재 revision을 얻는 운영 경로만 허용한다. 시민이 보낸 execution_id로 조회·수정하지 않는다. 외부 성공 여부가 불명이면 unknown이며,실패를 확인한 경우만 failed다.
 
-Begin의 pending은 request_in_progress/case_busy/request_requires_review 중 이유를 보존해 HTTP409로 반환한다. conflict는 request_conflict409,invalid_case_ref400,case_access_denied403,case_closed409를 구분하며 지원 문맥을 노출하지 않는다. B08/B09는 이 상태를 일반 장애로 바꾸거나 상태 쓰기를 실행하지 않는다. 물리 오류나 잘못된 봉투는 mode=error다.
+Begin의 pending은 request_in_progress/case_busy/request_requires_review 중 이유를 보존해 HTTP409로 반환한다. conflict는 request_conflict409,invalid_case_ref400,case_access_denied403,case_closed409를 구분하며 지원 문맥을 노출하지 않는다. B08/B09는 이 상태를 일반 장애로 바꾸거나 상태 쓰기를 실행하지 않는다. 물리 오류나 잘못된 봉투는 mode=error다. 호출자는 409의 codes로 두 경우를 구분해 안내한다: request_in_progress는 "처리 중이다", request_requires_review는 "처리 결과 확인이 필요하며, 같은 요청은 자동으로 다시 실행하지 않습니다"(R02 제안). 어느 쪽도 접수·완료·자동 복구를 약속하지 않는다.
 
 SupportCase.version은 실제 Jira 문의 버전을 확인했을 때 그 값,지원하지 않으면 null이다. SaveRequest.expected_case_version은 이에만 대응한다. 자동화 요청 사이 경합은3.1의 같은 case 활성 요청 단독 처리권으로 막는다. 담당자가 Jira에서 직접 바꾼 상태까지 로컬 revision이 보장하지 않으므로 Jira 변경 직전 owner·열림 상태·허용 전이를 다시 확인한다. 외부 전환 충돌은 덮어쓰지 않고 실패/재확인으로 남긴다.
 
@@ -263,7 +263,7 @@ SupportCase.version은 실제 Jira 문의 버전을 확인했을 때 그 값,지
 {"version":1,"mode":"jira_ref","action":"close","args":null,"reference":{"jira_issue_id":"10001","jira_issue_key":"JBYS-1","case_id":"case-01","owner_id":"citizen-a","read_fields":["masked_answer","sources","target_close_status"]},"reason":"종료 전환 실패,필수값은 생성 시 Jira에 저장됨"}
 ```
 
-RecoveryCapsule의 payload는 action별 허용 필드만 사용한다. create는 가린 TicketRequest,bind는Jira ID/key와원요청참조,next_step,finish는가린 SaveRequest/Response,close/context_update/assign/alert는대상과검증된가린변경값이다. n8n execution_id만 있는 reference는jira_ref가 아니며manual_required다. 비밀·임의 endpoint·임의 코드·전체 대화는허용하지않는다.
+RecoveryCapsule의 payload는 action별 허용 필드만 사용한다. create는 가린 TicketRequest,bind는Jira ID/key와원요청참조,next_step,finish는가린 SaveRequest/Response,close/context_update/assign/alert는대상과검증된가린변경값이다. alert_marker는 알림 재전송 지시가 아니라 Jira의 attempted/sent 표식과 알림 효과를 확인·보정하기 위한 jira_ref다. 같은 case·failed_step·error_code의 활성 항목만 중복 제거하고 단계나 오류가 달라지면 별도 확인 항목으로 남긴다. n8n execution_id만 있는 reference는jira_ref가 아니며manual_required다. 비밀·임의 endpoint·임의 코드·전체 대화는허용하지않는다.
 
 ## 7. 보존·복구·권한
 
@@ -287,3 +287,16 @@ RecoveryCapsule의 payload는 action별 허용 필드만 사용한다. create는
 이 표는 설계의 미확인 경계다. 세부 작업·기한·진행 상태는 개발 계획에서 관리하고 실행 증거는 cases/runs/실행 결과서에 둔다. 본 문서에 별도 종합 테스트 계획을 추가하지 않는다.
 
 참고: [과정 서비스 환경 — 공개본 제외 자료](../../docs/PUBLIC-SOURCES.md),[운영·오류 처리 가이드 — 공개본 제외 자료](../../docs/PUBLIC-SOURCES.md),[n8n Postgres 공식 문서](https://github.com/n8n-io/n8n-docs/blob/main/docs/integrations/builtin/app-nodes/n8n-nodes-base.postgres/README.md),[n8n 실행 기록 관리](https://docs.n8n.io/deploy/host-n8n/configure-n8n/scaling/manage-execution-data),[PostgreSQL 제약](https://www.postgresql.org/docs/current/ddl-constraints.html). 실제 버전·배포에서 기능을 확인해야 한다.
+
+### 3.3 begin 409 시민 문구와 수동 확인 절차
+
+support는 state 응답의 `error` 문장을 그대로 전달하므로 dubakwi-state의 S05가 begin의 409를 코드별 확정 문구로 바꾼다. codes와 http_status는 바꾸지 않으며 접수·완료·자동 복구를 약속하지 않는다.
+
+| code | 언제 | 시민 문구 |
+| --- | --- | --- |
+| request_in_progress | 요청이 processing으로 남은 경우: 오류 워크플로우의 fail이 소유 행을 찾지 못해 skipped가 된 경우(원 실행 ID나 scope가 맞지 않거나 begin 전 중단) | 같은 요청을 처리하고 있습니다. 같은 요청은 자동으로 다시 실행하지 않습니다. |
+| request_requires_review | support가 직접 fail로 failed·unknown을 남긴 경우(예: Jira 종료 실패), 또는 errors가 원 실행 ID·같은 scope로 소유 행을 찾아 unknown으로 바꾼 경우(임시 PostgreSQL에서 R02 확인). 이 경로는 support와 errors의 scope가 같을 때만 동작한다 | 처리 결과 확인이 필요하며, 같은 요청은 자동으로 다시 실행하지 않습니다. |
+| request_conflict | 같은 request_id에 다른 내용·소유자가 온 경우 | 같은 요청 번호로 다른 내용이 들어왔습니다. 새 문의로 다시 보내 주세요. |
+
+processing으로 오래 남은 요청의 해제는 운영자가 한다. n8n Executions에서 원 실행이 끝났는지와 Jira 효과(known ID)를 먼저 확인하고, 끝났으면 state의 fail 명령(서버가 scope·원 execution_id로 소유 행을 찾는 운영 경로)으로 failed 또는 unknown과 error_code를 남긴 뒤 DLQ의 claim·resolve로 복구한다. 원 실행이 진행 중이면 해제하지 않고, 서비스 DB 행을 직접 수정하거나 삭제하지 않는다.
+

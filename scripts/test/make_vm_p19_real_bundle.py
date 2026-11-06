@@ -55,11 +55,12 @@ ERRORS_NAME = "dubakwi-errors-p19-real"
 SCOPE_PLACEHOLDER = "__DUBAKWI_SCOPE__"
 IMPORTED_SCOPE_LINE = f"const importedScope = '{SCOPE_PLACEHOLDER}';"
 SCOPE_PATTERN = re.compile(r"^[A-Za-z0-9:_.-]+$")
+# 기본 기준: #27·#28이 병합된 main(2026-11-06). 파일은 state·DLQ 86d78e7, handoff a930e24, errors 8c53cf7과 같다.
 DEPENDENCIES = {
-    "state": ("workflows/dubakwi-state.json", "1b83d18"),
-    "dlq": ("workflows/dubakwi-dlq.json", "1b83d18"),
-    "handoff": ("workflows/dubakwi-handoff.json", "1b83d18"),
-    "errors": ("workflows/dubakwi-errors.json", "ff19178"),
+    "state": ("workflows/dubakwi-state.json", "c6dd178"),
+    "dlq": ("workflows/dubakwi-dlq.json", "c6dd178"),
+    "handoff": ("workflows/dubakwi-handoff.json", "c6dd178"),
+    "errors": ("workflows/dubakwi-errors.json", "c6dd178"),
 }
 
 

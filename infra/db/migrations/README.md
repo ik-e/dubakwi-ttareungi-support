@@ -39,6 +39,11 @@ psql "$DUBAKWI_DATABASE_URL" -v ON_ERROR_STOP=1 \
 psql "$DUBAKWI_DATABASE_URL" -v ON_ERROR_STOP=1 \
   -v runtime_role=dubakwi_runtime \
   -f infra/db/migrations/004-grant-storage-functions.sql
+
+# 005~006은 case_ref 보완 확인용이며 R04·R01 검토 승인 뒤에만 적용한다.
+psql "$DUBAKWI_DATABASE_URL" -v ON_ERROR_STOP=1   -f infra/db/migrations/005-create-case-functions.sql
+
+psql "$DUBAKWI_DATABASE_URL" -v ON_ERROR_STOP=1   -v runtime_role=dubakwi_runtime   -f infra/db/migrations/006-grant-case-functions.sql
 ```
 
 Record the applied commit and migration filenames in the private deployment
@@ -68,6 +73,12 @@ server details to a public report.
 - A new request without `case_ref` can acquire state atomically. A request with
   `case_ref` returns `case_verification_required` until the live Jira owner and
   open-state check has completed; the database never guesses that result.
+  After 005~006 are applied, the workflow calls `case_lookup` (read-only;
+  unknown case, other owner, busy), checks the open state in Jira, then calls
+  `case_begin`, which re-checks ownership and the active-case rule atomically
+  and returns `invalid_case_ref` (400), `case_access_denied` (403),
+  `case_closed` (409), `case_busy` (409), or `proceed`. Until then
+  `state_apply` keeps returning `case_verification_required`.
 - Never add a foreign key from `dead_letters` to `request_state`; a DLQ write
   must remain possible when state storage failed.
 - Use parameterized SQL only. Do not accept table, schema, URL, SQL, or code
@@ -208,6 +219,15 @@ needed by the n8n adapters. They are not evidence that PostgreSQL was started,
 migrated, backed up, restored, or connected to n8n on the team VM. Jira-backed
 `case_ref` verification also remains outside the database function and must be
 connected before follow-up requests can proceed.
+
+Migration `007-deduplicate-alert-marker-dlq.sql` replaces only `dlq_apply`.
+For `recovery.action=alert_marker`, the workflow supplies a private case-based
+deduplication reference. Later requests update the same active DLQ row only
+when scope, case, failed step, and error code all match, while preserving the
+latest execution ID. A different step or error remains a separate recovery
+item even for the same case. Other failures retain the existing
+request/execution-based key. Apply 007 after 001~006 and rerun the function and
+runtime permission contracts before connecting the updated workflow.
 
 ## Local validation evidence (2026-11-05)
 
