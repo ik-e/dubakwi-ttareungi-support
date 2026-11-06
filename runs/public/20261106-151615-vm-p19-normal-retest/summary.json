@@ -1,0 +1,67 @@
+{
+  "executed_date": "2026-11-06 KST",
+  "environment": "team VM native P19/Jira/PostgreSQL; no mocks",
+  "versions": {
+    "support": "c5ed5fa",
+    "dependencies_main": "c6dd178",
+    "jira_configuration": "initial state exposes Resolved131; required completion resolution10000",
+    "auth": "rotated current X-Team-Key; values excluded"
+  },
+  "case": "R03 citizen/public QR baseline, new independent request, no case_ref",
+  "results": {
+    "support_execution": "279",
+    "http": 200,
+    "elapsed_seconds": 10.629,
+    "normal_goal_pass": false,
+    "agents": [
+      "triage",
+      "retriever"
+    ],
+    "search_evidence_count": 5,
+    "all_search_evidence_public": true,
+    "expected_section_rank": 2,
+    "classification_ms": 1857,
+    "search_http_ms": 2186,
+    "b17_remaining_ms": 15120,
+    "b17_required_ms": 15500,
+    "b17_shortfall_ms": 380,
+    "first_diversion": "deadline_exceeded before writer/verifier",
+    "handoff_result": "Jira created; assign failed assignee_unmapped; partial_effect",
+    "jira_close_attempted": false,
+    "db_processing_status": "unknown",
+    "db_step": "B29",
+    "db_revision": 3,
+    "db_final_response_present": false,
+    "dlq_status": "pending",
+    "dlq_attempts": 1,
+    "state_fail_ok": true,
+    "dlq_write_ok": true
+  },
+  "preservation": {
+    "known_jira_reference": "retained privately",
+    "prior_failed_requests": "unchanged",
+    "repeat_request_or_additional_retry": false
+  },
+  "not_performed": [
+    "workflow code or timeout changes",
+    "failed-request recovery or cleanup",
+    "bot start",
+    "official R05 full verdict"
+  ],
+  "details": "report.md",
+  "checks": {
+    "project_docs": {
+      "files": 20,
+      "links": 473,
+      "anchors": 51,
+      "errors": 0
+    },
+    "public_candidates": {
+      "files": 221,
+      "links": 586,
+      "errors": 0
+    },
+    "diff": "passed",
+    "secret_scan": "tscan unavailable; exact current key excluded and changed-text credential patterns clear; not a history guarantee"
+  }
+}

@@ -1,6 +1,6 @@
 # P19 전체 연동 관리와 R01 실행 계획
 
-- 버전: v0.6 / 2026-11-06 KST / R01 / DB·전체 시험 사본 게시 완료, 첫 정상 Webhook 목표 미통과·Discord 기동 전.
+- 버전: v0.7 / 2026-11-06 KST / R01 / DB·전체 시험 사본 게시 완료, 첫 정상 Webhook 목표 미통과·Discord 기동 전.
 - 단일 관리 창구: [PR #36](https://github.com/ik-e/dubakwi-ttareungi-support/pull/36). 기능 구현·검토는 기존 PR에서 유지한다.
 - 진행 상태의 원본은 [개발 원장](../docs/DEVELOPMENT-PLAN.md), 책임은 [팀 헌장](../docs/project/TEAM-CHARTER.md), 계약은 [워크플로우 설계](../docs/project/WORKFLOW-DESIGN.md)·[저장소 설계](../docs/project/STORAGE-DESIGN.md)다. 이 문서는 새 업무 계약을 정의하지 않는다.
 - 현재 한정 시험 적용본은 support c5ed5fa와 main c6dd178의 하위 기능(a930e24/8c53cf7 업무 파일)이다. [게시 증거](../runs/public/20261106-124323-vm-p19-published/report.md)를 기준으로 하며 정상 업무·Discord 성공이나 #16 정식 병합을 뜻하지 않는다. 과거 준비 증거는 당시 기록으로 보존한다.
@@ -86,6 +86,8 @@ TC17/TC18 준비 인계는 P19 경로/게시, 동일 scope의 예외 사본/erro
 
 ## 7 현재 증거와 관리 경계
 
+- [정상 재시험279](../runs/public/20261106-151615-vm-p19-normal-retest/report.md): Jira직접종료전환/Resolution확인은완료했으나실제1건은B17 남은15120ms<요구15500ms로답변전이관됐다. Jira생성뒤담당매핑부재로partial_effect, DB unknown·DLQ pending·known참조보존이다. R02시간예산수정검토전추가요청은하지않는다. G3/G4/G5미완료유지. Jira설정차단해소와업무종료성공을구분한다.
+
 - [시험 키 교체 완료](../runs/public/20261106-150135-vm-team-key-rotation/report.md): 사용자 Credential 저장 후 VM 환경파일·봇 키·R02 현재 비공개 인계를 동기화했다. 운영/시험 경로 모두 신키400(빈 입력)·구키403을 확인했다. 기존 키를 캐시한 시험 클라이언트는 새 인계를 다시 읽어야 한다. Jira 토큰·업무 데이터·봇 기동은 변경하지 않았다.
 - R02 실제실행266은답변/검증까지통과했지만handoff270의현재상태전환목록에종료가없어transition_unavailable로중단했다. DB unknown·DLQ274 pending보존을확인했으며G3미완료다. [대조 근거](https://github.com/ik-e/dubakwi-ttareungi-support/pull/36#issuecomment-6677855026). Jira설정담당은R04로유지한다.
 
@@ -108,6 +110,7 @@ TC17/TC18 준비 인계는 P19 경로/게시, 동일 scope의 예외 사본/erro
 
 | 날짜 | 버전 | 변경 |
 | --- | --- | --- |
+| 2026-11-06 KST | v0.7 | Jira 직접 종료 설정 확인·정상 재시험279의 B17 반복 차단/실패 보존 기록 |
 | 2026-11-06 KST | v0.6 | 노출 시험키 교체·신구 인증/사용처 동기화 검증, R02 최신 종료 전환 차단 취합 |
 | 2026-11-06 KST | v0.5 | 토큰 입력/읽기 완료, #40 fc292314 재검사, R03 검토와 실제 검색259 연결 |
 | 2026-11-06 KST | v0.4 | #16 main 동기화와 동일 support 확인, #40 최신 수정·R01 재검사와 남은 검토 구분 |
