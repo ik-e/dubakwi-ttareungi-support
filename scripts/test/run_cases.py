@@ -179,6 +179,8 @@ def normalize(file_name, raw):
         "checks": list(x.get("checks", [])),
         "manual": list(x.get("manual", [])),
         "target_seconds": x.get("target_seconds"),
+        "category": x.get("category", "normal"),
+        "not_implemented": x.get("not_implemented"),
     }
 
 
@@ -511,6 +513,9 @@ def write_new(path, data):
 def run_unit(unit, ctx):
     """Send one unit (with its hooks). Returns (public entry, raw entry or None)."""
     head = {"id": unit["id"], "name": unit["name"], "file": unit["file"]}
+    head["category"] = unit["category"]
+    if unit["not_implemented"]:
+        return head | {"status": "not_implemented", "reason": unit["not_implemented"]}, None
     reason = blocked_reason(unit, ctx["opts"])
     if reason:
         return head | {"status": "blocked", "reason": reason}, None
@@ -643,6 +648,7 @@ def execute(args, base=ROOT, now=None):
                         "id": unit["id"],
                         "name": unit["name"],
                         "file": unit["file"],
+                        "category": unit["category"],
                         "status": "blocked",
                         "reason": halted,
                     }
@@ -659,9 +665,11 @@ def execute(args, base=ROOT, now=None):
                     )
                     break
 
-    counts = {}
+    counts, by_category = {}, {}
     for item in public_cases:
         counts[item["status"]] = counts.get(item["status"], 0) + 1
+        group = by_category.setdefault(item.get("category", "normal"), {})
+        group[item["status"]] = group.get(item["status"], 0) + 1
     summary = {
         "run_id": run_id,
         "executed_at": now.isoformat(timespec="seconds"),
@@ -686,8 +694,12 @@ def execute(args, base=ROOT, now=None):
         },
         "file_hooks": file_hooks,
         "counts": counts,
+        "counts_by_category": by_category,
         "meaning": "auto_pass_unverified = response checks passed but ticket/state/DLQ/alert/n8n "
         "or manual checks are still open; it is not a full pass",
+        "category_meaning": "normal = 정상 경로, failure_handling = 실패 시 안전 처리·재전송/후속 차단, "
+        "recovery = 실패 건의 복구 작업. not_implemented는 기능 미구현이며 fail·pass로 세지 않는다. "
+        "신규 문의 성공을 기존 실패 문의의 복구 성공으로 세지 않는다",
         "cases": public_cases,
     }
     if args.dry_run:

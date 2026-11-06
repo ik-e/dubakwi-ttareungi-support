@@ -30,7 +30,7 @@
       "body": {"request_id": "tc03", "user": "citizen-a", "question": "QR 대여 방법을 알려주세요.", "attempt": 1},
       "expect": {"status": 200, "equals": {"route": "자동 답변"}},
       "x_dubakwi": {
-        "id": "TC03a", "scenario": ["S7"], "functions": ["F02"], "producers": ["R04", "R02"],
+        "id": "TC03a", "category": "failure_handling", "scenario": ["S7"], "functions": ["F02"], "producers": ["R04", "R02"],
         "assert": [], "checks": [], "manual": [], "open_items": [], "run_status": "not_run"
       }
     },
@@ -39,7 +39,7 @@
       "body": {"request_id": "tc03", "user": "citizen-a", "question": "반납 방법을 알려주세요.", "attempt": 1},
       "expect": {"status": 409, "contains": {"codes": ["request_conflict"]}},
       "x_dubakwi": {
-        "id": "TC03b", "scenario": ["S7"], "functions": ["F02"], "producers": ["R04", "R02"],
+        "id": "TC03b", "category": "failure_handling", "scenario": ["S7"], "functions": ["F02"], "producers": ["R04", "R02"],
         "assert": [],
         "checks": ["LLM 실행 0", "first_request_id=tc03 티켓 변경 0"],
         "manual": ["TC03a 답변·case_ref를 노출하지 않음"],
@@ -52,7 +52,7 @@
       "body": {"request_id": "tc03", "user": "citizen-b", "question": "QR 대여 방법을 알려주세요.", "attempt": 1},
       "expect": {"status": 409, "contains": {"codes": ["request_conflict"]}, "not_contains": {"error": ["QR"]}},
       "x_dubakwi": {
-        "id": "TC03c", "scenario": ["S7"], "functions": ["F02"], "producers": ["R04", "R02"],
+        "id": "TC03c", "category": "failure_handling", "scenario": ["S7"], "functions": ["F02"], "producers": ["R04", "R02"],
         "assert": [{"path": "$", "op": "not_contains", "value": "QR"}],
         "checks": ["LLM 실행 0"],
         "manual": [], "open_items": [], "run_status": "not_run"

@@ -121,7 +121,7 @@
       "body": {"request_id": "wf04", "user": "citizen-a", "question": "어제 이용권이 두 번 결제됐어요. 한 건 환불해 주세요.", "attempt": 1},
       "expect": {"status": 200, "equals": {"route": "담당자 이관", "ticket": null}},
       "x_dubakwi": {
-        "id": "WF04", "scenario": ["S8"], "functions": ["F07", "F09"], "producers": ["R04", "R02"],
+        "id": "WF04", "category": "failure_handling", "scenario": ["S8"], "functions": ["F07", "F09"], "producers": ["R04", "R02"],
         "assert": [{"path": "reason", "op": "exists"}],
         "checks": ["DLQ 정확히 1건(GET /dlq)", "알림 정확히 1건(GET /alerts)", "생성 티켓 0건(GET /tickets-created)"],
         "manual": ["접수 완료라고 답하지 않음"],
@@ -189,7 +189,7 @@
       "body": {"request_id": "wf09", "user": "citizen-a", "question": "지난주 정기권이 두 번 결제됐어요. 한 건 환불 요청합니다.", "attempt": 1},
       "expect": {"status": 200, "equals": {"route": "담당자 이관"}},
       "x_dubakwi": {
-        "id": "WF09-1", "scenario": ["S7"], "functions": ["F02", "F07"], "producers": ["R04", "R02"],
+        "id": "WF09-1", "category": "failure_handling", "scenario": ["S7"], "functions": ["F02", "F07"], "producers": ["R04", "R02"],
         "assert": [{"path": "ticket.ticket_id", "op": "exists"}],
         "checks": [], "manual": [], "open_items": [], "run_status": "not_run"
       }
@@ -199,7 +199,7 @@
       "body": {"request_id": "wf09", "user": "citizen-a", "question": "지난주 정기권이 두 번 결제됐어요. 한 건 환불 요청합니다.", "attempt": 1},
       "expect": {"status": 200, "equals": {"route": "담당자 이관", "ticket.duplicate": true}},
       "x_dubakwi": {
-        "id": "WF09-2", "scenario": ["S7"], "functions": ["F02", "F07"], "producers": ["R04", "R02"],
+        "id": "WF09-2", "category": "failure_handling", "scenario": ["S7"], "functions": ["F02", "F07"], "producers": ["R04", "R02"],
         "assert": [
           {"path": "ticket.ticket_id", "op": "same_as", "value": {"case": "WF-09 중복 요청 1/2", "path": "ticket.ticket_id"}},
           {"path": "ticket.priority", "op": "same_as", "value": {"case": "WF-09 중복 요청 1/2", "path": "ticket.priority"}}
@@ -216,7 +216,7 @@
       "body": {"request_id": "wf10", "user": "citizen-a", "question": "QR이 안 읽혀요. 자전거번호로 대여하는 방법을 알려주세요.", "attempt": 1},
       "expect": {"status": 200, "equals": {"route": "담당자 이관"}},
       "x_dubakwi": {
-        "id": "WF10", "scenario": ["S8"], "functions": ["F05", "F09"], "producers": ["R02"],
+        "id": "WF10", "category": "failure_handling", "scenario": ["S8"], "functions": ["F05", "F09"], "producers": ["R02"],
         "manual_fault": {"before": "uv run tools/flow.py llm down", "after": "uv run tools/flow.py llm up"},
         "assert": [{"path": "reason", "op": "exists"}, {"path": "ticket", "op": "not_null"}],
         "checks": ["실행 기록 reason=llm_down"],
@@ -232,7 +232,7 @@
       "body": {"request_id": "wf11", "user": "citizen-a", "question": "제 문의 T-DEMO-01 처리 상태가 궁금해요.", "attempt": 1},
       "expect": {"status": 200, "equals": {"route": "담당자 이관"}, "max_seconds": 6},
       "x_dubakwi": {
-        "id": "WF11", "scenario": ["S8"], "functions": ["F06", "F09"], "producers": ["R04", "R02"],
+        "id": "WF11", "category": "failure_handling", "scenario": ["S8"], "functions": ["F06", "F09"], "producers": ["R04", "R02"],
         "assert": [{"path": "reason", "op": "exists"}],
         "checks": [],
         "manual": ["조회되지 않은 상태를 추측해 안내하지 않음"],

@@ -537,6 +537,27 @@ class RunnerTests(unittest.TestCase):
         failed = [g["id"] for g in case["global_checks"] if not g["passed"]]
         self.assertEqual((case["status"], failed), ("fail", ["G06"]))
 
+    def test_not_implemented_is_not_sent_and_counts_are_split_by_category(self):
+        self.write_cases(
+            self.simple("N"),
+            self.simple("F", category="failure_handling"),
+            self.simple("R", category="recovery", not_implemented="재개 기능 없음"),
+        )
+        summary, _ = self.run_tool()
+        by_id = {c["id"]: c for c in summary["cases"]}
+        self.assertEqual(by_id["R"]["status"], "not_implemented")
+        self.assertEqual(by_id["R"]["reason"], "재개 기능 없음")
+        self.assertEqual(len(self.webhook_calls()), 2)
+        self.assertEqual(
+            summary["counts_by_category"],
+            {
+                "normal": {"pass": 1},
+                "failure_handling": {"pass": 1},
+                "recovery": {"not_implemented": 1},
+            },
+        )
+        self.assertNotIn("fail", summary["counts"])
+
     def test_default_response_limit_is_25_seconds(self):
         self.write_cases(self.simple())
         summary, _ = self.run_tool()
@@ -664,6 +685,20 @@ class CaseFileTests(unittest.TestCase):
                 if "fault_on" in step:
                     self.assertIn("fault_off", step)
         self.assertEqual(len({self.load(s["request"])["request_id"] for s in sent}), len(sent))
+
+    def test_recovery_is_marked_not_implemented_and_tc18_splits_three_outcomes(self):
+        data = self.load("cases/team-extended.json")
+        by_id = {c["x_dubakwi"]["id"]: c["x_dubakwi"] for c in data["cases"]}
+        self.assertEqual(by_id["TC07"]["category"], "recovery")
+        self.assertIn("미구현", by_id["TC07"]["not_implemented"])
+        steps = by_id["TC18"]["steps"]
+        self.assertEqual(steps[0]["body"]["request_id"], steps[1]["body"]["request_id"])
+        self.assertEqual(steps[1]["expect"]["contains"]["codes"], ["request_requires_review"])
+        self.assertEqual(steps[2]["body"]["case_ref"], "{step1.case_ref}")
+        self.assertEqual(steps[2]["expect"]["contains"]["codes"], ["case_busy"])
+        self.assertNotIn("case_ref", steps[3]["body"])
+        self.assertEqual(steps[3]["expect"]["status"], 200)
+        self.assertIn("복구 성공이 아니다", by_id["TC18"]["judgment"]["new_inquiry_ok"])
 
     def test_wf01_eight_seconds_is_a_target_not_a_pass_limit(self):
         data = self.load("cases/common.json")

@@ -97,7 +97,7 @@
       "body": {"request_id": "tc05", "user": "citizen-a", "question": "자전거 체인이 빠져서 이동이 어려워요. 현장 조치를 요청합니다. 가상대여소A 근처예요.", "attempt": 1},
       "expect": {"status": 200, "equals": {"route": "담당자 이관"}},
       "x_dubakwi": {
-        "id": "TC05", "scenario": ["S8"], "functions": ["F07", "F09"], "producers": ["R04", "R02"],
+        "id": "TC05", "category": "failure_handling", "scenario": ["S8"], "functions": ["F07", "F09"], "producers": ["R04", "R02"],
         "requires": "R04 시험용 설정: 티켓 생성은 처리되지만 응답이 시간 초과로 유실",
         "assert": [{"path": "reason", "op": "exists"}],
         "checks": ["처리 상태 unknown, 생성 확인 전이면 jira_issue_id=null", "DLQ 1건 error_code=ticket_unknown·effects.created_or_reused=unknown·replay_status=pending", "운영 알림 1건", "새 key로 생성 재호출 0"],
@@ -112,7 +112,7 @@
       "body": {"request_id": "tc06", "user": "citizen-a", "question": "어제 정기권을 샀는데 앱에 이용권이 안 보여요. 결제는 됐어요.", "attempt": 1},
       "expect": {"status": 200, "equals": {"route": "담당자 이관"}},
       "x_dubakwi": {
-        "id": "TC06", "scenario": ["S8"], "functions": ["F07", "F08", "F09"], "producers": ["R04"],
+        "id": "TC06", "category": "failure_handling", "scenario": ["S8"], "functions": ["F07", "F08", "F09"], "producers": ["R04"],
         "requires": "R04 시험용 설정: 티켓 생성 직후 state bind만 실패",
         "assert": [{"path": "reason", "op": "exists"}],
         "checks": ["티켓 정확히 1건 생성", "DLQ 1건 state_error·생성 ID 보존·recovery에 bind 최소 인자", "bind 실패 뒤 종료·배정 호출 0·생성 재호출 0·state_saved=false", "운영 알림 1건"],
@@ -128,8 +128,10 @@
     {
       "name": "TC07 DLQ 수동 재처리",
       "x_dubakwi": {
-        "id": "TC07", "scenario": ["S8"], "functions": ["F09"], "producers": ["R04"],
+        "id": "TC07", "category": "recovery", "scenario": ["S8"], "functions": ["F09"], "producers": ["R04"],
+        "not_implemented": "원 요청 재개(재처리) 기능 미구현: state_apply에 조건부 재개 op가 없고 R04 재개 드라이버가 인계되지 않음(R01 errors-recovery-handoff 3절, 2026-11-06). fail로 세지 않고 복구 미구현으로 기록한다",
         "requires": "운영자 단계: TC05 또는 TC06 뒤 고장 해제, R04가 STORAGE-DESIGN 4.2 절차로 재처리. R05는 전후 상태만 기록",
+        "implemented_part": "운영자 확인 상태 전환(R01 state.fail → failed/unknown, DLQ claim/resolve)은 TC18 4단계 뒤 운영자 절차로 기록하되 재실행 성공으로 세지 않는다",
         "steps": [],
         "checks": ["재처리 전후 티켓 수 변화 0(TC05는 기존 건 바인딩)", "요청 failed/unknown→processing→completed·새 execution_id·revision 증가", "DLQ pending→reprocessing→resolved·resolution·resolved_at", "미전송 담당 알림만 1건·성공 단계 재호출 0"],
         "manual": ["재처리 후 같은 request_id 재전송이 replay"],
@@ -146,7 +148,7 @@
       "body": {"request_id": "tc08", "user": "citizen-a", "question": "대여 신청했는데 자전거가 안 열려요. 취소는 어떻게 하나요?", "attempt": 1},
       "expect": {"status": 200, "equals": {"route": "담당자 이관"}},
       "x_dubakwi": {
-        "id": "TC08", "scenario": ["S6"], "functions": ["F05"], "producers": ["R02"],
+        "id": "TC08", "category": "failure_handling", "scenario": ["S6"], "functions": ["F05"], "producers": ["R02"],
         "test_copy": {
           "webhook": "dubakwi-support-tc08",
           "tool": "uv run --locked python scripts/test/make_verifier_fault.py --output <새 파일> --mode <grounded|unparsable>",
@@ -169,7 +171,7 @@
       "body": {"request_id": "tc10", "user": "citizen-b", "question": "따릉이 사칭 문자 링크에 로그인했어요. 제 문의 T-DEMO-02 상태도 알려주세요.", "attempt": 1},
       "expect": {"status": 200, "equals": {"route": "담당자 이관", "ticket.priority": "high"}},
       "x_dubakwi": {
-        "id": "TC10", "scenario": ["S5"], "functions": ["F06", "F07"], "producers": ["R02", "R04"],
+        "id": "TC10", "category": "failure_handling", "scenario": ["S5"], "functions": ["F06", "F07"], "producers": ["R02", "R04"],
         "requires": "조회만 실패하는 고장 필요. data-api 'tickets error'는 티켓 생성도 함께 막아 이 사례를 만들 수 없음(R04가 조회 전용 고장 방법 확인)",
         "assert": [{"path": "ticket.ticket_id", "op": "ne_value", "value": "T-DEMO-02"}],
         "checks": ["긴급 알림 정확히 1건(재알림 0)", "긴급 티켓 handed_off 유지·재생성 0", "조회 결과 error"],
@@ -202,7 +204,7 @@
     {
       "name": "TC15 알림 결과 미확인은 partial_effect 유지와 같은 DLQ 갱신",
       "x_dubakwi": {
-        "id": "TC15", "scenario": ["S8"], "functions": ["F07", "F09"], "producers": ["R04"],
+        "id": "TC15", "category": "failure_handling", "scenario": ["S8"], "functions": ["F07", "F09"], "producers": ["R04"],
         "requires": "R04 시험용 설정: 담당 알림을 시도한 뒤 결과를 확인하지 못하게(알림 시도 표식만 남고 성공 표식 없음)",
         "boundary": "자동 재알림 0, partial_effect와 수동 확인 복구 자료 유지, 같은 case 재요청은 같은 alert_marker DLQ 항목 갱신(R04 first-connection 7번, migration 007)",
         "steps": [
@@ -226,7 +228,7 @@
       "body": {"request_id": "tc16", "user": "citizen-a", "question": "어제 정기권을 샀는데 앱에 이용권이 안 보여요. 결제는 됐어요.", "attempt": 1},
       "expect": {"status": 200, "equals": {"route": "담당자 이관"}},
       "x_dubakwi": {
-        "id": "TC16", "scenario": ["S8"], "functions": ["F08", "F09"], "producers": ["R04", "R02"],
+        "id": "TC16", "category": "failure_handling", "scenario": ["S8"], "functions": ["F08", "F09"], "producers": ["R04", "R02"],
         "requires": "R04/R01 시험용 설정: 같은 DB 장애로 state 저장과 DLQ 기록이 모두 실패(시험 DB·시험 scope 한정, 운영 DB 변경 금지)",
         "boundary": "두 저장이 모두 실패하면 n8n 실행 기록·운영 알림에 남기고 접수 성공을 약속하지 않는다(STORAGE-DESIGN). 별도 저장소로 감추지 않는다",
         "assert": [{"path": "reason", "op": "exists"}],
@@ -244,7 +246,7 @@
     {
       "name": "TC17 예상 밖 오류 뒤 같은 요청 재전송은 수동 확인 필요",
       "x_dubakwi": {
-        "id": "TC17", "scenario": ["S8"], "functions": ["F02", "F09"], "producers": ["R04", "R02"],
+        "id": "TC17", "category": "failure_handling", "scenario": ["S8"], "functions": ["F02", "F09"], "producers": ["R04", "R02"],
         "requires": "시험 사본 준비: support 시험 사본에 의도적 Code 예외 1회 주입, dubakwi-errors를 Error Workflow로 지정, support·errors를 같은 --scope로 렌더링(R01, WORKFLOW-DESIGN 오류 흐름 연결 조건). 운영 게시본은 바꾸지 않는다",
         "boundary": "errors(E05)가 같은 scope·원 execution_id로 소유 행을 찾아 unknown으로 바꾸면 재전송은 409 request_requires_review(R04 86d78e7·8c53cf7)",
         "steps": [
@@ -265,6 +267,43 @@
         ],
         "notes": ["step1과 step2 사이에 errors 실행이 끝났는지 n8n Executions에서 확인한 뒤 step2를 보낸다", "두 단계가 같은 request_id를 써서 실행 도구가 같은 ID(실행묶음 접두)를 보낸다"],
         "open_items": ["예외 주입 사본 만드는 방법(R02/R04, TC08 사본과 같은 방식인지)", "step1 오류 응답의 HTTP 상태·본문 계약", "processing으로 남은 시험 행 해제 절차(TC17-v1 뒤 정리)"],
+        "run_status": "not_run"
+      }
+    },
+    {
+      "name": "TC18 실패한 문의의 재전송·후속 차단과 별도 신규 문의 정상 처리",
+      "x_dubakwi": {
+        "id": "TC18", "category": "failure_handling", "scenario": ["S7", "S8"], "functions": ["F02", "F07", "F09"], "producers": ["R04", "R02"],
+        "requires": "R04 시험용 설정: Jira 종료(H08)만 실패하게(TC06-v2와 같은 고장). step1 뒤에는 고장을 해제한다",
+        "boundary": "R01 요청(2026-11-06): ① 실패 요청 재전송 차단 ② 같은 문의 후속 차단 ③ 별도 신규 문의 정상 처리를 나눠 판정한다. ③의 성공은 ①·②의 실패 문의 복구로 세지 않는다",
+        "steps": [
+          {"step": 1,
+           "body": {"request_id": "tc18-fail", "user": "citizen-a", "question": "QR이 안 읽혀요. 자전거번호로 대여하는 방법을 알려주세요.", "attempt": 1},
+           "expect": {"status": 200, "equals": {"route": "담당자 이관", "reason": "partial_effect"}},
+           "assert": [{"path": "ticket.ticket_id", "op": "exists"}, {"path": "case_ref", "op": "exists"}]},
+          {"step": 2,
+           "body": {"request_id": "tc18-fail", "user": "citizen-a", "question": "QR이 안 읽혀요. 자전거번호로 대여하는 방법을 알려주세요.", "attempt": 1},
+           "expect": {"status": 409, "contains": {"codes": ["request_requires_review"]}, "not_contains": {"error": ["접수되었", "접수 완료", "처리 완료", "복구되었"]}},
+           "assert": []},
+          {"step": 3,
+           "body": {"request_id": "tc18-follow", "user": "citizen-a", "question": "자전거 번호는 12345예요. 이어서 확인해 주세요.", "case_ref": "{step1.case_ref}", "attempt": 2},
+           "expect": {"status": 409, "contains": {"codes": ["case_busy"]}, "not_contains": {"error": ["접수되었", "접수 완료", "처리 완료", "복구되었"]}},
+           "assert": []},
+          {"step": 4,
+           "body": {"request_id": "tc18-new", "user": "citizen-a", "question": "QR이 안 읽혀요. 자전거번호로 대여하는 방법을 알려주세요.", "attempt": 1},
+           "expect": {"status": 200, "equals": {"route": "자동 답변", "ticket": null}},
+           "assert": [{"path": "case_ref", "op": "exists"}]}
+        ],
+        "judgment": {
+          "resend_blocked": "step2: 같은 request_id 재전송이 409 request_requires_review, LLM·Jira·상태 쓰기 0",
+          "follow_up_blocked": "step3: 같은 case_ref 새 요청이 409 case_busy, 기존 문의 Jira·상태 변경 0",
+          "new_inquiry_ok": "step4: case_ref 없는 새 문의가 새 case_id로 정상 처리(S1과 같은 효과). 이 결과는 정상 경로로만 기록하며 step1 문의의 복구 성공이 아니다",
+          "failed_case_after": "step4 뒤에도 step1 문의는 unknown·DLQ pending 그대로(자동 해제·재실행 0)"
+        },
+        "checks": ["step1 처리 상태 unknown, DLQ recovery(close, jira_ref) 1건", "step2·step3에서 LLM·Jira·상태 쓰기 0", "step4 새 Jira 이슈 1건 생성·안내 종료, step1 이슈 변경 0", "step4 뒤 step1 행이 unknown 유지·DLQ pending 유지"],
+        "manual": ["step2·step3 안내가 처리·복구를 약속하지 않음", "step4 응답이 이전 실패 문의를 언급하거나 이어 붙이지 않음", "step4 case_ref가 step1 case_ref와 다름(raw.json에서 확인)"],
+        "notes": ["실행 도구의 판정 칸은 '{stepN.path}'를 대입하지 않아 'step1과 다름'을 자동 판정하지 못한다. 수동 확인으로 둔다"],
+        "open_items": ["Jira 종료만 실패시키는 고장 주입 방법(R04)", "case_busy 문구 계약(R04 S05)"],
         "run_status": "not_run"
       }
     }
