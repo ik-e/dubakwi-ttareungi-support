@@ -749,3 +749,8 @@ P19 Discord 실제 기동: [main37ec341 이미지·Gateway 연결·미등록 거
 ### P12/P19 Jira 수명주기 완성도 대조 — 2026-11-06 KST
 
 상태: 전체완료판정불가·소유자수정/실측필요. [R01정적/증거대조](../infra/jira-lifecycle-review.md)에서대표생성/안내종료·support이관/저장성공은확인했지만 J01실제접수조회원본연결(H04→APIrecords파일), J02case_begin waiting_info고정과TC14후속분기, J03빈facts반환에따른기존Jira사실복원누락가능성을확인했다. 코드경로확인과VM결함재현을구분하고R04/R02대조·R05본인/타인/후속/내용누적시험을요청한다. 이번VM/Jira/DB변경·신규문의실행은없다.
+
+
+### P12/P19/P28 설계·구현 대조표 작성 — 2026-11-06 KST
+
+상태: 요구64개 정적/기존증거 매핑완료·전체구현/시험완료아님. [대조표](../infra/design-implementation-mapping.md)는채널8/본체9/Jira15/저장10/RAG8/장애8/운영6의설계절·구현노드/파일·main/VM구분·대표/응답/미판정증거·부족점·담당·완료조건을연결했다. J01실제조회/J02이관후상태/J03사실복원과각검증경계를S1~S8/WF/TC에연결하고[기준해시](../runs/public/20261106-230838-local-design-mapping/summary.json)를보존했다. 원래설계/기대값을변경하지않고이번VM/워크플로우/Jira/DB변경·새업무실행은없다.
