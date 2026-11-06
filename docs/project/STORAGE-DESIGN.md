@@ -294,8 +294,8 @@ support는 state 응답의 `error` 문장을 그대로 전달하므로 dubakwi-s
 
 | code | 언제 | 시민 문구 |
 | --- | --- | --- |
-| request_in_progress | 요청이 processing으로 남은 경우(오류 워크플로우의 fail이 소유 행을 찾지 못해 skipped가 된 경우 포함) | 같은 요청을 처리하고 있습니다. 잠시 뒤 결과를 확인하거나 새 문의로 다시 보내 주세요. |
-| request_requires_review | support가 직접 fail로 failed·unknown을 남긴 경우(예: Jira 종료 실패) | 이 요청은 처리 중 문제가 있어 자동으로 다시 처리하지 않습니다. 새 문의로 다시 보내 주세요. |
+| request_in_progress | 요청이 processing으로 남은 경우: 오류 워크플로우의 fail이 소유 행을 찾지 못해 skipped가 된 경우(원 실행 ID나 scope가 맞지 않거나 begin 전 중단) | 같은 요청을 처리하고 있습니다. 같은 요청은 자동으로 다시 실행하지 않습니다. |
+| request_requires_review | support가 직접 fail로 failed·unknown을 남긴 경우(예: Jira 종료 실패), 또는 errors가 원 실행 ID·같은 scope로 소유 행을 찾아 unknown으로 바꾼 경우(임시 PostgreSQL에서 R02 확인). 이 경로는 support와 errors의 scope가 같을 때만 동작한다 | 처리 결과 확인이 필요하며, 같은 요청은 자동으로 다시 실행하지 않습니다. |
 | request_conflict | 같은 request_id에 다른 내용·소유자가 온 경우 | 같은 요청 번호로 다른 내용이 들어왔습니다. 새 문의로 다시 보내 주세요. |
 
 processing으로 오래 남은 요청의 해제는 운영자가 한다. n8n Executions에서 원 실행이 끝났는지와 Jira 효과(known ID)를 먼저 확인하고, 끝났으면 state의 fail 명령(서버가 scope·원 execution_id로 소유 행을 찾는 운영 경로)으로 failed 또는 unknown과 error_code를 남긴 뒤 DLQ의 claim·resolve로 복구한다. 원 실행이 진행 중이면 해제하지 않고, 서비스 DB 행을 직접 수정하거나 삭제하지 않는다.
