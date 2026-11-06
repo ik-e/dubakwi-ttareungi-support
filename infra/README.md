@@ -1,6 +1,6 @@
 # Docker Compose 배포와 운영
 
-P19 실제 S1의 최신 고정 버전·scope·비활성 후보와 역할 검토/적용 조건은 [R01 S1 준비](p19-s1-readiness.md)를 따른다. 준비본의 생성·문서 검사 통과는 main 병합이나 실제 서비스 게시를 뜻하지 않는다.
+Discord부터 Jira·DB·비공개 응답까지의 전체 연동 목표와 R01 실행 인계는 [전체 연동 관리](p19-s1-readiness.md)·[PR #36](https://github.com/ik-e/dubakwi-ttareungi-support/pull/36)에서 확인한다. 조회한 후보·확정 배포 버전·실제 실행 성공을 구분하며, 공식 진행 상태는 개발 원장·업무 계약은 각 설계서를 따른다.
 
 Docker Compose 채택: 2026-11-03 사용자 결정. 편집·배포 R01, 저장/영속성 검토 R04, 흐름 연결 R02/R03, VM 검증 R05. 책임 원본은 [팀 헌장](../docs/project/TEAM-CHARTER.md), 절차 규칙은 [AGENTS](../AGENTS.md)다.
 

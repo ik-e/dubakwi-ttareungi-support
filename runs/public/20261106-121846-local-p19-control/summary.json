@@ -1,0 +1,51 @@
+{
+  "executed_at": "2026-11-06 12:18 KST",
+  "environment": "local documentation and GitHub PR coordination; no VM execution",
+  "work": "P19 single integration management PR36",
+  "main_baseline": "221d9587ab06fd3e8440ab41c648e7e6136d35d6",
+  "observed_candidates": {
+    "support": "c5ed5fac94aa7abe931474e590126731b0efab36",
+    "r04": "a930e24e268c77499eb3251d21f0f1b01f79fb2d",
+    "errors": "8c53cf7550c0374c3700693ca12130c3fa02d8e8",
+    "rag": "068f73b2bda555964779a32f982ac349d84f2e9a",
+    "discord": "0526d30a11daae647b2b48e94eb25b8b1485478a",
+    "runner": "d01dd086d87f0ea426eacce65fe21ee626176d4b"
+  },
+  "deployment_versions": "not frozen by this documentation change; candidates are not deployment approval",
+  "changes": [
+    "PR36 integration objective and staged completion criteria",
+    "R01 environment/version/deployment handoff G0-G5",
+    "Parallel role tasks and human/AI collaboration guidance",
+    "Historical v0.1 retained with explicit obsolete-status boundary",
+    "Existing detailed PR/ledger/spec links retained; no forced rewrite"
+  ],
+  "validation": {
+    "status": "passed",
+    "project_documents": {
+      "files": 20,
+      "local_links": 463,
+      "anchor_links": 51,
+      "errors": 0
+    },
+    "public_candidates": {
+      "files": 179,
+      "links": 563,
+      "errors": 0
+    },
+    "diff_check": "passed after removing an extra trailing blank line",
+    "runtime_tests": "not run; documentation and PR-management change only",
+    "specialist_secret_tools": "tscan/Gitleaks unavailable; candidate checks and limited changed-file pattern scan used"
+  },
+  "not_executed": [
+    "VM publication or database migrations",
+    "Credential/permission changes",
+    "Jira business writes or Discord messages",
+    "Normal full S1 or Discord end-to-end",
+    "Failure/authorization/performance/recovery verdict"
+  ],
+  "limitations": [
+    "No redundant service/unit rerun for documentation-only changes",
+    "tscan/Gitleaks availability to be checked; candidate scan is only partial",
+    "Original Discord message links/timestamps not provided; source is user instruction in this chat"
+  ]
+}
