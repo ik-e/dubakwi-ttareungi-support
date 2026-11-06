@@ -2,9 +2,13 @@
 
 전체 구성·상태·시나리오에서 RAG의 위치는 [최상위 시스템 설계서](SYSTEM-DESIGN.md)를 참조한다. 검색·색인 내부 상세의 원본은 이 문서다.
 
-**2026-11-05 템플릿 작성본:** [두바퀴 RAG 아키텍처 설계서](../rag-knowledge/rag-architecture-template.md)에 현재 로컬 실측과 구현·미구현을 정리했다. 아래 과거 기록의 미측정 표와 달라지는 값은 최신 작성본을 확인한다.
+**문서 관계:** 이 문서가 RAG 지식·청킹·임베딩·색인·검색 및 운영 설계의 공식 원본이다. [제출용 5절 요약](../rag-knowledge/rag-architecture.md)은 이 문서와 측정 증거를 바탕으로 정리한 시점별 설명 자료이며 별도의 계약 원본이 아니다. 설계가 변경되면 이 문서를 먼저 갱신하고 제출용 요약을 동기화한다. 아래 과거 버전과 측정 이력은 당시 상태로 보존한다.
 
-**사용자 결정:** 향후 팀 VM의 Docker 기반 PostgreSQL에 RAG 데이터를 저장한다. pgvector 검색과 3,072차원 인덱스 호환성, 권한·백업·R04 상태 저장과의 경계는 [템플릿 작성본](../rag-knowledge/rag-architecture-template.md#postgresql-전환-시-확인할-설계)에 정리했으며 실제 배포·연동은 아직 미완료다.
+**사용자 결정:** 향후 팀 VM의 Docker 기반 PostgreSQL에 RAG 데이터를 저장한다. pgvector 검색과 3,072차원 인덱스 호환성, 권한·백업·R04 상태 저장과의 경계는 [제출용 요약](../rag-knowledge/rag-architecture.md#postgresql-전환-시-확인할-설계)에도 설명하며 실제 벡터 배포·연동은 아직 미완료다.
+
+**2026-11-06 현행 검증 요약:** R05의 [실행 305 정상 1건 판정](https://github.com/ik-e/dubakwi-ttareungi-support/blob/r05/p19-s1-verdict/runs/public/20261106-162030-vm-p19-s1-r05-verdict/report.md)은 public 검색 결과 5건, 기대 QR 절 2위, 답변 4문장의 근거 일치를 기록했다. R05가 n8n 화면을 확인했으며 Discord 화면·DB·Jira 독립 조회는 R01 보고에 의존했다. 정상 1건은 권한 전반·장애·복구 통과가 아니다. 시민 답변에 내부 출처 설명이 섞인 F-S1-03은 [PR #31](https://github.com/ik-e/dubakwi-ttareungi-support/pull/31)의 변경본 적용·재색인 및 최종 답변 재시험 전까지 미해결이다. R05는 실행 305의 시작 시각 기록 불일치도 보고했으며 R01 확인이 필요하다.
+
+**청킹 비교 보완:** [직접 임베딩 비교](https://github.com/ik-e/dubakwi-ttareungi-support/blob/codex/rag-presentation-permission-tests/runs/public/20261105-120437-chunk-retrieval-comparison/summary.json)는 공개 질문 13개에서 절·문단 방식과 절 전체 방식 모두 기대 문서·절 hit@3 각각 13/13을 기록했다. 절 전체 방식은 3개 절에서 실제·가상 정보가 섞여 그대로 적용하지 않았다. 이는 n8n 종단·답변 품질·R05 공식 판정이 아니며 아래 이전 표는 당시 측정 이력이다.
 
 - 작성: 2026-11-03 KST / 버전·상태: **v0.10 교육용 로컬 측정·VM 수동 색인과 검색 부분 시험 반영** / 책임: R03, 검토: R02·R04·R05.
 - v0.10 변경: R01이 팀장 PR 정리 지시에 따라 VM 실행9의 원본 Manual44청크·ready·실제 HTTP7메서드와 후속 B14 연결 증거를 동기화했다. [현행 VM 인계](../rag-knowledge/r03-vm-index-handoff.md)를 따르며 아래 로컬 이력은 보존한다. VM 재시작/재색인·실제 사용자 인가·공식 판정은 여전히 미완료다. 지식 승인·검색 로직·공개 계약은 바꾸지 않았다.
