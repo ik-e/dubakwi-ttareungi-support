@@ -104,4 +104,4 @@
 - 로컬44개 전처리 결과와 VM 원본 Manual의44개 삽입 성공을 구분해 말한다. 전체 저장 벡터 덤프·비용·재시작 복구까지 확인한 것으로 확대하지 않는다.
 - 13/13은 선택된 교육용 질문의 기대 문서·절 포함 수다. 전체 공식 사례 통과나 서비스 정확도로 표현하지 않는다.
 - 3,072차원은 로컬 벡터 한 개의 실측이다. PostgreSQL+pgvector는 향후 계획이며 VM 동작을 증명하지 않는다.
-- 상세 수치와 출처·한계는 [템플릿 기반 설계서](rag-architecture-template.md)와 [RAG 상세 설계](../project/RAG-ARCHITECTURE.md)를 참조한다.
+- 상세 수치와 출처·한계는 [템플릿 기반 설계서](rag-architecture.md)와 [RAG 상세 설계](../project/RAG-ARCHITECTURE.md)를 참조한다.
