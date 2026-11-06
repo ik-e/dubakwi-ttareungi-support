@@ -52,6 +52,35 @@ def build_support_request(
     )
 
 
+GENERIC_FAILURE_MESSAGE = (
+    "현재 문의를 처리할 수 없습니다. 잠시 후 다시 시도해 주세요. 계속되면 담당자에게 문의해 주세요."
+)
+
+_CODE_MESSAGES = {
+    "request_in_progress": (
+        "같은 요청을 처리하고 있습니다. 같은 요청은 자동으로 다시 실행하지 않습니다."
+    ),
+    "request_requires_review": (
+        "처리 결과 확인이 필요하며, 같은 요청은 자동으로 다시 실행하지 않습니다."
+    ),
+    "request_conflict": ("같은 요청 번호로 다른 내용이 들어왔습니다. 새 문의로 다시 보내 주세요."),
+    "case_busy": (
+        "같은 문의의 이전 요청이 처리 중이거나 확인 중입니다. 잠시 후 다시 시도해 주세요. "
+        "계속되면 새 문의로 보내 주세요"
+        "(새 문의는 별도 티켓이 생기고 보완 횟수가 처음부터 시작됩니다)."
+    ),
+}
+
+
+def failure_message(codes: object) -> str:
+    """Map support error codes to a private notice; unknown codes get the generic one."""
+    if isinstance(codes, list):
+        for code in codes:
+            if isinstance(code, str) and code in _CODE_MESSAGES:
+                return _CODE_MESSAGES[code]
+    return GENERIC_FAILURE_MESSAGE
+
+
 def render_private_response(payload: Any) -> str:
     if not isinstance(payload, dict):
         raise ContractError("응답 형식이 올바르지 않습니다.")

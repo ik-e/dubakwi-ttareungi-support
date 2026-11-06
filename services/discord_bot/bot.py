@@ -16,6 +16,7 @@ from discord import app_commands
 from services.discord_bot.adapter import (
     ContractError,
     build_support_request,
+    failure_message,
     render_private_response,
 )
 
@@ -73,6 +74,26 @@ class Settings:
         )
 
 
+class SupportError(RuntimeError):
+    """HTTP error from support; carries only status and codes, never the body."""
+
+    def __init__(self, status: int, codes: list[str]) -> None:
+        super().__init__(f"support webhook returned HTTP {status}")
+        self.status = status
+        self.codes = codes
+
+
+def _read_codes(error: urllib.error.HTTPError) -> list[str]:
+    try:
+        body = json.loads(error.read().decode("utf-8"))
+    except (OSError, ValueError):
+        return []
+    codes = body.get("codes") if isinstance(body, dict) else None
+    if not isinstance(codes, list):
+        return []
+    return [code for code in codes if isinstance(code, str)]
+
+
 def _post_support(settings: Settings, body: dict[str, str]) -> dict[str, object]:
     request = urllib.request.Request(
         settings.support_webhook_url,
@@ -83,6 +104,8 @@ def _post_support(settings: Settings, body: dict[str, str]) -> dict[str, object]
     try:
         with urllib.request.urlopen(request, timeout=settings.timeout_seconds) as response:
             result = json.loads(response.read().decode("utf-8"))
+    except urllib.error.HTTPError as exc:
+        raise SupportError(exc.code, _read_codes(exc)) from exc
     except (urllib.error.URLError, TimeoutError, json.JSONDecodeError) as exc:
         raise RuntimeError("support webhook failed") from exc
     if not isinstance(result, dict):
@@ -133,11 +156,17 @@ def create_bot(settings: Settings) -> DubakwiBot:
         try:
             payload = await asyncio.to_thread(_post_support, settings, request.as_dict())
             message = render_private_response(payload)
-        except (RuntimeError, ContractError):
-            LOGGER.exception("Discord support request failed request_id=%s", request.request_id)
-            message = (
-                "현재 문의를 처리할 수 없습니다. 잠시 후 같은 문의 연결값으로 다시 시도해 주세요."
+        except SupportError as exc:
+            LOGGER.warning(
+                "Discord support request failed request_id=%s status=%s codes=%s",
+                request.request_id,
+                exc.status,
+                ",".join(exc.codes),
             )
+            message = failure_message(exc.codes)
+        except (RuntimeError, ContractError):
+            LOGGER.warning("Discord support request failed request_id=%s", request.request_id)
+            message = failure_message(None)
         await interaction.followup.send(message, ephemeral=True)
 
     return bot
