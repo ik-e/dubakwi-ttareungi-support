@@ -1,6 +1,6 @@
 # P19 전체 연동 관리와 R01 실행 계획
 
-- 버전: v0.3 / 2026-11-06 KST / R01 / DB·전체 시험 사본 게시 완료, 정상 Webhook·Discord 실행 전.
+- 버전: v0.4 / 2026-11-06 KST / R01 / DB·전체 시험 사본 게시 완료, 첫 정상 Webhook 목표 미통과·Discord 기동 전.
 - 단일 관리 창구: [PR #36](https://github.com/ik-e/dubakwi-ttareungi-support/pull/36). 기능 구현·검토는 기존 PR에서 유지한다.
 - 진행 상태의 원본은 [개발 원장](../docs/DEVELOPMENT-PLAN.md), 책임은 [팀 헌장](../docs/project/TEAM-CHARTER.md), 계약은 [워크플로우 설계](../docs/project/WORKFLOW-DESIGN.md)·[저장소 설계](../docs/project/STORAGE-DESIGN.md)다. 이 문서는 새 업무 계약을 정의하지 않는다.
 - 현재 한정 시험 적용본은 support c5ed5fa와 main c6dd178의 하위 기능(a930e24/8c53cf7 업무 파일)이다. [게시 증거](../runs/public/20261106-124323-vm-p19-published/report.md)를 기준으로 하며 정상 업무·Discord 성공이나 #16 정식 병합을 뜻하지 않는다. 과거 준비 증거는 당시 기록으로 보존한다.
@@ -18,11 +18,11 @@
 | 구성 | 적용본 또는 조회 후보 | 확인 상태와 후속 |
 | --- | --- | --- |
 | main 기준 | c6dd178 (#27 6849421 → #28 c6dd178) | 병합 완료, SQL005~007 적용·검증 |
-| support | [#16](https://github.com/ik-e/dubakwi-ttareungi-support/pull/16) c5ed5fa | 별도 정상 시험 사본 게시·인증 확인. #16 main 동기화/정식 병합·정상 실행은 별도 |
+| support | [#16](https://github.com/ik-e/dubakwi-ttareungi-support/pull/16) c5ed5fa | 별도 정상 시험 사본 게시·인증 확인. #16 66d5c3d는 main 반영 완료·support JSON 동일 확인; 정식 병합·정상 실행은 별도 |
 | state/DLQ/handoff | main c6dd178, a930e24와 업무 파일 동일 | 별도20/6/48노드 게시. H01 내부 인증은 환경 연결로 보완, 기본값 정규화/게시 해시는 비공개 manifest |
 | errors | main c6dd178, 8c53cf7과 동일 | 8노드 게시·state/DLQ 대상 연결, 실제 E02 scope 검사254 성공 |
 | RAG | [#31](https://github.com/ik-e/dubakwi-ttareungi-support/pull/31) 068f73b | R03가 정상 질문·근거·VM 색인 버전 확인 |
-| Discord | r04/p18-discord-adapter 0526d30 | 사용자 매핑·공식 응답 변환·오류/긴 답변·배포 입력 |
+| Discord | [#40](https://github.com/ik-e/dubakwi-ttareungi-support/pull/40) 6cda17d | 등록 매핑·sources 표시·재접수 유도 제거·문서 정정 확인. R01 어댑터20/20·Ruff 통과. R02 기존 계약 확인 수령, R05 변경분 검토·main 병합·실제 기동은 별도 |
 | 시험 도구·사례 | r05/p07-r04-contract-cases d01dd08 | ready/pause 절차와 실제 시험 사본 경로 |
 
 R01이 필요한 영향 검토를 기존 회신에서 취합하고, 배포할 각 구성의 정확한 커밋·JSON 해시·설정 버전·이미지 태그/다이제스트를 비공개 manifest에 고정한다. 변경분만 추가 확인하며 같은 설명을 재작성하도록 요구하지 않는다. 공용 환경 배포는 AGENTS의 검토된 main 기준을 따른다. 사전 시험 사본은 이미 합의한 한정 범위·환경에서만 사용한다.
@@ -86,6 +86,8 @@ TC17/TC18 준비 인계는 P19 경로/게시, 동일 scope의 예외 사본/erro
 
 ## 7 현재 증거와 관리 경계
 
+- 2026-11-06 첫 실제 정상 문의257은 검색259의public근거5건/기대절2위를 확인했지만 B17 남은14941ms<요구15500ms로 이관했다. 담당매핑 부재로 Jira생성 후partial_effect, DB unknown·DLQ pending이다. 재호출 없이 known참조를 보존했다. [최초 실패 증거](../runs/public/20261106-142002-mixed-p19-first-run/report.md). G3 정상 성공·G4/G5는미완료다. 봇환경파일0600·팀키일치는확인했고토큰은미입력이다.
+
 - **최신: 2026-11-06 R01 적용 완료.** #27/#28 병합 뒤 main c6dd178에서 백업·005→006→007·runtime 권한/함수·기존5요청/1DLQ 해시불변을 확인했다. 별도state20/DLQ6/errors8/handoff48/support54를 게시하고 실제scope254성공, 빈입력255/256의무인증403/인증400·외부HTTPS403을확인했다. 정상질문·LLM/검색/Jira업무연결은아직실행하지않았다. 키/주소/게시manifest/조회방법은VM비공개인계에준비했다. [적용 결과](../runs/public/20261106-124323-vm-p19-published/report.md). 이전준비보고의SQL007인덱스표현은정정하며007은DLQ함수교체로검증한다. 아래NOT READY기록은적용전관측으로보존한다.
 
 - 2026-11-06 정상 Webhook 우선 준비: `c5ed5fa/a930e24/8c53cf7`의 support/errors 후보·manifest·LF 파일 해시·의존 원본 해시와 같은 scope 검사를 완료했다. support136/136, support unittest76통과/HTTP7생략, R04 unittest81통과/HTTP7생략이다. VM 서비스에는 case_lookup/case_begin·SQL007 인덱스가 없고 기존 사본은11/5/9/7노드, 목표 support 경로는없다. 생성기는state/DLQ/handoff를만들지않으므로support만게시하지않았다. G0~G2는여전히미완료이며비공개인계는NOT READY로표시했다. [새 준비 결과](../runs/public/20261106-123349-mixed-p19-normal-prep/report.md)를 따른다.
@@ -101,6 +103,7 @@ TC17/TC18 준비 인계는 P19 경로/게시, 동일 scope의 예외 사본/erro
 
 | 날짜 | 버전 | 변경 |
 | --- | --- | --- |
+| 2026-11-06 KST | v0.4 | #16 main 동기화와 동일 support 확인, #40 최신 수정·R01 재검사와 남은 검토 구분 |
 | 2026-11-06 KST | v0.3 | #27/#28 병합·DB005~007·전체 시험 사본 게시·인증/scope 확인, R02 정상1건 인계 준비 |
 | 2026-11-06 KST | v0.2 | PR36을 전체 연동 관리로 확대, 후보/배포 구분·R01 실행 인계·역할 분담·종료 조건·실패/원복과 팀 전달 정리 |
 | 2026-11-06 KST | v0.1 | 고정 scope 비활성 S1 후보·환경 대조 준비 |
