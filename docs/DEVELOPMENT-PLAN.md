@@ -754,3 +754,8 @@ P19 Discord 실제 기동: [main37ec341 이미지·Gateway 연결·미등록 거
 ### P12/P19/P28 설계·구현 대조표 작성 — 2026-11-06 KST
 
 상태: 요구64개 정적/기존증거 매핑완료·전체구현/시험완료아님. [대조표](../infra/design-implementation-mapping.md)는채널8/본체9/Jira15/저장10/RAG8/장애8/운영6의설계절·구현노드/파일·main/VM구분·대표/응답/미판정증거·부족점·담당·완료조건을연결했다. J01실제조회/J02이관후상태/J03사실복원과각검증경계를S1~S8/WF/TC에연결하고[기준해시](../runs/public/20261106-230838-local-design-mapping/summary.json)를보존했다. 원래설계/기대값을변경하지않고이번VM/워크플로우/Jira/DB변경·새업무실행은없다.
+
+
+### P09/P12/P19/P28 병렬 작업 공통 기준 v1 — 2026-11-06 KST
+
+상태: R01사용자지시의상태/조회/문맥/효과/편집인계/시험기준작성완료·기능미구현/미배포. [공통기준](../infra/parallel-integration-contract-v1.md)과[모의예제22개](../infra/contracts/parallel-contract-v1.examples.json)를고정했다. 시민Request/Response유지·내부SupportCase선택필드2개/조회closed의의미·handed_off후속횟수유지를명시하고영향검토는PR36에서취합한다. R01은R04소유APIrecords/provider에한정대리편집, R02는본체, R04는state/SQL/handoff, R03은RAG, R05는판정으로분리했다. 각자예제로착수하고공유VM적용/고장/재색인/최종시험만창으로조율한다. 헌장v0.14에한정인계를기록했으며실제작업착수/회수버전은추적한다. 이번업무JSON/VM/Jira/DB변경·실제시험은없다.

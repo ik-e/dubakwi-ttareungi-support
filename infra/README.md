@@ -1,5 +1,7 @@
 # Docker Compose 배포와 운영
 
+J01~J03 병렬 개발의 상태·조회·문맥·효과·편집 인계·시험 기준은 [공통 기준 v1](parallel-integration-contract-v1.md)과 [모의 예제22개](contracts/parallel-contract-v1.examples.json)를 따른다. 기준 확정과 실제 구현·배포 완료를 구분한다.
+
 설계 요구별 구현·배포·검증의 부족 항목은 [설계·구현 대조표](design-implementation-mapping.md)에서 확인한다. 정상 한 건의 성공과 전체 수명주기 완료를 구분하며, 상태 원장은 개발 계획을 따른다.
 
 Discord부터 Jira·DB·비공개 응답까지의 전체 연동 목표와 R01 실행 인계는 [전체 연동 관리](p19-s1-readiness.md)·[PR #36](https://github.com/ik-e/dubakwi-ttareungi-support/pull/36)에서 확인한다. 조회한 후보·확정 배포 버전·실제 실행 성공을 구분하며, 공식 진행 상태는 개발 원장·업무 계약은 각 설계서를 따른다.
