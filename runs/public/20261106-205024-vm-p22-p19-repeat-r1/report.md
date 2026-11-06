@@ -53,7 +53,35 @@
 - 8초 목표는 p50부터 넘었다. 기준상 실패가 아니라 성능 결함으로 기록한다(담당 R02).
 - 가이드 권장대로 5회까지만 쟀다(모든 팀이 같은 OpenAI 키를 쓴다).
 
-## 4. 범위와 한계
+## 4. 응답의 실행 역할(agents)과 내부 처리시간
+
+- 출처: 3회 반복과 WF-01 처리시간 5회의 VM 원시 결과(`raw.json`) 8개. R05가 2026-11-06에 VM에서 뽑았다. Jira key와 연결값은 출력하지 않았다.
+- 응답 칸: `agents`, `answer`, `case_ref`, `reason`, `request_id`, `route`, `security`, `sources`, `ticket`, `timings`가 있다. `llm_calls`, 재시도 수, 외부 상태 칸은 없다. `timings`에는 `total_ms`만 있고 단계별 시간이 없다.
+
+| 경로 | agents | 응답 수 (8개 실행 전체) |
+| --- | --- | --- |
+| 자동 답변 | triage, retriever, writer, verifier | 16 |
+| 담당자 이관 | triage | 29 |
+| 담당자 이관 (WF-12 긴급) | triage, retriever | 3 |
+| 보완 질문 | triage | 20 |
+| 권한 없음 | triage | 3 |
+| 차단 | 없음 | 9 |
+
+- 3회 반복에서 경로가 있는 응답 75건의 평균 agents 수는 1.36이다(자동 답변 4, 담당자 이관 1.09, 보완 질문·권한 없음 1, 차단 0). HTTP 400·409 응답 15건은 경로와 agents가 없다.
+- WF-01과 WF-12의 응답:
+
+| 실행 | 사례 | 경로 | agents | reason | total_ms | 클라이언트 측정 |
+| --- | --- | --- | --- | --- | --- | --- |
+| R1 | WF-01 | 담당자 이관 | triage | `search_error` | 10,973 | 12,477 |
+| R2 | WF-01 | 자동 답변 | triage, retriever, writer, verifier | — | 8,065 | 8,194 |
+| R3 | WF-01 | 자동 답변 | triage, retriever, writer, verifier | — | 8,886 | 9,010 |
+| B1~B5 | WF-01 | 자동 답변 | triage, retriever, writer, verifier | — | 9,082 / 7,969 / 7,836 / 7,825 / 7,830 | 10,692 / 8,062 / 7,978 / 8,177 / 7,949 |
+| R1·R2·R3 | WF-12 | 담당자 이관 | triage, retriever | `urgent` | 5,831 / 6,485 / 6,375 | 5,985 / 6,698 / 6,533 |
+
+- R1 WF-01은 retriever가 agents에 없다. 분류 뒤 검색 단계에서 멈춘 것과 맞는다.
+- 클라이언트 측정과 `total_ms`의 차이는 0.09~1.6초다. 차이가 큰 두 건은 R1 WF-01(3회 반복의 첫 요청)과 B1(처리시간 측정의 첫 요청)이다. 원인은 확인하지 않았다.
+
+## 5. 범위와 한계
 
 - 이번 실행으로 만들어진 Jira 이슈·알림·DLQ는 직접 조회하지 않았다. 시험 이슈는 지우지 않았다.
 - 원시 결과(요청·응답 원문)는 VM에만 보존한다. 위 2절의 응답 문장과 사유는 R05가 VM 원시 결과에서 옮겼고, Jira key는 넣지 않았다.

@@ -26,7 +26,7 @@
 | [RAG-ARCHITECTURE.md](RAG-ARCHITECTURE.md) | v0.10·로컬 측정/VM 수동색인·검색 부분 시험 | R03 RAG | 검색·색인 내부 노드/엣지와 지식·청킹·임베딩·권한·복구 상세. 지식 승인·비교 평가·서버 인가/VM 재시작 검증 필요 |
 | [RAG 지식 초안6개](RAG-ARCHITECTURE.md#11-검토-전-초안과-서비스-지식의-관계) | 검토 전·서비스 색인 금지 | R03 작성·R04 권한/R05 근거 검토 | 출처·적용 조건 승인 후 knowledge 이관·manifest 등록·색인/검색 시험 |
 | [STORAGE-DESIGN.md](STORAGE-DESIGN.md) | 초안 v0.4·팀 보조 설계 | R04 연동·안정성 | 최소 상태·DLQ·실행 기록 구조/운영. PostgreSQL 2테이블은 제안,실제 저장·연동 확인 필요 |
-| [EXECUTION-RESULT.md](EXECUTION-RESULT.md) | 초안 v0.2·공동 검토 전 | ⑤ 시험·품질 | 고장·조회 시나리오 실행 후 1·3절 보완, 2절 실행 화면 캡처 첨부, 6절 담당별 확인 |
+| [EXECUTION-RESULT.md](EXECUTION-RESULT.md) | 초안 v0.3·공동 검토 전 | ⑤ 시험·품질 | 고장·조회 시나리오 실행 후 1·3절 보완, 2절 실행 화면 캡처 첨부, 6절 담당별 확인 |
 | [daily/DAY80.md](daily/DAY80.md)·[DAY81.md](daily/DAY81.md)·`DAY82.md` | DAY80 공식양식 사후초안·DAY81 11/06 10:48 중간초안·DAY82 미작성 | ① 취합·전원 참여 | 당일 작업 번호·증거·막힘·다음 목표 기록 |
 | `images/` | 폴더 준비·자료 없음 | ⑤ 시험·품질 | 개인정보를 가린 실행 증거 |
 | `presentation/` | 폴더 준비·자료 없음 | ① 편집·전원 제공 | [현행 발표 계획](../PRESENTATION-PLAN.md)에 따른 공용 파일·메모·리허설 기록. 계획 동기화와 실제 제작/연습 완료 구분 |
