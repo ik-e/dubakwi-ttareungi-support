@@ -649,3 +649,7 @@ R01 수정 후 검증: 공통 unittest67건 중60통과·실제HTTP7생략(실�
 ### 2026-11-06 R01 P18 DLQ 복제본 직접 대조·S05 인계
 
 상태: DLQ 정적 대조 완료·S05 한정 인계·실행 검증 대기. [VM 읽기 대조](../runs/public/20261106-104719-vm-dlq-clone-verify/report.md)에서 지정된 비활성 DLQ 복제본의6개노드parameters/전체connections가87ee11c 및86d78e7 원본과같고D03 false→D06, 기존ID/PostgreSQLCredential/비활성유지, 변경전백업5노드·비활성을확인했다. state11노드복제본S05는9d7eaf2와같아86d78e7미반영이다. 새시민문구시험·unittest84건중77통과/HTTP7생략,Ruff58파일/문서/공개후보통과를확인하고해당커밋R01코드승인을갱신했다. R04에게지정시험사본S05 jsCode만변경전보존/호출조율/기존설정유지조건으로인계한다. 이번workflow편집·업무실행·DB/Jira쓰기0이며SQL007적용상태/중복제거완료는확인하지않았다. 백업은회귀/SQL007검증과복구기준확인전보존한다. 영향역할검토/병합/서비스적용/전체S1은별도대기다.
+
+### 2026-11-06 R01 P12/P20 VM S05 완료·scope 배포 차이 확인
+
+상태: S05 완료 확인·최신 전체 사본 반입/실효 scope 검증 대기. [VM 직접 점검](../runs/public/20261106-111251-vm-r01-scope-audit/report.md)에서 state S05는 이미86d78e7과같아재편집하지않았고DLQ6노드parameters/connections도같았다. state11/후보20·handoff9/후보48노드로전체후보와다르며P19실제시험사본은없다. errors는지정state/DLQ를참조하지만importedScope대체코드가없고컨테이너DUBAKWI_SCOPE도미설정이다. 추출E02코드만가짜입력으로실행시빈env는scope=null/storage_ready=false,차단env는예외였다. 실제n8n Code/ErrorTrigger시험이아니므로실효scope일치통과로쓰지않는다. 비활성state/DLQ백업과현재사본비활성/미게시를확인하고원시snapshot은VM비공개폴더에보존했다. 남은검토/병합후검토된main전체사본반입및실제scope검증을수행한다. 이번workflow편집·업무DB/Jira쓰기·전체S1은0이다.
