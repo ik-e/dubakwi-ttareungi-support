@@ -198,6 +198,20 @@ class CaseErrorMessageTest(unittest.TestCase):
         self.assertEqual(GENERIC_FAILURE_MESSAGE, failure_message(["user_lookup_unavailable"]))
 
 
+class ReasonDisplayTest(unittest.TestCase):
+    def test_machine_codes_are_not_shown(self) -> None:
+        for code in ("partial_effect", "ticket_unknown", "deadline_exceeded", "no_evidence"):
+            result = render_private_response({"answer": "담당자가 확인합니다.", "reason": code})
+            self.assertEqual("담당자가 확인합니다.", result)
+            self.assertNotIn(code, result)
+
+    def test_readable_reason_is_still_shown(self) -> None:
+        result = render_private_response(
+            {"answer": "안내합니다.", "reason": "근거 부족으로 담당자에게 이관했습니다."}
+        )
+        self.assertIn("안내: 근거 부족으로 담당자에게 이관했습니다.", result)
+
+
 class SupportResponseShapeTest(unittest.TestCase):
     def test_reads_ticket_id_from_nested_ticket_object(self) -> None:
         result = render_private_response(

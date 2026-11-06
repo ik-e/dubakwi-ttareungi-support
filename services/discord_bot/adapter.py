@@ -116,6 +116,7 @@ def failure_message(codes: object) -> str:
 
 
 MAX_SOURCES = 5
+_MACHINE_CODE = re.compile(r"[A-Za-z0-9_.:-]+")
 
 
 def _one_line(value: object, limit: int) -> str:
@@ -154,7 +155,9 @@ def render_private_response(payload: Any) -> str:
     if source_lines:
         suffix.append("근거:\n" + "\n".join(source_lines))
     reason = _one_line(payload.get("reason"), 200)
-    if reason:
+    # Support sends machine codes (partial_effect, ticket_unknown, ...); the answer already explains
+    # the situation, so only human-readable sentences are shown.
+    if reason and not _MACHINE_CODE.fullmatch(reason):
         suffix.append(f"안내: {reason}")
     case_ref = payload.get("case_ref")
     if isinstance(case_ref, str) and case_ref.strip():
