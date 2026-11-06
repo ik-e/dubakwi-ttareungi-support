@@ -27,7 +27,7 @@
 | [RAG 지식 초안6개](RAG-ARCHITECTURE.md#11-검토-전-초안과-서비스-지식의-관계) | 검토 전·서비스 색인 금지 | R03 작성·R04 권한/R05 근거 검토 | 출처·적용 조건 승인 후 knowledge 이관·manifest 등록·색인/검색 시험 |
 | [STORAGE-DESIGN.md](STORAGE-DESIGN.md) | 초안 v0.4·팀 보조 설계 | R04 연동·안정성 | 최소 상태·DLQ·실행 기록 구조/운영. PostgreSQL 2테이블은 제안,실제 저장·연동 확인 필요 |
 | `EXECUTION-RESULT.md` | 미작성 | ⑤ 시험·품질 | 기대/실제·실행 보고서·실패/수정·재시험·한계 |
-| `daily/DAY80.md`·`DAY81.md`·`DAY82.md` | 미작성 | ① 취합·전원 참여 | 당일 작업 번호·증거·막힘·다음 목표 기록 |
+| [daily/DAY80.md](daily/DAY80.md)·[DAY81.md](daily/DAY81.md)·`DAY82.md` | DAY80 공식양식 사후초안·DAY81 11/06 10:48 중간초안·DAY82 미작성 | ① 취합·전원 참여 | 당일 작업 번호·증거·막힘·다음 목표 기록 |
 | `images/` | 폴더 준비·자료 없음 | ⑤ 시험·품질 | 개인정보를 가린 실행 증거 |
 | `presentation/` | 폴더 준비·자료 없음 | ① 편집·전원 제공 | [현행 발표 계획](../PRESENTATION-PLAN.md)에 따른 공용 파일·메모·리허설 기록. 계획 동기화와 실제 제작/연습 완료 구분 |
 
