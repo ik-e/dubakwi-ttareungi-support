@@ -1,0 +1,264 @@
+{
+  "run_id": "20261106-203339-vm-p22-wf09-retest",
+  "executed_at": "2026-11-06T20:33:39+09:00",
+  "environment": "vm",
+  "kind": "service_cases",
+  "runner": "scripts/test/run_cases.py (not the kit flow.py)",
+  "path": "jira",
+  "auth_header_sent": true,
+  "auth_token_env": "FLOW_WEBHOOK_KEY",
+  "log_check": true,
+  "ready": [],
+  "versions": {
+    "git": {
+      "commit": "f30dc33c15b5e395df22397c65c6e3d82ced63ae",
+      "branch": "r05/p07-r04-contract-cases",
+      "dirty": false
+    },
+    "workflow": "3e8547a",
+    "config": "r01-p19-b17-assignee",
+    "case_files": {
+      "cases/common.json": "6e4d3229a94bc66d041ff149bdacb98649ed1a545779dab80748c4eae86c3179",
+      "cases/team.json": "463158874ae12ce54d305aa42cdbf7f816e4b7f61ce6d12bacbd385e8fc9fc80",
+      "cases/team-extended.json": "d26fbfb3bb8d79ebf0cf2df943a5abd1194e6741d6585f10e85fab23d77fdb00"
+    },
+    "test_copy": null,
+    "python": "3.12.16"
+  },
+  "file_hooks": {},
+  "counts": {
+    "pass": 1,
+    "auto_pass_unverified": 1
+  },
+  "counts_by_category": {
+    "failure_handling": {
+      "pass": 1,
+      "auto_pass_unverified": 1
+    }
+  },
+  "meaning": "auto_pass_unverified = response checks passed but ticket/state/DLQ/alert/n8n or manual checks are still open; it is not a full pass",
+  "category_meaning": "normal = 정상 경로, failure_handling = 실패 시 안전 처리·재전송/후속 차단, recovery = 실패 건의 복구 작업. not_implemented는 기능 미구현이며 fail·pass로 세지 않는다. 신규 문의 성공을 기존 실패 문의의 복구 성공으로 세지 않는다",
+  "cases": [
+    {
+      "id": "WF09-1",
+      "name": "WF-09 중복 요청 1/2",
+      "file": "cases/common.json",
+      "category": "failure_handling",
+      "status": "pass",
+      "steps": [
+        {
+          "step": 1,
+          "request_id": "20261106-203339-vm-p22-wf09-retest-wf09",
+          "http_status": 200,
+          "elapsed_ms": 8632,
+          "transport_error": null,
+          "route": "담당자 이관",
+          "codes": null,
+          "has_ticket": true,
+          "ticket_priority": "normal",
+          "ticket_duplicate": false,
+          "sources_count": 0,
+          "security_masked": 0
+        }
+      ],
+      "checks": [
+        {
+          "step": 1,
+          "kind": "status",
+          "path": "<http_status>",
+          "expected": 200,
+          "passed": true
+        },
+        {
+          "step": 1,
+          "kind": "equals",
+          "path": "route",
+          "expected": "담당자 이관",
+          "passed": true
+        },
+        {
+          "step": 1,
+          "kind": "x:exists",
+          "path": "ticket.ticket_id",
+          "expected": null,
+          "passed": true
+        }
+      ],
+      "global_checks": [
+        {
+          "id": "G03",
+          "step": 1,
+          "check": "contact pattern absent",
+          "passed": true
+        },
+        {
+          "id": "G01",
+          "step": 1,
+          "check": "request_id echoed",
+          "passed": true
+        },
+        {
+          "id": "G02",
+          "step": 1,
+          "check": "route in common set",
+          "passed": true
+        },
+        {
+          "id": "G06",
+          "step": 1,
+          "check": "response within 25s",
+          "passed": true
+        }
+      ],
+      "log_checks": [
+        {
+          "id": "L01",
+          "step": 1,
+          "check": "log entry for request_id",
+          "passed": true
+        },
+        {
+          "id": "L02",
+          "step": 1,
+          "check": "log route/status match response",
+          "passed": true
+        },
+        {
+          "id": "L03",
+          "step": 1,
+          "check": "question text absent from log",
+          "passed": true
+        }
+      ],
+      "hooks": {
+        "before": [],
+        "after": []
+      },
+      "unverified": [],
+      "manual": []
+    },
+    {
+      "id": "WF09-2",
+      "name": "WF-09 중복 요청 2/2",
+      "file": "cases/common.json",
+      "category": "failure_handling",
+      "status": "auto_pass_unverified",
+      "steps": [
+        {
+          "step": 1,
+          "request_id": "20261106-203339-vm-p22-wf09-retest-wf09",
+          "http_status": 200,
+          "elapsed_ms": 289,
+          "transport_error": null,
+          "route": "담당자 이관",
+          "codes": null,
+          "has_ticket": true,
+          "ticket_priority": "normal",
+          "ticket_duplicate": true,
+          "sources_count": 0,
+          "security_masked": 0
+        }
+      ],
+      "checks": [
+        {
+          "step": 1,
+          "kind": "status",
+          "path": "<http_status>",
+          "expected": 200,
+          "passed": true
+        },
+        {
+          "step": 1,
+          "kind": "equals",
+          "path": "route",
+          "expected": "담당자 이관",
+          "passed": true
+        },
+        {
+          "step": 1,
+          "kind": "equals",
+          "path": "ticket.duplicate",
+          "expected": true,
+          "passed": true
+        },
+        {
+          "step": 1,
+          "kind": "x:same_as",
+          "path": "ticket.ticket_id",
+          "expected": {
+            "same_as": "case WF-09 중복 요청 1/2",
+            "path": "ticket.ticket_id"
+          },
+          "passed": true
+        },
+        {
+          "step": 1,
+          "kind": "x:same_as",
+          "path": "ticket.priority",
+          "expected": {
+            "same_as": "case WF-09 중복 요청 1/2",
+            "path": "ticket.priority"
+          },
+          "passed": true
+        }
+      ],
+      "global_checks": [
+        {
+          "id": "G03",
+          "step": 1,
+          "check": "contact pattern absent",
+          "passed": true
+        },
+        {
+          "id": "G01",
+          "step": 1,
+          "check": "request_id echoed",
+          "passed": true
+        },
+        {
+          "id": "G02",
+          "step": 1,
+          "check": "route in common set",
+          "passed": true
+        },
+        {
+          "id": "G06",
+          "step": 1,
+          "check": "response within 25s",
+          "passed": true
+        }
+      ],
+      "log_checks": [
+        {
+          "id": "L01",
+          "step": 1,
+          "check": "log entry for request_id",
+          "passed": true
+        },
+        {
+          "id": "L02",
+          "step": 1,
+          "check": "log route/status match response",
+          "passed": true
+        },
+        {
+          "id": "L03",
+          "step": 1,
+          "check": "question text absent from log",
+          "passed": true
+        }
+      ],
+      "hooks": {
+        "before": [],
+        "after": []
+      },
+      "unverified": [
+        "first_request_id=wf09 티켓 정확히 1건(GET /tickets-created)",
+        "2번째 요청에서 LLM·티켓 생성·보완 횟수 갱신 0",
+        "2번째 요청에서 Jira 재배정·재알림 0(저장 응답 재사용, R04 PR #27 알림 성공 표식)",
+        "D02: 가이드·키트가 두 응답 ticket 전체 동등을 요구하는지 확인 전에는 WF-09 통과로 기록하지 않음"
+      ],
+      "manual": []
+    }
+  ]
+}
