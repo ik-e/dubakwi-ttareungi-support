@@ -732,3 +732,8 @@ P19 Discord 실제 기동: [main37ec341 이미지·Gateway 연결·미등록 거
 ### P09/P18/P19 다섯 시민 사용자 등록 — 2026-11-06 KST
 
 상태: R01 사용자지시 적용·연결검사완료. [VM 검증](../runs/public/20261106-162709-vm-five-citizens/report.md): 기존두매핑유지·신규세매핑분리로citizen-a~e를연결했다. API미등록d/e를public시민으로추가하고저장소밖사용자파일/읽기전용Compose override와재배포인계를보존했다. 내부별칭인증GET5건200/id/role/access_levels일치·봇running/restart0/Gateway연결이다. 기존이미지유지·사용자API/봇만재기동했고n8n/Jira/DB는변경하지않았다. 실제계정ID는Git제외이며개별Discord정상문의/소유권공식시험은별도다.
+
+
+### P12/P19 담당 매핑 반입·support 이관 실측 — 2026-11-06 KST
+
+상태: support/security 매핑게시·support1건 R01 실연동통과, R04대조/R05공식판정후속. 사용자R05시험종료확인후활성실행0·원복백업·H39매핑만교체와환경보존을검증했다. [실행532/하위534](../runs/public/20261106-172441-vm-assignee-handoff/report.md)는HTTP200/8.674초/needs_human·생성/문맥/배정/알림confirmed·독립Jira담당일치/열림·DBcompleted/respond/rev5/응답8필드일치·DLQ0이다. 알림은API수락이며메일수신증거는별도다. security실제이관/TC12/긴급분류검토는미완료이고기존실패건은보존했다. 실제계정/환경값은Git제외VM인계에만둔다.

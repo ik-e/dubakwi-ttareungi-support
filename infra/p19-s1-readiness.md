@@ -1,6 +1,6 @@
 # P19 전체 연동 관리와 R01 실행 계획
 
-- 버전: v0.9 / 2026-11-06 KST / R01 / 정상 Webhook288·Discord305 종단 통과, 최종 역할 확인·공식 전체 판정 후속.
+- 버전: v0.10 / 2026-11-06 KST / R01 / 정상 안내·support 이관532 통과, security 실측·최종 역할 확인·공식 판정 후속.
 - 단일 관리 창구: [PR #36](https://github.com/ik-e/dubakwi-ttareungi-support/pull/36). 기능 구현·검토는 기존 PR에서 유지한다.
 - 진행 상태의 원본은 [개발 원장](../docs/DEVELOPMENT-PLAN.md), 책임은 [팀 헌장](../docs/project/TEAM-CHARTER.md), 계약은 [워크플로우 설계](../docs/project/WORKFLOW-DESIGN.md)·[저장소 설계](../docs/project/STORAGE-DESIGN.md)다. 이 문서는 새 업무 계약을 정의하지 않는다.
 - 현재 정상 시험본은 support 3e8547a, 하위 기능 a930e24/8c53cf7이다. #16은 main 9f3443b, #40은64d66c7로 병합했다. [정상 실행288 증거](../runs/public/20261106-154400-vm-p19-normal-pass/report.md)를 기준으로 하며 Discord 종단·R05 공식 판정은 별도다. 과거 준비/실패 증거는 당시 기록으로 보존한다.
@@ -182,3 +182,8 @@ G3는 [실행288](../runs/public/20261106-154400-vm-p19-normal-pass/summary.json
 ## 정상 Discord 베이스라인 완료 — 2026-11-06 KST
 
 [실행305 증거](../runs/public/20261106-163939-vm-discord-normal/report.md): 사용자가 등록 계정의 답변/기대 근거/연결값 수신·비공개 표시를 확인했다. DB completed/respond/rev4·최종응답, Jira 독립조회200/done/완료, DLQ0이다. n8n 실행 구간13.138초이며 Discord 왕복 실측으로 확대하지 않는다. 기존 매핑을 변경할 필요 없이 등록 계정 시험이 통과했다. G3~G5 정상 베이스라인은 R01 확인 완료이며 역할별 최종 확인·공식 전체시험은 후속이다. 위 과거 미등록/대기 기록은 당시 이력이다.
+
+
+## 담당자 이관 적용 현황 — 2026-11-06 KST
+
+R05 시험 종료를 사용자에게 확인하고 H39 support/security 담당 매핑만 반입·게시했다. [새 support 이관 실행532](../runs/public/20261106-172441-vm-assignee-handoff/report.md)에서 생성·문맥·배정·알림confirmed, Jira독립조회담당일치/열림·DBcompleted·응답8필드일치·DLQ0을 확인했다. 과거 담당매핑 미반영 기록은 당시 이력이며 현재 적용과 구분한다. security 실제시험·R04대조·R05공식판정은 후속이다. 기존 실패 요청은 자동 재개되지 않으며 그대로 보존한다.

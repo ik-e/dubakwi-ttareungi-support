@@ -1,0 +1,61 @@
+{
+  "executed_at": "2026-11-06 17:24:41 KST",
+  "environment": "team VM n8n, Jira, PostgreSQL",
+  "task": "P12/P19 assignee environment import and new support handoff",
+  "deployment": {
+    "source": "existing main-derived handoff a930e24 business source; H39 environment map only",
+    "mapping_roles": [
+      "support",
+      "security"
+    ],
+    "published_version": "cc85345b-3caa-443d-8f6b-1c04a5167fe0",
+    "credentials_connections_settings_preserved": true,
+    "backup_saved_privately": true,
+    "test_window_released": "user confirmed R05 testing ended"
+  },
+  "trial": {
+    "support_execution_id": "532",
+    "handoff_execution_id": "534",
+    "http_status": 200,
+    "elapsed_seconds": 8.674,
+    "route": "담당자 이관",
+    "reason": "needs_human",
+    "priority": "normal",
+    "effects": {
+      "created_or_reused": "confirmed",
+      "context_saved": "confirmed",
+      "assigned": "confirmed",
+      "alert": "confirmed",
+      "closed": "none"
+    },
+    "native_http": {
+      "create": 201,
+      "context_assign": 204,
+      "alert": 200,
+      "alert_success_marker": 204
+    },
+    "jira_independent_read": {
+      "http_status": 200,
+      "assignee_matches_support": true,
+      "status_category": "new",
+      "status": "해야 할 일",
+      "resolution": null
+    },
+    "db": {
+      "processing_status": "completed",
+      "current_step": "respond",
+      "revision": 5,
+      "final_response_present": true,
+      "response_core_8_fields_match": true
+    },
+    "dlq_count": 0
+  },
+  "limits": [
+    "security role mapping applied but real security handoff not tested",
+    "alert API accepted; human email receipt not verified",
+    "R04 final review and R05 official acceptance pending",
+    "TC12 and urgency classification review remain separate",
+    "existing failed requests and Jira issues preserved without replay or cleanup"
+  ],
+  "details": "report.md"
+}
