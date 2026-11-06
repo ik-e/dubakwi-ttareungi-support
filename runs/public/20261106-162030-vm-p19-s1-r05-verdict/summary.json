@@ -1,0 +1,49 @@
+{
+  "record_type": "r05_official_verdict_of_existing_execution",
+  "recorded_at": "2026-11-06T16:20:30+09:00",
+  "recorded_by": "R05",
+  "subject": "P19 정상 1건 전체 연동(S1) — Discord 등록 사용자 문의",
+  "source_run": "runs/public/20261106-163939-vm-discord-normal (R01, PR #36)",
+  "execution_id": "305",
+  "n8n_workflow": "R01 dubakwi-support P19 B17 3e8547a (VM 시험 사본)",
+  "versions": {"support": "3e8547a", "bot_main": "37ec341", "state_dlq_handoff": "a930e24", "errors": "8c53cf7"},
+  "request_received_at_kst": "2026-11-06T16:00:40+09:00",
+  "time_note": "R01 기록의 시작 시각 16:39:39는 n8n 화면(16:00:39)·요청 수신 07:00:40Z와 다르다. 실행 ID와 처리 시간 13.138초가 같아 같은 실행이다. R01 정정 요청",
+  "evidence_sources": {
+    "r05_direct": ["n8n 실행 #305 노드 경로 화면", "B33 응답 구성 노드 출력(답변·근거·Jira 효과·저장 revision)"],
+    "r01_report": ["Discord 입력·defer·본인 전용 응답 수신", "DB request_state completed/respond/revision 4", "해당 요청 DLQ 0건", "Jira 독립 재조회 완료/Resolution 완료"]
+  },
+  "links": [
+    {"link": "1 Discord 입력", "evidence": "request_id가 dc- 접두 형식, channel=discord, 등록 사용자 매핑 citizen-a", "source": "B33 출력·R01 보고", "verdict": "pass"},
+    {"link": "2 n8n 실행", "evidence": "B04→B05→B06→B07→B09 proceed→B10/L01→B13→B14→B16→B17→B18 write→B19/L02→B20/L03→B21→B25→B26→B27→B31→B37→B39→B32→B33→B36, 실패 분기 X01~X05 미실행", "source": "R05 n8n 화면", "verdict": "pass"},
+    {"link": "3 Jira", "evidence": "effects.created_or_reused·context_saved·closed 모두 confirmed, support.status=closed_guidance, assigned·alert none. 독립 재조회 완료", "source": "B33 출력·R01 보고", "verdict": "pass"},
+    {"link": "4 DB 최종 저장", "evidence": "state_revision 0→2→3→4, save_request 구성·save_ready, R01 조회 completed/respond/최종 응답 저장, DLQ 0", "source": "B33 출력·R01 보고", "verdict": "pass"},
+    {"link": "5 비공개 응답", "evidence": "HTTP 200, route 자동 답변, ticket=null, case_ref 있음, 근거 2건. 본인 전용 수신은 R01 보고", "source": "B33 출력·R01 보고", "verdict": "pass"}
+  ],
+  "content_checks": {
+    "actor": "citizen-a, role citizen, access_levels [public]",
+    "search": "status ok, 근거 5건 모두 public, 제한 문서 0, 기대 절 'QR 인식 또는 잠금 해제가 어려운 경우' 2위",
+    "answer_grounded": true,
+    "answer_promises_none": true,
+    "contact_exposure": "없음(1599-0120은 공식 고객센터 번호)",
+    "lookup": "skipped(enabled=false), 조회 대상 없음",
+    "security": "blocked_by null, masked 0"
+  },
+  "timing": {
+    "n8n_seconds": 13.138,
+    "internal_total_ms": 11584,
+    "deadline_seconds": 20,
+    "within_deadline": true,
+    "wf01_target_seconds": 8,
+    "target_exceeded": true,
+    "discord_round_trip": "측정 안 함"
+  },
+  "verdict": "pass",
+  "verdict_scope": "normal 경로 1건(S1). 권한·중복·장애·동시성·시간 상한·복구 시험의 통과가 아니다",
+  "findings": [
+    {"id": "F-S1-01", "kind": "performance", "detail": "WF-01 목표 8초 초과(n8n 13.1초). 기준상 fail이 아니라 성능 결함 기록", "owner": "R02"},
+    {"id": "F-S1-02", "kind": "record", "detail": "R01 기록 시작 시각 16:39:39 KST가 실제 16:00:39 KST와 다름", "owner": "R01"},
+    {"id": "F-S1-03", "kind": "wording", "detail": "답변에 '방법이 제공된 챗봇에 안내되어 있습니다'처럼 지식 문서의 출처 메모가 시민 문장으로 나감", "owner": "R03·R02"}
+  ],
+  "masked": "요청 ID(dc-…)·case_ref·Jira key·사용자 Discord ID는 공개 기록에 넣지 않는다. 원본은 VM 비공개 인계에 있다"
+}
