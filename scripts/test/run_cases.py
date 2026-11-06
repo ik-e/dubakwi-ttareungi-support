@@ -186,7 +186,8 @@ def load_cases(base, files, wanted):
     loaded = []
     for name in files:
         data = json.loads((base / name).read_text(encoding="utf-8"))
-        units = [normalize(name, c) for c in data["cases"]]
+        guard = data.get("x_dubakwi", {}).get("search_guard")
+        units = [normalize(name, c) | {"search_guard": guard} for c in data["cases"]]
         if wanted:
             units = [u for u in units if u["id"] in wanted or u["name"] in wanted]
         loaded.append(
@@ -384,12 +385,34 @@ def judge_step(step, result, earlier_cases, step_results):
     return out
 
 
-def global_checks(step_no, request, result):
+def search_guard_checks(step_no, request, body, guard):
+    """S01-S03 for search requests without restricted access: no restricted leak at all."""
+    if "restricted" in (request.get("access_levels") or []):
+        return []
+    evidence = body.get("evidence") if isinstance(body, dict) else None
+    items = [e for e in evidence if isinstance(e, dict)] if isinstance(evidence, list) else []
+    levels = [e.get("access_level") for e in items]
+    docs = [e.get("doc") for e in items]
+    text = _text(body) if body is not None else ""
+    return [
+        ("S01", step_no, "no restricted evidence", "restricted" not in levels),
+        ("S02", step_no, "no restricted canary text", guard["canary_prefix"] not in text),
+        ("S03", step_no, "no restricted doc id", not set(docs) & set(guard["restricted_docs"])),
+    ]
+
+
+def global_checks(step_no, request, result, guard=None):
     out = []
     body = result["body"]
     if body is not None:
         leaked = PHONE.search(_text(body)) or EMAIL.search(_text(body))
         out.append(("G03", step_no, "contact pattern absent", not leaked))
+    if guard is not None:
+        if result["status"] == 200 and isinstance(body, dict):
+            echoed = body.get("request_id") == request["request_id"]
+            out.append(("G01", step_no, "request_id echoed", echoed))
+        out += search_guard_checks(step_no, request, body, guard)
+        return [{"id": i, "step": s, "check": c, "passed": p} for i, s, c, p in out]
     if result["status"] == 200 and isinstance(body, dict):
         echoed = body.get("request_id") == request["request_id"]
         out.append(("G01", step_no, "request_id echoed", echoed))
@@ -448,6 +471,22 @@ def public_step(no, request, result):
     body = result["body"] if isinstance(result["body"], dict) else {}
     ticket = body.get("ticket") if isinstance(body.get("ticket"), dict) else None
     security = body.get("security") if isinstance(body.get("security"), dict) else {}
+    if isinstance(body.get("evidence"), list):
+        return {
+            "step": no,
+            "request_id": request["request_id"],
+            "access_levels": request.get("access_levels"),
+            "http_status": result["status"],
+            "elapsed_ms": result["elapsed_ms"],
+            "transport_error": result["error"],
+            "search_status": body.get("status"),
+            "error_code": body.get("error_code"),
+            "evidence": [
+                {k: e.get(k) for k in ("doc", "section", "access_level", "score")}
+                for e in body["evidence"]
+                if isinstance(e, dict)
+            ],
+        }
     return {
         "step": no,
         "request_id": request["request_id"],
@@ -514,7 +553,8 @@ def run_unit(unit, ctx):
     for step in unit["steps"]:
         checks += judge_step(step, results[step["step"]], ctx["case_bodies"], results)
     ctx["case_bodies"][unit["name"]] = results[unit["steps"][-1]["step"]]["body"]
-    globals_ = [g for no in results for g in global_checks(no, requests[no], results[no])]
+    guard = unit.get("search_guard")
+    globals_ = [g for no in results for g in global_checks(no, requests[no], results[no], guard)]
     unverified = list(unit["checks"])
     if unit["expected_codes"]:
         unverified.append(f"codes 문자열 대조 전: {unit['expected_codes']}")
