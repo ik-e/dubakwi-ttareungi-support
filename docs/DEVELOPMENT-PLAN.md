@@ -722,3 +722,8 @@ P19 Discord 실제 기동: [main37ec341 이미지·Gateway 연결·미등록 거
 ### P19 Discord 정상 베이스라인 완료 — 2026-11-06 KST
 
 상태: R01 정상1건 종단 확인 완료·영향 역할 최종 확인/공식 전체 판정 후속. [등록 계정 실제 실행305](../runs/public/20261106-163939-vm-discord-normal/report.md)는 사용자답변/근거/연결값수신·비공개표시확인, n8n success/13.138초·DBcompleted/respond/rev4/최종응답·Jira독립조회200/done/완료·DLQ0이다. 기존매핑은변경하지않았고과거미등록거절은별도이력이다. support3e8547a/봇main37ec341/하위a930e24·errors8c53cf7을연결했다. 실제식별자/원시결과는VM비공개파일에보존하고Jira추가쓰기·재전송·과거자료정리는없다. R05전체권한/실패/중복/동시성/시간판정및재개미구현을정상성공에섞지않는다.
+
+
+### P19 R04 최종 확인 취합·과거 미종료 건 대조 — 2026-11-06 KST
+
+상태: R04 정상경로 Jira/state/save/Discord 읽기대조 통과를 사용자전달로 수령했다. [과거 실행279 DB·DLQ 읽기확인](../runs/public/20261106-162014-vm-prior-failure-review/report.md): DBunknown/B29/partial_effect/rev3/최종응답없음, DLQpending1건/attempts1·생성confirmed·배정assignee_unmapped·종료미시도·recovery assign/known참조보존이다. 원실행은종료됐으며n8n success를업무성공으로쓰지않는다. 정상305와별도건이고재전송/DB변경/Jira쓰기없이수동확인대상으로보존한다. R05공식판정과역할별잔여확인은별도다.
