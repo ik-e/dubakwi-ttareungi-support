@@ -132,6 +132,21 @@ PR #36 정상 1건은 R03이 정한 질문과 기대 근거를 쓴다(2026-11-06
 
 Jira 또는 저장 효과를 확인하지 못하면 응답이 맞아도 S1 통과로 기록하지 않는다. S1 뒤에는 보완 → 이관 → 조회 → 긴급 → 실패/복구 순서로 넓힌다.
 
+## VM 정상 1건 결과
+
+**첫 실행(2026-11-06 14:33:27 KST): 미완료.** [기록](../../runs/public/20261106-145001-vm-p19-normal-one-first/summary.json). 게시 기준 support `c5ed5fa`, state·DLQ·handoff `a930e24`(main `c6dd178`), errors `8c53cf7`, scope `dubakwi-p19-real`. R03 고정 질문, `citizen-a`, 새 `request_id`, `case_ref` 없음.
+
+| 구간 | 결과 |
+| --- | --- |
+| 응답 | HTTP 200, 12.75초, `담당자 이관` / `partial_effect`, 티켓 `JBYS-6`(known ID) |
+| 사용자 확인·분류·검색·답변·검증 | 통과(agents triage·retriever·writer·verifier) |
+| 실행 ID(R01 VM 조회) | support 266 → 검색 268·조회 269 → handoff 270 → state 271~273 → DLQ 274 |
+| Jira | `JBYS-6` 생성. 종료 실패: 새 이슈의 허용 전환이 Start(진행 중)·In review(Pending)뿐이라 handoff H33이 `transition_unavailable`로 중단, 종료 POST 미실행 |
+| `request_state` | `unknown` / B29 / `partial_effect`, 최종 응답 없음 |
+| `dead_letters` | `close` 복구 1건(pending), known Jira ID·key 보존 |
+
+support의 부분 실패 보존은 설계대로 동작했다. 같은 요청 재전송·재종료는 하지 않았다. 다음은 R04의 시작 상태 → 완료 전환 방법 결정(중간 전환 구현 또는 Jira 설정) 뒤 새 `request_id`로 다시 실행한다. 실패 응답은 근거를 싣지 않으므로 기대 근거 사용 여부는 실행 266 기록으로 확인한다.
+
 ## 로컬 예행 결과
 
 실제 support, 임시 PostgreSQL(`001`~`006`), 임시 사용자 API, R04 `60f8886`의 state·DLQ·handoff, [가짜 Jira](fake_jira.py)로 호출했다. 실제 Jira 호출은 0건이다. [결과](../../runs/public/20261105-185000-local-n8n-p19-fake-jira-e2e/summary.json), [이전 Jira 없는 예행](../../runs/public/20261105-170800-local-n8n-p19-real-rehearsal/summary.json)
