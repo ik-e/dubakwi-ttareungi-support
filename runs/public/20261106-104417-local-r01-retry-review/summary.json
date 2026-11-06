@@ -1,0 +1,35 @@
+{
+  "executed_date": "2026-11-06 KST",
+  "environment": "local Windows; Python 3.12 and Node.js; no VM access",
+  "versions": {
+    "p27": "86d78e731a6fe633060f7946c85ec30200af3fa8",
+    "p28": "8c53cf7550c0374c3700693ca12130c3fa02d8e8"
+  },
+  "configuration": "repository locked dependencies; HTTP integration tests disabled",
+  "cases": {
+    "p27_common_regression": {"total": 84, "passed": 77, "skipped": 7},
+    "p28_common_regression": {"total": 76, "passed": 69, "skipped": 7},
+    "s05_messages_and_storage_contract": "passed source and expectation comparison; final R01 wording present"
+  },
+  "retry_contract": {
+    "owned_processing_row_found": "same scope and original execution ID: errors fail sets unknown; retry returns request_requires_review",
+    "no_owned_row_found": "skipped does not modify or create a row; request_in_progress requires an existing processing row",
+    "before_begin": "no row is created by skipped fail; do not infer request_in_progress without an existing row"
+  },
+  "review_sources": [
+    "https://github.com/ik-e/dubakwi-ttareungi-support/pull/27#issuecomment-6674394121",
+    "https://github.com/ik-e/dubakwi-ttareungi-support/pull/28#issuecomment-6674394835",
+    "User-forwarded R02 message in this chat; original Discord timestamp/link not supplied"
+  ],
+  "handoff": {
+    "r02": "consumer agreement consolidated; does not imply PR28 merge approval or VM success; update support FL35 to final S05 messages",
+    "r04": "R02 reports no team n8n X03 test; designated inactive DLQ clone update can proceed after checking other callers and preserving export, ID and credentials",
+    "r05": "current-version failure/retry/recovery and official verdict review outstanding",
+    "r01": "merge order remains 27 then 28 then 16; reviewed-main deployment, SQL005-007 and binding checks follow remaining reviews"
+  },
+  "not_executed": ["VM", "real ErrorTrigger chain", "service migrations", "full S1", "Jira writes"],
+  "documentation_checks": {"files": 20, "local_links": 463, "anchors": 51, "errors": 0},
+  "public_candidate_check": {"files": 188, "local_links": 557, "errors": 0},
+  "secret_scan_limit": "tscan and Gitleaks unavailable; public candidate audit is a partial substitute, not a comprehensive secret or PII guarantee",
+  "details": "report.md"
+}
