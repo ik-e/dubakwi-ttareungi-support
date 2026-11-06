@@ -1,6 +1,6 @@
 # P19 전체 연동 관리와 R01 실행 계획
 
-- 버전: v0.5 / 2026-11-06 KST / R01 / DB·전체 시험 사본 게시 완료, 첫 정상 Webhook 목표 미통과·Discord 기동 전.
+- 버전: v0.6 / 2026-11-06 KST / R01 / DB·전체 시험 사본 게시 완료, 첫 정상 Webhook 목표 미통과·Discord 기동 전.
 - 단일 관리 창구: [PR #36](https://github.com/ik-e/dubakwi-ttareungi-support/pull/36). 기능 구현·검토는 기존 PR에서 유지한다.
 - 진행 상태의 원본은 [개발 원장](../docs/DEVELOPMENT-PLAN.md), 책임은 [팀 헌장](../docs/project/TEAM-CHARTER.md), 계약은 [워크플로우 설계](../docs/project/WORKFLOW-DESIGN.md)·[저장소 설계](../docs/project/STORAGE-DESIGN.md)다. 이 문서는 새 업무 계약을 정의하지 않는다.
 - 현재 한정 시험 적용본은 support c5ed5fa와 main c6dd178의 하위 기능(a930e24/8c53cf7 업무 파일)이다. [게시 증거](../runs/public/20261106-124323-vm-p19-published/report.md)를 기준으로 하며 정상 업무·Discord 성공이나 #16 정식 병합을 뜻하지 않는다. 과거 준비 증거는 당시 기록으로 보존한다.
@@ -86,6 +86,9 @@ TC17/TC18 준비 인계는 P19 경로/게시, 동일 scope의 예외 사본/erro
 
 ## 7 현재 증거와 관리 경계
 
+- [시험 키 교체 완료](../runs/public/20261106-150135-vm-team-key-rotation/report.md): 사용자 Credential 저장 후 VM 환경파일·봇 키·R02 현재 비공개 인계를 동기화했다. 운영/시험 경로 모두 신키400(빈 입력)·구키403을 확인했다. 기존 키를 캐시한 시험 클라이언트는 새 인계를 다시 읽어야 한다. Jira 토큰·업무 데이터·봇 기동은 변경하지 않았다.
+- R02 실제실행266은답변/검증까지통과했지만handoff270의현재상태전환목록에종료가없어transition_unavailable로중단했다. DB unknown·DLQ274 pending보존을확인했으며G3미완료다. [대조 근거](https://github.com/ik-e/dubakwi-ttareungi-support/pull/36#issuecomment-6677855026). Jira설정담당은R04로유지한다.
+
 - [현행 보완 증거](../runs/public/20261106-143454-local-p19-status-sync/report.md): 토큰 파일 준비/읽기 완료와 Discord 인증 미검증을 구분했다. #40 fc292314를 재검사하고 [R03 정적 검토](https://github.com/ik-e/dubakwi-ttareungi-support/pull/36#issuecomment-6677639989)를 검색259 실제 결과와 연결했다. 새 VM 업무 실행·봇기동은 하지 않았다. 과거 빈토큰/검색미실행 기록은 당시 증거다.
 
 - 2026-11-06 첫 실제 정상 문의257은 검색259의public근거5건/기대절2위를 확인했지만 B17 남은14941ms<요구15500ms로 이관했다. 담당매핑 부재로 Jira생성 후partial_effect, DB unknown·DLQ pending이다. 재호출 없이 known참조를 보존했다. [최초 실패 증거](../runs/public/20261106-142002-mixed-p19-first-run/report.md). G3 정상 성공·G4/G5는미완료다. 봇환경파일0600·팀키일치에이어토큰입력·0600/UID65532읽기확인완료다. Discord인증·봇기동은미실행이다.
@@ -105,6 +108,7 @@ TC17/TC18 준비 인계는 P19 경로/게시, 동일 scope의 예외 사본/erro
 
 | 날짜 | 버전 | 변경 |
 | --- | --- | --- |
+| 2026-11-06 KST | v0.6 | 노출 시험키 교체·신구 인증/사용처 동기화 검증, R02 최신 종료 전환 차단 취합 |
 | 2026-11-06 KST | v0.5 | 토큰 입력/읽기 완료, #40 fc292314 재검사, R03 검토와 실제 검색259 연결 |
 | 2026-11-06 KST | v0.4 | #16 main 동기화와 동일 support 확인, #40 최신 수정·R01 재검사와 남은 검토 구분 |
 | 2026-11-06 KST | v0.3 | #27/#28 병합·DB005~007·전체 시험 사본 게시·인증/scope 확인, R02 정상1건 인계 준비 |
