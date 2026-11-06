@@ -147,6 +147,8 @@ Jira 또는 저장 효과를 확인하지 못하면 응답이 맞아도 S1 통�
 
 support의 부분 실패 보존은 설계대로 동작했다. 같은 요청 재전송·재종료는 하지 않았다. 다음은 R04의 시작 상태 → 완료 전환 방법 결정(중간 전환 구현 또는 Jira 설정) 뒤 새 `request_id`로 다시 실행한다. 실패 응답은 근거를 싣지 않으므로 기대 근거 사용 여부는 실행 266 기록으로 확인한다.
 
+**정상 1건 통과(R01 실행, 2026-11-06):** B17 시간 예산을 남은 시간에 맞춰 L02/L03 한도까지 함께 줄이도록 바꾼 support `3e8547a`(R01 대리 편집, PR #16 `03dbb3f`로 반영)로 Webhook 실행 288(HTTP 200, 12.9초, 자동 답변, 기대 QR 근거, Jira 종료 204·독립 조회 완료, DB `completed`·응답 8필드 일치, DLQ 0)과 Discord 경유 실행 305(n8n 13.1초, 비공개 응답·근거·문의 연결값 수신, DB `completed`, Jira 완료, DLQ 0)가 통과했다. 증거는 PR #36의 `20261106-154400-vm-p19-normal-pass`, `20261106-163939-vm-discord-normal`이다. 앞선 실행 257·279는 B17이 남은 시간 14.9·15.1초로 기존 조건(15.5초)에 걸려 `deadline_exceeded`로 이관됐다. 288·305는 모델 최대 4/3초가 그대로 쓰였고, 줄인 한도 경로는 로컬 FL88~FL92로만 확인했다. 정상 1건 연결이며 R05 공식 판정·권한·실패·시간 시험을 대신하지 않는다.
+
 ## 로컬 예행 결과
 
 실제 support, 임시 PostgreSQL(`001`~`006`), 임시 사용자 API, R04 `60f8886`의 state·DLQ·handoff, [가짜 Jira](fake_jira.py)로 호출했다. 실제 Jira 호출은 0건이다. [결과](../../runs/public/20261105-185000-local-n8n-p19-fake-jira-e2e/summary.json), [이전 Jira 없는 예행](../../runs/public/20261105-170800-local-n8n-p19-real-rehearsal/summary.json)
