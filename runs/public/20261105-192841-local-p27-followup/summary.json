@@ -1,0 +1,93 @@
+{
+  "run_id": "20261105-192841-local-p27-followup",
+  "recorded_at_kst": "2026-11-05T19:28:41.048538+09:00",
+  "source_commit": "5737477d7abc9fa681122e842d741d4341625de9",
+  "checks": {
+    "unittest_total": 79,
+    "passed": 72,
+    "http_skipped": 7,
+    "ruff_check": "passed",
+    "ruff_format_files": 51,
+    "ruff_format": "passed",
+    "005_006_case_contract_unchanged_from_validated_60f8886": true,
+    "documentation": {
+      "files": 20,
+      "links": 455,
+      "anchors": 50,
+      "errors": 0
+    },
+    "public_candidates": {
+      "files": 175,
+      "links": 544,
+      "errors": 0
+    }
+  },
+  "findings": [
+    {
+      "id": "P27-CORRELATION",
+      "priority": "P1",
+      "status": "reproduced",
+      "description": "H23 maps req.a and req/a to the same label; scope and owner are not part of the label. H24 reuses the first issue without validating case/owner.",
+      "synthetic_examples": [
+        {
+          "id": "req.a",
+          "scope": "scope-a",
+          "owner": "owner-a",
+          "label": "dubakwi-req_a"
+        },
+        {
+          "id": "req/a",
+          "scope": "scope-a",
+          "owner": "owner-b",
+          "label": "dubakwi-req_a"
+        },
+        {
+          "id": "req.a",
+          "scope": "scope-b",
+          "owner": "owner-c",
+          "label": "dubakwi-req_a"
+        }
+      ]
+    }
+  ],
+  "decision": "Do not merge/deploy PR #27 until identity collision and reuse ownership checks are resolved.",
+  "pending": [
+    "R04 identity collision fix and R02/R05 contract review",
+    "D06 physical test account mapping confirmation by R04/R01/R02",
+    "Reviewed main source before service migration and matched state rollout"
+  ],
+  "vm_mutations": {
+    "new_unpublished_read_only_helper": 1,
+    "business_data_changes": 0,
+    "service_migrations_applied": false
+  },
+  "jira_mutations": 0,
+  "reviewed_head": "fdd0be140649a4a47ba833e7974ef303971e8abd",
+  "workflow_code_unchanged_through_reviewed_head": true,
+  "design_review": {
+    "consumer_commit": "6e3f24108bfe6501c94ea66a2e29779c39b3f514",
+    "policy": "B25: security category -> security; other handoff -> support; close/wait -> null",
+    "physical_accounts": "D06 not finalized",
+    "assignable_account_http_status": 200,
+    "active_assignable_account_count": 1,
+    "proposal": "Both logical roles mapped to the existing single test account, draft only; no mapping applied"
+  },
+  "readback": {
+    "jira_http_status": 200,
+    "jira_status_category": "done",
+    "jira_resolution_present": true,
+    "completed_state_revisions_with_saved_response": [
+      3,
+      6
+    ],
+    "older_processing_revision_2_preserved": true,
+    "service_case_lookup_installed": false,
+    "service_case_begin_installed": false
+  },
+  "secret_check": {
+    "tscan_available": false,
+    "fallback": "changed public-text patterns and public candidate check",
+    "pattern_matches": 0,
+    "limits": "not a full secret/history/PII scan"
+  }
+}

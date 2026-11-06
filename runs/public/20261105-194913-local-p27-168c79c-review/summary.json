@@ -1,0 +1,55 @@
+{
+  "run_id": "20261105-194913-local-p27-168c79c-review",
+  "source_commit": "168c79c160d847115aa00f01e30107a2ebcb617c",
+  "checks": {
+    "targeted_unittests": 5,
+    "passed": 5,
+    "p12_wrapper_executes_four_simulation_scripts": true,
+    "ruff_check_new_python": "passed",
+    "ruff_format_new_python": "passed",
+    "github_quality": "success"
+  },
+  "improvements": [
+    "Key reuse rejects other project or missing/mismatched request label.",
+    "Done issues skip repeated close write.",
+    "Import renderer writes substituted copies under private runs paths."
+  ],
+  "blocker": {
+    "id": "P27-CORRELATION",
+    "status": "still_reproduced",
+    "labels": [
+      "dubakwi-req_a",
+      "dubakwi-req_a"
+    ],
+    "request_ids": [
+      "req.a",
+      "req/a"
+    ],
+    "label_search_result": "known, reused synthetic JBYS-999 without case/owner verification",
+    "impact": "Wrong request can reuse another case ticket; key label check also cannot distinguish collided labels."
+  },
+  "limits": [
+    "Repeated-close success does not by itself prove the current request context was previously saved.",
+    "Reported n8n update not independently checked this turn.",
+    "R04 private identifier file not located; path requested.",
+    "No VM/Jira/service DB change this turn."
+  ],
+  "first_attempt": "Additional probe omitted ctx.effects and raised TypeError; corrected fixture rerun reproduced the business defect; targeted existing tests passed independently.",
+  "documentation_checks": {
+    "files": 20,
+    "links": 456,
+    "anchors": 50,
+    "errors": 0
+  },
+  "public_candidate_checks": {
+    "files": 177,
+    "links": 546,
+    "errors": 0
+  },
+  "secret_check": {
+    "tscan": "unavailable",
+    "fallback": "changed public text patterns and Git candidate checks",
+    "pattern_matches": 0,
+    "limits": "not a full history/PII/secret scan"
+  }
+}

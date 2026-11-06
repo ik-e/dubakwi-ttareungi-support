@@ -1,0 +1,62 @@
+{
+  "run_id": "20261106-053658-local-p27-1b83d18-review",
+  "source_commit": "1b83d1885e54596c408b2edd7751487e4f5b2e17",
+  "review_decision": "Previous P27-CORRELATION code blocker resolved; limited pre-merge real retest recommended, merge acceptance pending evidence and contract review.",
+  "checks": {
+    "unittest_total": 83,
+    "passed": 76,
+    "http_skipped": 7,
+    "ruff_check": "passed",
+    "ruff_format": "passed",
+    "ruff_format_files": 54,
+    "sha256_reference_comparisons": 56,
+    "sha256_reference_passed": true,
+    "hash_helper_nodes_checked": 4,
+    "github_quality": "success",
+    "005_006_case_contract_unchanged_from_validated_60f8886": true
+  },
+  "implementation": [
+    "Label hashes JSON.stringify([scope, owner, first_request_id]) with SHA-256 truncated to 160 bits.",
+    "Search result must be exactly one and match project key, label, case_id and first_request_id.",
+    "Ambiguous/mismatched results fail before bind or subsequent writes.",
+    "Same identification is used by handoff, save and case_ref."
+  ],
+  "retest_scope": {
+    "timing": "before merge",
+    "new_jira_test_issues_max": 1,
+    "new_test_db_scopes_max": 1,
+    "jira_issue_must_remain_open": true,
+    "close_assign_alert_disallowed": true,
+    "old_data_must_remain_unchanged": true,
+    "steps": [
+      "new begin/prepare/create/bind/wait",
+      "same logical case reuse with no second issue",
+      "save internal finish and state replay/readback",
+      "record Jira item count, latest revision, identity checks and remaining limits"
+    ]
+  },
+  "limits": [
+    "No VM/Jira execution of 1b83d18 verified by R01 this turn.",
+    "No service migrations or workflow rollout this turn.",
+    "Search indexing delay and notification deduplication remain distinct risks.",
+    "New label version does not make old-label test data eligible for reuse.",
+    "Whole-path deadline, webhook/Header Auth, role-mapped assignment, case_ref live service path and R05 verdict pending."
+  ],
+  "documentation_checks": {
+    "files": 20,
+    "links": 457,
+    "anchors": 50,
+    "errors": 0
+  },
+  "public_candidate_checks": {
+    "files": 179,
+    "links": 548,
+    "errors": 0
+  },
+  "secret_check": {
+    "tscan": "unavailable",
+    "fallback": "changed public text patterns and Git candidates",
+    "pattern_matches": 0,
+    "limits": "not a full history/PII/secret scan"
+  }
+}

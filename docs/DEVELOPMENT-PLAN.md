@@ -598,6 +598,54 @@ R01 수정 후 검증: 공통 unittest67건 중60통과·실제HTTP7생략(실�
 
 사용자의 원문 내부 보관·출처/자체 요약 공개 지시로 R01이 이번 공개 범위와 공통 정책을 취합한다. R03의 출처·미확인 시점·시점 차이 설명을 보존하고 원문 Markdown·사진10장은 Git 제외 내부 자료로 바이트 검증해 보관했다. 원문 재배포 허용·기관 지식/색인 승인은 주장하지 않는다. #30을 최신 main 기준 출처/요약 변경으로 분리하며 #24의 설계·시험 준비·발표 PDF와 검사 예외는 이 PR에 섞지 않는다. #24는 별도 검토로 남긴다. 과거 원격 커밋을 재작성하지 않으므로 최신 트리에서 제외한 것이 이력 삭제를 뜻하지 않는다. 이후 지식 본문·워크플로우 편집 책임은 R03에 유지한다. 공개 원본은 [정책](PUBLICATION.md)·rag-knowledge .gitignore이며 [조사 요약](rag-knowledge/chatbot_documents/README.md)과 출처 목록을 연결한다. 이번 문서/추적 범위 변경으로 서비스 성공·VM 시험을 기록하지 않는다.
 
+### 2026-11-05 R01 P18 Jira 연결·case 함수 검토 착수
+
+상태: 진행. R01은 PR #27 커밋 60f8886의 005~006을 격리된 일회용 PostgreSQL에서 검증하고 Jira Resolution/전환 설정을 확인한다. 영향 경로는 R01 검토 증거·원장·Git 제외 인계이며 R04 업무 원본은 편집하지 않는다. 서비스 DB 적용·공용 P11/P19 변경·시험 이슈 삭제는 수행 전 검증 대상으로 구분한다. 웹 SSH 관리 인증 후 기존 n8n Jira Credential을 사용했다. 관리자 브라우저 계정 접근은 이번 API 작업의 선행 조건이 아니었다.
+
+
+### 2026-11-05 R01 P18 Jira 종료 준비·case 함수 검토 결과
+
+상태: R01 준비 검증 완료, R04 실제 종료/save·R02 통합·R05 공식 판정은 진행/대기. [Jira/VM 검증](../runs/public/20261105-185423-vm-jira-case-readiness/summary.json)에서 기존 Credential의 Jira 관리 권한·빈 Resolution 목록·종료 전환 필수 조건을 실제 확인하고 등록 API 201 및 허용값 재조회 200을 확인했다. 기존 시험 이슈는 Pending을 유지했다. 새 미게시 helper의 일회성 POST는 disabled로 보호했다. 기존 업무 복제본4개와 공용 본체의 nodes/connections/settings/active/versionId는 전후 같았다.
+
+[로컬 격리 DB](../runs/public/20261105-184250-local-case-review/summary.json) 및 VM 별도 DB에서 60f8886의 001~006과 runtime constraint/function/case/role 계약 시험이 통과했다. 로컬 추가 동시 처리권은 하나만 proceed·나머지는 case_busy, runtime DDL/삭제6종 거절을 확인했다. Windows 응답 디코딩 실패와 n8n --file 옵션 최초 실패는 별도 기록하고 재시험을 구분했다. 서비스 DB의 기존 state_apply 해시는 같고 005~006은 미적용이다. 서비스 적용은 AGENTS의 검토된 main 기준과 배포 순서를 따른다. 역할별 담당 대신 첫 후보 선택, 알림 body, 전체 기한과 B27 실측, 11노드 VM/20노드 원본 배포 정합성 및 시험 processing/DLQ 복구는 후속이다. Git 제외 인계 v1.3을 준비했으며 S1 전체 성공으로 기록하지 않는다.
+
+### 2026-11-05 R01 P18 최신 후속 검토
+
+상태: 검토/서비스 적용 보류. 사용자 요청으로 담당 매핑과 005~006 적용 준비를 진행했다. [5737477 후속 검토](../runs/public/20261105-192841-local-p27-followup/summary.json): 공통79건 중72통과·HTTP7생략, Ruff 통과. SQL005~006·case 계약은 기존 검증본과 동일하지만 H23 label 충돌·H24 재사용 소유권 미검증 P1을 재현했다. 기존 GitHub changes-requested 검토를 유지하고 R04 원본을 대리 편집하지 않았다. 담당 계정 지정과 SSH 재인증을 요청했으며 서비스DB/Jira/workflow 변경은 이번 확인에서0이다. Git 제외 R04 회신안과 서비스 적용 준비안을 작성했다.
+
+후속 SSH/API 읽기 확인: 설계와 R02 B25의 security/기타 이관 역할을 대조했다. 실제 활성 배정 후보1개를 조회하고 기존 시험 계정의 시험 전용 매핑 초안을 Git 제외로 준비했으나 D06 계정 합의/치환은 미완료다. Jira done/Resolution 및 DB completed rev3·6 응답 저장을 확인했고 이전 processing rev2는 유지했다. 서비스 case 함수는 미설치다. head fdd0be1은 증거 추가이며 5737477 이후 업무 코드 불변으로 P1은 남는다. 새 미게시 GET helper1개만 추가했고 Jira/서비스 데이터 변경은0이다.
+
+### 2026-11-05 R01 P12 168c79c 후속 확인
+
+상태: 검토/병합·서비스 적용 보류 유지. [최신 재현](../runs/public/20261105-194913-local-p27-168c79c-review/summary.json)에서 키 재사용 검사·완료 재종료 생략·렌더러 추가와 CI/관련5건/Ruff 통과를 확인했다. H23 원ID/scope label 충돌과 H24 label검색 첫결과 미검증은 여전히 재현돼 기존 P1이 해결되지 않았다. 원본·VM·Jira·DB 변경은0이다. 비공개 시험 식별 파일은 경로 미확인으로 요청했고 수령/내용 확인 완료로 기록하지 않았다. 렌더러용 순수 매핑 JSON 초안도 Git 제외로 준비했으나 D06 합의/치환은 미완료다.
+
+### 2026-11-06 R01 P12 식별 수정 재검토
+
+상태: 코드 수정 확인·실제 제한 재시험/병합 판단 대기. [1b83d18 검토](../runs/public/20261106-053658-local-p27-1b83d18-review/summary.json)에서 이전P1의 해시 식별/단일 검색결과/문의·소유권 검증과 handoff/save/case_ref 일관성을 확인했다. 공통83건 중76통과·HTTP7생략, Ruff54파일 및4개노드 해시56건 표준대조가 통과했다. 이전 버전의P1재현 기록은 보존하되 현재 판정은 코드수정 확인이다. 병합전 새scope1/Jira열린시험건최대1, 종료·배정·알림·기존자료변경 없음 범위의 재시험 회신안을 준비했다. 실제결과/R02·R05검토와 검색지연·알림중복·전체기한·Webhook·case서비스적용은 후속이다. R01의VM/Jira/서비스DB변경은0이다.
+
+### 2026-11-06 R01 P18/P19 통합 실행 착수
+
+상태: 진행. 사용자 지시로1b83d18의 제한 실연동을 R01 전용 helper/새namespace에서 준비한다. R04 업무 원본과 공용P11/P19·기존데이터·Credential은 편집하지 않는다. 선행은VM복제본Code/SQL/비활성 확인과관리연결이다. 새Jira열린시험건최대1/DBscope1, 생성후known키재사용·save/재조회만 수행하며 종료·배정·알림은제외한다. R02원본6a963c6의실제연결bundle도준비하며main병합/서비스005~006은검토조건충족후별도판단한다.
+
+### 2026-11-06 R01 P18 제한 실연동 결과·P19 반입 준비
+
+상태: R01제한검증완료·R02/R05검토/병합/서비스적용대기. [실제결과](../runs/public/20261106-054257-vm-integration-progress/summary.json): 인증Webhook 생성240/bind rev2, known키재사용245/문맥rev4, 저장전용249/내부finish rev5 completed/응답저장·replay251을확인했다. 245의R01helper표현식실패를보존하고Jira쓰기재실행없이저장만재시험했다. 새열린시험건1/scope행1/DLQ0, 미인증403·수신종료404, 기존데이터해시/보호workflow5개불변·새helper4개미게시다. 서비스DB백업customarchive목록검사를완료했으나이번복원은안했다. R02 6a963c6의privatebundle/manifest 준비·LF해시대조는끝났지만반입/게시는안했다. 원본·공용P11/P19·Credential·서비스005~006변경은0이다. R01검토승인과다른역할승인/전체S1/공식판정은구분한다.
+
+### 2026-11-06 R01 최신 marker/P20 검토
+
+상태: 새기능검토/보완요청. [15e3c5a·fc776e2 검증](../runs/public/20261106-081647-local-r04-refresh/summary.json)에서R04최신marker/007/P20을검토했다. #27 83중76통과·HTTP7생략,#28 76중69통과·HTTP7생략,Ruff/문서/공개검사통과다. 반복이관에서새문맥없이context_saved확정하는P1을재현했다. 007로컬기존DBupgrade·SQL4계약은통과했으나동일case의실패단계가다르면활성DLQ2개여서중복범위정의/수정이필요하다. 공개action계약에alert_marker도미반영이다. #28기존코드의실패지속경로수정은확인했으나VM/공식판정은별도다. VM/서비스DB/Jira·R04원본변경은0이며이전1b승인은당시범위로보존한다.
 ### P04 소통 방식 선택 허용 개정 — 2026-11-06 KST
 
 사용자가 전달한 전원 합의와 적용 지시에 따라 R01이 AGENTS 3.1절·PR 양식·이 문서의 결과 취합 방법을 개정했다. 선행 조건은 기존 헌장의 소유권·검토 체계이며 영향 경로는 세 공통 문서와 새 검사 요약뿐이다. Discord 상세 전달과 PR 상세 기록＋간략 알림을 모두 허용한다. 개별 GitHub 승인·Discord 발송·서비스 완료를 의미하지 않으며 실제 효력은 기본 브랜치 병합 이후 새 요청/답변과 다음 인계부터다. [검사 근거](../runs/public/20261106-095035-local-communication-rules/summary.json)를 따른다.
+
+### 2026-11-06 R01 P12/P18/P20 수정 해소·인계 취합
+
+상태: R01 코드 검토 승인·영향 역할 검토/병합·VM 적용 대기. [최신 검증](../runs/public/20261106-102401-local-r01-r04-handoff/summary.json)에서 #27 9d7eaf2(87ee11c 포함)와 #28 8c53cf7(7426eb9 포함)을 확인했다. #27은 84건 중77통과·HTTP7생략, #28은76건 중69통과·HTTP7생략이며 Ruff·문서·공개후보 검사가 통과했다. label/연결, sent/attempted 새 문맥 저장, marker 중복 계약 및 scope 대입값 전용 렌더 수정이 반영됐다. 두 PR을 결합한 실제 렌더 E02는 env 차단에서도 동일 scope/storage_ready=true다. 해당 커밋에 R01 APPROVED를 등록했으며 이전 버전의 실패·검토 기록은 보존한다. 사용자가 전달한 R04 요청은 AGENTS3.1에 따라 취합해 같은 내용의 재작성을 요구하지 않는다. 지정 DLQ 시험 복제본 갱신만 인계 동의하며 호출 조율·변경 전 보존·Credential/ID/비활성 유지가 필요하다. 실제 갱신은 이번에 하지 않았다. SQL005~007은 검토된 main/현황/백업 뒤 R01이 적용·검증하고 D06 담당 매핑은 아직 초안/확정 대기다. R02/R05 최신 검토·서비스 적용·실제 ErrorTrigger·전체S1/공식판정은 별도이며 VM/DB/Jira/공용P11/P19 변경은0이다.
+
+### 2026-11-06 R01 P12/P20 재전송 정정·S05 최종안 확인
+
+상태: R01 최신 문구/계약 확인 완료·R05 검토와 병합/배포 대기. [새 검토 기록](../runs/public/20261106-104417-local-r01-retry-review/report.md)에서 #27 `86d78e7`의 S05·기대값·STORAGE3.3 최종 문구 일치와 #28 `8c53cf7`을 확인했다. 회귀는 각각 84중77통과/HTTP7생략, 76중69통과/HTTP7생략이다. R02의 scope/렌더 소비 동의와 errors가 원 실행 ID·같은 scope의 행을 찾으면 unknown→재전송 request_requires_review라는 정정을 취합했다. skipped는 기존 행을 바꾸지 않으며 begin 전 행이 없으면 processing을 생성하지 않는다. R02의 팀 n8n X03 미실행 보고로 해당 호출 충돌은 해소됐고 지정 DLQ 갱신은 기존 범위대로 R04가 담당한다. support FL35는 R02, 최신 실패/복구 검토는 R05에 인계한다. #27→#28→#16 순서는 유지하며 이번 VM/DB/Jira 변경과 전체 S1 실행은0이다.
+
+### 2026-11-06 R01 P18 DLQ 복제본 직접 대조·S05 인계
+
+상태: DLQ 정적 대조 완료·S05 한정 인계·실행 검증 대기. [VM 읽기 대조](../runs/public/20261106-104719-vm-dlq-clone-verify/report.md)에서 지정된 비활성 DLQ 복제본의6개노드parameters/전체connections가87ee11c 및86d78e7 원본과같고D03 false→D06, 기존ID/PostgreSQLCredential/비활성유지, 변경전백업5노드·비활성을확인했다. state11노드복제본S05는9d7eaf2와같아86d78e7미반영이다. 새시민문구시험·unittest84건중77통과/HTTP7생략,Ruff58파일/문서/공개후보통과를확인하고해당커밋R01코드승인을갱신했다. R04에게지정시험사본S05 jsCode만변경전보존/호출조율/기존설정유지조건으로인계한다. 이번workflow편집·업무실행·DB/Jira쓰기0이며SQL007적용상태/중복제거완료는확인하지않았다. 백업은회귀/SQL007검증과복구기준확인전보존한다. 영향역할검토/병합/서비스적용/전체S1은별도대기다.
