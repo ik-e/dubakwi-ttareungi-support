@@ -1,0 +1,128 @@
+{
+  "run_id": "20261105-192700-team-n8n-r04-jira-close",
+  "execution_date": "2026-11-05",
+  "timezone": "Asia/Seoul",
+  "tasks": [
+    "P12",
+    "P18"
+  ],
+  "owner": "R04",
+  "environment": "team n8n (inactive R01 state clone + inactive R04 handoff copy), editor-run executions, real PostgreSQL and real Jira JBYS-2; not webhook/Header Auth calls",
+  "source_commit": {
+    "handoff_at_runs_204_to_228": "e02f0a1 content (handoff nodes identical through eb8f1c3)",
+    "handoff_updated_after_runs": "6d05ced then 5737477 (not used by the runs below)",
+    "state_clone": "eb8f1c3 content: 11 nodes (S06-S11); S12-S20 case_ref not imported",
+    "handoff_runs_232_235": "5737477 (45 nodes, mapped-or-fail assignment, attempt note on reuse)"
+  },
+  "configuration_version": "Jira address and assignee mapping are import-time placeholders; credentials by name; runs 217 predates the mapped-or-fail assignment change",
+  "real_effects_on_jira": "JBYS-2: label, context comments, existing assignee kept, status done (Resolution done). One new test issue created by run 232 (key delivered privately, not recorded here); run 235 added one attempt note to it and created nothing.",
+  "cases": [
+    {
+      "id": "STATE-SMOKE",
+      "execution": 203,
+      "result": "pass",
+      "detail": "fail op without owned row: ok=true skipped=true through real PostgreSQL"
+    },
+    {
+      "id": "LOOKUP-OWN",
+      "execution": 204,
+      "result": "pass",
+      "detail": "status ok, contact fields masked, masked=2"
+    },
+    {
+      "id": "LOOKUP-OTHER",
+      "execution": 205,
+      "result": "pass",
+      "detail": "status denied, record null"
+    },
+    {
+      "id": "LOOKUP-UNKNOWN",
+      "execution": 206,
+      "result": "pass",
+      "detail": "status denied, indistinguishable from other owner"
+    },
+    {
+      "id": "LOOKUP-DISABLED",
+      "execution": 207,
+      "result": "pass",
+      "detail": "status skipped, no provider call"
+    },
+    {
+      "id": "BEGIN-WAIT-REUSE",
+      "executions": [
+        208,
+        209
+      ],
+      "result": "pass",
+      "detail": "begin proceed rev0; prepare rev1; Jira read 200; bind rev2; error_code null, state_saved true"
+    },
+    {
+      "id": "SAVE-FAIL-CLOSED",
+      "execution": 212,
+      "result": "expected_fail",
+      "detail": "issue lacked the request label; ok=false state_error; SQL not called; state revision unchanged"
+    },
+    {
+      "id": "SAVE-SUCCESS",
+      "execution": 215,
+      "result": "pass",
+      "detail": "Jira context verified, finish through SQL, ok=true revision 3 completed"
+    },
+    {
+      "id": "HANDOFF-REUSE",
+      "executions": [
+        216,
+        217
+      ],
+      "result": "pass_with_note",
+      "detail": "context comment 204, assignment 204, alert 200; all effects confirmed; note: assignment used the first assignable candidate, removed later in 6d05ced"
+    },
+    {
+      "id": "CLOSE",
+      "execution": 225,
+      "result": "pass",
+      "detail": "transition id looked up at run time, Resolution set, Jira 204; closed confirmed, error_code null, revision 5"
+    },
+    {
+      "id": "SAVE-FINISH-AFTER-CLOSE",
+      "execution": 228,
+      "result": "pass",
+      "detail": "Jira check then finish in one save; ok=true revision 6 completed; no separate finish call"
+    },
+    {
+      "id": "FINAL-READBACK",
+      "result": "pass",
+      "detail": "Jira JBYS-2 status done and Resolution done; DB begin with the same request returns replay with the stored response"
+    },
+    {
+      "id": "CREATE-NEW-ISSUE",
+      "executions": [
+        231,
+        232
+      ],
+      "result": "pass",
+      "detail": "begin proceed rev0; label search found 0; create HTTP 201; bind rev2; effects created confirmed, error_code null"
+    },
+    {
+      "id": "DUPLICATE-REUSE",
+      "execution": 235,
+      "result": "pass",
+      "detail": "same first_request_id sent again: label search found 1, create not run, existing issue reused, attempt note stored (context confirmed), rev 4, error_code null"
+    }
+  ],
+  "incident": {
+    "execution": 222,
+    "result": "error, no change",
+    "detail": "an ad-hoc run executed the stored 'start' test workflow (JBYS-2 transition) instead of the intended label write; Jira returned Bad request; later read-back showed JBYS-2 unchanged (Pending, no Resolution). Cause: the editor run API ignores the supplied workflow data and runs the stored one."
+  },
+  "not_run": [
+    "assignment success with a role-to-account mapping",
+    "case_ref with migrations 005-006 on the service database",
+    "webhook (Header Auth) calls",
+    "flow.py and tscan (tools unavailable on the author's machine)",
+    "Discord integration",
+    "closing or assigning the new test issue (left open, preserved)"
+  ],
+  "preserved": "test request rows and DLQ are kept; nothing deleted or reset",
+  "overall": "not recorded as S1 full success"
+}

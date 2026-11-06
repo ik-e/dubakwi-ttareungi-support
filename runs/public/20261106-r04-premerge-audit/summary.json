@@ -1,0 +1,30 @@
+{
+  "run_id": "20261106-r04-premerge-audit",
+  "scope": "R04 read-only pre-merge review and local static verification",
+  "reviewed": {
+    "pr24": "dfcaff2c16aeacd57b7aec1d728d89517472e361",
+    "pr31": "06e92236d8c9ebfeb81f6db59a8ad851d1b232da",
+    "pr27": "8f001fc",
+    "pr28": "3d6a581"
+  },
+  "results": {
+    "rag_public_restricted_branching": "pass_static",
+    "rag_result_access_level_recheck": "pass_static",
+    "state_case_active_unique_index": "present",
+    "handoff_repeat_assignment_alert_guard": "pass_local",
+    "state_dlq_double_failure_guard": "pass_local",
+    "secret_and_structure_scan": "pass_local",
+    "main_divergence_at_review": "0 behind, 18 ahead"
+  },
+  "deployment_placeholders": [
+    "__ASSIGNEE_MAP_JSON__",
+    "__JIRA_BASE_URL__"
+  ],
+  "not_verified": [
+    "user API to B05 to RAG end-to-end authorization",
+    "actual VM Jira and PostgreSQL behavior",
+    "case_ref-less concurrent new-request Jira creation atomicity",
+    "full P19 S1 and R05 official verdict"
+  ],
+  "secrets_included": false
+}
