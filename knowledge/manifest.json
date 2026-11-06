@@ -11,7 +11,7 @@
       "version": "draft-1",
       "approval_status": "pending_review",
       "index_enabled": false,
-      "sha256": "bdef07fc5d45935f918ddc58ccfca835588063b9b1aaf65a03b6cccdf126e696",
+      "sha256": "80ed9df1d717427c5c476f60be8c1368f85d034625985dd2e82aee696e2b0749",
       "sources": [
         "docs/rag-knowledge/breakdown-report.md"
       ],
@@ -26,7 +26,7 @@
       "version": "draft-1",
       "approval_status": "pending_review",
       "index_enabled": false,
-      "sha256": "df5195901c3b2548326bce490222e7d7b73507e41802088bf0bf902543085e16",
+      "sha256": "bb776efa09b6399428653fc7bed61f9a85f1990069b868f917067be92debbd2f",
       "sources": [
         "docs/rag-knowledge/fees-refund-guide.md"
       ],
@@ -41,7 +41,7 @@
       "version": "draft-1",
       "approval_status": "pending_review",
       "index_enabled": false,
-      "sha256": "7abcfb0f9d2b6ba2d37aabe7c11993b07c3c2c93c422061bdf4bdeaeaaff031d",
+      "sha256": "b0f712bd27fce81075d26da2a8d4990e4539259728821c3a3164c47a09269140",
       "sources": [
         "docs/rag-knowledge/privacy-security-guide.md"
       ],
@@ -56,7 +56,7 @@
       "version": "draft-1",
       "approval_status": "pending_review",
       "index_enabled": false,
-      "sha256": "b70577df2a2499a8f326c825f163b8f2af82cf2857f47d284cf72b96cd81228e",
+      "sha256": "ea23ee1426e7002fccc12c6f381d8a0ac383a466531f3336e362c46cd7f19177",
       "sources": [
         "docs/rag-knowledge/rental-guide.md"
       ],
@@ -71,7 +71,7 @@
       "version": "draft-1",
       "approval_status": "pending_review",
       "index_enabled": false,
-      "sha256": "04d63e87a570c7757ddfddc3bfa108be9df9751951e1ed697b712888e8a809f3",
+      "sha256": "9c446981b91d9416671eef684ee9ff260af5a2cb2b9cf40c16e7041001b548d0",
       "sources": [
         "docs/rag-knowledge/return-guide.md"
       ],
@@ -86,7 +86,7 @@
       "version": "draft-1",
       "approval_status": "pending_review",
       "index_enabled": false,
-      "sha256": "72af1fd115f46962be94920e237563a338781472d2e2ae87d8e3eb9b4ccca6e6",
+      "sha256": "d32b720b4fb20fa4badf8b3a6a5e463f90989693454a8ab446a684b0894aa92e",
       "sources": [
         "docs/rag-knowledge/support-followup.md"
       ],

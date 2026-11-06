@@ -64,10 +64,14 @@ function evalExpr(text, scope) {
 }
 
 // connections를 따라 실행한다. 분기·병합·긴급 재진입을 실제 연결로 지난다.
+// 시험 시계: 실행마다 시작 시각을 고정하고 advanceAfter로만 흐르게 한다. 실제 경과 시간(CI 지연)이 시간 판정에 섞이지 않는다.
 const clock = {
   real: Date.now,
-  shift(ms) { const before = Date.now; Date.now = () => before() + ms; },
-  reset() { Date.now = this.real; },
+  base: 0,
+  offset: 0,
+  shift(ms) { this.offset += ms; },
+  reset() { this.base = this.real(); this.offset = 0; Date.now = () => this.base + this.offset; },
+  restore() { Date.now = this.real; },
 };
 
 // R04가 소유한 state·DLQ의 계약 검사 코드를 그대로 실행해 요청 형식을 대조한다. mock이 놓치는 형식 불일치를 잡는다.
@@ -402,6 +406,9 @@ const FLOWS = [
   ['FL84', 'S2', 'attempt 생략 case_ref 두 번째는 보완 질문', ask({ case_ref: 'case-1' }), { triage: { text: RETURN_ASK }, ...earlier(1) }, flow({ route: '보완 질문', sentAttempt: 2, sentTicket: 'T-1' })],
   ['FL75', 'S8', '알림 표식 미확인 alert_marker는 같은 case DLQ 키로 기록', ask({ request_id: 'lc-req-a' }), processResult({ ticket_id: 'JBYS-2', error_code: 'partial_effect', recovery: { version: 1, mode: 'jira_ref', action: 'alert_marker', args: null, reference: { jira_issue_id: '10004', case_id: 'case-1', owner_id: 'u01' }, reason: 'marker unknown' } }, { created_or_reused: { status: 'confirmed', id: 'JBYS-2' }, assigned: { status: 'confirmed', id: 'JBYS-2' }, alert: { status: 'confirmed', id: 'JBYS-2' } }), handoff('partial_effect', { dlq: 1, ticketId: 'JBYS-2', dlqRecoveryAction: 'alert_marker', dlqDedupe: { case_id: 'case-1', ref: 'case:case-1:alert_marker' } })],
   ['FL76', 'S8', '다른 요청의 alert_marker도 같은 DLQ 키', ask({ request_id: 'lc-req-b' }), processResult({ ticket_id: 'JBYS-2', error_code: 'partial_effect', recovery: { version: 1, mode: 'jira_ref', action: 'alert_marker', args: null, reference: { jira_issue_id: '10004', case_id: 'case-1', owner_id: 'u01' }, reason: 'marker unknown' } }, { created_or_reused: { status: 'confirmed', id: 'JBYS-2' }, assigned: { status: 'confirmed', id: 'JBYS-2' }, alert: { status: 'confirmed', id: 'JBYS-2' } }), handoff('partial_effect', { dlq: 1, ticketId: 'JBYS-2', dlqRecoveryAction: 'alert_marker', dlqDedupe: { case_id: 'case-1', ref: 'case:case-1:alert_marker' } })],
+  // R05 TC12: 반납과 요금이 섞인 문의가 요금으로 분류돼도 보완 질문에 반납 시각·금액을 묻는다.
+  ['FL93', 'S2', '반납 뒤 추가 요금 문의(fees)는 반납 시각·금액을 묻는다', ask({ question: '반납했는데 요금이 더 나왔어요.' }), { triage: { text: triage({ type: 'fees', missing: ['usage_date', 'charge_detail'] }) } }, flow({ route: '보완 질문', llm: 1, ticket: null, case_ref: 'case-1', answerHas: '반납 시각' })],
+  ['FL94', 'S2', '같은 문의가 반납(return)으로 분류돼도 반납 시각·대여소를 묻는다', ask({ question: '반납했는데 요금이 더 나왔어요.' }), { triage: { text: RETURN_ASK } }, flow({ route: '보완 질문', llm: 1, ticket: null, answerHas: '대여소' })],
   ['FL41', '계약', 'BeginRequest 서버 값', ask({ role: 'security' }), {}, flow({ route: '자동 답변', beginShape: true })],
 ];
 
@@ -556,6 +563,7 @@ function main() {
     try { return evaluate(workflow, item, flowCase); } catch (error) { return { id: item[0], group: item[1], title: item[2], pass: false, http_status: null, failures: [`예외: ${error.message}`] }; }
   };
   const results = [...CASES.map((item) => safe(item, false)), ...FLOWS.map((item) => safe(item, true))];
+  clock.restore();
   const staticFailures = checkStatic(workflow);
   if (dedupeKeys.size > 1) staticFailures.push(`alert_marker DLQ 키가 요청마다 다름: ${[...dedupeKeys].join(' / ')}`);
   const passed = results.filter((item) => item.pass).length;
