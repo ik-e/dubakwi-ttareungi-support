@@ -1,0 +1,24 @@
+{
+  "executed_at": "2026-11-06 KST",
+  "environment": "team VM Docker and Discord Gateway",
+  "source": "37ec341def1e98b0942c32d2a9724cc6947520c8",
+  "image_id": "sha256:a28f00c77cda4be477f8c3ede5eef96848932b250f3130a79b9448cee6317f9b",
+  "initial_failure": "uv cache creation rejected by read-only filesystem",
+  "fix": "PR41: execute /app/.venv/bin/python directly",
+  "running": true,
+  "restart_count": 0,
+  "gateway_connected": true,
+  "read_only": true,
+  "runtime_user": "65532:65532",
+  "mapped_accounts": 2,
+  "runtime_map_matches_confirmed_input": true,
+  "user_report": "unregistered account refused",
+  "runtime_rejection_log_confirmed": true,
+  "registered_discord_normal_result": "pending actual test account ID confirmation",
+  "normal_webhook_execution": "288",
+  "not_claimed": [
+    "registered Discord final reply",
+    "official R05 full verdict"
+  ],
+  "details": "report.md"
+}

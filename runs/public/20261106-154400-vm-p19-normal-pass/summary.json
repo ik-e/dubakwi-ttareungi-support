@@ -1,0 +1,59 @@
+{
+  "executed_at": "2026-11-06 KST",
+  "environment": "team VM n8n/PostgreSQL/Jira, real LLM and search",
+  "case_id": "P19 normal Webhook baseline",
+  "versions": {
+    "support": "3e8547a",
+    "main_merge": "9f3443b",
+    "state_dlq_handoff": "a930e24",
+    "errors": "8c53cf7"
+  },
+  "verdict": "R01 normal Webhook passed; Discord and official R05 verdict pending",
+  "execution_id": "288",
+  "http_status": 200,
+  "elapsed_seconds": 12.919,
+  "route": "자동 답변",
+  "agents": [
+    "triage",
+    "retriever",
+    "writer",
+    "verifier"
+  ],
+  "expected_qr_section_rank": 2,
+  "jira": {
+    "created": true,
+    "close_http_status": 204,
+    "independent_read_http_status": 200,
+    "status_category": "done",
+    "resolution": "완료"
+  },
+  "db": {
+    "status": "completed",
+    "step": "respond",
+    "revision": 4,
+    "final_response_present": true,
+    "response_fields_matched": [
+      "request_id",
+      "route",
+      "answer",
+      "sources",
+      "ticket",
+      "case_ref",
+      "agents",
+      "security"
+    ]
+  },
+  "dlq_count": 0,
+  "preservation": {
+    "original_support_unchanged": true,
+    "previous_failed_requests_preserved": true,
+    "retry_of_failed_request": false
+  },
+  "limits": [
+    "Dynamic reduced model timeouts covered locally, not exercised by this VM request",
+    "Normal guidance only; assignee mapping and failure tests remain",
+    "Discord input and ephemeral final reply not yet observed",
+    "R02/R04/R05 final confirmation pending under user-directed R01 integrated review"
+  ],
+  "details": "report.md"
+}
