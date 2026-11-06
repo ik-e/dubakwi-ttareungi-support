@@ -362,12 +362,15 @@ const FLOWS = [
   ['FL72', 'S6', '가능 여부 문의는 되묻지 않고 검색', ask({ question: '따릉이를 해외 여행에 가져가서 한 달 동안 써도 되나요?' }), { triage: { text: triage({ type: 'rental', missing: ['symptom'] }) } }, flow({ route: '자동 답변', search: 1 })],
   ['FL73', 'S2', '개별 문제의 안 되나요는 보완 질문 유지', ask({ question: '반납했는데 앱에 이용 중으로 나와요. 왜 안 되나요?' }), { triage: { text: triage({ type: 'return', missing: ['bike_id'] }) } }, flow({ route: '보완 질문' })],
   ['FL74', 'S8', 'Jira 종료 실패는 partial_effect로 known ID 보존', ask(), processResult({ ticket_id: 'JBYS-2', error_code: 'partial_effect', recovery: { version: 1, mode: 'jira_ref', action: 'close', args: null, reference: { jira_issue_id: '10004', case_id: 'case-1', owner_id: 'u01' }, reason: 'close failed' } }, { created_or_reused: { status: 'confirmed', id: 'JBYS-2' }, closed: { status: 'failed' } }), handoff('partial_effect', { dlq: 1, alerts: 1, saves: 0, ticketId: 'JBYS-2', dlqJira: { jira_issue_id: '10004', jira_issue_key: 'JBYS-2' }, dlqRecoveryAction: 'close' })],
-  // 시간 예산(설계서 7.5): 각 호출이 제한 시간을 모두 써도 B36 응답이 20초 안이어야 한다.
-  ['FL77', '시간', '모든 호출이 제한을 다 쓰면 답변 대신 이관하고 20초 안 응답', ask(), { advanceAfter: { B04: 1500, B10: 4000, B14: 3000, B27: 'timeout', B35: 1500 } }, handoff('deadline_exceeded', { llm: 1, search: 1, ticketTimeout: 8000, maxResponseMs: 20000 })],
-  ['FL78', '시간', '답변 경로 LLM 최대 시간 뒤 티켓 제한은 남은 시간만큼', ask(), { advanceAfter: { B10: 2000, B14: 1000, B19: 4000, B20: 3000, B27: 'timeout', B35: 1500 } }, flow({ route: '자동 답변', llm: 3, ticketTimeout: 6500, maxResponseMs: 20000 })],
-  ['FL79', '시간', '분류 뒤 검색·티켓·마무리 시간이 없으면 검색 없이 이관', ask(), { advanceAfter: { B10: 10000 } }, handoff('deadline_exceeded', { llm: 1, search: 0, ticketTimeout: 6500 })],
-  ['FL80', '시간', '긴급 선이관 뒤 시간이 없으면 후속 검색 생략', ask(), { triage: { text: triage({ type: 'security', urgency: 'high' }) }, advanceAfter: { B04: 1500, B10: 4000, B27: 'timeout', B35: 1500 } }, handoff('urgent', { priority: 'high', process: 1, search: 0, ticketTimeout: 11000, maxResponseMs: 20000 })],
-  ['FL81', '시간', '티켓 호출이 제한을 다 쓰고 실패해도 실패 알림·기록 포함 20초 안', ask(), { process: () => ({ error: { message: 'timeout' } }), advanceAfter: { B10: 2000, B27: 'timeout', X04: 1500, B35: 1500 } }, handoff('ticket_unknown', { dlq: 1, alerts: 1, ticket: null, maxResponseMs: 19600 })],
+  // 시간 예산(설계서 7.5): 분류·검색·답변은 20초 목표로 판단하고, B27은 25초 통과 상한으로 계산한다.
+  // 각 호출이 제한 시간을 다 써도 B36 응답이 25초 상한 안이어야 한다.
+  ['FL77', '시간', '모든 호출이 제한을 다 쓰면 답변 대신 이관하고 25초 상한 안 응답', ask(), { advanceAfter: { B04: 1500, B10: 4000, B14: 3000, B27: 'timeout', B35: 1500 } }, handoff('deadline_exceeded', { llm: 1, search: 1, ticketTimeout: 13000, maxResponseMs: 25000 })],
+  ['FL78', '시간', '답변 경로 LLM 최대 시간 뒤 티켓 제한은 남은 시간만큼', ask(), { advanceAfter: { B10: 2000, B14: 1000, B19: 4000, B20: 3000, B27: 'timeout', B35: 1500 } }, flow({ route: '자동 답변', llm: 3, ticketTimeout: 11500, maxResponseMs: 25000 })],
+  ['FL79', '시간', '분류 뒤 검색·티켓·마무리 시간이 없으면 검색 없이 이관', ask(), { advanceAfter: { B10: 10000 } }, handoff('deadline_exceeded', { llm: 1, search: 0, ticketTimeout: 11500, maxResponseMs: 25000 })],
+  ['FL80', '시간', '긴급 선이관 뒤 시간이 없으면 후속 검색 생략', ask(), { triage: { text: triage({ type: 'security', urgency: 'high' }) }, advanceAfter: { B04: 1500, B10: 4000, B27: 'timeout', B35: 1500 } }, handoff('urgent', { priority: 'high', process: 1, search: 0, ticketTimeout: 15000, maxResponseMs: 25000 })],
+  ['FL81', '시간', '티켓 호출이 제한을 다 쓰면 효과 미확인으로 이관하고 25초 상한 안', ask(), { process: () => ({ error: { message: 'timeout' } }), advanceAfter: { B10: 2000, B27: 'timeout', X04: 1500, B35: 1500 } }, handoff('ticket_unknown', { dlq: 1, alerts: 1, ticket: null, process: 1, ticketTimeout: 15000, failStatus: 'unknown', maxResponseMs: 24600 })],
+  // R04 handoff 최악 약 13초(86d78e7): 보통 경로(B27 도착 5초 안팎)는 그 이상 기다려야 효과를 미확인으로 남기지 않는다.
+  ['FL87', '시간', '보통 경로의 티켓 제한은 handoff 최악 13초 이상', ask(), { advanceAfter: { B10: 2000, B14: 1000, B19: 2000 } }, flow({ route: '자동 답변', llm: 3, ticketTimeout: 15000 })],
   // R05 TC01b: attempt 없이 case_ref만 보내도 서버 횟수로 3회째 한도 이관한다.
   ['FL82', 'S2', 'attempt 생략 신규 요청은 받아서 보완 질문', ask({ question: '반납했는데 안 됐어요' }), { triage: { text: RETURN_ASK } }, flow({ route: '보완 질문', sentAttempt: 1 })],
   ['FL83', 'S2', 'attempt 생략 case_ref 세 번째는 attempt_limit', ask({ case_ref: 'case-1' }), { triage: { text: RETURN_ASK }, ...earlier(2) }, handoff('attempt_limit', { sentAttempt: 3 })],
@@ -495,7 +498,12 @@ function checkTimeBudget(workflow) {
   if (ms('B35') + ms('X04') > tb.tail_ms) failures.push('B35+X04 제한이 tail_ms보다 큼');
   // B11 판단 시점의 최악값에서도 이관 티켓과 마무리 시간이 남아야 한다.
   if (ms('B04') + ms('L01') + tb.search_ms + tb.ticket_min_ms + tb.tail_ms > deadline) failures.push('분류 최악값 뒤 티켓 최소 시간이 남지 않음');
-  if (!String(node('B27').parameters.options.timeout).includes('time_budget')) failures.push('B27 제한이 남은 시간을 쓰지 않음');
+  const b27 = String(node('B27').parameters.options.timeout);
+  if (!b27.includes('time_budget') || !b27.includes('response_cap_at')) failures.push('B27 제한이 25초 상한까지 남은 시간을 쓰지 않음');
+  const cap = Number(/const RESPONSE_CAP_MS = (\d+)/.exec(code)?.[1]);
+  if (!(cap >= deadline)) failures.push('통과 상한이 일반 응답 시한보다 짧음');
+  // R04 handoff 최악 약 13초보다 티켓 최대 제한이 짧으면 효과 미확인이 정상 경로에서도 생긴다.
+  if (tb.ticket_max_ms < 13000) failures.push('티켓 최대 제한이 handoff 최악 13초보다 짧음');
   return failures;
 }
 
