@@ -737,12 +737,17 @@ class CaseFileTests(unittest.TestCase):
     def test_p11_entry_case_is_separate_and_expects_skeleton_mock(self):
         self.assertNotIn("cases/p11-entry.json", RUN.DEFAULT_CASE_FILES)
         data = self.load("cases/p11-entry.json")
-        (case,) = data["cases"]
-        self.assertEqual(case["body"]["user"], "citizen-a")
-        equals = case["expect"]["equals"]
-        self.assertEqual(
-            equals, {"route": "담당자 이관", "reason": "skeleton_mock", "ticket": None}
-        )
+        team = {c["x_dubakwi"]["id"]: c for c in self.load("cases/team.json")["cases"]}
+        skeleton = {"route": "담당자 이관", "reason": "skeleton_mock", "ticket": None}
+        for case in data["cases"]:
+            with self.subTest(case=case["name"]):
+                self.assertEqual(case["body"]["user"], "citizen-a")
+                equals = case["expect"]["equals"]
+                self.assertEqual({k: equals[k] for k in skeleton}, skeleton)
+        by_id = {c["x_dubakwi"]["id"]: c for c in data["cases"]}
+        for p11, tc in (("P11-02", "TC09a"), ("P11-03", "TC09b")):
+            self.assertEqual(by_id[p11]["body"]["question"], team[tc]["body"]["question"])
+            self.assertIsNone(by_id[p11]["expect"]["equals"]["security.blocked_by"])
 
     def test_fault_cases_switch_fault_off_after(self):
         data = self.load("cases/common.json")
