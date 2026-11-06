@@ -38,7 +38,7 @@ handoff는 R04 `168c79c`의 `scripts/dev/render_n8n_workflow.py`로 Jira 주소�
 | B07·B37·B32·X06 state | `dubakwiState01` | `--state-workflow-id` | R01 복제본 ID |
 | X03 DLQ | `dubakwiDlq0001` | `--dlq-workflow-id` | R01 복제본 ID |
 | B15·B27 handoff | `http://127.0.0.1:5678/webhook/dubakwi-handoff` | `--handoff-url` | R01 복제본 경로 |
-| Error Workflow | 없음 | `--error-workflow-id` | R01. `DUBAKWI_SCOPE` 미설정 문제 해결 후 |
+| Error Workflow | 없음 | `--error-workflow-id` | R01. 아래 "Error Workflow 연결 전 확인" 해결 후 |
 | scope (B07a·X06a·X03a) | `dubakwi-dev` (로컬 개발값) | `--scope` 필수로 치환 | R01. errors의 `DUBAKWI_SCOPE`와 같게 |
 | B14 검색 | `/webhook/dubakwi-search` | 그대로 | R03 |
 | B35 로그, X04 알림 | `data-api:8800` | 그대로 | 과정 data-api. 운영 알림 아님 |
@@ -50,6 +50,18 @@ handoff는 R04 `168c79c`의 `scripts/dev/render_n8n_workflow.py`로 Jira 주소�
 | `dubakwi-openai` | L01~L03 | OpenAI |
 | `dubakwi-postgres` | S04, D04 | PostgreSQL |
 | Jira SW Cloud API | handoff의 Jira 노드 | R04 연결 완료 보고. 노드 이름은 새 커밋 확인 후 기록 |
+
+## Error Workflow 연결 전 확인
+
+R02가 PR #28 `fc776e2`를 support 쪽에서 검토한 결과다(2026-11-06, [PR #28 댓글](https://github.com/ik-e/dubakwi-ttareungi-support/pull/28#issuecomment-6673887106)). R04 회신 전이다.
+
+| 항목 | 판정 | 내용 |
+| --- | --- | --- |
+| E06 DLQ 요청 형식 | 동의 | DLQ D02(`1b83d18`, `fc776e2`) 계약 검사 통과(Code 대조). 오류 원문·비밀값을 남기지 않음 |
+| E02 `$env.DUBAKWI_SCOPE` | 수정 필요 | 로컬 n8n 2.42.6 기본 설정(`N8N_BLOCK_ENV_ACCESS_IN_NODE` 미설정)에서 Code 노드의 `$env` 읽기가 `access to env vars denied`로 실패한다(시험 워크플로우로 확인 후 비활성화). 이 설정이면 E02가 중단되어 state·DLQ 기록이 남지 않는다. VM에서 환경 변수 접근을 허용하거나 반입 시 scope를 치환해야 하며, 값은 support `--scope`와 같아야 한다 |
+| 예상 밖 중단 뒤 재전송 | 확인 요청 | Error Trigger에는 `request_id`·`state_ref`가 없어 E05 fail이 skipped가 된다. 중단된 요청은 `processing`으로 남고 만료 조건이 없어 같은 `request_id` 재전송은 계속 `409 request_in_progress`다. DLQ 행은 `request_id: null`이라 `last_execution_id`로만 찾는다 |
+
+support를 통한 중단 → errors → PostgreSQL 종단과 VM 환경 변수 설정은 미실행이다. 위 두 항목이 정리되기 전에는 시험 사본에 `--error-workflow-id`를 넣어도 예상 밖 오류의 기록을 기대하지 않는다.
 
 ## 게시와 종료
 
