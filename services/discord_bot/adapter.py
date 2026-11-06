@@ -81,6 +81,11 @@ GENERIC_FAILURE_MESSAGE = (
     "처리 결과를 확인하지 못했습니다. 중복 접수를 피하기 위해 담당자에게 확인해 주세요."
 )
 
+# One wording for unknown and foreign case numbers, so the reply never reveals whether a case exists.
+CASE_REF_NOTICE = (
+    "문의 연결값을 확인할 수 없습니다. 연결값을 다시 확인하시거나 새 문의로 접수해 주세요."
+)
+
 _CODE_MESSAGES = {
     "request_in_progress": (
         "같은 요청을 처리하고 있습니다. 같은 요청은 자동으로 다시 실행하지 않습니다."
@@ -90,8 +95,9 @@ _CODE_MESSAGES = {
     ),
     "request_conflict": ("같은 요청 번호로 다른 내용이 들어왔습니다. 새 문의로 다시 보내 주세요."),
     # Same wording as the state workflow, so the citizen sees one message wherever it is raised.
-    "invalid_case_ref": "알 수 없는 문의 번호입니다.",
-    "case_access_denied": "이 문의에 접근할 수 없습니다.",
+    "invalid_case_ref": CASE_REF_NOTICE,
+    "case_access_denied": CASE_REF_NOTICE,
+    "unknown_user": "등록되지 않은 사용자입니다. 담당자에게 문의해 주세요.",
     "case_closed": "종료된 문의입니다. 새 문의로 접수해 주세요.",
     "case_busy": (
         "같은 문의의 이전 요청 처리 결과를 확인해야 합니다. "

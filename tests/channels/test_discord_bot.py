@@ -182,12 +182,19 @@ class CaseErrorMessageTest(unittest.TestCase):
         from services.discord_bot.adapter import GENERIC_FAILURE_MESSAGE, failure_message
 
         expected = {
-            "invalid_case_ref": "알 수 없는 문의 번호입니다.",
-            "case_access_denied": "이 문의에 접근할 수 없습니다.",
+            "invalid_case_ref": "문의 연결값을 확인할 수 없습니다",
+            "case_access_denied": "문의 연결값을 확인할 수 없습니다",
+            "unknown_user": "등록되지 않은 사용자입니다",
             "case_closed": "종료된 문의입니다. 새 문의로 접수해 주세요.",
         }
-        for code, message in expected.items():
-            self.assertEqual(message, failure_message([code]))
+        for code, fragment in expected.items():
+            self.assertIn(fragment, failure_message([code]))
+        # An unknown and a foreign case number must look identical (no existence leak).
+        self.assertEqual(
+            failure_message(["invalid_case_ref"]), failure_message(["case_access_denied"])
+        )
+        for code in ("invalid_case_ref", "case_access_denied", "unknown_user"):
+            self.assertNotIn("다시 시도", failure_message([code]))
         self.assertEqual(GENERIC_FAILURE_MESSAGE, failure_message(["user_lookup_unavailable"]))
 
 
