@@ -1,0 +1,46 @@
+{
+  "recorded_at": "2026-11-06T09:13:05.959527+09:00",
+  "task": "P04 read-only VM connection and private handoff recheck",
+  "environment": "existing team VM; authenticated web SSH; no configuration change",
+  "baseline_pr": 32,
+  "baseline_commit": "6fe853204394a4001baacc0630df2d248685f957",
+  "case_ids": [],
+  "configuration": "existing inactive review clones and registered credentials; private identifiers excluded",
+  "checks": {
+    "workflow_records": "4/4 existing IDs matched; active=false, no published version, registered webhook count0",
+    "postgres_credential": "exists with correct type; state/DLQ node credential references match handoff",
+    "internal_header_credential": "exists with correct type; handoff node reference matches",
+    "error_workflow_reference": "handoff references recorded errors clone",
+    "postgres_and_user_api": "running and healthy; host port bindings empty",
+    "course_data_api": "running and healthy",
+    "n8n_healthz": 200,
+    "user_api_health_from_n8n": 200,
+    "user_api_lookup_without_auth": 401,
+    "scope_env": "DUBAKWI_SCOPE still absent",
+    "private_handoff": "prepared and Git ignored; no secret values; distribution not performed"
+  },
+  "pinned_candidates": {
+    "support_pr16": "6a963c6; B04 still course API without internal credential",
+    "search_pr31": "068f73b; not merged or VM-applied in this task"
+  },
+  "sequence": [
+    "R04 confirms clone source/version and time/namespace; Postgres node/state checks then controlled handoff/Jira",
+    "R02 updates B04 team user API/auth, R03 reviews permission forwarding",
+    "Resolve errors scope before actual Error Workflow execution",
+    "Separate approved RAG deployment/reindex window, same16 cases and authorization probes with R05"
+  ],
+  "limits": [
+    "No workflow execution, credential changes, publication, data mutation, restart or new permissions",
+    "No authenticated user lookup, PostgreSQL TCP/SQL/Jira/ownership end-to-end retest in this run",
+    "Inactive clone availability does not prove newest R04 source applied or module success",
+    "Test time/namespace and outbound private delivery still require recipient coordination",
+    "No PR31 merge, deployment, reindex or official16-case judgment"
+  ],
+  "publication_checks": {
+    "project_docs": "20 documents,452 local links,50 anchors; errors0",
+    "public_files": "173 Git candidates,539 public links; errors0",
+    "diff": "passed",
+    "gitleaks": "v8.30.1; one existing code_version.api_main commit-hash false positive; no finding in added files",
+    "tscan": "not installed; not run"
+  }
+}
