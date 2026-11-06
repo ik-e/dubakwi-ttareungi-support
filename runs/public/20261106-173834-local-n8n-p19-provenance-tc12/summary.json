@@ -1,0 +1,58 @@
+{
+  "label": "provenance-tc12",
+  "executed_at_kst": "2026-11-06",
+  "base_commit": "8c7f5c8",
+  "environment": "local n8n 2.42.6, course data-api(--data-api 사본), gpt-4.1-mini, main ac772ae 검색·색인(VM과 같은 지식, '제공된 챗봇은' 문구 15개 chunk), mock state·handoff·dlq",
+  "scope": "R03 요청: F-S1-03(시민 답변의 내부 출처 표현)과 TC12(반납·요금 혼합 문의의 보완 질문) 원인 확인과 수정 전후 비교. 같은 n8n에 수정 전(HEAD)·후 사본을 함께 게시. 답변 원문은 남기지 않는다. VM·공식 판정이 아니다.",
+  "changes": [
+    "L02(B19) 규칙 추가: 근거 문장의 자료 경위 표현('제공된 챗봇은', '사용자 제공', '출처', '문서에 따르면')을 답변에 옮기지 않는다",
+    "B22 fees 보완 항목 표시: usage_date '이용일' → '대여·반납 시각(이용일)', charge_detail '결제 내역' → '결제 금액과 이용권 종류'"
+  ],
+  "results": {
+    "before": {
+      "qr": {
+        "n": 15,
+        "tally": {
+          "담당자 이관/llm_down": 1,
+          "자동 답변/None": 14
+        },
+        "auto": 14,
+        "auto_with_provenance_phrase": 14
+      },
+      "tc12": {
+        "n": 5,
+        "tally": {
+          "보완 질문/None": 5
+        },
+        "ask_with_expected_word": 0
+      }
+    },
+    "after": {
+      "qr": {
+        "n": 15,
+        "tally": {
+          "담당자 이관/verification_failed": 1,
+          "자동 답변/None": 14
+        },
+        "auto": 14,
+        "auto_with_provenance_phrase": 0
+      },
+      "tc12": {
+        "n": 5,
+        "tally": {
+          "보완 질문/None": 5
+        },
+        "ask_with_expected_word": 5
+      }
+    }
+  },
+  "cause": {
+    "F-S1-03": "지식 본문(rental-guide QR 절 등 15개 chunk)이 '제공된 챗봇은 …을 안내한다'로 시작하고 L02가 그 문장을 그대로 옮김. PR #31 지식은 본문에서 이 표현을 뺐다",
+    "TC12": "fees로 분류되면 보완 질문 항목이 '이용일, 결제 내역'뿐이라 기대 단어(반납·시각·대여소·금액·이용권)가 없음. 분류는 5회 모두 보완 질문"
+  },
+  "not_verified": [
+    "VM 적용과 VM 재시험",
+    "R05 공식 재판정",
+    "PR #31 지식 재색인 뒤 같은 질문"
+  ]
+}
