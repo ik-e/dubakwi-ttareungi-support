@@ -1,0 +1,43 @@
+{
+  "executed_date": "2026-11-06 KST",
+  "environment": "team VM, existing n8n 2.42.6/PostgreSQL16.15; local Windows external HTTPS probe",
+  "versions": {
+    "previous_main": "221d958",
+    "pr27_original_business_files": "a930e24",
+    "pr27_document_handoff_fix": "fc20425",
+    "pr27_main_merge": "684942104233238c5a3574de7e0fb9a324d257ef",
+    "pr28_original": "8c53cf7",
+    "reviewed_main": "c6dd1782062cebd352e697e99667a69db3f6811c",
+    "support_isolated_trial": "c5ed5fac94aa7abe931474e590126731b0efab36"
+  },
+  "configuration": {
+    "scope": "dubakwi-p19-real",
+    "support_trial_path": "/webhook/dubakwi-support-p19-real",
+    "handoff_trial_path": "/webhook/dubakwi-handoff-p19-real",
+    "assignee_mapping": "empty; normal guidance trial only; assignment tests not ready",
+    "private_manifest": "VM Git-excluded deployment directory; original source hashes, published version IDs, functional exports/hashes, image tags/image IDs"
+  },
+  "results": {
+    "combined_main_regression": {"total": 89, "passed": 82, "skipped_http": 7, "ruff": "61 files passed"},
+    "database_backup": {"custom_archive_bytes": 37396, "list_validation": true, "restore_performed_this_run": false},
+    "migrations": {"005": "applied as existing owner", "006": "applied for existing runtime", "007": "dlq_apply replacement applied; _dedupe_ref body verified"},
+    "runtime": {"case_lookup_exists": true, "case_begin_exists": true, "execute_grants": true, "invalid_inputs_rejected": true, "delete_denied": true},
+    "existing_business_rows": {"request_state": 5, "dead_letters": 1, "before_after_digests_match": true},
+    "new_trial_copies": {"state_nodes": 20, "dlq_nodes": 6, "handoff_nodes": 48, "errors_nodes": 8, "support_nodes": 54, "all_published": true},
+    "scope_actual_n8n_code": {"execution_id": "254", "status": "success", "scope_and_storage_ready_asserted": true, "fixture_only": true},
+    "authentication_empty_input": {"support_no_key": 403, "support_valid_key": 400, "handoff_no_key": 403, "handoff_valid_key": 400, "execution_ids": ["255", "256"], "external_https_no_key": 403},
+    "source_comparison": {"connections_match": true, "code_parameters_match": true, "credential_bindings_verified": true, "ui_default_normalizations": 26, "explicit_environment_fix": "handoff H01 bound to existing internal Header Auth"},
+    "existing_workflows_unchanged": true,
+    "service_restart": false,
+    "private_r02_handoff": "ready; contains URL/header/test key/user/manifest/execution UI; never printed or committed"
+  },
+  "initial_failures_preserved": [
+    "CLI import EACCES: root-owned 0600 transfer file unreadable to n8n UID; no workflows imported; corrected file owner and retry succeeded",
+    "handoff first publication rejected: H01 had no credential in source; explicit existing internal credential attached",
+    "handoff next publication rejected: state subworkflow unpublished; published dependencies in order",
+    "strict raw export comparison rejected UI default normalization; checked only GET/json/database default omissions and strict condition default additions, preserving code/connections/error behavior"
+  ],
+  "readiness": {"G0": "trial versions and prior impact reviews consolidated; support PR16 main synchronization remains separate", "G1": "complete for trial", "G2": "published and authentication validated", "G3": "not executed; R02 normal call next", "G4_G5": "not complete"},
+  "not_executed": ["registered-user normal question", "actual LLM/search/Jira business chain", "full S1", "Discord call", "official time/failure/recovery verdict"],
+  "details": "report.md"
+}

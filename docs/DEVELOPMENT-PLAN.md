@@ -628,3 +628,8 @@ R05가 사용자 전달로 확인한86d78e7/8c53cf7 실패·재전송 계약 검
 ### P19 정상 Webhook 1건 우선·후보 생성과 VM 선행 점검 — 2026-11-06 KST
 
 상태: 후보 생성/읽기 점검 완료·G0~G2 미완료. 사용자 전달 R02 요청에 따라 c5ed5fa/a930e24/8c53cf7과 dubakwi-p19-real로 support/errors 비공개 후보·manifest를 생성하고LF파일/의존원본해시·동일scope검사를통과했다. support136/136·unittest76통과/HTTP7생략,R04 unittest81통과/HTTP7생략·Ruff60파일통과다. [새 검증](../runs/public/20261106-123349-mixed-p19-normal-prep/report.md): VM 서비스에는case_lookup/case_begin·SQL007인덱스가없고scope요청0/DLQ0,기존사본11/5/9/7노드·목표support없음을확인했다. R02도구는support/errors만생성하므로state/DLQ/handoff를실제갱신한것으로쓰지않는다. 과거6노드DLQ증거는보존하고현재5노드관측과구분한다. #27/#28은open이며영향검토/검토된main적용,005~007/권한/백업/전체사본반입후호출가능인계를제공한다. 현재비공개인계는NOT READY이며실제키전달/VM게시/SQL변경/업무Jira·Discord호출은0이다.
+
+
+### P19 R01 순차 실행·main 병합·DB/사본 게시 완료 — 2026-11-06 KST
+
+상태: 한정 시험 G1/G2 완료·R02 정상1건 대기. [적용 증거](../runs/public/20261106-124323-vm-p19-published/report.md): 기존r05채팅의사용자전달86d78e7/8c53cf7계약검토와PR39조건인계를취합하고R02문구인계로H 시간 행만정정했다. #27은main6849421,#28은mainc6dd178로병합했으며결합회귀82통과/HTTP7생략·Ruff61파일통과다. main원본을VM에고정하고DBcustom백업37396바이트/목록검사후005→006→007·runtime권한/거절·함수본문을검증했다. 기존5요청/1DLQ전체행해시불변이다. 과거SQL007인덱스표현은정정하며DLQ함수교체로확인했다. 기존합의의별도정상시험범위에서support c5ed5fa를고정하고 main하위기능20/6/48/8노드와support54노드를분리 반입/게시했다. H01환경Credential보완·하위사본선행게시·n8n기본값정규화26건을manifest에구분했다. 실제scope검사254성공, 빈입력255/256의인증400/무인증403과외부HTTPS403을확인했다. 기존workflow와업무행은같고재시작/실제Jira쓰기없다. 키·URL·manifest·조회방법을VM비공개0600인계파일에준비했다. R02 a83ba59의R03질문/기대근거를취합했으며support JSON은c5ed5fa와같다. 정상질문/전체S1/Discord는미실행이며새head를자동게시하지않는다. 다음은R02정상1건과R04/R05Jira·DB·응답대조다.
