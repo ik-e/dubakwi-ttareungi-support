@@ -1,7 +1,7 @@
 # 팀 헌장 · 두바퀴
 
 - 작성일: 2026-11-02 KST
-- 버전·상태: v0.13 / P11 입구 사례 경로·R05 통합 인계 반영 초안, 팀 검토 전
+- 버전·상태: v0.14 / 오류·복구 운영 인계 경로 반영 초안, 팀 검토 전
 - 작성 형식: [공식 팀 헌장 템플릿 — 공개본 제외 자료](../../docs/PUBLIC-SOURCES.md)
 - 주제 기준: [주제 제안서 v0.7](TOPIC.md)
 
@@ -35,6 +35,7 @@
 | --- | --- | --- | --- |
 | README.md·AGENTS.md·.gitignore·.gitattributes·.env.example | R01 | R04 비밀/환경·R05 재현 | 공통 규칙·설정 항목 취합·진입 링크 |
 | infra/README.md·vm-preflight.md·compose.yaml | R01 | R04 영속성·R02/R03 연결·R05 VM | 이미지/볼륨/네트워크·배포·업데이트·복구 |
+| infra/errors-recovery-handoff.md | R01 | R04 저장/복구·R02 scope/오류·R05 시험 | 동일scope 배포 확인·오류알림 한계·운영자 처리/계정·재개 미구현 경계 |
 | infra/postgres-compose.yaml·postgres-deployment.md | R01 | R04 저장/권한/마이그레이션·R05 재시작/복원 | 독립 DB 배포 준비·owner/runtime·비밀 주입·Credential 연결 조건. SQL 구현 소유권은 R04 유지 |
 | pyproject.toml·uv.lock·.python-version·.github/workflows/quality.yml | R01 | R02/R03/R04 의존성·R05 품질 | Python3.12·uv·Ruff·CI 공통 환경 |
 | docs/PUBLICATION.md·docs/PYTHON-DEVELOPMENT.md·scripts/dev/public-files.json·export_public.py | R01 | R04 비밀/제외 기준·R05 재현 | 로컬 보존·Git 공개 범위·선택적 내보내기·Python 기준·업로드 전 검토 |
@@ -142,3 +143,5 @@ Discord 이용자 입구와 Jira 티켓 관리는 사용자 결정이며 주제 
 - 2026-11-04 R05 인계 추가: cases/team-extended.json은 R05 주 담당, R02/R03/R04 관련 기대값 검토다. 파일은 r05/p06-flow-cases의 병합 후보에 있으며 이 책임 등록이 구현 병합·시험 통과를 뜻하지 않는다.
 
 - 2026-11-05 v0.13: cases/p11-entry.json을 R05 소유·R02/R04 검토의 P11 골격 전용 임시 사례로 등록했다. team-extended.json의 기존 책임은 유지한다. 사용자가 R01에게 run_cases.py의 hook 실패 중단·관련 회귀시험 대리 수정을 인계했으며, 범위와 검증은 개발 원장의 P13/P25 기록을 따른다. 이후 시험 도구 책임은 R05가 유지한다.
+
+- 2026-11-06 v0.14: errors-recovery-handoff.md를 R01 운영 인계 경로로 등록했다. R04 상세 저장·R02/R05 구현/시험 소유권과 기존 DB 권한은 변경하지 않는다.

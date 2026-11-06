@@ -2,7 +2,7 @@
 
 Docker Compose 채택: 2026-11-03 사용자 결정. 편집·배포 R01, 저장/영속성 검토 R04, 흐름 연결 R02/R03, VM 검증 R05. 책임 원본은 [팀 헌장](../docs/project/TEAM-CHARTER.md), 절차 규칙은 [AGENTS](../AGENTS.md)다.
 
-- 버전: v0.9 / 2026-11-05 PostgreSQL 독립 배포 준비본·R04 검토 인계
+- 버전: v0.10 / 2026-11-06 errors 동일scope·운영자 안전 처리 인계
 
 ## 1 구성과 현재 상태
 
@@ -66,3 +66,7 @@ R01은 compose·배포 버전·환경 비밀/암호화 키의 안전한 복구 �
 | 2026-11-05 | v0.3 | 기존 n8n 보존·SQLite/설정 기준 백업과 키 후보 준비의 완료/미완료 연결 |
 | 2026-11-04 | v0.2 | 기존 n8n 유지·환경 관측·운영 경로 준비·배포 전 점검/인계·시험용 환경 예시 연결 |
 | 2026-11-03 | v0.1 | Docker Compose 배포·업데이트·백업/복구 기준 초안 |
+
+## 6 오류·재전송 운영 인계
+
+[오류·복구 인계 v0.1](errors-recovery-handoff.md)는 support/errors 고정scope 일치·실효환경값 확인·운영알림 미구현의 발표/시험 표기와 R01/R04/R05 역할·기존 계정 경계를 정한다. processing을fail로unknown처리하거나DLQ를resolve해도요청재개권이생기지않으며,미확인재개는manual_required로유지한다. VM적용/TC16·TC17은후속이다.

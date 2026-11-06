@@ -1,0 +1,56 @@
+{
+  "run_id": "20261106-105725-local-p20-r05-handoff",
+  "executed_at": "2026-11-06T10:57:25.046466+09:00",
+  "environment": "local source contract review; dummy workflow/Credential IDs; no VM or database calls",
+  "refs": {
+    "state_handoff": "86d78e7",
+    "errors": "8c53cf7",
+    "r02_bundle": "c4f1219"
+  },
+  "scope": "dubakwi-p19-real",
+  "checks": {
+    "same_scope_env_blocked": true,
+    "mismatched_scope_rejected": true,
+    "placeholder_comparison_retained": true,
+    "assignment_rendered_once": true,
+    "support_no_local_scope": true,
+    "same_state_dlq_targets": true,
+    "support_error_workflow_bound": true
+  },
+  "r04_checks": {
+    "p20_code_cases": {
+      "passed": 16,
+      "total": 16
+    },
+    "p12_409_messages": "all checks passed"
+  },
+  "source_limits": {
+    "builder_default_dependency_refs": {
+      "state": [
+        "workflows/dubakwi-state.json",
+        "1b83d18"
+      ],
+      "dlq": [
+        "workflows/dubakwi-dlq.json",
+        "1b83d18"
+      ],
+      "handoff": [
+        "workflows/dubakwi-handoff.json",
+        "1b83d18"
+      ],
+      "errors": [
+        "workflows/dubakwi-errors.json",
+        "ff19178"
+      ]
+    },
+    "vm_effective_scope": "not inspected",
+    "manual_resume_driver": "not verified; fail and DLQ resolve do not release request_state"
+  },
+  "not_run": [
+    "VM render/import/publish",
+    "state/DLQ processing row change",
+    "TC16/TC17 VM tests",
+    "notification delivery",
+    "request recovery or business replay"
+  ]
+}

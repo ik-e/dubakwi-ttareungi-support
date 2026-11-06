@@ -13,7 +13,7 @@
 | 산출물·예정 위치 | 문서 상태 | 편집 책임 | 다음 작업 |
 | --- | --- | --- | --- |
 | [TOPIC.md](TOPIC.md) | 초안 v0.7 | ① 팀장·통합 | 문의 유형·구성 검토, 티켓 종료 계약 확인, 강사 확인 |
-| [TEAM-CHARTER.md](TEAM-CHARTER.md) | 초안 v0.13 | R01 팀장·통합 | 역할 ID·파일 소유권·협업 규칙 검토, GitHub 팀 권한·발표 ID 확인(dubakwi 확정) |
+| [TEAM-CHARTER.md](TEAM-CHARTER.md) | 초안 v0.14 | R01 팀장·통합 | 역할 ID·파일 소유권·협업 규칙 검토, GitHub 팀 권한·발표 ID 확인(dubakwi 확정) |
 | [SYSTEM-DESIGN.md](SYSTEM-DESIGN.md) | 초안 v0.12·최상위 논리 설계 | R01 취합·R02~R05 공동 검토 | 구성·상태·기능 추적·디렉터리 용도·Docker Compose 기준 확인 후 상세로 이동 |
 | [Python 개발 기준](../PYTHON-DEVELOPMENT.md)·[공개 정책](../PUBLICATION.md) | 도구/설정 작성·서비스 구현 전 | R01·R05 품질/R04 공개 검토 | uv 잠금·Ruff·CI, 같은 폴더 .gitignore·Git 후보·공개 링크 검사 |
 | [작업 규칙](../../AGENTS.md)·[배포 안내](../../infra/README.md) | 기준 작성·실제 배포 전 | R01·R04/R05 검토 | Git/n8n/시험·동기화·Docker 실행/복구, 환경 확인 후 compose 작성 |
@@ -102,3 +102,5 @@ R01 GitLab79 재사용 후속: [data-api·과정 도구 적용](../../runs/publi
 R05 P13/P25 통합 산출물: [공통 사례](../../cases/common.json), [팀 사례](../../cases/team.json), [팀 확장](../../cases/team-extended.json), [P11 임시 입구 사례](../../cases/p11-entry.json), [시연 순서 초안](../../requests/demo-sequence.json), [R05 VM 부분 시험 보고서](../../runs/public/20261105-143325-vm-p13-official/report.md), [새 R01 통합 검토](../../runs/public/20261105-154737-local-r05-integration-review/summary.json). 사례 형식/도구·시연 초안·골격 부분 시험을 구분하며 P13 전체 완료·실제 시연 성공은 아니다.
 
 - [따릉이 챗봇 조사 요약·출처](../rag-knowledge/chatbot_documents/README.md): 원문·사진은 내부 보관, 공개본은 직접 작성한 요약과 링크만 포함.
+
+오류·복구 운영 인계: [동일scope·운영알림 한계·processing 확인 절차](../../infra/errors-recovery-handoff.md). 로컬 검사 완료·VM실행/요청재개는미완료다.

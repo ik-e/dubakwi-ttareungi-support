@@ -181,7 +181,7 @@ flowchart LR
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | [ ] | P01 | `docs/project/WORKFLOW-DESIGN.md` 8절: 제공 자료의 기능·위치·확인 수준·접근 가능 여부 목록. 재사용 결정·변경점은 설계/구현 시 누적하며 전체 자료 실행을 선행 조건으로 두지 않음 | R02 / 전원 | 없음 | 진행 | [8.1절 후보 목록](project/WORKFLOW-DESIGN.md#81-p01-실습-자료-후보-목록)에 64~79일차 실습 15개 후보의 기능·위치·노드·확인 수준 기록. 파일 읽기 수준이며 실행 안 함. 팀 검토 전, `Last3Mon/80`·단위 프로젝트 판 flow.py 미확인 | 2026-11-04 |
 | [ ] | P02 | `docs/project/TOPIC.md`: 시민 문의 6유형·대표 사례·Webhook/Jira 조합·제외 범위·승인 결과 | R01 / 전원·강사 | P01 자료 목록 초안(전체 실행 불필요) | 진행 | [v0.7 초안](project/TOPIC.md): 시민·전체 정상 신규 티켓·Jira·최소 저장 반영. 조합 표기·주제 적합성·팀/강사 확인 필요 | 2026-11-03 |
-| [ ] | P03 | `docs/project/TEAM-CHARTER.md`: 역할 ID·7개 실행 파일과 문서 소유권·계약 변경·배포 규칙 | R01 / 전원 | P02 초안 | 진행 | [v0.13 초안](project/TEAM-CHARTER.md): PostgreSQL 준비본 책임·P11 임시 사례 경로·R01 hook 수정 인계 반영. 실제 팀 권한·발표 ID·팀 검토 남음 | 2026-11-05 |
+| [ ] | P03 | `docs/project/TEAM-CHARTER.md`: 역할 ID·7개 실행 파일과 문서 소유권·계약 변경·배포 규칙 | R01 / 전원 | P02 초안 | 진행 | [v0.14 초안](project/TEAM-CHARTER.md): PostgreSQL 준비본 책임·P11 임시 사례 경로·R01 hook 수정 인계 반영. 실제 팀 권한·발표 ID·팀 검토 남음 | 2026-11-05 |
 | [ ] | P04 | README·AGENTS·Python/uv/Ruff/CI·공개 정책/도구·infra 안내·compose·.env.example: 경로/규칙·Docker 환경/실행/복구·비밀 제외. 실제 compose 검증·VM 재현까지 확인 | R01 / R04·R05·R02/R03 연결 | P02/P03 초안·D01/D03 실제 환경 확인(설정/배포 부분) | 진행 | [AGENTS](../AGENTS.md)·[infra 안내](../infra/README.md)·[.gitignore](../.gitignore) 작성. [구조/책임](project/SYSTEM-DESIGN.md) 명시. Python 설정/잠금·품질 CI·공개 도구 추가. [VM 점검](../infra/vm-preflight.md): 기존 n8n/볼륨/네트워크·healthz 확인, 운영 경로 준비·시험 .env.example 작성. 기존 설치 유지. 기준/변경 전 백업 검증·Header Auth 등록·P11 연결/게시·VM 입력 부분 시험10/10 완료. 79원본 data-api 기동·신규P11 22/22·로그18/18로B35실패 해소. 전체 복원·R05 공식 판정 미완료. [새 증거](../runs/public/20261105-114531-vm-course79-data-api/summary.json) | 2026-11-05 |
 | [ ] | P05 | `SYSTEM-DESIGN.md`와 워크플로우·RAG·저장소 설계 초안: 구성·상태/전이·S1~S8·기능F01~F10·공개 계약·담당 경계 공동 검토 | R01 전체 취합·R02 업무 / R03·R04 상세·R05 판정 | P02·P03 초안 | 진행 | [시스템 v0.12](project/SYSTEM-DESIGN.md)·[워크플로우 v0.14](project/WORKFLOW-DESIGN.md)·[RAG v0.10](project/RAG-ARCHITECTURE.md)·[저장소 v0.4](project/STORAGE-DESIGN.md). 문서 보완 반영, 공동 검토·D01~D07 실제 확인은 미완료 | 2026-11-05 |
 | [ ] | P06 | `cases/common.json`: WF-01~13과 WF-02b의 14유형을 따릉이로 변환. 조건·판정 유지, 5교시 점검 | ⑤ / ②③④·강사 | P05 초안 | 진행 | [PR #13](https://github.com/ik-e/dubakwi-ttareungi-support/pull/13) flow.py 형식 공통14유형(17건), P09 비노출 기대값 반영. R05 WF08/WF13 4건 부분 실행은 P13 증거 참조. 키트 판정 동등성·D02 codes 대조·전체 회귀 미완료. 과거 PR #7 초안/실패 기록 보존 | 2026-11-05 |
@@ -198,7 +198,7 @@ flowchart LR
 | [ ] | P17 | `docs/project/RAG-ARCHITECTURE.md` 완성: 3~5절·청킹/검색 비교·비용·복구·확장, 실측과 운영 설계 구분 | ③ / ⑤ | P16의 실행·측정 | 진행 | [RAG v0.10](project/RAG-ARCHITECTURE.md)·PR #19 템플릿/인계/대본과 기존 VM 수동44청크/검색부분증거를 동기화. 청킹/검색비교·실제비용·VM재시작/재색인·서버인가·공식판정은후속 | 2026-11-05 |
 | [ ] | P18 | `workflows/dubakwi-handoff.json`·`dubakwi-state.json`·`dubakwi-dlq.json` 및 저장소 설계 갱신: 소유권·중복/동시성·조건부 갱신·case 연결·외부 효과/저장 실패·복구 캡슐·운영 재처리 | R04 / R02·R05 | P12 동작 가능한 부분·P06/P07 관련 기대값·D05의 시험/시간 계약 초안(전체 검증 완료 불필요) | 대기 | R01 배포/DB 환경 지원, R05 장애·동시·재시작·복구 시험 지원. Jira 성공 단계 반복 없이 복구 확인. D07 Discord 계약/전송·비공개 시험 연결은 core 우선 후 수행 | 2026-11-03 |
 | [ ] | P19 | `workflows/dubakwi-support.json`: S1 분류→RAG→답변→검증→Jira 생성/종료→최종 저장→응답 연결 후 S2/S3→S4/S5→S6~S8 확장. 보완 한도·권한·긴급 우선 유지 | R02 / R03·R04·R05 | P11·P16/P12/P18의 필요한 계약·동작 부분 | 대기 | 모의 종단 연결 먼저 가능. 실제 S1 통과는 외부 종료·최종 저장 증거까지 필요. 이후 Discord 어댑터 연결, 3초 ACK를 최종 SLA로 오인하지 않음 | 2026-11-03 |
-| [ ] | P20 | `workflows/dubakwi-errors.json`: 오류 기록·알림·게시·상위 지정, 업무상 실패 처리와 별도 확인 | ④ / ①⑤ | P12·P05 오류 계약 | 대기 | Error Workflow만으로 WF-04 충족 처리하지 않음 | 2026-11-02 |
+| [ ] | P20 | `workflows/dubakwi-errors.json`: 오류 기록·알림·게시·상위 지정, 업무상 실패 처리와 별도 확인 | ④ / ①⑤ | P12·P05 오류 계약 | 진행 | PR #28 8c53cf7 준비/검토. R05 실패·재전송 계약 의견 취합, [운영 인계](../infra/errors-recovery-handoff.md): 동일scope·409 구분·알림 미구현·R01 운영자 안전처리 경계. VM Error Workflow 연결·실제TC16/TC17·운영알림·요청재개는 미실행 | 2026-11-06 |
 | [ ] | P21 | 시스템·워크플로우·저장소 설계를 실제 구성/상태·노드/엣지·연결선 실행 예시·오류/복구에 맞게 갱신. RAG 내용은 P17 참조 | R01 시스템·R02 업무·R04 저장 / R03·R05 | P16·P18~P20의 누적 실행 내용 | 대기 | 문서 소유자가 편집. 공개 계약 변경은 소비 역할과 시험도 함께 갱신 | 2026-11-03 |
 | [ ] | P22 | `runs/public/<실행묶음ID>/summary.json`: 4·7교시 VM 배포 후 공통 회귀·팀/장애 시험·고장 복원 기록 | ⑤·① / 각 구현자 | P15·P06·P07·연결된 기능 | 대기 | 기능별 즉시 시험, 최종판만 기다리지 않음 | 2026-11-02 |
 | [ ] | P23 | `docs/project/EXECUTION-RESULT.md` 초안: 시나리오 결과·보고서 경로·실패와 재현 조건·잔여 위험 | ⑤ / 전원 | P22의 누적 보고서 | 대기 | 실패를 통과로 바꾸어 적지 않음 | 2026-11-02 |
@@ -601,3 +601,12 @@ R01 수정 후 검증: 공통 unittest67건 중60통과·실제HTTP7생략(실�
 ### P04 소통 방식 선택 허용 개정 — 2026-11-06 KST
 
 사용자가 전달한 전원 합의와 적용 지시에 따라 R01이 AGENTS 3.1절·PR 양식·이 문서의 결과 취합 방법을 개정했다. 선행 조건은 기존 헌장의 소유권·검토 체계이며 영향 경로는 세 공통 문서와 새 검사 요약뿐이다. Discord 상세 전달과 PR 상세 기록＋간략 알림을 모두 허용한다. 개별 GitHub 승인·Discord 발송·서비스 완료를 의미하지 않으며 실제 효력은 기본 브랜치 병합 이후 새 요청/답변과 다음 인계부터다. [검사 근거](../runs/public/20261106-095035-local-communication-rules/summary.json)를 따른다.
+
+
+### P20/P22 R05 오류·재전송·복구 인계 진행 (2026-11-06 KST)
+
+사용자가 R05 전달사항 처리와 회신 정리를 지시했다. R01은 PR #27 86d78e7·#28 8c53cf7·R02 VM 사본 생성 도구의 현재 계약을 확인하고 동일scope·오류알림한계·운영자처리절차를 infra와 원장에 취합한다. 영향 경로는 R01 infra/헌장/개발 원장·새 가린 검증 증거다. R02/R04/R05 구현·시험 사례 원본은 수정하지 않고, VM 렌더/게시/업무행 변경·실제복구는 이번 문서 검토에서 실행하지 않는다. 고정 VM scope는 기존 결정 dubakwi-p19-real을 유지하고 환경ID/비밀은 비공개 인계한다.
+
+R01 인계 정리: 동일scope는기존결정dubakwi-p19-real,운영알림미구현은발표/결과서에그대로기록한다. 처리담당R01·복구판단R04·시험증거R05,OS는기존r05tester세션/DB는기존runtime Credential의state_apply·dlq_apply경계로구분한다. processing 안전전환은원실행종료/외부효과확인후fail→unknown/failed로하며직접행삭제/갱신을금지한다. fail/claim/resolve는원요청재개가아니므로R04재개드라이버인계전manual_required를유지한다. [로컬scope7항목·P20 Code16/16·P12메시지검사](../runs/public/20261106-105725-local-p20-r05-handoff/summary.json)를통과했으며VM변경/SQL실행/TC16·TC17은하지않았다. R02도구기본의존성1b83d18/ff19178과실제최신소스를대조하는후속확인이필요하다.
+
+문서/공개검사:20문서·458링크·51앵커오류0,공개후보172개·545링크오류0,diff오류0. 실행코드를변경하지않아전체단위시험은반복하지않고원본Code/사본생성함수관련검사만수행했다. tscan/Gitleaks미제공으로현재Git후보검사로부분대체했으며전문비밀검사한계를유지한다. R02/R04/R05 영향검토전초안으로공유한다.
