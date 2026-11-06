@@ -1,0 +1,28 @@
+{
+  "checked_at": "2026-11-06 16:27 KST",
+  "environment": "team VM user API and Discord bot",
+  "task": "P09/P18/P19 five distinct citizen registrations",
+  "registered_citizens": [
+    "citizen-a",
+    "citizen-b",
+    "citizen-c",
+    "citizen-d",
+    "citizen-e"
+  ],
+  "api_http_200_checks": 5,
+  "all_roles": "citizen",
+  "all_access_levels": [
+    "public"
+  ],
+  "distinct_discord_mappings": 5,
+  "existing_two_mappings_preserved": true,
+  "bot_running": true,
+  "gateway_connected": true,
+  "restart_count": 0,
+  "bot_image_id": "sha256:a28f00c77cda4be477f8c3ede5eef96848932b250f3130a79b9448cee6317f9b",
+  "user_api_image_unchanged": true,
+  "deployment": "private user file read-only mount via private Compose override; bot private env updated; both services recreated without build",
+  "individual_discord_request_tests": "not run by R01; users can test",
+  "private_data": "Discord IDs, private env and user data kept outside Git",
+  "details": "report.md"
+}

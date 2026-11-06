@@ -727,3 +727,8 @@ P19 Discord 실제 기동: [main37ec341 이미지·Gateway 연결·미등록 거
 ### P19 R04 최종 확인 취합·과거 미종료 건 대조 — 2026-11-06 KST
 
 상태: R04 정상경로 Jira/state/save/Discord 읽기대조 통과를 사용자전달로 수령했다. [과거 실행279 DB·DLQ 읽기확인](../runs/public/20261106-162014-vm-prior-failure-review/report.md): DBunknown/B29/partial_effect/rev3/최종응답없음, DLQpending1건/attempts1·생성confirmed·배정assignee_unmapped·종료미시도·recovery assign/known참조보존이다. 원실행은종료됐으며n8n success를업무성공으로쓰지않는다. 정상305와별도건이고재전송/DB변경/Jira쓰기없이수동확인대상으로보존한다. R05공식판정과역할별잔여확인은별도다.
+
+
+### P09/P18/P19 다섯 시민 사용자 등록 — 2026-11-06 KST
+
+상태: R01 사용자지시 적용·연결검사완료. [VM 검증](../runs/public/20261106-162709-vm-five-citizens/report.md): 기존두매핑유지·신규세매핑분리로citizen-a~e를연결했다. API미등록d/e를public시민으로추가하고저장소밖사용자파일/읽기전용Compose override와재배포인계를보존했다. 내부별칭인증GET5건200/id/role/access_levels일치·봇running/restart0/Gateway연결이다. 기존이미지유지·사용자API/봇만재기동했고n8n/Jira/DB는변경하지않았다. 실제계정ID는Git제외이며개별Discord정상문의/소유권공식시험은별도다.
