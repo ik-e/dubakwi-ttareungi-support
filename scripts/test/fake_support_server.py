@@ -65,7 +65,11 @@ class Handler(BaseHTTPRequestHandler):
             if question.startswith("!slow"):
                 time.sleep(15)
             answer = "가짜 본체의 시험 답변입니다." + (" (같은 요청 재전달)" if repeat else "")
-            payload = {"answer": answer, "case_ref": "CASE-TEST", "ticket_id": "TEST-1"}
+            payload = {
+                "answer": answer,
+                "case_ref": "CASE-TEST",
+                "ticket": {"ticket_id": "TEST-1", "priority": "normal", "duplicate": False},
+            }
             self._send(200, json.dumps(payload, ensure_ascii=False).encode("utf-8"))
 
     def log_message(self, format: str, *args: object) -> None:  # noqa: A002

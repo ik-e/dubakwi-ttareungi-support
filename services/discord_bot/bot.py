@@ -33,7 +33,8 @@ class Settings:
     allowed_guild_id: int
     user_map: dict[str, str] = field(default_factory=dict, repr=False)
     allowed_channel_id: int | None = None
-    timeout_seconds: float = 12.0
+    # Support answers within its 20 s deadline; wait 5 s longer so a late reply is not cut off.
+    timeout_seconds: float = 25.0
 
     @classmethod
     def from_environment(cls) -> Settings:

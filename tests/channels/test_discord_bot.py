@@ -135,6 +135,40 @@ class DiscordAdapterTest(unittest.TestCase):
         self.assertTrue(result.endswith("문의 연결값: CASE-1\n\nJira 접수번호: JBYS-10"))
 
 
+class SupportResponseShapeTest(unittest.TestCase):
+    def test_reads_ticket_id_from_nested_ticket_object(self) -> None:
+        result = render_private_response(
+            {
+                "answer": "접수했습니다.",
+                "case_ref": "CASE-1",
+                "ticket": {"ticket_id": "JBYS-11", "priority": "high", "duplicate": False},
+            }
+        )
+        self.assertTrue(result.endswith("문의 연결값: CASE-1\n\nJira 접수번호: JBYS-11"))
+
+    def test_null_ticket_shows_no_ticket_line(self) -> None:
+        result = render_private_response({"answer": "안내입니다.", "ticket": None})
+        self.assertEqual(result, "안내입니다.")
+
+    def test_nested_ticket_wins_over_flat_value(self) -> None:
+        result = render_private_response(
+            {"answer": "a", "ticket": {"ticket_id": "JBYS-1"}, "ticket_id": "OLD-9"}
+        )
+        self.assertIn("JBYS-1", result)
+        self.assertNotIn("OLD-9", result)
+
+    def test_default_wait_covers_support_deadline(self) -> None:
+        self.assertEqual(
+            25.0,
+            Settings(
+                bot_token="t",
+                support_webhook_url="http://n8n:5678/webhook/dubakwi-support",
+                team_key="k",
+                allowed_guild_id=1,
+            ).timeout_seconds,
+        )
+
+
 def _settings() -> Settings:
     return Settings(
         bot_token="t",

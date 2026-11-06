@@ -119,7 +119,11 @@ def render_private_response(payload: Any) -> str:
     if isinstance(case_ref, str) and case_ref.strip():
         suffix.append(f"문의 연결값: {case_ref.strip()}")
 
-    ticket = payload.get("ticket_id")
+    # Support returns ticket={ticket_id,...} or null; the flat ticket_id is kept for older mocks.
+    ticket_obj = payload.get("ticket")
+    ticket = ticket_obj.get("ticket_id") if isinstance(ticket_obj, dict) else None
+    if not isinstance(ticket, str) or not ticket.strip():
+        ticket = payload.get("ticket_id")
     if isinstance(ticket, str) and ticket.strip():
         suffix.append(f"Jira 접수번호: {ticket.strip()}")
 
