@@ -5,3 +5,8 @@
 실행305는 success, 16:39:39.439→16:39:52.577 KST로 n8n 구간13.138초다. Discord 전체 왕복 시간을 별도로 측정한 값은 아니다. DB completed/respond/revision4 및 최종응답을 확인했고 해당 요청 DLQ0이다. 저장된 Jira 참조로 기존 Credential을 사용하는 native HTTP 읽기 사본에서 독립 조회한 결과 HTTP200/status 완료/category done/Resolution 완료다. 추가 Jira 쓰기·재전송·종료 재호출은 하지 않았다.
 
 봇은 main37ec341 고정 이미지, support는3e8547a 별도 정상 사본이다. 실제 사용자 API·AI/RAG·Jira·PostgreSQL·Discord의 정상1건 연결이 확인됐다. 사용자 지시에 따라 R01 통합 확인으로 정상 베이스라인을 기록하고 R02/R04/R05의 최종 확인과 공식 판정은 후속으로 남긴다. 전체 권한·중복·실패·동시성·시간상한·복구 통과를 뜻하지 않는다.
+
+
+## 시각 정정 안내 — 2026-11-06 KST
+
+위최초기록의16:39시각은오기이며실제305는16:00:39.439→16:00:52.577 KST다. 처리13.138초는동일하다. 과거JSON·폴더명은보존하고[별도정정근거](../20261106-175327-local-post-baseline-readiness/report.md)를함께참조한다.

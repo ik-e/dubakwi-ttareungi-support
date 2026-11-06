@@ -1,6 +1,6 @@
 # P19 전체 연동 관리와 R01 실행 계획
 
-- 버전: v0.10 / 2026-11-06 KST / R01 / 정상 안내·support 이관532 통과, security 실측·최종 역할 확인·공식 판정 후속.
+- 버전: v0.11 / 2026-11-06 KST / R01 / 정상 S1 R05판정 수령·support 이관532 확인, 후속 수정 병합·VM 반입 대기.
 - 단일 관리 창구: [PR #36](https://github.com/ik-e/dubakwi-ttareungi-support/pull/36). 기능 구현·검토는 기존 PR에서 유지한다.
 - 진행 상태의 원본은 [개발 원장](../docs/DEVELOPMENT-PLAN.md), 책임은 [팀 헌장](../docs/project/TEAM-CHARTER.md), 계약은 [워크플로우 설계](../docs/project/WORKFLOW-DESIGN.md)·[저장소 설계](../docs/project/STORAGE-DESIGN.md)다. 이 문서는 새 업무 계약을 정의하지 않는다.
 - 현재 정상 시험본은 support 3e8547a, 하위 기능 a930e24/8c53cf7이다. #16은 main 9f3443b, #40은64d66c7로 병합했다. [정상 실행288 증거](../runs/public/20261106-154400-vm-p19-normal-pass/report.md)를 기준으로 하며 Discord 종단·R05 공식 판정은 별도다. 과거 준비/실패 증거는 당시 기록으로 보존한다.
@@ -187,3 +187,8 @@ G3는 [실행288](../runs/public/20261106-154400-vm-p19-normal-pass/summary.json
 ## 담당자 이관 적용 현황 — 2026-11-06 KST
 
 R05 시험 종료를 사용자에게 확인하고 H39 support/security 담당 매핑만 반입·게시했다. [새 support 이관 실행532](../runs/public/20261106-172441-vm-assignee-handoff/report.md)에서 생성·문맥·배정·알림confirmed, Jira독립조회담당일치/열림·DBcompleted·응답8필드일치·DLQ0을 확인했다. 과거 담당매핑 미반영 기록은 당시 이력이며 현재 적용과 구분한다. security 실제시험·R04대조·R05공식판정은 후속이다. 기존 실패 요청은 자동 재개되지 않으며 그대로 보존한다.
+
+
+## 후속 수정과 시험 창 — 2026-11-06 KST
+
+[최신 준비/정정](../runs/public/20261106-175327-local-post-baseline-readiness/report.md): main은PR42지원수정·PR31검색/지식후보를포함한eb747df다. VM은R05시험중이므로support3e8547a·기존검색/색인·게시된담당매핑을유지한다. R05정상S1통과는수령했지만TC12/F-S1-03재판정·전체시험을대신하지않는다. 실행305정확시각은16:00:39.439→16:00:52.577 KST이며과거16:39표기는오류다. R05종료후B17두노드반입과별도PR31색인창을조율한다. 고장사본/조회fixture는담당인계전준비완료로표시하지않는다.

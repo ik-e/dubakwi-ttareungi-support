@@ -739,3 +739,8 @@ P19 Discord 실제 기동: [main37ec341 이미지·Gateway 연결·미등록 거
 ### P12/P19 담당 매핑 반입·support 이관 실측 — 2026-11-06 KST
 
 상태: support/security 매핑게시·support1건 R01 실연동통과, R04대조/R05공식판정후속. 사용자R05시험종료확인후활성실행0·원복백업·H39매핑만교체와환경보존을검증했다. [실행532/하위534](../runs/public/20261106-172441-vm-assignee-handoff/report.md)는HTTP200/8.674초/needs_human·생성/문맥/배정/알림confirmed·독립Jira담당일치/열림·DBcompleted/respond/rev5/응답8필드일치·DLQ0이다. 알림은API수락이며메일수신증거는별도다. security실제이관/TC12/긴급분류검토는미완료이고기존실패건은보존했다. 실제계정/환경값은Git제외VM인계에만둔다.
+
+
+### P19/P16 후속 수정 병합·R05 시험 창 대기 — 2026-11-06 KST
+
+상태: PR42/main8f9cd0c·PR31/maineb747df 코드검토/병합완료·VM미반영. [결합검사/시각정정/인계](../runs/public/20261106-175327-local-post-baseline-readiness/report.md): R02가상시계8c7f5c8·문구/TC12 c6b4644와R03최신7ba0986을통합했다. 공통90통과/환경7생략·흐름145/145·Ruff93이다. R05추가시험중이라는사용자확인으로B17/검색/색인/VM은변경하지않았다. F-S1-03/TC12는반입/공식재시험전미해결유지다. 실행305는16:00:39.439→16:00:52.577 KST로정정하고과거JSON/폴더명은보존한다. R02/R04고장사본계획·R04조회fixture·R05시험창을PR36에서요청한다.

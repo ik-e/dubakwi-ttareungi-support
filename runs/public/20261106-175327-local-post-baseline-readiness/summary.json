@@ -1,0 +1,42 @@
+{
+  "recorded_at": "2026-11-06 17:53 KST",
+  "environment": "local source review/repository integration only",
+  "task": "P19/P16 follow-up fixes and R05 preparation",
+  "merges": {
+    "support_pr42": "8f9cd0c3b118af2a7ac6701f803044c2b149cefb",
+    "rag_pr31": "eb747dfd3db761a1ecf98ee477d222f1fe2a8b93"
+  },
+  "source_commits": [
+    "8c7f5c8",
+    "c6b4644",
+    "7ba0986"
+  ],
+  "support_changed_nodes": [
+    "B19 writer prompt",
+    "B22 follow-up wording"
+  ],
+  "support_connections_settings_unchanged": true,
+  "tests": {
+    "total": 97,
+    "passed": 90,
+    "skipped": 7,
+    "flow_cases": 145,
+    "ruff_files": 93
+  },
+  "vm": "unchanged; user confirmed R05 additional tests running",
+  "open_findings": {
+    "F-S1-03": "merged locally; VM/R05 retest pending",
+    "TC12": "merged locally; VM/R05 retest pending",
+    "F-S1-02": "supplementary time erratum, original preserved",
+    "security": "mapping applied earlier, real test pending"
+  },
+  "execution305_time_erratum": {
+    "old_start": "2026-11-06 16:39:39.439 KST",
+    "correct_start": "2026-11-06 16:00:39.439 KST",
+    "correct_stop": "2026-11-06 16:00:52.577 KST",
+    "duration_seconds": 13.138,
+    "source": "R05 n8n review and prior VM SQLite UTC metadata",
+    "original_folder_preserved": "20261106-163939-vm-discord-normal"
+  },
+  "details": "report.md"
+}
