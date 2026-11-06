@@ -759,3 +759,7 @@ P19 Discord 실제 기동: [main37ec341 이미지·Gateway 연결·미등록 거
 ### P09/P12/P19/P28 병렬 작업 공통 기준 v1 — 2026-11-06 KST
 
 상태: R01사용자지시의상태/조회/문맥/효과/편집인계/시험기준작성완료·기능미구현/미배포. [공통기준](../infra/parallel-integration-contract-v1.md)과[모의예제22개](../infra/contracts/parallel-contract-v1.examples.json)를고정했다. 시민Request/Response유지·내부SupportCase선택필드2개/조회closed의의미·handed_off후속횟수유지를명시하고영향검토는PR36에서취합한다. R01은R04소유APIrecords/provider에한정대리편집, R02는본체, R04는state/SQL/handoff, R03은RAG, R05는판정으로분리했다. 각자예제로착수하고공유VM적용/고장/재색인/최종시험만창으로조율한다. 헌장v0.14에한정인계를기록했으며실제작업착수/회수버전은추적한다. 이번업무JSON/VM/Jira/DB변경·실제시험은없다.
+
+### P09/P12/P19/P28 공통 기준 v1.1 검증 — 2026-11-06 KST
+
+R01이 [실제 Code 노드 로컬 대조](../runs/public/20261106-233303-local-parallel-contract-validation/report.md)를 수행했다. 10개 검사 중 기준 부합 6개·구현 차이 4개·도구 오류 0개다. 차이는 R02 B08 횟수 유지, B11 이관 상태 유지, B25 역할/우선순위 유지, B24 closed 표시다. 이 결과는 기존 S1 회귀 실패나 VM 시험 통과가 아니다. 공통 기준 v1.1은 충돌/replay 우선순위·상충 사실·효과 목적·버전 묶음 배포를 보완했고 예제는 25개로 늘었다. R01/R04 공통 Jira 문맥 읽기 형식과 새 위험 예외의 응답 계약은 미합의로 남겨 실연동 의존성을 명시했다. 모의 개발은 독립 진행 가능하며 업무 JSON·VM·DB·Jira는 변경하지 않았다.

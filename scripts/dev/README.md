@@ -50,3 +50,7 @@ uv run --locked python scripts/dev/make_close_fault_copy.py --output runs/privat
 - 주입: 만든 사본을 `render_n8n_workflow.py`로 치환한 뒤 별도 시험용 워크플로우로 가져온다(공유·운영 사본에는 가져오지 않는다). 이름에 ` close-fault`가 붙고 비활성으로 만들어진다.
 - 해제: 시험이 끝나면 그 시험 사본을 삭제하거나 비활성으로 둔다. 원본 `workflows/dubakwi-handoff.json`은 바뀌지 않으므로 원본을 다시 렌더링해 가져오면 정상 동작으로 돌아간다.
 - 이 도구는 n8n·Jira를 호출하지 않는다. 실제 Jira 종료 거절 응답과 DLQ 저장은 별도 시험 사본에서 실행해 확인해야 한다(미실행).
+
+## 병렬 계약 로컬 감사
+
+저장소 루트에서 `node scripts/dev/audit-parallel-contract.js .`를 실행한다. 실제 support/handoff의 Code 노드를 모의 입력으로 호출하고 공통 기준 예제와 대조한다. HTTP·Jira·DB·VM을 호출하지 않는다. 출력의 `implementation_gap`은 미래 계약 대비 구현 차이이며 기존 S1 회귀 실패를 뜻하지 않는다. 종료 코드 0은 감사 실행 완료이고 전체 계약 통과를 뜻하지 않는다. 새 결과는 새 실행묶음 경로에 저장하며 과거 summary를 덮어쓰지 않는다.

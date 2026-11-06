@@ -1,6 +1,6 @@
 {
   "schema": "dubakwi-parallel-contract-examples-v1",
-  "version": "1.0",
+  "version": "1.1",
   "status": "R01 working baseline; producer/consumer/R05 change review pending; not implemented/deployed proof",
   "scope": "J01/J02/J03; no real IDs/secrets; not run_cases.py format",
   "fixtures": {
@@ -571,6 +571,27 @@
         "db_processing_status": "completed",
         "extra_finish_call_by_support": 0
       }
+    },
+    {
+      "id": "CV23",
+      "boundary": "request gate before closed case check",
+      "given": {"request_status": "completed", "same_owner_and_hash": true, "jira_category": "done"},
+      "when": {"operation": "resend_same_request"},
+      "then": {"mode": "replay", "http_status": 200, "case_closed": false, "new_jira_calls": 0}
+    },
+    {
+      "id": "CV24",
+      "boundary": "identity before replay",
+      "given": {"request_status": "completed", "same_owner_and_hash": false},
+      "when": {"operation": "resend_same_request"},
+      "then": {"http_status": 409, "error_code": "request_conflict", "prior_response_exposed": false}
+    },
+    {
+      "id": "CV25",
+      "boundary": "conflicting required fact remains unresolved",
+      "given": {"confirmed": [{"key": "station_or_place", "value": "가상 대여소 A", "origin": "api"}]},
+      "when": {"new_reported": [{"key": "station_or_place", "value": "가상 대여소 B", "origin": "user"}]},
+      "then": {"prior_confirmed_preserved": true, "uncertainty_present": true, "missing_contains": "station_or_place", "promote_to_confirmed": false}
     },
     {
       "id": "CV22",
