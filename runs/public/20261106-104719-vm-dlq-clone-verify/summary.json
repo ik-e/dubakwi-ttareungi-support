@@ -1,0 +1,45 @@
+{
+  "date": "2026-11-06 KST",
+  "source": "86d78e731a6fe633060f7946c85ec30200af3fa8",
+  "environment": "team VM; existing SSH; n8n CLI export only",
+  "dlq": {
+    "parameters_matching": 6,
+    "connections_matching": true,
+    "connections_sha256": "7d9483dde279b200e9e1191baf200f21381e62d143e2db587d19fedbf70a7af7",
+    "rejection_branch": "D03 false -> D06",
+    "existing_id_and_pg_credential_preserved": true,
+    "active": false,
+    "backup_exists": true,
+    "backup_active": false,
+    "backup_nodes": 5
+  },
+  "state": {
+    "nodes": 11,
+    "s05_sha256": "d378ee5be0af46dd18d52e4a16a401a41b9706a460fa8d190e41313529b168c7",
+    "matches": "9d7eaf2",
+    "target_s05_sha256": "1f7f14332067568419eefffbc2187fd3ab42ec2f7316d9dcb83d9648a3b210f6",
+    "target": "86d78e7",
+    "updated": false
+  },
+  "checks": {
+    "unittest": {
+      "total": 84,
+      "passed": 77,
+      "skipped": 7
+    },
+    "citizen_messages": "passed",
+    "marker": "7/7",
+    "ruff": "passed;58 files",
+    "docs_and_public": "passed",
+    "diff": "passed"
+  },
+  "handoff": "R04 may update only S05 jsCode on named inactive trial clone after snapshot and call coordination. Preserve bindings, connections, other nodes. Keep backup.",
+  "not_executed": [
+    "Business workflow execution",
+    "SQL007 application/live dedup test",
+    "Workflow edits",
+    "DB/Jira writes",
+    "Full S1"
+  ]
+}
+

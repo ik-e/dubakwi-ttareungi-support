@@ -645,3 +645,7 @@ R01 수정 후 검증: 공통 unittest67건 중60통과·실제HTTP7생략(실�
 ### 2026-11-06 R01 P12/P20 재전송 정정·S05 최종안 확인
 
 상태: R01 최신 문구/계약 확인 완료·R05 검토와 병합/배포 대기. [새 검토 기록](../runs/public/20261106-104417-local-r01-retry-review/report.md)에서 #27 `86d78e7`의 S05·기대값·STORAGE3.3 최종 문구 일치와 #28 `8c53cf7`을 확인했다. 회귀는 각각 84중77통과/HTTP7생략, 76중69통과/HTTP7생략이다. R02의 scope/렌더 소비 동의와 errors가 원 실행 ID·같은 scope의 행을 찾으면 unknown→재전송 request_requires_review라는 정정을 취합했다. skipped는 기존 행을 바꾸지 않으며 begin 전 행이 없으면 processing을 생성하지 않는다. R02의 팀 n8n X03 미실행 보고로 해당 호출 충돌은 해소됐고 지정 DLQ 갱신은 기존 범위대로 R04가 담당한다. support FL35는 R02, 최신 실패/복구 검토는 R05에 인계한다. #27→#28→#16 순서는 유지하며 이번 VM/DB/Jira 변경과 전체 S1 실행은0이다.
+
+### 2026-11-06 R01 P18 DLQ 복제본 직접 대조·S05 인계
+
+상태: DLQ 정적 대조 완료·S05 한정 인계·실행 검증 대기. [VM 읽기 대조](../runs/public/20261106-104719-vm-dlq-clone-verify/report.md)에서 지정된 비활성 DLQ 복제본의6개노드parameters/전체connections가87ee11c 및86d78e7 원본과같고D03 false→D06, 기존ID/PostgreSQLCredential/비활성유지, 변경전백업5노드·비활성을확인했다. state11노드복제본S05는9d7eaf2와같아86d78e7미반영이다. 새시민문구시험·unittest84건중77통과/HTTP7생략,Ruff58파일/문서/공개후보통과를확인하고해당커밋R01코드승인을갱신했다. R04에게지정시험사본S05 jsCode만변경전보존/호출조율/기존설정유지조건으로인계한다. 이번workflow편집·업무실행·DB/Jira쓰기0이며SQL007적용상태/중복제거완료는확인하지않았다. 백업은회귀/SQL007검증과복구기준확인전보존한다. 영향역할검토/병합/서비스적용/전체S1은별도대기다.
