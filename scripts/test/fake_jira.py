@@ -29,6 +29,7 @@ def public_issue(issue: dict) -> dict:
             "description": issue["description"],
             "comment": {"comments": comments},
             "status": {"statusCategory": {"key": category(issue)}},
+            "assignee": issue["assignee"],
         },
     }
 
@@ -54,6 +55,15 @@ class Handler(BaseHTTPRequestHandler):
             self.send(FAULTS[name], {"errorMessages": [f"fake {name}"]})
             return True
         return False
+
+    def apply_update(self, issue: dict, data: dict) -> None:
+        # Jira update 문법 중 handoff가 쓰는 label 추가와 댓글만 흉내 낸다.
+        update = data.get("update", {})
+        for item in update.get("labels", []):
+            if "add" in item and item["add"] not in issue["labels"]:
+                issue["labels"].append(item["add"])
+        for item in update.get("comment", []):
+            issue["comments"].append(item.get("add", {}).get("body", ""))
 
     def issue_from_path(self, path: str) -> dict | None:
         key = unquote(path.removeprefix(ISSUE_PATH).split("/")[0])
@@ -118,8 +128,7 @@ class Handler(BaseHTTPRequestHandler):
                     self.send(404, {})
                     return
                 issue["closed"] = True
-                for item in data.get("update", {}).get("comment", []):
-                    issue["comments"].append(item.get("add", {}).get("body", ""))
+                self.apply_update(issue, data)
                 self.send(204)
         elif path.endswith("/comment"):
             issue = self.issue_from_path(path)
@@ -140,9 +149,9 @@ class Handler(BaseHTTPRequestHandler):
         if not issue:
             self.send(404, {})
             return
-        issue["assignee"] = data.get("fields", {}).get("assignee")
-        for item in data.get("update", {}).get("comment", []):
-            issue["comments"].append(item.get("add", {}).get("body", ""))
+        if "assignee" in data.get("fields", {}):
+            issue["assignee"] = data["fields"]["assignee"]
+        self.apply_update(issue, data)
         self.send(204)
 
 
