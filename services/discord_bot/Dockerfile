@@ -6,4 +6,4 @@ RUN pip install --no-cache-dir uv==0.9.5 && uv sync --frozen --no-dev
 COPY services ./services
 
 USER 65532:65532
-CMD ["uv", "run", "--frozen", "python", "-m", "services.discord_bot.bot"]
+CMD ["/app/.venv/bin/python", "-m", "services.discord_bot.bot"]

@@ -41,6 +41,8 @@ does not request Message Content intent because ordinary messages are outside th
    infra/discord-bot-compose.yaml config`.
 3. Build the adapter image and record its immutable image ID or digest.
 4. Start only `discord-bot`; do not restart n8n or change the public P19 workflow.
+   The runtime uses the Python environment installed during the image build directly;
+   it must not run `uv sync` or create a cache on the read-only filesystem.
 5. Confirm `/문의` appears in the allowed test server/channel.
 6. Run one registered-user request and one unregistered-user request. Confirm both replies are
    ephemeral and that only the registered request reaches the normal support path.
