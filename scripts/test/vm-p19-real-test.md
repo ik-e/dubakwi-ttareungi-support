@@ -22,11 +22,22 @@ R01 확정 후 R04가 하위 기능 기준을 `1b83d18`로 올렸고, R01이 이
 ```bash
 uv run --locked python scripts/test/make_vm_p19_real_bundle.py --output-dir <새 폴더> \
   --state-workflow-id <state ID> --dlq-workflow-id <DLQ ID> --handoff-url <handoff 내부 주소> \
-  --scope <R01이 정한 VM scope> --errors-ref <errors 커밋> \
+  --scope dubakwi-p19-real --errors-ref <errors 커밋> --r04-ref <state·DLQ·handoff 커밋> \
   --openai-credential-id <ID> --team-credential-id <ID> --internal-credential-id <ID>
 ```
 
 `--errors-ref`를 주면 같은 폴더에 errors 사본(`dubakwi-errors-p19-real.json`, ID `dubakwiP19RealErrors`)도 만든다. E02의 `const importedScope = '__DUBAKWI_SCOPE__';` **대입값만** support와 같은 scope로 바꾸고, 비교식의 자리표시자는 그대로 둔다. 자리표시자를 전체 일괄 치환하면 비교식까지 바뀌어 저장이 막힌다. 도구는 `$env`가 막힌 상태를 흉내 내 E02를 실행해 support와 같은 scope로 저장 준비가 되는지 확인하고, 아니면 사본을 만들지 않는다(`manifest.json`의 `errors_copy.scope_matches_support`). 대입 줄이 없는 errors(예: 고정 기준 `ff19178`)는 거부한다. errors의 state·DLQ 대상은 support와 같은 `--state-workflow-id`·`--dlq-workflow-id`로 맞추고, `--error-workflow-id`를 따로 주지 않으면 support의 Error Workflow를 이 사본으로 지정한다.
+
+`manifest.json`의 `dependencies`는 함께 반입할 원본의 커밋과 SHA-256이다. 옵션이 없으면 R01 확정 기준(state·DLQ·handoff `1b83d18`, errors `ff19178`)을 적으므로 **최신 #27·#28 반영을 뜻하지 않는다.** 실제로 반입할 원본은 `--r04-ref`·`--errors-ref`로 넘기고, 각 항목의 `default_differs`로 확정 기준과 다른지 확인한다. SHA-256은 Git 원본 기준이라 Jira 주소·담당 매핑을 채운 렌더 결과와는 다르다.
+
+| 원본 | 확정 기준 | SHA-256(앞 12자) | 최신 후보(2026-11-06 11시) | SHA-256(앞 12자) |
+| --- | --- | --- | --- | --- |
+| state | `1b83d18` | `45b96868f74c` | #27 `86d78e7` | `917230d49e63` |
+| DLQ | `1b83d18` | `9c466061b7e4` | #27 `86d78e7` | `823aa2605958` |
+| handoff | `1b83d18` | `9d65d8c756e1` | #27 `86d78e7` | `7fd773544835` |
+| errors | `ff19178` | `bf8146de49a6` | #28 `8c53cf7` | `747eeb0eca30` |
+
+최신 후보로 만든 errors 사본은 `scope_matches_support: true`이고, `8c53cf7`의 errors 워크플로우는 `7426eb9`와 같아 사본 SHA-256도 같다(`25dd980121e9`). 실효 scope는 VM에서 `DUBAKWI_SCOPE`가 읽히면 그 값이 우선하므로 R01이 VM에서 따로 확인한다.
 
 handoff는 R04 `168c79c`의 `scripts/dev/render_n8n_workflow.py`로 Jira 주소와 담당 매핑을 채운 사본을 Git 제외 경로에 만들어 반입한다. 환경 값은 옵션으로만 넣고 공개 기록에 남기지 않는다. `--scope`는 필수이며, 사본에 원본 `dubakwi-dev`가 남으면 만들지 않는다. `manifest.json`에 기준 커밋, support SHA-256, 함께 쓰는 워크플로우의 원본 커밋과 SHA-256이 남는다. R01의 비활성 복제본이 이 값과 같은 원본인지 대조한다.
 

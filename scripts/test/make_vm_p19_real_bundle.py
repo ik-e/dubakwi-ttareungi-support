@@ -3,11 +3,14 @@
 사용법:
   uv run --locked python scripts/test/make_vm_p19_real_bundle.py --output-dir <새 폴더> \
       --scope <R01이 정한 VM scope> [--state-workflow-id <ID>] [--dlq-workflow-id <ID>] \
-      [--handoff-url <URL>] [--errors-ref <errors 커밋>]
+      [--handoff-url <URL>] [--errors-ref <errors 커밋>] [--r04-ref <state·DLQ·handoff 커밋>]
 
 --errors-ref를 주면 그 커밋의 errors로 같은 scope의 errors 사본도 만든다. E02의 importedScope 대입값만
 치환하고(자리표시자 전체 일괄 치환은 비교식까지 바꿔 저장을 막는다), $env가 막힌 상태로 E02를 실행해
 support와 같은 scope로 저장 준비가 되는지 확인한다.
+
+manifest의 dependencies는 실제로 함께 반입할 원본을 적는다. 기본값은 R01이 확정한 기준이며,
+--r04-ref와 --errors-ref를 주면 그 커밋으로 바꿔 적고 기본 기준과 다른지(default_differs)도 남긴다.
 
 사용자 조회·state·DLQ·handoff를 실제 대상으로 연결한다. 원본 workflows/dubakwi-support.json은 바꾸지 않는다.
 환경 ID와 Credential ID는 비밀이 아니어도 공개 기록에 남기지 않으므로 옵션으로만 받는다.
@@ -151,14 +154,19 @@ def git(*args: str) -> str:
     ).stdout
 
 
-def dependency_hashes() -> dict:
+def dependency_hashes(refs: dict | None = None) -> dict:
+    """함께 반입할 원본의 커밋과 SHA-256. refs가 없으면 R01 확정 기준(DEPENDENCIES)."""
+    refs = refs or {}
     result = {}
-    for key, (path, ref) in DEPENDENCIES.items():
-        text = git("show", f"{ref}:{path}") if ref else (ROOT / path).read_text(encoding="utf-8")
+    for key, (path, default_ref) in DEPENDENCIES.items():
+        ref = refs.get(key) or default_ref
+        text = git("show", f"{ref}:{path}")
         result[key] = {
             "path": path,
-            "ref": ref or "기준 커밋",
+            "ref": git("rev-parse", "--short", ref).strip(),
             "sha256": hashlib.sha256(text.encode("utf-8")).hexdigest(),
+            "default_ref": default_ref,
+            "default_differs": text != git("show", f"{default_ref}:{path}"),
         }
     return result
 
@@ -175,6 +183,9 @@ def main() -> None:
         help="R01이 정한 VM scope. errors 사본의 importedScope와 같은 값",
     )
     parser.add_argument("--errors-ref", help="같은 scope의 errors 사본을 만들 errors 커밋")
+    parser.add_argument(
+        "--r04-ref", help="함께 반입할 state·DLQ·handoff 원본 커밋(manifest 기록용)"
+    )
     parser.add_argument("--error-workflow-id")
     parser.add_argument("--openai-credential-id")
     parser.add_argument("--team-credential-id")
@@ -230,7 +241,14 @@ def main() -> None:
         or args.handoff_url != ORIGINAL_HANDOFF_URL,
         "scope": args.scope,
         "errors_copy": errors_info,
-        "dependencies": dependency_hashes(),
+        "dependencies": dependency_hashes(
+            {
+                "state": args.r04_ref,
+                "dlq": args.r04_ref,
+                "handoff": args.r04_ref,
+                "errors": args.errors_ref,
+            }
+        ),
     }
     with (args.output_dir / "manifest.json").open("x", encoding="utf-8") as file:
         json.dump(manifest, file, ensure_ascii=False, indent=2)

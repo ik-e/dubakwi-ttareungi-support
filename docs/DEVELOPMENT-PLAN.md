@@ -340,6 +340,7 @@ P29는 같은 발표 파일의 틀·초안·최종 편집 및 연습 단계를 �
 | 2026-11-06 | R01 지시 반영: `make_vm_p19_real_bundle.py --errors-ref`로 errors 사본 생성(E02 importedScope 대입값만 치환, $env 차단 상태로 support와 같은 scope 확인, 대입 줄 없는 errors 거부). 409는 처리 중·수동 확인 필요 구분, 시민 문구를 약속 없는 문장으로 수정. unittest 83개 통과. VM 반입·errors 종단 미실행 |
 | 2026-11-06 | #27 `9d7eaf2`·`f1c4fcb`, #28 `8c53cf7` 변경분 확인: 렌더 도구 대입문 치환 동의, S05 문구는 R01 지시 전 초안이라 수정 요청. errors 경유 중단의 409를 정정: 원 실행 ID·같은 scope면 `unknown` → `request_requires_review`(임시 PostgreSQL 확인), 행을 못 찾을 때만 `request_in_progress`. n8n state 경유·VM 미실행 |
 | 2026-11-06 | R01 취합 반영: #27 `86d78e7` 최종 409 문구에 맞춰 FL35 기대값 수정, 수동 확인 필요(FL85)·요청 번호 충돌(FL86) 전달 사례 추가(135/135, `86d78e7` 하위 기능 코드로도 135/135). 병합 순서 #27 → #28 → #16 |
+| 2026-11-06 | R01 PR #39 요청: `make_vm_p19_real_bundle.py --r04-ref`로 manifest 의존성을 실제 반입 원본으로 기록하고 확정 기준과의 차이(`default_differs`) 표시. #27 `86d78e7`·#28 `8c53cf7` 해시 대조표 기록, `dubakwi-p19-real`로 errors 사본 scope 일치 확인. VM 실효 scope 미확인 |
 | 2026-11-05 | R01 확정: 다음 시험 support `5e0026c`, state·DLQ·handoff `168c79c`, errors `ff19178`. 병합 순서 PR #27 → #16. 재배정·재알림 반복은 독립 결함으로 기록. 실제 Jira S1은 게시 후 새 증거로 확인 |
 | 2026-11-05 | R04 `168c79c` 기준 변경: 키 재사용 검증·완료 이슈 재종료 반영본을 가짜 Jira로 재확인. support 변경 없음. 실제 Jira·VM·공식 판정 미실행 |
 | 2026-11-05 | R04 `fdd0be1` 연결: B15 2.5초 적용, 가짜 Jira로 S1·보완 한도·이관·긴급·조회 로컬 확인. support를 통한 실제 Jira·VM·공식 판정 미실행 |
