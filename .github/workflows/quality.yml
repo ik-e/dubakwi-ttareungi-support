@@ -24,5 +24,6 @@ jobs:
       - run: uv run --locked ruff check .
       - run: uv run --locked ruff format --check .
       - run: uv run --locked python scripts/test/check_project_docs.py
+      - run: uv run --locked python scripts/dev/check_full_system_coverage.py
       - run: uv run --locked python -m unittest discover -s scripts/test -p "test_*.py"
       - run: uv run --locked python scripts/test/check_public_files.py

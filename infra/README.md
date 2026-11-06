@@ -1,6 +1,6 @@
 # Docker Compose 배포와 운영
 
-J01~J03 병렬 개발의 상태·조회·문맥·효과·편집 인계·시험 기준은 [공통 기준 v1](parallel-integration-contract-v1.md)과 [모의 예제22개](contracts/parallel-contract-v1.examples.json)를 따른다. 기준 확정과 실제 구현·배포 완료를 구분한다.
+전체 잔여 작업은 [64개 수정·검증 계획](full-system-closure-plan.md)·[항목별 예정 시험](contracts/full-system-coverage.json)을 따른다. J01~J03 병렬 개발의 상태·조회·문맥·효과·편집 인계·시험 기준은 [공통 기준 v1.2](parallel-integration-contract-v1.md)과 [모의 예제25개](contracts/parallel-contract-v1.examples.json)를 따른다. 기준안 작성과 역할 검토·실제 구현·배포 완료를 구분한다.
 
 설계 요구별 구현·배포·검증의 부족 항목은 [설계·구현 대조표](design-implementation-mapping.md)에서 확인한다. 정상 한 건의 성공과 전체 수명주기 완료를 구분하며, 상태 원장은 개발 계획을 따른다.
 

@@ -54,3 +54,7 @@ uv run --locked python scripts/dev/make_close_fault_copy.py --output runs/privat
 ## 병렬 계약 로컬 감사
 
 저장소 루트에서 `node scripts/dev/audit-parallel-contract.js .`를 실행한다. 실제 support/handoff의 Code 노드를 모의 입력으로 호출하고 공통 기준 예제와 대조한다. HTTP·Jira·DB·VM을 호출하지 않는다. 출력의 `implementation_gap`은 미래 계약 대비 구현 차이이며 기존 S1 회귀 실패를 뜻하지 않는다. 종료 코드 0은 감사 실행 완료이고 전체 계약 통과를 뜻하지 않는다. 새 결과는 새 실행묶음 경로에 저장하며 과거 summary를 덮어쓰지 않는다.
+
+## 전체 수정 계획 누락 검사
+
+`uv run --locked python scripts/dev/check_full_system_coverage.py`는 대조표와 계획의 64개 ID·원래 완료 조건·담당 작업·예정 시험·의존성 순환·S10 미구현 한계와 Jira 문맥 fixture를 검사한다. `--output <새 경로>`로 새 증거를 저장할 수 있다. 검사 통과는 계획 연결의 완전성이며 기능·VM 시험의 통과가 아니다. 정식 cases/runner 연결은 R05 후속 작업이다.
