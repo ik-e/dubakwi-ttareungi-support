@@ -1,0 +1,72 @@
+{
+  "label": "time-budget-live",
+  "executed_at_kst": "2026-11-06",
+  "base_commit": "22d0b65",
+  "environment": "local n8n 2.42.6, course data-api(make_vm_p19_bundle.py --data-api), gpt-4.1-mini, R03 PR #31 06e9223 검색·색인, mock state·handoff·dlq",
+  "scope": "시간 예산 적용(d68955e) 뒤 대표 문장을 실제 LLM으로 반복 호출. 답변 원문은 남기지 않는다. VM·실제 Jira·공식 판정이 아니다.",
+  "support_source_sha256": "ebce4ba31c21ad499408c0a03acdb4bff15e037209d219be77d510609cbc5acc",
+  "settings": {
+    "L01_L02_L03_timeout_ms": [
+      4000,
+      4000,
+      3000
+    ],
+    "llm_retries": 0,
+    "B14_timeout_ms": 3000,
+    "B17_min_remaining_ms": 15500,
+    "B27_timeout": "남은 시간 - 3500ms, 5000~15000ms"
+  },
+  "results": {
+    "대표": {
+      "n": 30,
+      "tally": {
+        "자동 답변/None": 30
+      },
+      "auto_with_5digit": 30,
+      "auto_with_qr_section": 30,
+      "wall_ms": {
+        "median": 4767.0,
+        "max": 8819,
+        "min": 4313
+      }
+    },
+    "WF01": {
+      "n": 10,
+      "tally": {
+        "자동 답변/None": 10
+      },
+      "auto_with_5digit": 10,
+      "auto_with_qr_section": 10,
+      "wall_ms": {
+        "median": 4894.5,
+        "max": 6021,
+        "min": 4327
+      }
+    },
+    "비슷한 문장": {
+      "n": 20,
+      "tally": {
+        "담당자 이관/verification_failed": 7,
+        "자동 답변/None": 13
+      },
+      "auto_with_5digit": 13,
+      "auto_with_qr_section": 13,
+      "wall_ms": {
+        "median": 5339.0,
+        "max": 7839,
+        "min": 4507
+      }
+    }
+  },
+  "baseline_before_budget": {
+    "run": "runs/public/20261105-165038-local-n8n-p19-pr31b-check/summary.json",
+    "대표": "30/30 자동 답변",
+    "WF01": "10/10 자동 답변",
+    "비슷한 문장": "14/20 자동 답변(6회 verification_failed)"
+  },
+  "observations": [
+    "llm_down 0회, deadline_exceeded 0회",
+    "비슷한 문장의 이관 7회는 모두 verification_failed(L03 과도 판정, 기존 한계)",
+    "wall_ms는 로컬 호출 왕복 시간이며 mock handoff라 Jira 시간을 포함하지 않는다"
+  ]
+}

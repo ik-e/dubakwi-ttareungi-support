@@ -14,7 +14,7 @@ Docker Compose 채택: 2026-11-03 사용자 결정. 편집·배포 R01, 저장/�
 | --- | --- | --- |
 | `infra/compose.yaml` | 미작성. 현재는 기존 VM Compose를 유지하며 새 파일로 대체/기동하지 않음 | 기존 설치·데이터/비밀 보존·D01/D03·R04 연결 인계 |
 | [postgres-compose.yaml](postgres-compose.yaml)·[PostgreSQL 준비/검토](postgres-deployment.md) | R01 검토용 준비본. 기존 n8n과 별도 project, 공개 포트 없음·external 볼륨·파일 secrets | PR #23 수정은 재시험/병합 완료. R04 준비본 검토·D01 물리 DB 채택·실제 환경 확인 전 VM 미적용 |
-| Discord Gateway 봇 | R04 구현·R01 Compose 배포 예정. 외부 Gateway 연결과 내부 n8n 호출, 실제 SDK/토큰은 미준비 | D07,3초 defer·허용 계정 매핑·중복·전송 실패·토큰 만료 검증 |
+| Discord Gateway 봇 | R04 슬래시 명령 어댑터·별도 Compose 준비. R01 VM 반입, 비밀 연결, 실제 Gateway/n8n 종단 검증은 미실행 | D07,3초 defer·허용 계정 매핑·중복·전송 실패·토큰 만료 검증 |
 | [.env.example](../.env.example) | R05 도구의 확인된 Webhook 키 환경변수·빈 값 작성. VM Compose 설정과 별개 | 실제 키는 환경별 비공개 연결 |
 | `.env` | 환경별 비밀/설정, Git 제외 | 비밀 공급·접근권한·백업 방식 |
 | `infra/db/migrations/` | R04, 물리 DB 채택 시 추가 | 저장소 공개 계약·원자성·버전·백업/복구 |

@@ -1,0 +1,81 @@
+{
+  "label": "b27-time-evidence",
+  "executed_at_kst": "2026-11-06",
+  "base_commit": "7c0c2f0",
+  "source": "runs/public/20261106-102359-local-n8n-p19-fake-jira-87ee11c 의 n8n 실행 기록(로컬 n8n SQLite의 노드 시작 시각). 새 호출 없음",
+  "environment": "local n8n 2.42.6, 실제 gpt-4.1-mini, 가짜 Jira, R04 87ee11c, 임시 PostgreSQL",
+  "rule": "B27 제한 = max(5, min(15, 20 - B27 시작 - 3.5))초 (support 7c0c2f0)",
+  "rows": [
+    {
+      "path": "S1 자동 답변(종료)",
+      "execution_id": 20753,
+      "b27_start_s": 6.44,
+      "b27_duration_fake_jira_s": 0.22,
+      "b27_limit_s": 10.1
+    },
+    {
+      "path": "Jira 종료 500(종료)",
+      "execution_id": 20764,
+      "b27_start_s": 5.49,
+      "b27_duration_fake_jira_s": 0.16,
+      "b27_limit_s": 11.0
+    },
+    {
+      "path": "보완 1회(wait)",
+      "execution_id": 20773,
+      "b27_start_s": 1.38,
+      "b27_duration_fake_jira_s": 0.16,
+      "b27_limit_s": 15
+    },
+    {
+      "path": "한도 이관",
+      "execution_id": 20787,
+      "b27_start_s": 1.47,
+      "b27_duration_fake_jira_s": 0.22,
+      "b27_limit_s": 15
+    },
+    {
+      "path": "근거 없음 이관",
+      "execution_id": 20809,
+      "b27_start_s": 2.28,
+      "b27_duration_fake_jira_s": 0.18,
+      "b27_limit_s": 14.2
+    },
+    {
+      "path": "사람 판단 이관",
+      "execution_id": 20819,
+      "b27_start_s": 1.99,
+      "b27_duration_fake_jira_s": 0.2,
+      "b27_limit_s": 14.5
+    },
+    {
+      "path": "긴급 선이관",
+      "execution_id": 20827,
+      "b27_start_s": 1.49,
+      "b27_duration_fake_jira_s": 0.18,
+      "b27_limit_s": 15
+    },
+    {
+      "path": "본인 조회",
+      "execution_id": 20841,
+      "b27_start_s": 1.41,
+      "b27_duration_fake_jira_s": 0.14,
+      "b27_limit_s": 15
+    }
+  ],
+  "answer_path_live": {
+    "run": "runs/public/20261106-093924-local-n8n-p19-time-budget-live/summary.json",
+    "대표 문장 왕복": "중앙값 4.8초·최대 8.8초(mock handoff)",
+    "b27_limit_estimate_s": "약 12초(중앙값)·약 8초(최대), 왕복에서 B27 이후 약 0.3초를 뺀 추정"
+  },
+  "r04_worst": {
+    "종료": "약 11초",
+    "생성 후 이관": "약 13초(+PostgreSQL 3회)",
+    "실측 대부분": "1~4초",
+    "source": "R04 2026-11-06 공유(초기 기준값)"
+  },
+  "not_verified": [
+    "실제 Jira의 B27 소요(가짜 Jira는 0.14~0.22초)",
+    "VM에서의 B27 시작 시각"
+  ]
+}

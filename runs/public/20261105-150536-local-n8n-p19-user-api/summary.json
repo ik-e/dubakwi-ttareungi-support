@@ -1,0 +1,99 @@
+{
+  "label": "team-user-api-local",
+  "executed_at_kst": "2026-11-05",
+  "environment": "local n8n 2.42.6, 임시 dubakwi-user-api 컨테이너(PR #26 44a41f8), gpt-4.1-mini, main R03 검색, mock state·handoff·dlq",
+  "scope": "B04가 팀 사용자 API를 실제 호출하는지 확인. VM·공식 판정이 아니다.",
+  "workflow_option": "make_vm_p19_bundle.py --user-api",
+  "question": "QR이 안 읽혀요. 자전거 번호로 대여하는 방법을 알려주세요",
+  "results": [
+    {
+      "user": "citizen-a",
+      "http_status": 200,
+      "route": "자동 답변",
+      "reason": null,
+      "error": null,
+      "codes": null,
+      "sources": [
+        "rental-guide",
+        "rental-guide"
+      ]
+    },
+    {
+      "user": "citizen-b",
+      "http_status": 200,
+      "route": "자동 답변",
+      "reason": null,
+      "error": null,
+      "codes": null,
+      "sources": [
+        "rental-guide",
+        "rental-guide"
+      ]
+    },
+    {
+      "user": "support-demo",
+      "http_status": 200,
+      "route": "자동 답변",
+      "reason": null,
+      "error": null,
+      "codes": null,
+      "sources": [
+        "rental-guide",
+        "rental-guide"
+      ]
+    },
+    {
+      "user": "security-demo",
+      "http_status": 200,
+      "route": "자동 답변",
+      "reason": null,
+      "error": null,
+      "codes": null,
+      "sources": [
+        "rental-guide",
+        "rental-guide"
+      ]
+    },
+    {
+      "user": "unregistered-zz",
+      "http_status": 400,
+      "route": null,
+      "reason": null,
+      "error": "unknown_user",
+      "codes": [
+        "unknown_user"
+      ],
+      "sources": []
+    },
+    {
+      "user": "박서연",
+      "http_status": 400,
+      "route": null,
+      "reason": null,
+      "error": "unknown_user",
+      "codes": [
+        "unknown_user"
+      ],
+      "sources": []
+    }
+  ],
+  "api_stopped": [
+    {
+      "user": "citizen-a",
+      "http_status": 503,
+      "route": null,
+      "reason": null,
+      "error": "user_lookup_error",
+      "codes": [
+        "user_lookup_unavailable"
+      ],
+      "sources": []
+    }
+  ],
+  "not_executed": [
+    "VM 사용자 API",
+    "실제 state·handoff·dlq·Jira",
+    "/records 조회 연결",
+    "공통 WF 공식 판정"
+  ]
+}

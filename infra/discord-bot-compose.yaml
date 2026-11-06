@@ -1,0 +1,36 @@
+services:
+  discord-bot:
+    build:
+      context: ..
+      dockerfile: services/discord_bot/Dockerfile
+    restart: unless-stopped
+    environment:
+      DUBAKWI_DISCORD_BOT_TOKEN_FILE: /run/secrets/discord_bot_token
+      DUBAKWI_DISCORD_GUILD_ID: ${DUBAKWI_DISCORD_GUILD_ID:?required}
+      DUBAKWI_DISCORD_CHANNEL_ID: ${DUBAKWI_DISCORD_CHANNEL_ID:?required}
+      DUBAKWI_DISCORD_USER_MAP: ${DUBAKWI_DISCORD_USER_MAP:?required}
+      DUBAKWI_SUPPORT_WEBHOOK_URL: ${DUBAKWI_SUPPORT_WEBHOOK_URL:?required}
+      DUBAKWI_TEAM_KEY_FILE: /run/secrets/team_key
+    secrets:
+      - discord_bot_token
+      - team_key
+    networks:
+      - n8n
+    read_only: true
+    tmpfs:
+      - /tmp:size=16m,mode=1777
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+
+secrets:
+  discord_bot_token:
+    file: ${DUBAKWI_DISCORD_BOT_TOKEN_FILE:?required}
+  team_key:
+    file: ${DUBAKWI_TEAM_KEY_FILE:?required}
+
+networks:
+  n8n:
+    external: true
+    name: ${DUBAKWI_N8N_NETWORK:?required}

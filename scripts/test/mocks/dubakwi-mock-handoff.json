@@ -1,0 +1,87 @@
+{
+  "id": "dubakwiHandoff1",
+  "name": "dubakwi-mock-handoff",
+  "active": false,
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "dubakwi-handoff",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "8c054d9a-a2c1-5a68-a0d4-2a5f37ca512f",
+      "name": "Mock 입력",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        0
+      ],
+      "webhookId": "7697a819-de9c-51d4-9663-40588152c84f"
+    },
+    {
+      "parameters": {
+        "jsCode": "// 시험 전용 mock handoff. 실제 Jira를 호출하지 않는다. 질문 내용 표식으로 실패를 재현한다.\nconst r = $json.body;\nif (r.kind === 'lookup') {\n  if (String(r.request_id).includes('slow-lookup')) await new Promise((done) => setTimeout(done, 8000));\n  if (!r.enabled) return { json: { request_id: r.request_id, status: 'skipped', record: null, masked: 0 } };\n  if (r.target_ticket_id !== 'T-DEMO-01') return { json: { request_id: r.request_id, status: 'denied', record: null, masked: 0 } };\n  return { json: { request_id: r.request_id, status: 'ok', masked: 1, record: { ticket_id: 'T-DEMO-01', owner_id: r.actor_id, status: 'waiting_info', observed_at: 'mock', masked_phone: '010-****-0000' } } };\n}\nif (String(r.request_id).includes('ticket-down')) return { json: { __status: 500, error: 'mock' } };\nconst on = (need) => ({ status: need ? 'confirmed' : 'none' });\nreturn { json: { request_id: r.request_id, ticket_id: r.ticket_id ?? 'T-MOCK-1', case_version: 1, state_saved: true, state_ref: { ...r.state_ref, state_revision: r.state_ref.state_revision + 1 }, recovery: null, error_code: null, effects: { created_or_reused: on(true), context_saved: on(r.action !== 'wait'), closed: on(r.action === 'close'), assigned: on(r.action === 'handoff'), alert: on(r.action === 'handoff') } } };\n",
+        "mode": "runOnceForAllItems"
+      },
+      "id": "088c09dd-23bb-530b-a1eb-d3fa050eafa1",
+      "name": "Mock 처리",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        250,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify($json) }}",
+        "options": {
+          "responseCode": "={{ $json.__status ?? 200 }}"
+        }
+      },
+      "id": "6b1873a7-8840-57e4-bf50-13359cf8603d",
+      "name": "Mock 응답",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        500,
+        0
+      ]
+    }
+  ],
+  "connections": {
+    "Mock 입력": {
+      "main": [
+        [
+          {
+            "node": "Mock 처리",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mock 처리": {
+      "main": [
+        [
+          {
+            "node": "Mock 응답",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": false
+  },
+  "tags": []
+}

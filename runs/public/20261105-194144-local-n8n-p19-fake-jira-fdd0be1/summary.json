@@ -1,0 +1,135 @@
+{
+  "label": "fake-jira-fdd0be1",
+  "executed_at_kst": "2026-11-05",
+  "environment": "local n8n 2.42.6, 임시 PostgreSQL 16.15 001~006, 임시 사용자 API, R04 fdd0be1 state·DLQ·handoff, 로컬 가짜 Jira, 시험용 담당 매핑, R03 PR #31 06e9223 검색·색인, gpt-4.1-mini",
+  "scope": "실제 support와 R04 최신 하위 기능의 계약 연결 확인. 실제 Jira 호출 0건. 실제 S1 통과·VM·공식 판정이 아니다. 실행 ID는 로컬 n8n 번호다.",
+  "s1_execution": [
+    {
+      "execution_id": 19649,
+      "status": "success",
+      "ran": [
+        "B04",
+        "B36"
+      ],
+      "node_ms": {
+        "B04": 3
+      }
+    },
+    {
+      "execution_id": 19640,
+      "status": "success",
+      "ran": [
+        "B04",
+        "B10",
+        "B14",
+        "B19",
+        "B20",
+        "B27",
+        "B37",
+        "B32",
+        "B36"
+      ],
+      "node_ms": {
+        "B04": 10,
+        "B10": 2235,
+        "B14": 716,
+        "B19": 2084,
+        "B20": 1225,
+        "B27": 192,
+        "B32": 50
+      }
+    }
+  ],
+  "results": [
+    {
+      "case": "대표 문장 S1",
+      "http": 200,
+      "route": "자동 답변",
+      "note": "가짜 Jira 생성·종료, completed, DLQ 0"
+    },
+    {
+      "case": "같은 요청 재전송",
+      "http": 200,
+      "route": "자동 답변",
+      "note": "저장 응답 재사용, 티켓 추가 0"
+    },
+    {
+      "case": "Jira 종료 500",
+      "http": 200,
+      "route": "담당자 이관",
+      "note": "partial_effect, known JBYS-2, DLQ close"
+    },
+    {
+      "case": "case_ref 보완 1~2회",
+      "http": 200,
+      "route": "보완 질문",
+      "note": "attempt 없이 같은 티켓 재사용"
+    },
+    {
+      "case": "case_ref 보완 3회",
+      "http": 200,
+      "route": "담당자 이관",
+      "note": "attempt_limit, 배정"
+    },
+    {
+      "case": "한도 뒤 추가 요청 2회",
+      "http": 200,
+      "route": "담당자 이관",
+      "note": "attempt_limit, 같은 티켓에 배정·알림 반복"
+    },
+    {
+      "case": "WF-03 문장",
+      "http": 200,
+      "route": "담당자 이관",
+      "note": "no_evidence, support 담당 배정"
+    },
+    {
+      "case": "TC04 문장",
+      "http": 200,
+      "route": "담당자 이관",
+      "note": "needs_human, support 담당 배정"
+    },
+    {
+      "case": "긴급",
+      "http": 200,
+      "route": "담당자 이관",
+      "note": "priority high, security 담당 배정"
+    },
+    {
+      "case": "없는 case_ref",
+      "http": 400,
+      "route": null,
+      "note": "invalid_case_ref"
+    },
+    {
+      "case": "다른 사용자의 case_ref",
+      "http": 403,
+      "route": null,
+      "note": "case_access_denied"
+    },
+    {
+      "case": "본인 조회",
+      "http": 200,
+      "route": "자동 답변",
+      "note": "상태 안내"
+    },
+    {
+      "case": "타인 조회",
+      "http": 200,
+      "route": "권한 없음",
+      "note": "case_access_denied"
+    }
+  ],
+  "open_for_r04": [
+    "attempt_limit 뒤 같은 case로 다시 요청하면 배정·알림이 반복됨"
+  ],
+  "regression": {
+    "support_skeleton_live": "runs/public/20261105-193913-local-n8n-p19-b15-regression/summary.json",
+    "r05_route_compare": "runs/public/20261105-193957-local-n8n-p19-b15-r05/summary.json"
+  },
+  "not_executed": [
+    "support를 통한 실제 Jira 호출",
+    "VM 실제 연결",
+    "R05 공식 판정"
+  ]
+}
