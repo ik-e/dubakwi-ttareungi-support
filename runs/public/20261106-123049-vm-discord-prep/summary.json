@@ -1,0 +1,65 @@
+{
+  "date": "2026-11-06 KST",
+  "environment": "team VM plus local source review",
+  "source_adapter": "0526d30a11daae647b2b48e94eb25b8b1485478a",
+  "findings": {
+    "registered_user_api": {
+      "status": 200,
+      "selected_id_matches": true,
+      "role": "citizen",
+      "access_levels": [
+        "public"
+      ],
+      "identity": "private handoff only"
+    },
+    "common_network": "n8n and user API share existing network; exact name private",
+    "requested_p19_webhook_targets": 0,
+    "discord_bot_containers": 0
+  },
+  "prepared": {
+    "private_deploy_directory": "created outside repository;0700",
+    "secret_directory": "0700",
+    "bot_token_file": "empty placeholder;0600;current container UID65532",
+    "team_key_file": "existing team webhook key copied privately;0600;source unchanged",
+    "key_readability": "passed with current runtime UID in disposable existing-image container;network none;read-only",
+    "token_input": "VM private getpass helper; syntax compiled; not executed; existing token direct injection by R04",
+    "handoff": "VM and local Git-ignored handoff; no secret values",
+    "env_template": "private; required guild/channel/webhook values intentionally unassigned"
+  },
+  "startup": "not started; R04 patch/push and allowlist/response/transport checks, secret injection and P19 live baseline required",
+  "checks": {
+    "live_user_api": "passed",
+    "network": "passed",
+    "runtime_secret_read": "passed",
+    "source_key_unchanged": true,
+    "helper_syntax": "passed",
+    "docs": {
+      "files": 20,
+      "links": 464,
+      "anchors": 51,
+      "errors": 0
+    },
+    "public_candidates": {
+      "files": 180,
+      "links": 565,
+      "errors": 0
+    },
+    "diff": "passed",
+    "runtime_source_tests": "not repeated; adapter source not changed",
+    "specialist_secret_tools": "tscan/Gitleaks unavailable; changed-file pattern scan is partial"
+  },
+  "not_executed": [
+    "Token acquisition or Discord login",
+    "Discord application-command registration or message transmission",
+    "Bot deployment/start",
+    "P19 posting/publication",
+    "Jira or state/DLQ business writes"
+  ],
+  "security_notes": [
+    "Exact authorized Discord account must map to selected fixture; reject unmapped accounts, no catch-all identity",
+    "Support X-Team-Key differs from user API X-Internal-Key",
+    "No existing key printed, exported via chat, or decrypted from n8n",
+    "HTTP25s is adapter transport candidate, not a new support deadline or performance pass"
+  ],
+  "source": "R02/R04 replies relayed by user in this chat; original Discord links/times not provided."
+}
