@@ -381,7 +381,7 @@ BEGIN
 
     IF op_value = 'put' THEN
         failure_value := md5(concat_ws('|', scope_value,
-            coalesce(payload ->> 'request_id', payload ->> 'last_execution_id', ''),
+            coalesce(payload ->> '_dedupe_ref', payload ->> 'request_id', payload ->> 'last_execution_id', ''),
             payload ->> 'failed_step', payload ->> 'error_code'));
         dlq_value := 'dlq-' || failure_value;
 
