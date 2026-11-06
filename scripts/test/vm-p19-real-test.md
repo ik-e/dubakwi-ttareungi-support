@@ -108,13 +108,19 @@ R01 요청으로 실패 요청을 `manual_required`로 보존하는 지금 상�
 
 ## S1 입력과 통과 기준
 
+PR #36 정상 1건은 R03이 정한 질문과 기대 근거를 쓴다(2026-11-06).
+
 ```json
-{"request_id": "s1-<실행ID>", "user": "citizen-a", "question": "QR이 안 읽혀요. 자전거 번호로 대여하는 방법을 알려주세요", "attempt": 1}
+{"request_id": "s1-<실행ID>", "user": "citizen-a", "question": "QR이 안 읽혀요. 자전거번호로 대여하는 방법을 알려주세요.", "attempt": 1}
 ```
+
+- **기대 근거:** `rental-guide` / `QR 인식 또는 잠금 해제가 어려운 경우`(시민 `public`).
+- **검색 근거(R03):** 11/05 VM 검색 단독 SR-WF01에서 이 절이 2위였다([증거](https://github.com/ik-e/dubakwi-ttareungi-support/blob/r05/p07-r04-contract-cases/runs/public/20261105-162516-vm-p22-search/summary.json), 당시 main `0e44fdb`). 현재 VM 색인 상태와 P19 경유 결과가 아니며, 적용 색인 버전과 재색인 시점은 R03·R01이 확인한다.
+- **로컬 참고:** 같은 문장(WF01)을 시간 예산 적용 뒤 실제 LLM으로 10회 보내 10/10 자동 답변, QR 절 인용 10회였다([기록](../../runs/public/20261106-093924-local-n8n-p19-time-budget-live/summary.json), PR #31 `06e9223` 색인·mock 하위 기능). VM 결과가 아니다.
 
 | 확인 대상 | 기대값 |
 | --- | --- |
-| 응답 | 200, `자동 답변`, `ticket=null`, `case_ref` 있음, `rental-guide`의 QR 절 근거 |
+| 응답 | 200, `자동 답변`, `ticket=null`, `case_ref` 있음, `sources`에 `rental-guide` / `QR 인식 또는 잠금 해제가 어려운 경우` |
 | Jira | 티켓 1건 생성, `closed_guidance` 종료 확인 |
 | `request_state` | `completed`, `jira_issue_key` 있음, 응답 저장 |
 | `dead_letters` | 0건 |
