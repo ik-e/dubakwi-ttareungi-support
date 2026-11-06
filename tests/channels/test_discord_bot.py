@@ -244,7 +244,7 @@ class FailureMessageTest(unittest.TestCase):
             "request_in_progress": "같은 요청을 처리하고 있습니다",
             "request_requires_review": "처리 결과 확인이 필요하며",
             "request_conflict": "새 문의로 다시 보내 주세요",
-            "case_busy": "이전 요청이 처리 중이거나 확인 중",
+            "case_busy": "이전 요청 처리 결과를 확인해야 합니다",
         }
         for code, fragment in expected.items():
             with self.subTest(code=code):
@@ -256,6 +256,9 @@ class FailureMessageTest(unittest.TestCase):
                 self.assertIn(fragment, message)
                 self.assertNotIn("같은 문의 연결값으로", message)
         self.assertNotIn("다시 시도", failure_message(["request_requires_review"]))
+        for code in ("case_busy", "request_in_progress", "request_requires_review"):
+            for lure in ("다시 시도", "새 문의로"):
+                self.assertNotIn(lure, failure_message([code]))
 
     def test_unknown_code_5xx_and_network_use_generic(self) -> None:
         for codes in (["mystery"], [], None):
@@ -269,6 +272,9 @@ class FailureMessageTest(unittest.TestCase):
                 _post_support(_settings(), {})
         self.assertNotIsInstance(ctx2.exception, SupportError)
         self.assertNotIn("연결값으로", GENERIC_FAILURE_MESSAGE)
+        for lure in ("다시 시도", "새 문의"):
+            self.assertNotIn(lure, GENERIC_FAILURE_MESSAGE)
+        self.assertIn("중복 접수를 피하기 위해 담당자에게 확인", GENERIC_FAILURE_MESSAGE)
 
     def test_error_does_not_carry_body(self) -> None:
         body = json.dumps({"error": "secret-detail", "codes": ["case_busy"]}).encode()
@@ -294,7 +300,7 @@ class RunSupportLogTest(unittest.IsolatedAsyncioTestCase):
         self.assertIn("dc-9", text)
         for forbidden in ("비밀질문", "citizen-a", "leak"):
             self.assertNotIn(forbidden, text)
-        self.assertIn("처리 중이거나 확인 중", message)
+        self.assertIn("처리 결과를 확인해야 합니다", message)
 
 
 if __name__ == "__main__":

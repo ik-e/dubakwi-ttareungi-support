@@ -7,10 +7,12 @@ This adapter implements the agreed Discord boundary without changing the n8n sup
 - Registers `/문의 내용:<question> case_ref:<optional>` only in the configured guild.
 - Restricts execution to the configured channel when a channel ID is supplied.
 - Sends an ephemeral defer before calling `POST /webhook/dubakwi-support`.
-- Converts the Discord interaction to `request_id=dc-<interaction_id>`, `user=<Discord user
-  ID>`, `question`, `channel=discord`, and optional `case_ref`.
-- Uses `X-Team-Key`, returns only the answer, case reference, and confirmed Jira key, and does
-  not log message contents or credentials.
+- Converts the Discord interaction to `request_id=dc-<interaction_id>`, `user=<registered user
+  ID from the server-side user map>`, `question`, `channel=discord`, and optional `case_ref`.
+- Uses `X-Team-Key`, returns only the answer, up to five source references (document and section),
+  the case reference, and the confirmed Jira key, and does not log message contents or
+  credentials. Timeouts, network errors, unknown errors, and `case_busy` never invite a
+  resubmission: the notice asks the citizen to confirm with staff to avoid duplicate intake.
 - Does not collect ordinary channel messages, attachments, display names, or role claims.
 
 The bot maps the Discord user ID to a registered user ID before calling support, using the private
