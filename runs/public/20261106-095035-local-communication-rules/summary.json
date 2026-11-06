@@ -1,0 +1,41 @@
+{
+  "run_id": "20261106-095035-local-communication-rules",
+  "task": "P04",
+  "owner": "R01",
+  "scope": [
+    "AGENTS.md",
+    ".github/pull_request_template.md",
+    "docs/DEVELOPMENT-PLAN.md"
+  ],
+  "authorization": "User reported unanimous team agreement and requested implementation of both optional communication modes; this records the user report, not individual GitHub approvals.",
+  "effective_from": "main merge; new requests/replies and next handoffs only",
+  "checks": {
+    "docs": {
+      "files": 20,
+      "local_links": 454,
+      "anchors": 51,
+      "errors": 0
+    },
+    "public_candidates": {
+      "files": 170,
+      "local_links": 539,
+      "errors": 0
+    },
+    "diff": "passed",
+    "limited_secret_patterns": "no matches"
+  },
+  "not_run": [
+    "VM/service tests",
+    "workflow changes",
+    "Discord posting"
+  ],
+  "limits": [
+    "No independent efficiency measurement; optional communication change only."
+  ],
+  "base_main": "9086cff4bee7fa42fe6f479ec70a5c653e4dfe75",
+  "secret_scan": {
+    "tscan": "unavailable",
+    "gitleaks": "unavailable",
+    "fallback": "Git public candidate checker and limited changed-file secret-pattern scan; not full history/PII scan"
+  }
+}
