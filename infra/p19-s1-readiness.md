@@ -1,6 +1,6 @@
 # P19 전체 연동 관리와 R01 실행 계획
 
-- 버전: v0.8 / 2026-11-06 KST / R01 / 정상 Webhook 실행288 통과, Discord 기동 검증 진행·최종 역할 확인 대기.
+- 버전: v0.9 / 2026-11-06 KST / R01 / 정상 Webhook288·Discord305 종단 통과, 최종 역할 확인·공식 전체 판정 후속.
 - 단일 관리 창구: [PR #36](https://github.com/ik-e/dubakwi-ttareungi-support/pull/36). 기능 구현·검토는 기존 PR에서 유지한다.
 - 진행 상태의 원본은 [개발 원장](../docs/DEVELOPMENT-PLAN.md), 책임은 [팀 헌장](../docs/project/TEAM-CHARTER.md), 계약은 [워크플로우 설계](../docs/project/WORKFLOW-DESIGN.md)·[저장소 설계](../docs/project/STORAGE-DESIGN.md)다. 이 문서는 새 업무 계약을 정의하지 않는다.
 - 현재 정상 시험본은 support 3e8547a, 하위 기능 a930e24/8c53cf7이다. #16은 main 9f3443b, #40은64d66c7로 병합했다. [정상 실행288 증거](../runs/public/20261106-154400-vm-p19-normal-pass/report.md)를 기준으로 하며 Discord 종단·R05 공식 판정은 별도다. 과거 준비/실패 증거는 당시 기록으로 보존한다.
@@ -23,7 +23,7 @@
 | state/DLQ/handoff | main c6dd178, a930e24와 업무 파일 동일 | 별도20/6/48노드 게시. H01 내부 인증은 환경 연결로 보완, 기본값 정규화/게시 해시는 비공개 manifest |
 | errors | main c6dd178, 8c53cf7과 동일 | 8노드 게시·state/DLQ 대상 연결, 실제 E02 scope 검사254 성공 |
 | RAG | 현행 VM 검색본 유지; #31 068f73b는 미적용 후보 | R03 기본 metadata 설정 정적 검토 수령. 실제 검색259에서 public5건·기대절2위 확인; 전체 권한/품질은 별도 |
-| Discord | #40 c9ee0fe → main64d66c7; 실행 수정#41 → main37ec341 | 어댑터22/22, 읽기전용 uv 캐시 오류 수정. VM 기동·Gateway 연결 완료. 미등록 거절 확인, 실제 계정 ID 대조/등록자 비공개 응답 대기 |
+| Discord | #40 c9ee0fe → main64d66c7; 실행 수정#41 → main37ec341 | 어댑터22/22, 읽기전용 uv 캐시 오류 수정. VM 기동·Gateway 연결 완료. 미등록 거절 확인, 등록자 실행305 비공개 응답·Jira done·DB completed·DLQ0 확인 |
 | 시험 도구·사례 | r05/p07-r04-contract-cases d01dd08 | ready/pause 절차와 실제 시험 사본 경로 |
 
 R01이 필요한 영향 검토를 기존 회신에서 취합하고, 배포할 각 구성의 정확한 커밋·JSON 해시·설정 버전·이미지 태그/다이제스트를 비공개 manifest에 고정한다. 변경분만 추가 확인하며 같은 설명을 재작성하도록 요구하지 않는다. 공용 환경 배포는 AGENTS의 검토된 main 기준을 따른다. 사전 시험 사본은 이미 합의한 한정 범위·환경에서만 사용한다.
@@ -177,3 +177,8 @@ scope가 label 식별에 포함되므로 재전송/복구 중 변경하지 않�
 G3는 [실행288](../runs/public/20261106-154400-vm-p19-normal-pass/summary.json)에서 R01 검증 통과다. Jira 종료/독립 재조회와 DB completed·최종응답8필드 일치·DLQ0을 확인했다. 현재 비공개 인계와 봇 대상은 이 성공 사본으로 갱신했다. Discord 종단이 확인되기 전 PR36 전체 목표는 닫지 않는다. 이전257/279 실패는 보존하며 정상 결과로 덮어쓰지 않는다.
 
 [Discord 기동 증거](../runs/public/20261106-160000-vm-discord-start/report.md): main37ec341 고정 이미지·read_only·UID65532·restart0·Gateway 연결을 확인했다. 사용자 시험은 미등록 안내였고 확인된2개 매핑은 일치했다. 실제 시험 계정 ID를 확인해 등록 정상 종단을 이어간다.
+
+
+## 정상 Discord 베이스라인 완료 — 2026-11-06 KST
+
+[실행305 증거](../runs/public/20261106-163939-vm-discord-normal/report.md): 사용자가 등록 계정의 답변/기대 근거/연결값 수신·비공개 표시를 확인했다. DB completed/respond/rev4·최종응답, Jira 독립조회200/done/완료, DLQ0이다. n8n 실행 구간13.138초이며 Discord 왕복 실측으로 확대하지 않는다. 기존 매핑을 변경할 필요 없이 등록 계정 시험이 통과했다. G3~G5 정상 베이스라인은 R01 확인 완료이며 역할별 최종 확인·공식 전체시험은 후속이다. 위 과거 미등록/대기 기록은 당시 이력이다.
