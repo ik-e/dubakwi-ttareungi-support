@@ -365,6 +365,10 @@ const FLOWS = [
   ['FL79', '시간', '분류 뒤 검색·티켓·마무리 시간이 없으면 검색 없이 이관', ask(), { advanceAfter: { B10: 10000 } }, handoff('deadline_exceeded', { llm: 1, search: 0, ticketTimeout: 6500 })],
   ['FL80', '시간', '긴급 선이관 뒤 시간이 없으면 후속 검색 생략', ask(), { triage: { text: triage({ type: 'security', urgency: 'high' }) }, advanceAfter: { B04: 1500, B10: 4000, B27: 'timeout', B35: 1500 } }, handoff('urgent', { priority: 'high', process: 1, search: 0, ticketTimeout: 11000, maxResponseMs: 20000 })],
   ['FL81', '시간', '티켓 호출이 제한을 다 쓰고 실패해도 실패 알림·기록 포함 20초 안', ask(), { process: () => ({ error: { message: 'timeout' } }), advanceAfter: { B10: 2000, B27: 'timeout', X04: 1500, B35: 1500 } }, handoff('ticket_unknown', { dlq: 1, alerts: 1, ticket: null, maxResponseMs: 19600 })],
+  // R05 TC01b: attempt 없이 case_ref만 보내도 서버 횟수로 3회째 한도 이관한다.
+  ['FL82', 'S2', 'attempt 생략 신규 요청은 받아서 보완 질문', ask({ question: '반납했는데 안 됐어요' }), { triage: { text: RETURN_ASK } }, flow({ route: '보완 질문', sentAttempt: 1 })],
+  ['FL83', 'S2', 'attempt 생략 case_ref 세 번째는 attempt_limit', ask({ case_ref: 'case-1' }), { triage: { text: RETURN_ASK }, ...earlier(2) }, handoff('attempt_limit', { sentAttempt: 3 })],
+  ['FL84', 'S2', 'attempt 생략 case_ref 두 번째는 보완 질문', ask({ case_ref: 'case-1' }), { triage: { text: RETURN_ASK }, ...earlier(1) }, flow({ route: '보완 질문', sentAttempt: 2, sentTicket: 'T-1' })],
   ['FL41', '계약', 'BeginRequest 서버 값', ask({ role: 'security' }), {}, flow({ route: '자동 답변', beginShape: true })],
 ];
 
