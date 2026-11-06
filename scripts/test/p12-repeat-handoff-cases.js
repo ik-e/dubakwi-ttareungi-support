@@ -71,3 +71,14 @@ if (markerEdges[0]?.[0]?.node !== "H50 Jira 알림 성공 표식" || markerEdges
 }
 
 console.log("P12 repeated assignment/alert suppression and DLQ handoff: 7/7 passed");
+
+// 종료(자동 답변) 경로의 HTTP 호출 timeout 합이 5.5초를 넘지 않아야 한다(R02 요청: 종료 경로 최악 8초 안쪽).
+{
+  const closeTimeouts = ["H29", "H32", "H08"].map((prefix) => {
+    const node = [...nodes.values()].find((n) => n.name.startsWith(prefix));
+    return node?.parameters?.options?.timeout;
+  });
+  if (closeTimeouts.some((v) => typeof v !== "number")) throw new Error("close path calls must have a bounded timeout");
+  const total = closeTimeouts.reduce((a, b) => a + b, 0);
+  if (total > 5500) throw new Error(`close path HTTP timeouts total ${total}ms > 5500ms`);
+}

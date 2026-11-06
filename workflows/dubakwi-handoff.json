@@ -255,7 +255,7 @@
               "neverError": true
             }
           },
-          "timeout": 2000
+          "timeout": 1500
         }
       },
       "credentials": {
@@ -528,7 +528,7 @@
               "neverError": true
             }
           },
-          "timeout": 2000
+          "timeout": 1500
         }
       },
       "credentials": {
@@ -602,7 +602,7 @@
               "neverError": true
             }
           },
-          "timeout": 3500
+          "timeout": 2500
         },
         "sendBody": true,
         "contentType": "json",
