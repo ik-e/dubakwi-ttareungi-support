@@ -13,8 +13,8 @@
 | 산출물·예정 위치 | 문서 상태 | 편집 책임 | 다음 작업 |
 | --- | --- | --- | --- |
 | [TOPIC.md](TOPIC.md) | 초안 v0.7 | ① 팀장·통합 | 문의 유형·구성 검토, 티켓 종료 계약 확인, 강사 확인 |
-| [TEAM-CHARTER.md](TEAM-CHARTER.md) | 초안 v0.13 | R01 팀장·통합 | 역할 ID·파일 소유권·협업 규칙 검토, GitHub 팀 권한·발표 ID 확인(dubakwi 확정) |
-| [SYSTEM-DESIGN.md](SYSTEM-DESIGN.md) | 초안 v0.12·최상위 논리 설계 | R01 취합·R02~R05 공동 검토 | 구성·상태·기능 추적·디렉터리 용도·Docker Compose 기준 확인 후 상세로 이동 |
+| [TEAM-CHARTER.md](TEAM-CHARTER.md) | 초안 v0.14 | R01 팀장·통합 | 역할 ID·파일 소유권·협업 규칙 검토, GitHub 팀 권한·발표 ID 확인(dubakwi 확정) |
+| [SYSTEM-DESIGN.md](SYSTEM-DESIGN.md) | 초안 v0.13·최상위 논리 설계 | R01 취합·R02~R05 공동 검토 | 구성·상태·기능 추적·디렉터리 용도·Docker Compose 기준 확인 후 상세로 이동 |
 | [Python 개발 기준](../PYTHON-DEVELOPMENT.md)·[공개 정책](../PUBLICATION.md) | 도구/설정 작성·서비스 구현 전 | R01·R05 품질/R04 공개 검토 | uv 잠금·Ruff·CI, 같은 폴더 .gitignore·Git 후보·공개 링크 검사 |
 | [작업 규칙](../../AGENTS.md)·[배포 안내](../../infra/README.md) | 기준 작성·실제 배포 전 | R01·R04/R05 검토 | Git/n8n/시험·동기화·Docker 실행/복구, 환경 확인 후 compose 작성 |
 | [VM 배포 전 점검](../../infra/vm-preflight.md)·[환경 예시](../../.env.example) | v0.11·GitLab79 data-api·P11 22/22·P19 검색/모델 부분 연결 | R01·R04 저장/R05 재현 검토 | 기존 n8n 유지·data-api/배포본 인계·백업/복원·Credential·입구 시험 |
@@ -27,9 +27,11 @@
 | [RAG 지식 초안6개](RAG-ARCHITECTURE.md#11-검토-전-초안과-서비스-지식의-관계) | 검토 전·서비스 색인 금지 | R03 작성·R04 권한/R05 근거 검토 | 출처·적용 조건 승인 후 knowledge 이관·manifest 등록·색인/검색 시험 |
 | [STORAGE-DESIGN.md](STORAGE-DESIGN.md) | 초안 v0.4·팀 보조 설계 | R04 연동·안정성 | 최소 상태·DLQ·실행 기록 구조/운영. PostgreSQL 2테이블은 제안,실제 저장·연동 확인 필요 |
 | `EXECUTION-RESULT.md` | 미작성 | ⑤ 시험·품질 | 기대/실제·실행 보고서·실패/수정·재시험·한계 |
-| `daily/DAY80.md`·`DAY81.md`·`DAY82.md` | 미작성 | ① 취합·전원 참여 | 당일 작업 번호·증거·막힘·다음 목표 기록 |
+| [daily/DAY80.md](daily/DAY80.md)·[DAY81.md](daily/DAY81.md)·`DAY82.md` | DAY80 공식양식 사후초안·DAY81 11/06 10:48 중간초안·DAY82 미작성 | ① 취합·전원 참여 | 당일 작업 번호·증거·막힘·다음 목표 기록 |
 | `images/` | 폴더 준비·자료 없음 | ⑤ 시험·품질 | 개인정보를 가린 실행 증거 |
-| `presentation/` | 폴더 준비·자료 없음 | ① 편집·전원 제공 | [현행 발표 계획](../PRESENTATION-PLAN.md)에 따른 공용 파일·메모·리허설 기록. 계획 동기화와 실제 제작/연습 완료 구분 |
+| [발표 인계 초안](presentation/integration-brief.md) | 통합 근거 초안·최종자료/리허설 전 | ① 편집·전원 제공 | [현행 발표 계획](../PRESENTATION-PLAN.md)에 따른 공용 파일·메모·리허설 기록. 계획 동기화와 실제 제작/연습 완료 구분 |
+
+[현재 팀 통합 인계](../../infra/team-integration.md)는 후보별 검토·접속·VM 적용과 S1/공식 시험의 선행 조건을 연결한다.
 
 ## 문서 참조와 정보의 원본
 

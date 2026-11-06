@@ -1,7 +1,7 @@
 # 팀 헌장 · 두바퀴
 
 - 작성일: 2026-11-02 KST
-- 버전·상태: v0.13 / P11 입구 사례 경로·R05 통합 인계 반영 초안, 팀 검토 전
+- 버전·상태: v0.14 / 사용자 API·P11 사례·팀 통합 인계 책임 반영 초안, 팀 검토 전
 - 작성 형식: [공식 팀 헌장 템플릿 — 공개본 제외 자료](../../docs/PUBLIC-SOURCES.md)
 - 주제 기준: [주제 제안서 v0.7](TOPIC.md)
 
@@ -42,6 +42,8 @@
 | tests/channels/test_discord_bot.py | R05 | R04 구현·R02 판정 | 중복/보완·defer·토큰/전송 실패·소유권/비공개. 구현 전 |
 | src/ttareungi_support/ | 기능별 R02/R03/R04 | 소비 기능 역할·R05 | 생성 시 파일별 소유자1개 지정·n8n 호출 계약/배포 명시 |
 | tests/·scripts/test/check_public_files.py·test_git_public_files.py·test_public_export.py | R05 | 관련 구현 역할·R01 공개 도구 | 업무 시험·공개 제외/덮어쓰기/비밀 패턴 경계 시험 |
+| services/user_api/·infra/user-api-compose.yaml·infra/user-api-deployment.md | R04 | R01 배포·R02 소비·R03 권한·R05 시험 | PR #26 팀 모의 사용자/소유권 API 원본. 병합/VM 적용 전 |
+| infra/team-integration.md | R01 | R02/R03/R04/R05 | 후보별 인계·검토/적용 게이트·비공개 환경정보 확인 조건 |
 | infra/db/migrations/ | R04 | R01 배포/복구·R05 장애 | DB 채택 후 스키마·원자성·변경/복원 절차 |
 | workflows/*-support.json | R02 | R03 검색·R04 연동·R05 판정 | 본체·업무 분기·최종 응답 |
 | workflows/*-index.json·*-search.json | R03 | R04 권한·R05 검색 평가 | 색인·검색·활성 버전·복구 |
@@ -141,4 +143,7 @@ Discord 이용자 입구와 Jira 티켓 관리는 사용자 결정이며 주제 
 
 - 2026-11-04 R05 인계 추가: cases/team-extended.json은 R05 주 담당, R02/R03/R04 관련 기대값 검토다. 파일은 r05/p06-flow-cases의 병합 후보에 있으며 이 책임 등록이 구현 병합·시험 통과를 뜻하지 않는다.
 
+- 2026-11-05 v0.13 변경: R04 사용자 API 후보와 R01 통합 인계 경로 책임 명시. 기능 대리 편집·검토 승인·VM 배포 완료를 부여하지 않는다.
 - 2026-11-05 v0.13: cases/p11-entry.json을 R05 소유·R02/R04 검토의 P11 골격 전용 임시 사례로 등록했다. team-extended.json의 기존 책임은 유지한다. 사용자가 R01에게 run_cases.py의 hook 실패 중단·관련 회귀시험 대리 수정을 인계했으며, 범위와 검증은 개발 원장의 P13/P25 기록을 따른다. 이후 시험 도구 책임은 R05가 유지한다.
+
+- 2026-11-05 v0.14: 사용자 API/팀 통합 인계와 P11 사례·R01 hook 대리 수정 인계를 함께 보존한다. 별도 역할 승인이나 새 배포 권한을 부여하지 않는다.

@@ -17,7 +17,7 @@ Discord 채널은 채택했으며 실제 봇 연결은 구현 전입니다. 실�
 1. [주제와 범위](docs/project/TOPIC.md)·[역할과 책임](docs/project/TEAM-CHARTER.md)
 2. [전체 시스템](docs/project/SYSTEM-DESIGN.md)·[설계 목록](docs/project/README.md)
 3. [작업 규칙](AGENTS.md)·[개발 계획](docs/DEVELOPMENT-PLAN.md)
-4. [Python 개발](docs/PYTHON-DEVELOPMENT.md)·[Docker 배포 기준](infra/README.md)
+4. [Python 개발](docs/PYTHON-DEVELOPMENT.md)·[Docker 배포 기준](infra/README.md)·[현재 통합 인계](infra/team-integration.md)
 5. [발표 계획](docs/PRESENTATION-PLAN.md)·[출처 안내](docs/PUBLIC-SOURCES.md)
 
 ## 환경과 검사

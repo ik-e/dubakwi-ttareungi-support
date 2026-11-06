@@ -1,0 +1,101 @@
+{
+  "recorded_at_kst": "2026-11-05T19:15:06+09:00",
+  "task": "R01 PR triage and #29 main integration",
+  "environment": "Windows local; Python 3.12.10; uv locked",
+  "base_main": "9086cff4bee7fa42fe6f479ec70a5c653e4dfe75",
+  "candidate_reviews": [
+    {
+      "pr": 27,
+      "commit": "60f8886",
+      "unittest_total": 78,
+      "passed": 71,
+      "http_skipped": 7,
+      "ruff": "passed",
+      "docs": "passed",
+      "public_candidates": "passed",
+      "diff": "passed",
+      "findings": [
+        "H23: req.a and req/a both yield dubakwi-req_a; H24 reuses first matching Jira issue.",
+        "H39: support and security both assign first active atlassian candidate, ignoring assignee_role."
+      ],
+      "additional_owner_review": "R02 team chat 18:49 reports missing persisted clarification attempt, deployment binding and parent/child lookup timeouts."
+    },
+    {
+      "pr": 28,
+      "commit": "ff19178",
+      "unittest_total": 46,
+      "passed": 39,
+      "http_skipped": 7,
+      "ruff": "passed",
+      "docs": "passed",
+      "public_candidates": "passed",
+      "diff": "passed",
+      "findings": [
+        "E05 executeWorkflow has no onError/continueOnFail; a thrown state subworkflow error can stop before E06/E04 DLQ. Static inspection, no n8n runtime injected."
+      ]
+    },
+    {
+      "pr": 31,
+      "commit": "06e9223",
+      "unittest_total": 53,
+      "passed": 46,
+      "http_skipped": 7,
+      "ruff": "passed",
+      "docs": "passed",
+      "public_candidates": "passed",
+      "diff": "passed",
+      "limits": [
+        "No new n8n/embedding/HTTP execution; related role review remains outstanding."
+      ]
+    },
+    {
+      "pr": 24,
+      "commit": "dfcaff2",
+      "unittest_total": 46,
+      "passed": 39,
+      "http_skipped": 7,
+      "ruff": "passed",
+      "docs": "passed",
+      "public_candidates": "passed",
+      "diff": "passed",
+      "limits": [
+        "Presentation PDF visual/rights review not performed; approved-path checker was tested only."
+      ]
+    }
+  ],
+  "pr29_merge_candidate": {
+    "unittest_total": 75,
+    "passed": 68,
+    "http_skipped": 7,
+    "ruff": "passed",
+    "docs": "passed",
+    "public_candidates": "passed",
+    "diff": "passed",
+    "conflict_resolution": "Preserved main R05 cases/hook regression, PostgreSQL preparation, publication policy and #29 integration history."
+  },
+  "discord_read": {
+    "scope": "Team general channel accessible recent messages, 2026-11-05 14:21 through 18:49",
+    "read_only": true,
+    "conclusion": "Implementation reports and review requests are not merge approvals. Latest R02 asks R04 to fix clarification attempt tracking. No final scoped approval for the open PRs found in this inspected range.",
+    "limits": "Not a full server-wide message-history audit; no messages sent and no private chat identifiers or raw messages published."
+  },
+  "not_executed": [
+    "new VM/Jira/LLM/embedding/HTTP operations",
+    "production database migration",
+    "official R05 acceptance",
+    "PDF visual QA"
+  ],
+  "secret_scan": {
+    "tscan": "unavailable",
+    "gitleaks": "unavailable",
+    "substitute": "Git candidate/public link checker; no full secret/PII guarantee"
+  },
+  "merge_decision": "pending required role reviews; #27/#28 require fixes",
+  "evidence_policy": "Existing historical run JSON and hashes unchanged.",
+  "concurrent_update": {
+    "pr": 27,
+    "new_commit": "6d05ced7c4824d33f2c0c4f8571a04dc08d9206e",
+    "observed_fix": "Role mapping now fails closed when absent; inspected diff; original reproduction applies to 60f8886 only.",
+    "remaining": "Label collision and R02 clarification-attempt/timeout requests require resolution."
+  }
+}
