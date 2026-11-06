@@ -856,7 +856,7 @@ flowchart TD
 
 현재 준비본의 연결 조건은 다음과 같다.
 
-- `DUBAKWI_SCOPE`는 시민 입력이나 PR에 넣지 않고 R01이 n8n 서비스 환경변수로 주입한다. 환경변수 반영에는 통제된 n8n 재시작과 재시작 뒤 health 확인이 필요하다. 값이 없으면 `storage_ready=false`로 state·DLQ 호출을 막는다.
+- `DUBAKWI_SCOPE`는 시민 입력이나 PR에 넣지 않고 R01이 n8n 서비스 환경변수로 주입한다. 환경변수 반영에는 통제된 n8n 재시작과 재시작 뒤 health 확인이 필요하다. 값이 없으면 `storage_ready=false`로 state·DLQ 호출을 막는다. n8n 기본 설정은 Code 노드의 $env 접근을 막으므로 E02는 접근 예외를 무시하고, 가져올 때 치환하는 자리표시자 __DUBAKWI_SCOPE__ 값을 대신 쓴다(둘 다 없으면 저장을 막고 E07로 안전 종료).
 - R01은 검토된 시험 사본의 Workflow Settings에서 `dubakwi-errors`를 Error Workflow로 지정한다. 오류 워크플로우 자신에게는 지정하지 않아 재귀 실행을 막는다.
 - 연결 검증은 비공개 시험 사본에 의도적 Code 예외를 한 번 주입해 state 성공/실패와 무관하게 가린 DLQ 요청이 시도되는지 확인한다. 기존 P11/P19 게시본은 이 확인 전에 변경하지 않는다.
 - 운영 알림 노드는 아직 없으므로 Error Workflow·DLQ 연결 완료와 Discord/Jira 운영 알림 완료를 구분한다.

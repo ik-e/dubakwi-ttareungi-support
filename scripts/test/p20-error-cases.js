@@ -143,4 +143,15 @@ if (!dlqConnections.some((edge) => edge.node === "E08 오류 경로 안전 종�
   throw new Error("DLQ failure is not connected to the safe terminator");
 }
 
+
+// n8n 기본 설정에서는 $env를 읽는 순간 예외가 난다. E02는 멈추지 않고 안전하게 처리해야 한다.
+const blockedEnv = new Proxy({}, {get() { throw new Error("access to env vars denied"); }});
+const sample = {execution: {id: "execution-3", error: {message: "boom", node: {name: "B14"}}}, workflow: {id: "wf-1", name: "support"}};
+const blocked = execute(sample, blockedEnv)[0].json;
+if (blocked.storage_ready !== false) throw new Error(`blocked env must block storage safely: ${JSON.stringify(blocked)}`);
+// 가져올 때 치환한 scope는 env가 막혀 있어도 쓸 수 있다.
+const importedCode = codeNode.parameters.jsCode.replace("'__DUBAKWI_SCOPE__'", "'dubakwi-team'");
+const imported = new Function("$json", "$env", importedCode)(sample, blockedEnv)[0].json;
+if (imported.storage_ready !== true || imported.scope !== "dubakwi-team") throw new Error(`imported scope must be used when env is blocked: ${JSON.stringify(imported)}`);
+
 console.log("P20 state/DLQ double-failure and redaction: 16/16 passed");
