@@ -38,3 +38,15 @@ uv run --locked python scripts/dev/render_n8n_workflow.py --source workflows/dub
 
 errors 워크플로우(`dubakwi-errors.json`, PR #28)는 `--scope dubakwi-dev`로 `importedScope` 대입값만 치환한다.
 값은 support의 scope와 같아야 한다. 같은 문자열이 비교식에도 있으므로 전체 문자열 치환은 쓰지 않는다(저장이 항상 차단됨).
+
+### Jira 종료만 실패시키는 시험 사본 (R01 TC17 준비)
+
+`make_close_fault_copy.py`는 handoff 사본에서 종료 전환 요청(H33)의 전환 ID만 존재하지 않는 값으로 바꾼다. 생성·bind·조회·담당 지정은 원본과 같다. Jira가 거절하면 H36이 `closed=failed`, `partial_effect`, 복구 캡슐(close)을 남긴다.
+
+```bash
+uv run --locked python scripts/dev/make_close_fault_copy.py --output runs/private-render/dubakwi-handoff-close-fault.json
+```
+
+- 주입: 만든 사본을 `render_n8n_workflow.py`로 치환한 뒤 별도 시험용 워크플로우로 가져온다(공유·운영 사본에는 가져오지 않는다). 이름에 ` close-fault`가 붙고 비활성으로 만들어진다.
+- 해제: 시험이 끝나면 그 시험 사본을 삭제하거나 비활성으로 둔다. 원본 `workflows/dubakwi-handoff.json`은 바뀌지 않으므로 원본을 다시 렌더링해 가져오면 정상 동작으로 돌아간다.
+- 이 도구는 n8n·Jira를 호출하지 않는다. 실제 Jira 종료 거절 응답과 DLQ 저장은 별도 시험 사본에서 실행해 확인해야 한다(미실행).
