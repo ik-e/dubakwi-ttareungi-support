@@ -8,15 +8,17 @@ import logging
 import os
 import urllib.error
 import urllib.request
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 import discord
 from discord import app_commands
 
 from services.discord_bot.adapter import (
+    UNREGISTERED_MESSAGE,
     ContractError,
     build_support_request,
     failure_message,
+    parse_user_map,
     render_private_response,
 )
 
@@ -29,6 +31,7 @@ class Settings:
     support_webhook_url: str
     team_key: str
     allowed_guild_id: int
+    user_map: dict[str, str] = field(default_factory=dict, repr=False)
     allowed_channel_id: int | None = None
     timeout_seconds: float = 12.0
 
@@ -65,7 +68,12 @@ class Settings:
             channel_id = int(channel_value) if channel_value else None
         except ValueError as exc:
             raise RuntimeError("DUBAKWI_DISCORD_CHANNEL_ID must be an integer") from exc
+        try:
+            user_map = parse_user_map(os.getenv("DUBAKWI_DISCORD_USER_MAP", ""))
+        except ContractError as exc:
+            raise RuntimeError(str(exc)) from exc
         return cls(
+            user_map=user_map,
             bot_token=required["DUBAKWI_DISCORD_BOT_TOKEN"],
             support_webhook_url=required["DUBAKWI_SUPPORT_WEBHOOK_URL"],
             team_key=required["DUBAKWI_TEAM_KEY"],
@@ -113,6 +121,25 @@ def _post_support(settings: Settings, body: dict[str, str]) -> dict[str, object]
     return result
 
 
+async def run_support(settings: Settings, body: dict[str, str]) -> str:
+    """Call support and return the private message; logs only request_id/status/codes."""
+    request_id = body.get("request_id", "")
+    try:
+        payload = await asyncio.to_thread(_post_support, settings, body)
+        return render_private_response(payload)
+    except SupportError as exc:
+        LOGGER.warning(
+            "Discord support request failed request_id=%s status=%s codes=%s",
+            request_id,
+            exc.status,
+            ",".join(exc.codes),
+        )
+        return failure_message(exc.codes)
+    except (RuntimeError, ContractError):
+        LOGGER.warning("Discord support request failed request_id=%s", request_id)
+        return failure_message(None)
+
+
 class DubakwiBot(discord.Client):
     def __init__(self, settings: Settings) -> None:
         super().__init__(intents=discord.Intents.none())
@@ -141,10 +168,15 @@ def create_bot(settings: Settings) -> DubakwiBot:
                 "이 채널에서는 문의를 받을 수 없습니다.", ephemeral=True
             )
             return
+        registered_user = settings.user_map.get(str(interaction.user.id))
+        if registered_user is None:
+            LOGGER.warning("Discord request rejected: unregistered account")
+            await interaction.response.send_message(UNREGISTERED_MESSAGE, ephemeral=True)
+            return
         try:
             request = build_support_request(
                 interaction_id=interaction.id,
-                discord_user_id=interaction.user.id,
+                user=registered_user,
                 question=내용,
                 case_ref=case_ref,
             )
@@ -153,20 +185,7 @@ def create_bot(settings: Settings) -> DubakwiBot:
             return
 
         await interaction.response.defer(ephemeral=True, thinking=True)
-        try:
-            payload = await asyncio.to_thread(_post_support, settings, request.as_dict())
-            message = render_private_response(payload)
-        except SupportError as exc:
-            LOGGER.warning(
-                "Discord support request failed request_id=%s status=%s codes=%s",
-                request.request_id,
-                exc.status,
-                ",".join(exc.codes),
-            )
-            message = failure_message(exc.codes)
-        except (RuntimeError, ContractError):
-            LOGGER.warning("Discord support request failed request_id=%s", request.request_id)
-            message = failure_message(None)
+        message = await run_support(settings, request.as_dict())
         await interaction.followup.send(message, ephemeral=True)
 
     return bot

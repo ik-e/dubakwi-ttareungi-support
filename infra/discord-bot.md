@@ -13,14 +13,17 @@ This adapter implements the agreed Discord boundary without changing the n8n sup
   not log message contents or credentials.
 - Does not collect ordinary channel messages, attachments, display names, or role claims.
 
-The downstream user API remains responsible for mapping the Discord user ID to a registered
-fixture and deciding the role and access levels. Discord membership alone grants no access.
+The bot maps the Discord user ID to a registered user ID before calling support, using the private
+`DUBAKWI_DISCORD_USER_MAP` (`<discord id>:<registered user id>`, comma separated). Accounts not in
+the map get a private refusal and support is not called. The downstream user API still decides the
+role and access levels. Discord membership alone grants no access.
 
 ## Private VM inputs
 
 Keep all real values outside Git. Required settings are:
 
 - `DUBAKWI_DISCORD_BOT_TOKEN_FILE`: readable secret file containing the bot token.
+- `DUBAKWI_DISCORD_USER_MAP`: private Discord-to-registered-user table; never commit or log it.
 - `DUBAKWI_DISCORD_GUILD_ID` and `DUBAKWI_DISCORD_CHANNEL_ID`: allowed test scope.
 - `DUBAKWI_SUPPORT_WEBHOOK_URL`: internal n8n URL, normally on the existing Docker network.
 - `DUBAKWI_TEAM_KEY_FILE`: readable secret file matching n8n `dubakwi-team-key`.

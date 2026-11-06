@@ -2,10 +2,16 @@
 
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass
 from typing import Any
 
 MAX_QUESTION_LENGTH = 500
+MAX_MESSAGE_LENGTH = 1900
+UNREGISTERED_MESSAGE = "등록되지 않은 계정입니다. 담당자에게 문의해 주세요."
+
+_DISCORD_ID = re.compile(r"[0-9]{5,25}")
+_REGISTERED_ID = re.compile(r"[A-Za-z0-9][A-Za-z0-9_-]{0,63}")
 
 
 class ContractError(ValueError):
@@ -31,8 +37,27 @@ class SupportRequest:
         return body
 
 
+def parse_user_map(raw: str) -> dict[str, str]:
+    """Parse ``<discord id>:<registered user id>,...``; values are never echoed in errors."""
+    mapping: dict[str, str] = {}
+    entries = [entry.strip() for entry in raw.split(",")]
+    if not raw.strip() or any(not entry for entry in entries):
+        raise ContractError("DUBAKWI_DISCORD_USER_MAP format is invalid")
+    for entry in entries:
+        discord_id, separator, registered_id = entry.partition(":")
+        if (
+            not separator
+            or not _DISCORD_ID.fullmatch(discord_id)
+            or not _REGISTERED_ID.fullmatch(registered_id)
+            or discord_id in mapping
+        ):
+            raise ContractError("DUBAKWI_DISCORD_USER_MAP format is invalid")
+        mapping[discord_id] = registered_id
+    return mapping
+
+
 def build_support_request(
-    *, interaction_id: int, discord_user_id: int, question: str, case_ref: str | None
+    *, interaction_id: int, user: str, question: str, case_ref: str | None
 ) -> SupportRequest:
     normalized_question = question.strip()
     if not normalized_question:
@@ -46,7 +71,7 @@ def build_support_request(
 
     return SupportRequest(
         request_id=f"dc-{interaction_id}",
-        user=str(discord_user_id),
+        user=user,
         question=normalized_question,
         case_ref=normalized_case_ref,
     )
@@ -89,14 +114,15 @@ def render_private_response(payload: Any) -> str:
     if not isinstance(answer, str) or not answer.strip():
         raise ContractError("답변이 준비되지 않았습니다.")
 
-    lines = [answer.strip()]
+    suffix: list[str] = []
     case_ref = payload.get("case_ref")
     if isinstance(case_ref, str) and case_ref.strip():
-        lines.append(f"문의 연결값: {case_ref.strip()}")
+        suffix.append(f"문의 연결값: {case_ref.strip()}")
 
     ticket = payload.get("ticket_id")
     if isinstance(ticket, str) and ticket.strip():
-        lines.append(f"Jira 접수번호: {ticket.strip()}")
+        suffix.append(f"Jira 접수번호: {ticket.strip()}")
 
-    rendered = "\n\n".join(lines)
-    return rendered[:1900]
+    tail = "".join(f"\n\n{line}" for line in suffix)
+    # Trim only the answer so case_ref and ticket id always survive the length limit.
+    return answer.strip()[: max(MAX_MESSAGE_LENGTH - len(tail), 0)] + tail
