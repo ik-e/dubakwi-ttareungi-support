@@ -103,6 +103,28 @@ R01 요청으로 실패 요청을 `manual_required`로 보존하는 지금 상�
   - 새 문의 성공을 기존 실패 문의의 복구 성공으로 기록하지 않는다.
 - **확인 필요:** Discord 어댑터(R04)가 새 메시지마다 새 `request_id`를 만드는지, 이어서 질문할 때 `case_ref`를 어떻게 넣는지에 따라 시민이 `case_busy`를 실제로 만나는 빈도가 달라진다.
 
+## LLM·시간 고장 시험 (R02 제안, R04·R05 합의 대기)
+
+R01 요청(2026-11-06)으로 대상 사본·주입·해제·기대 결과를 정리했다. 실제 VM 실행 전 R04·R05와 맞춘다.
+
+- **대상 사본:** 정상 시험 사본(`make_vm_p19_real_bundle.py` 결과, 환경 ID 포함)에서 [`make_llm_time_fault.py`](make_llm_time_fault.py)로 만든 고장 사본 하나. ID `dubakwiP19Fault`, 경로 `/webhook/dubakwi-support-p19-fault`. 정상 사본·운영 P11·원본은 바꾸지 않는다. state·handoff·DLQ·errors와 scope `dubakwi-p19-real`은 정상 사본과 같아 Jira·DB 효과가 실제로 생긴다.
+- **주입:** `--mode`로 고장 사본을 만들어 비활성 상태로 반입 → 게시. 모드는 같은 경로라 한 번에 하나만 게시한다. 만들 때 출력되는 SHA-256을 결과에 남긴다.
+- **해제:** 고장 사본 게시 해제 → 경로 404 확인 → 정상 사본 경로로 정상 1건 확인. 모드를 바꿀 때도 같은 순서다.
+- **입력:** 대표 질문, `citizen-a`, 새 `request_id`, `case_ref` 없음. 실패 결과·Jira·DB는 보존하고 재전송하지 않는다.
+
+| 모드 | 주입 | 기대 응답 | 기대 효과 | 로컬 확인 |
+| --- | --- | --- | --- | --- |
+| `llm_down_triage` | L01 모델 이름을 없는 이름으로 | 200 `담당자 이관` / `llm_down`, agents `triage`, 티켓 있음 | Jira 이관 티켓 1건(배정·알림), DB `completed`, DLQ 0 | 2/2 |
+| `llm_down_writer` | L02 모델 이름을 없는 이름으로 | 200 `담당자 이관` / `llm_down`, 검색까지 진행 | 위와 같음 | 2/2 |
+| `llm_timeout_writer` | L02 제한 시간 1ms | 200 `담당자 이관` / `llm_down` | 위와 같음 | 2/2 |
+| `deadline_at_triage` | 전체 시한 9초 | 200 `담당자 이관` / `deadline_exceeded`, 검색 없음 | 위와 같음 | 2/2 |
+| `deadline_at_answer` | 전체 시한 15초 | 200 `담당자 이관` / `deadline_exceeded`, 검색 뒤·답변 없음 | 위와 같음 | 2/2 |
+
+- 로컬 확인은 mock 하위 기능이라 응답만 본 것이다([기록](../../runs/public/20261106-175341-local-n8n-p19-llm-time-fault/summary.json)). Jira·DB·DLQ 기대 효과는 VM에서 R04·R05가 확인한다.
+- 모두 정상 이관 경로라 DLQ 0이 기대값이다. Jira·저장 경계 고장(`partial_effect`·`ticket_unknown`)은 R04 고장 사본(`make_close_fault_copy.py`)으로 따로 한다.
+- `deadline_at_answer`는 분류가 3.5초를 넘으면 B11에서 먼저 걸려 검색 없이 이관될 수 있다. 사유는 같고 agents만 다르다.
+- 검증 단계 고장(TC08)은 기존 [`make_verifier_fault.py`](make_verifier_fault.py)를 쓴다.
+
 ## 게시와 종료
 
 1. 게시 순서: state → DLQ → errors → handoff → support.
