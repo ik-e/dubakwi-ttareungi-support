@@ -1,0 +1,41 @@
+{
+  "run_id": "20261106-095944-local-independent-readiness",
+  "owner": "R01",
+  "main": "6c68cdd",
+  "scope": [
+    "PR31 independent code review",
+    "PR29 main37 merge preserving records",
+    "integration readiness and presentation evidence"
+  ],
+  "pr31": {
+    "head": "068f73b2bda555964779a32f982ac349d84f2e9a",
+    "unittest_total": 53,
+    "passed": 46,
+    "http_skipped": 7,
+    "ruff_files": 48,
+    "docs_links": 438,
+    "public_files": 157,
+    "public_links": 514,
+    "checks": "passed"
+  },
+  "document_checks": {
+    "files": 20,
+    "local_links": 474,
+    "anchors": 52,
+    "errors": 0
+  },
+  "not_run": [
+    "VM lookup/deployment",
+    "Jira/DB service writes",
+    "real HTTP LLM S1",
+    "Discord posting"
+  ],
+  "secret_scan": "tscan/gitleaks not found in PATH; public candidate checker is partial substitute",
+  "role_reviews": "No new R02/R04/R05 approval recorded by this work.",
+  "public_candidates": {
+    "files": 178,
+    "links": 577,
+    "errors": 0
+  },
+  "diff": "passed"
+}

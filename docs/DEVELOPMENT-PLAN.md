@@ -40,6 +40,15 @@
 5. 데일리 기록에는 원장 작업 번호와 당일 측정값을 참조합니다. 현재 상태·시험 수치를 별도 표에 중복 관리하지 않습니다. 날짜별 데일리는 당시 기록으로 보존합니다.
 6. 막히면 30분 안에 팀에 공유하고, 1시간이면 강사에게 문의합니다. 키·VM 주소·계정·실제 연락처는 증거 칸에 기록하지 않습니다.
 
+### 2.1 전달 방식과 결과 취합
+
+소통 원칙은 [AGENTS 3.1절](../AGENTS.md#31-소통과-검토-결과의-전달)을 따른다. Discord 상세 전달과 PR 상세 기록＋Discord 간략 알림을 모두 허용하며, 원장의 상태 종류·완료 기준은 바꾸지 않는다.
+
+- PR 중심 전달: 본문/댓글에 대상 버전·역할별 요청·근거·남은 조건을 두고 Discord에는 대상 역할·PR 링크·요청 행동을 알린다. 작업 재개 시 최신 head와 결과를 확인한다.
+- Discord 상세 전달: PR 작성자가 메시지 링크 또는 채널·일시, 역할·버전·범위·판정을 관련 PR/원본에 취합하고 R01이 누락을 보완한다. 이미 받은 답변을 같은 역할에게 다시 요구하지 않는다. 공개 불가 정보는 비공개 인계에 두고 공개 기록에는 가린 결과만 남긴다.
+- 원장 증거 칸에는 관련 PR/원본 링크와 다음 조건을 연결한다. 장문의 대화·계약을 원장에 복사하거나 PR의 CI 통과를 작업 완료로 바꾸지 않는다. 버전이 바뀌면 기존 동의가 적용되는 범위를 구분한다.
+- 병합 이후의 새 요청·답변과 진행 중 작업의 다음 인계부터 적용한다. 과거 PR/대화는 일괄 재작성하지 않는다.
+
 ## 3. 역할과 파일 소유권
 
 | 역할 | 주 담당 파일 | 공동 작업 방식 |
@@ -181,15 +190,15 @@ flowchart LR
 | [ ] | P09 | `data/users.json`·`data/records.json`: 모의 사용자 5명 이상·서로 다른 소유자의 기록 4건 이상, API 공급 방식·권한 확인 | ④ / ③⑤ | P05 초안 | 진행 | PR #26 main 병합. 팀 사용자 API·로그 가림 원본과 로컬53건 중46통과·HTTP7생략 증거 보존. 후속 실제 VM 배포/권한 확인 #32·시민 공급 #33 기록 검토 대기. 최초 Registry DNS 실패는 당시 기록. 완성본 인가·실제 P19 종단은 미완료 | 2026-11-05 |
 | [ ] | P10 | `workflows/dubakwi-index.json`·`docs/project/RAG-ARCHITECTURE.md` 1~2절: 색인 실행·권한 메타데이터·청크 분포 측정 | ③ / ⑤ | P08 | 진행 | [PR #6](https://github.com/ik-e/dubakwi-ttareungi-support/pull/6) 병합: 청크 준비 도구·오프라인 시험 반영. PR #10에서 로컬 임시 Webhook 시험으로 임베딩·삽입·재시작 복구 확인. R01 VM 원본 수동 색인44청크·ready 확인. [VM 증거](../runs/public/20261105-111311-vm-rag-integration/summary.json). VM 재시작/동시성·지식 승인·역할 검토는 후속 | 2026-11-05 |
 | [ ] | P11 | `workflows/dubakwi-support.json` 골격: Header Auth·입력 검사·주입 차단·공통 응답. WF-08의 LLM 호출 0·WF-13의 400 확인 | ② / ④⑤ | P04 환경/규칙 초안(최종 배포 완료 불필요)·P05·P06 초안 | 진행 | `r02/p11-support-skeleton` 브랜치에 [골격 JSON](../workflows/dubakwi-support.json) 작성(B01~B06·B33·B35·B36, B07~B32는 mock). [로컬 Code 시험 50/50](../runs/public/20261104-140902-local-p11-spacing-fix/summary.json) ([띄어쓰기 수정 전 49/50](../runs/public/20261104-140902-local-p11-before-spacing-fix/summary.json)), [이전 46/46](../runs/public/20261104-102342-local-p11-b02-fix/summary.json) ([B02 수정 전 38/46](../runs/public/20261104-102320-local-p11-before-b02-fix/summary.json), [B05 보완 후 36/36](../runs/public/20261104-090407-local-p11-skeleton/summary.json), [B05 보완 전 8/36](../runs/public/20261104-090315-local-p11-before-fix/summary.json)). [로컬 n8n Webhook 11/11](../runs/public/20261104-152533-local-n8n-p11-5113956/summary.json) ([첫 실행 5/11](../runs/public/20261104-103531-local-n8n-p11-before-url-fix/summary.json)). R01 VM 입력 부분 시험10/10·게시/실행 저장 확인. WF-08/13 공식 판정과 완성본 재시험은 미실행. 웹훅 경로는 `dubakwi-support` 유지. B05 권한 조합·user_lookup_error는 R04·R05 동의(2026-11-05, R02 취합). PR #11이 main에 병합됨(146a43d)([설계 4.5절](project/WORKFLOW-DESIGN.md#45-p11-골격-구현-상태)) | 2026-11-05 |
-| [ ] | P12 | `workflows/dubakwi-handoff.json`·`dubakwi-state.json` 기본: Jira 조회/생성·종료·알림과 begin/prepare/bind/save/finish 고정 계약의 작은 연결 검증. 생성 ID 즉시 저장·최종 저장 확인 | R04 / R02·R05 | P09·P05 계약·D01/D03 해당 연결 확인 | 진행 | PR #27 168c79c: 실제 n8n Jira 생성/bind·종료·save 내부 finish·최종 Jira/DB 재조회 기록. label 충돌과 재사용 case/owner 확인 결함으로 변경 요청 유지. 담당 매핑 성공·Webhook 종단 미실행. [현재 버전·적용 조건](../infra/team-integration.md) | 2026-11-05 |
+| [ ] | P12 | `workflows/dubakwi-handoff.json`·`dubakwi-state.json` 기본: Jira 조회/생성·종료·알림과 begin/prepare/bind/save/finish 고정 계약의 작은 연결 검증. 생성 ID 즉시 저장·최종 저장 확인 | R04 / R02·R05 | P09·P05 계약·D01/D03 해당 연결 확인 | 진행 | #27 cfbd1d3: 이전 식별 충돌은 수정됐으나 attempted 표식 새 문맥을 미저장 confirmed로 표시하는 잔여 결함으로 변경 요청. 최신 수정/소비·R05 확인 후 판단. 실제 제한 실행은 #35의 해당 버전 기록과 구분. [현행 인계](../infra/team-integration.md) | 2026-11-06 |
 | [ ] | P13 | `runs/public/<실행묶음ID>/summary.json`: R01 첫 VM 배포, R05 입력/차단 공통 회귀·WF-08/13 증거. 모의 기능과 실제 연결을 보고서에 구분 | R05·R01 / R02·R04 | P11·P06 해당 사례·P04 compose/VM 준비; P12 미완료도 입구 시험 가능 | 진행 | R01 기존 P11/79API 시험 증거 보존. R05 [143325 보고서](../runs/public/20261105-143325-vm-p13-official/report.md): WF08/WF13a/b/c 응답·로그 검사 성공, 자동 결과4건 auto_pass_unverified. 실행49~52 수동 경로 확인; D02 codes·키트 동등성·config 기록 미완료. 최초403 두 실행 보존. P11-01은 citizen-a 미공급으로 보류. 사용자 인계로 R01 hook 실패 후 전송 차단·회귀시험 보완. 당시 통합에서 VM 데이터 적용 제외; 후속 시민 공급 기록 #33 검토 대기. P13 전체 완료 아님 | 2026-11-05 |
 | [ ] | P14 | `docs/project/daily/DAY80.md`: 당일 작업 번호·통과 수·보고서·발표① 피드백·다음 목표 | ① / 전원 | P13/P10의 당일 진행·실패·미완료 증거(완료 대기 불필요) | 진행 | [DAY80 초안](project/daily/DAY80.md): R01 관측·막힘·다음목표 작성, 팀 확인·발표 피드백 대기 | 2026-11-05 |
 | [ ] | P15 | `runs/public/<실행묶음ID>/summary.json`: VM의 아침 공통 시나리오 통과 수·실패 출발점 | ⑤ / ① | P13 | 대기 | 미실행 | 2026-11-02 |
 | [ ] | P16 | `workflows/dubakwi-search.json`: 검색 전 권한 필터·점수·문서/절 근거 반환·검색 없음 처리 | ③ / ②⑤ | P10·P05 계약 | 진행 | [PR #6](https://github.com/ik-e/dubakwi-ttareungi-support/pull/6)의 글자 일치 모의 검색·fixture 권한 시험만 반영. PR #10에서 교육용 검색 JSON과 로컬 벡터 검색 평가를 추가했다. Q01~Q13 기대 문서·절 포함, WF03 empty, public 요청의 제한 문서/canary 0건은 로컬 기록이며 R01 VM 실제 HTTP7/7·HTTPS검색을 추가 확인. [VM 증거](../runs/public/20261105-111311-vm-rag-integration/summary.json). 서버 사용자 인가·공식 판정·복구/동시성은 미완료 | 2026-11-05 |
 | [ ] | P17 | `docs/project/RAG-ARCHITECTURE.md` 완성: 3~5절·청킹/검색 비교·비용·복구·확장, 실측과 운영 설계 구분 | ③ / ⑤ | P16의 실행·측정 | 진행 | [RAG v0.10](project/RAG-ARCHITECTURE.md)·PR #19 템플릿/인계/대본과 기존 VM 수동44청크/검색부분증거를 동기화. 청킹/검색비교·실제비용·VM재시작/재색인·서버인가·공식판정은후속 | 2026-11-05 |
 | [ ] | P18 | `workflows/dubakwi-handoff.json`·`dubakwi-state.json`·`dubakwi-dlq.json` 및 저장소 설계 갱신: 소유권·중복/동시성·조건부 갱신·case 연결·외부 효과/저장 실패·복구 캡슐·운영 재처리 | R04 / R02·R05 | P12 동작 가능한 부분·P06/P07 관련 기대값·D05의 시험/시간 계약 초안(전체 검증 완료 불필요) | 진행 | SQL001~004 준비 원본 main 병합, VM 적용/복원 기록 #32와 state 연결 #34 검토 대기. case 함수005~006은 #35 격리 DB 검증만 수행, 서비스 DB 미적용. 중복/동시·복구·외부 효과 회귀 남음. [현재 버전·적용 조건](../infra/team-integration.md) | 2026-11-05 |
-| [ ] | P19 | `workflows/dubakwi-support.json`: S1 분류→RAG→답변→검증→Jira 생성/종료→최종 저장→응답 연결 후 S2/S3→S4/S5→S6~S8 확장. 보완 한도·권한·긴급 우선 유지 | R02 / R03·R04·R05 | P11·P16/P12/P18의 필요한 계약·동작 부분 | 진행 | PR #16 6afb94d 초안. support5e0026c + R04 168c79c/errorsff19178 고정 연결 시험. 실제 P19 S1·WF-11 시간·답변 검증 미완료, 보완 한도 후 새 요청 반복 배정/알림 남음. [현재 버전·적용 조건](../infra/team-integration.md) | 2026-11-05 |
-| [ ] | P20 | `workflows/dubakwi-errors.json`: 오류 기록·알림·게시·상위 지정, 업무상 실패 처리와 별도 확인 | ④ / ①⑤ | P12·P05 오류 계약 | 진행 | PR #28 ff19178 구현·CI 통과. E05 throw 후 DLQ 지속/원 문맥 보존 결함으로 변경 요청. 운영 알림 backend·실제 오류 경로/상위 지정 시험 미완료. [현재 버전·적용 조건](../infra/team-integration.md) | 2026-11-05 |
+| [ ] | P19 | `workflows/dubakwi-support.json`: S1 분류→RAG→답변→검증→Jira 생성/종료→최종 저장→응답 연결 후 S2/S3→S4/S5→S6~S8 확장. 보완 한도·권한·긴급 우선 유지 | R02 / R03·R04·R05 | P11·P16/P12/P18의 필요한 계약·동작 부분 | 진행 | #16 d14cf17 초안. 팀 사용자API/인증과 시간예산 반영, 실제LLM 로컬 대표30/30·WF01 10/10은 하위기능mock. 실제S1·시간/답변품질·최신하위기능소비 검토 후속. [현행 인계](../infra/team-integration.md) | 2026-11-06 |
+| [ ] | P20 | `workflows/dubakwi-errors.json`: 오류 기록·알림·게시·상위 지정, 업무상 실패 처리와 별도 확인 | ④ / ①⑤ | P12·P05 오류 계약 | 진행 | #28 fc776e2: state 예외 후 가린 원 문맥/DLQ 지속·동시 실패 안전 종료 코드 수정 확인, R01 코드검토 승인. R02/R05 검토는 #27과 독립 진행. 운영알림/scope·VM장애시험 미완료. [현행 인계](../infra/team-integration.md) | 2026-11-06 |
 | [ ] | P21 | 시스템·워크플로우·저장소 설계를 실제 구성/상태·노드/엣지·연결선 실행 예시·오류/복구에 맞게 갱신. RAG 내용은 P17 참조 | R01 시스템·R02 업무·R04 저장 / R03·R05 | P16·P18~P20의 누적 실행 내용 | 대기 | 문서 소유자가 편집. 공개 계약 변경은 소비 역할과 시험도 함께 갱신 | 2026-11-03 |
 | [ ] | P22 | `runs/public/<실행묶음ID>/summary.json`: 4·7교시 VM 배포 후 공통 회귀·팀/장애 시험·고장 복원 기록 | ⑤·① / 각 구현자 | P15·P06·P07·연결된 기능 | 대기 | 기능별 즉시 시험, 최종판만 기다리지 않음 | 2026-11-02 |
 | [ ] | P23 | `docs/project/EXECUTION-RESULT.md` 초안: 시나리오 결과·보고서 경로·실패와 재현 조건·잔여 위험 | ⑤ / 전원 | P22의 누적 보고서 | 대기 | 실패를 통과로 바꾸어 적지 않음 | 2026-11-02 |
@@ -310,6 +319,7 @@ P29는 같은 발표 파일의 틀·초안·최종 편집 및 연습 단계를 �
 
 | 날짜 | 내용 |
 | --- | --- |
+| 2026-11-06 | 사용자 전달 전원 합의에 따라 Discord 상세 전달과 PR 상세 기록＋간략 알림을 선택적으로 허용. AGENTS·PR 양식·결과 취합 방법 동기화, 기존 검토/완료 기준 유지 |
 | 2026-11-04 | P01: 64~79일차 실습 자료 후보 15개를 워크플로우 설계 8.1절에 기록. 파일 읽기 수준이며 실행·채택 확정 아님 |
 | 2026-11-05 | P11 제안서 8개 항목에 R04·R05 모두 동의(R02 취합). 사용자 조회 API 주소·VM 배포 방식과 공식 판정은 미확정·미실행 |
 | 2026-11-04 | R05 TC11b 대응: B02가 글자 사이를 띄운 한국어 주입을 차단. 로컬 Code 시험만 수행 |
@@ -605,3 +615,11 @@ R01 실행결과: 검토자지정·통합인계/DAY80/발표초안·P09/P14/P29�
 ### P04/P12/P18/P19/P20 최신 기준 취합 — 2026-11-05 22:58 KST
 
 사용자의 R01 독립 작업 진행 지시에 따라 공통 원장·infra 통합 인계·시스템 개요·발표 인계만 편집했다. 기능 소유자의 JSON/SQL·과거 실행 결과는 수정하지 않았다. main9086cff와 열린 PR10건을 재확인했으며 P12/P18/P19/P20을 대기에서 진행으로 정정했다. 완료/공식 판정으로 올리지 않았다. #32~#35는 서로 다른 실행 증거의 기록 PR이며 #29의 통합 색인에서 버전으로 연결한다. 실제 VM 재조회·배포·서비스 시험은 이번 문서 작업에서 실행하지 않았다. [새 문서 검사 증거](../runs/public/20261105-225822-local-integration-baseline/summary.json)를 따른다.
+
+### P04 소통 방식 선택 허용 개정 — 2026-11-06 KST
+
+사용자가 전달한 전원 합의와 적용 지시에 따라 R01이 AGENTS 3.1절·PR 양식·이 문서의 결과 취합 방법을 개정했다. 선행 조건은 기존 헌장의 소유권·검토 체계이며 영향 경로는 세 공통 문서와 새 검사 요약뿐이다. Discord 상세 전달과 PR 상세 기록＋간략 알림을 모두 허용한다. 개별 GitHub 승인·Discord 발송·서비스 완료를 의미하지 않으며 실제 효력은 기본 브랜치 병합 이후 새 요청/답변과 다음 인계부터다. [검사 근거](../runs/public/20261106-095035-local-communication-rules/summary.json)를 따른다.
+
+### P04/P16 독립 검토·배포 준비 정리 — 2026-11-06 10:00 KST
+
+사용자의 의존성 없는 작업 우선 완료 지시에 따라 R01이 #31 최신068f73b의 로컬 코드 검토를 완료하고 #28 영향 검토와 #31 검색 검토를 #27 병합 대기와 분리한다. #29에 main6c68cdd/소통규칙37을 통합하고 현재 버전·적용 순서·필수 인계·중단/복구/시험 기준을 갱신한다. 담당은 R01, 영향 경로는 공통 원장·infra·발표 인계·새 가린 검사 근거다. 기능 소유자의 workflow/SQL/cases는 수정하지 않는다. VM 실측은 #32의09:09 기록을 인용하며 이번에 새 배포·서비스 시험을 실행하지 않았다. 기록 PR의 영향 검토와 실제 S1은 후속이다. [새 검사 근거](../runs/public/20261106-095944-local-independent-readiness/summary.json).
