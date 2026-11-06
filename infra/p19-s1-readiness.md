@@ -86,6 +86,8 @@ TC17/TC18 준비 인계는 P19 경로/게시, 동일 scope의 예외 사본/erro
 
 ## 7 현재 증거와 관리 경계
 
+- 2026-11-06 정상 Webhook 우선 준비: `c5ed5fa/a930e24/8c53cf7`의 support/errors 후보·manifest·LF 파일 해시·의존 원본 해시와 같은 scope 검사를 완료했다. support136/136, support unittest76통과/HTTP7생략, R04 unittest81통과/HTTP7생략이다. VM 서비스에는 case_lookup/case_begin·SQL007 인덱스가 없고 기존 사본은11/5/9/7노드, 목표 support 경로는없다. 생성기는state/DLQ/handoff를만들지않으므로support만게시하지않았다. G0~G2는여전히미완료이며비공개인계는NOT READY로표시했다. [새 준비 결과](../runs/public/20261106-123349-mixed-p19-normal-prep/report.md)를 따른다.
+
 - 2026-11-06 Discord 사전 준비: VM에서 등록 시험 사용자200·citizen/public·기존 공통망을 확인하고 Git 밖 봇 전용0700 디렉터리/0600 비밀파일을 준비했다. 기존 팀 키는 값 출력 없이 복사·실행UID 읽기 확인했고 원본은 유지했다. 토큰 파일은 비어 있으며 R04가 숨김 입력한다. 등록ID/실제망/경로는 비공개 인계만 사용한다. 어댑터 수정본 푸시/계약·매핑·비밀 검증과 P19 실제 정상Webhook 뒤 R01이 봇만 기동한다. 목표P19 경로와봇컨테이너는조회시없었으며 아직 G2/G4 완료가 아니다. [사전 준비 증거](../runs/public/20261106-123049-vm-discord-prep/summary.json).
 - 사용자 지시: 이 채팅에서 PR #36을 전체 연동 관리 창구로 정리하도록 요청(2026-11-06 KST). Discord 메시지의 원 링크/시각은 미제공이며 만들어 넣지 않는다.
 - [R01 검토·제한 실제 연결 증거 PR #35](https://github.com/ik-e/dubakwi-ttareungi-support/pull/35): 이전1b83d18의 제한 연결과 최신 사본 정적 대조를 정상 전체 실행으로 확대하지 않는다.

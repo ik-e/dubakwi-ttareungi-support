@@ -619,3 +619,7 @@ R01 수정 후 검증: 공통 unittest67건 중60통과·실제HTTP7생략(실�
 ### P19 Discord 전처리·R04 비공개 인계 준비 — 2026-11-06 KST
 
 상태: 환경 사전 준비 완료·코드/정상P19/기동 대기. 사용자 전달 R02/R04 요청을 확인하고 R01이 VM의 등록 시험 사용자200·citizen/public·n8n/사용자API공통망을 실측했다. [봇 사전 준비](../runs/public/20261106-123049-vm-discord-prep/summary.json): 저장소 밖 봇 디렉터리0700/비밀파일0600과 R04 숨김 토큰입력helper를 준비하고 기존팀키를값노출없이복사했다. 현재UID의읽기는network none/read-only 일회용기존이미지로확인했고원본키파일은동일하다. 토큰은미입력이며R04직접주입을원칙으로비공개ID/망/경로인계를준비했다. 공개원장에실제값을넣지않는다. 어댑터는조회시0526d30으로R04수정본푸시/계약대조가필요하며 목표P19경로와봇컨테이너는없었다. 일괄사용자치환금지/공식ticket.ticket_id/HTTP대기후보와업무시한구분/최소비공개오류처리를전달한다. P19실제정상Webhook·비밀/허용목록검증후R01이봇만기동하며이번실제Discord/Jira/DB업무쓰기·봇기동은0이다.
+
+### P19 정상 Webhook 1건 우선·후보 생성과 VM 선행 점검 — 2026-11-06 KST
+
+상태: 후보 생성/읽기 점검 완료·G0~G2 미완료. 사용자 전달 R02 요청에 따라 c5ed5fa/a930e24/8c53cf7과 dubakwi-p19-real로 support/errors 비공개 후보·manifest를 생성하고LF파일/의존원본해시·동일scope검사를통과했다. support136/136·unittest76통과/HTTP7생략,R04 unittest81통과/HTTP7생략·Ruff60파일통과다. [새 검증](../runs/public/20261106-123349-mixed-p19-normal-prep/report.md): VM 서비스에는case_lookup/case_begin·SQL007인덱스가없고scope요청0/DLQ0,기존사본11/5/9/7노드·목표support없음을확인했다. R02도구는support/errors만생성하므로state/DLQ/handoff를실제갱신한것으로쓰지않는다. 과거6노드DLQ증거는보존하고현재5노드관측과구분한다. #27/#28은open이며영향검토/검토된main적용,005~007/권한/백업/전체사본반입후호출가능인계를제공한다. 현재비공개인계는NOT READY이며실제키전달/VM게시/SQL변경/업무Jira·Discord호출은0이다.
