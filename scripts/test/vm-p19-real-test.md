@@ -53,13 +53,14 @@ handoff는 R04 `168c79c`의 `scripts/dev/render_n8n_workflow.py`로 Jira 주소�
 
 ## Error Workflow 연결 전 확인
 
-R02가 PR #28 `fc776e2`를 support 쪽에서 검토한 결과다(2026-11-06, [PR #28 댓글](https://github.com/ik-e/dubakwi-ttareungi-support/pull/28#issuecomment-6673887106)). R04 회신 전이다.
+R02가 PR #28 `fc776e2`를 support 쪽에서 검토한 결과다(2026-11-06, [PR #28 댓글](https://github.com/ik-e/dubakwi-ttareungi-support/pull/28#issuecomment-6673887106)). R04가 `7426eb9`로 회신했고 R02가 다시 확인했다(아래 갱신 열).
 
-| 항목 | 판정 | 내용 |
-| --- | --- | --- |
-| E06 DLQ 요청 형식 | 동의 | DLQ D02(`1b83d18`, `fc776e2`) 계약 검사 통과(Code 대조). 오류 원문·비밀값을 남기지 않음 |
-| E02 `$env.DUBAKWI_SCOPE` | 수정 필요 | 로컬 n8n 2.42.6 기본 설정(`N8N_BLOCK_ENV_ACCESS_IN_NODE` 미설정)에서 Code 노드의 `$env` 읽기가 `access to env vars denied`로 실패한다(시험 워크플로우로 확인 후 비활성화). 이 설정이면 E02가 중단되어 state·DLQ 기록이 남지 않는다. VM에서 환경 변수 접근을 허용하거나 반입 시 scope를 치환해야 하며, 값은 support `--scope`와 같아야 한다 |
-| 예상 밖 중단 뒤 재전송 | 확인 요청 | Error Trigger에는 `request_id`·`state_ref`가 없어 E05 fail이 skipped가 된다. 중단된 요청은 `processing`으로 남고 만료 조건이 없어 같은 `request_id` 재전송은 계속 `409 request_in_progress`다. DLQ 행은 `request_id: null`이라 `last_execution_id`로만 찾는다 |
+| 항목 | 판정(`fc776e2`) | 내용 | 갱신(`7426eb9`) |
+| --- | --- | --- | --- |
+| E06 DLQ 요청 형식 | 동의 | DLQ D02(`1b83d18`, `fc776e2`) 계약 검사 통과(Code 대조). 오류 원문·비밀값을 남기지 않음 | 변경 없음 |
+| E02 `$env.DUBAKWI_SCOPE` | 수정 필요 | 로컬 n8n 2.42.6 기본 설정(`N8N_BLOCK_ENV_ACCESS_IN_NODE` 미설정)에서 Code 노드의 `$env` 읽기가 `access to env vars denied`로 실패한다(시험 워크플로우로 확인 후 비활성화). 이 설정이면 E02가 중단되어 state·DLQ 기록이 남지 않는다. VM에서 환경 변수 접근을 허용하거나 반입 시 scope를 치환해야 하며, 값은 support `--scope`와 같아야 한다 | `$env` 예외 처리와 `__DUBAKWI_SCOPE__` 치환 반영. 단 자리표시자가 E02에 두 번(값과 비교식) 있어 **모두 치환하면 비교가 같아져 scope가 비고 저장이 막힌다**(Code로 확인: 첫 번째만 치환 `true`, 모두 치환 `false`). R04 렌더 도구는 `str.replace`(모두 치환) 방식이고 이 자리표시자는 아직 지원하지 않는다. 확인 요청 |
+| 예상 밖 중단 뒤 재전송 | 확인 요청 | Error Trigger에는 `request_id`·`state_ref`가 없어 E05 fail이 skipped가 된다. 중단된 요청은 `processing`으로 남고 만료 조건이 없어 같은 `request_id` 재전송은 계속 `409 request_in_progress`다. DLQ 행은 `request_id: null`이라 `last_execution_id`로만 찾는다 | R04: 설계 의도(failed/unknown 자동 재실행 0, STORAGE-DESIGN 3.2). R02 수용. 남는 상태는 `processing`이라 운영 해제 절차는 확인 요청. 시민은 같은 `request_id`로만 막히고 새 문의는 새로 접수된다 |
+| 409 시민 안내 문구 | 제안 | support는 state 응답을 그대로 전달한다(FL35를 실제 문장으로 갱신). `기존 요청을 먼저 확인해야 합니다.`는 다음 행동을 알려 주지 않는다. 예: `같은 요청을 처리하고 있습니다. 잠시 뒤 결과를 확인하거나 새 문의로 다시 보내 주세요.` `codes`는 유지 | 문구 결정은 R04(state 소유)·R05 |
 
 support를 통한 중단 → errors → PostgreSQL 종단과 VM 환경 변수 설정은 미실행이다. 위 두 항목이 정리되기 전에는 시험 사본에 `--error-workflow-id`를 넣어도 예상 밖 오류의 기록을 기대하지 않는다.
 
