@@ -22,3 +22,31 @@ git add --dry-run .
 사용하며 기존 출력은 덮어쓰지 않는다. Git 공개 경로 변경 시 필요하면 이 보조 목록도 갱신한다.
 
 [Python 기준](../../docs/PYTHON-DEVELOPMENT.md)·[문서 검사](../test/README.md)
+
+## n8n 가져오기용 사본 만들기 (R04)
+
+`workflows/dubakwi-handoff.json`은 Jira 주소(`__JIRA_BASE_URL__`)와 역할별 담당 계정(`__ASSIGNEE_MAP_JSON__`)을
+자리표시자로만 둔다. 값은 Git 밖에서 넣는다. 담당 매핑이 없으면 handoff는 배정하지 않고 안전하게 실패한다.
+
+```sh
+uv run --locked python scripts/dev/render_n8n_workflow.py --source workflows/dubakwi-handoff.json --jira-base https://<jira-host> --assignee-map-file <Git 밖 경로>/assignee-map.json --output runs/private-render/dubakwi-handoff.json
+```
+
+- 출력은 Git 제외 경로인 `runs/`(공개용 `runs/public` 제외)에만 쓴다. 값이 안전하지 않으면(따옴표·공백·http 등) 만들지 않는다.
+- 만든 사본을 n8n에 가져온 뒤 Credential(`dubakwi-internal-key`, `dubakwi-Jira SW Cloud account`)과 state 하위 워크플로우를 연결한다. 이 도구는 Credential ID를 다루지 않는다.
+- `dubakwi-state.json`의 Jira 확인 노드(S09·S16)도 같은 `__JIRA_BASE_URL__`를 쓰므로 같은 방법으로 사본을 만든다.
+
+errors 워크플로우(`dubakwi-errors.json`, PR #28)는 `--scope dubakwi-dev`로 `importedScope` 대입값만 치환한다.
+값은 support의 scope와 같아야 한다. 같은 문자열이 비교식에도 있으므로 전체 문자열 치환은 쓰지 않는다(저장이 항상 차단됨).
+
+### Jira 종료만 실패시키는 시험 사본 (R01 TC17 준비)
+
+`make_close_fault_copy.py`는 handoff 사본에서 종료 전환 요청(H33)의 전환 ID만 존재하지 않는 값으로 바꾼다. 생성·bind·조회·담당 지정은 원본과 같다. Jira가 거절하면 H36이 `closed=failed`, `partial_effect`, 복구 캡슐(close)을 남긴다.
+
+```bash
+uv run --locked python scripts/dev/make_close_fault_copy.py --output runs/private-render/dubakwi-handoff-close-fault.json
+```
+
+- 주입: 만든 사본을 `render_n8n_workflow.py`로 치환한 뒤 별도 시험용 워크플로우로 가져온다(공유·운영 사본에는 가져오지 않는다). 이름에 ` close-fault`가 붙고 비활성으로 만들어진다.
+- 해제: 시험이 끝나면 그 시험 사본을 삭제하거나 비활성으로 둔다. 원본 `workflows/dubakwi-handoff.json`은 바뀌지 않으므로 원본을 다시 렌더링해 가져오면 정상 동작으로 돌아간다.
+- 이 도구는 n8n·Jira를 호출하지 않는다. 실제 Jira 종료 거절 응답과 DLQ 저장은 별도 시험 사본에서 실행해 확인해야 한다(미실행).
