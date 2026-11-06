@@ -67,6 +67,7 @@ class Handler(BaseHTTPRequestHandler):
             answer = "가짜 본체의 시험 답변입니다." + (" (같은 요청 재전달)" if repeat else "")
             payload = {
                 "answer": answer,
+                "sources": [{"doc": "rental-guide", "section": "QR test", "score": 0.9}],
                 "case_ref": "CASE-TEST",
                 "ticket": {"ticket_id": "TEST-1", "priority": "normal", "duplicate": False},
             }

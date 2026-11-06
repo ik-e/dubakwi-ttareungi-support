@@ -135,6 +135,48 @@ class DiscordAdapterTest(unittest.TestCase):
         self.assertTrue(result.endswith("문의 연결값: CASE-1\n\nJira 접수번호: JBYS-10"))
 
 
+class SourceDisplayTest(unittest.TestCase):
+    def test_shows_doc_and_section_only(self) -> None:
+        result = render_private_response(
+            {
+                "answer": "안내합니다.",
+                "sources": [
+                    {
+                        "doc": "rental-guide",
+                        "section": "QR 인식 또는 잠금 해제가 어려운 경우",
+                        "score": 0.91,
+                    },
+                    {"doc": "faq", "section": "", "chunk_id": "must-not-show"},
+                    "not-an-object",
+                ],
+                "ticket": None,
+            }
+        )
+        self.assertIn("근거:\n- rental-guide / QR 인식 또는 잠금 해제가 어려운 경우\n- faq", result)
+        self.assertNotIn("0.91", result)
+        self.assertNotIn("must-not-show", result)
+
+    def test_sources_and_reason_survive_long_answer(self) -> None:
+        result = render_private_response(
+            {
+                "answer": "가" * 5000,
+                "sources": [{"doc": "rental-guide", "section": "QR"}],
+                "reason": "근거 부족으로 담당자에게 이관했습니다.",
+                "case_ref": "CASE-1",
+                "ticket": {"ticket_id": "JBYS-12"},
+            }
+        )
+        self.assertLessEqual(len(result), MAX_MESSAGE_LENGTH)
+        for text in ("- rental-guide / QR", "안내: 근거 부족", "CASE-1", "JBYS-12"):
+            self.assertIn(text, result)
+
+    def test_at_most_five_sources_and_no_empty_section(self) -> None:
+        sources = [{"doc": f"d{i}", "section": f"s{i}"} for i in range(9)]
+        result = render_private_response({"answer": "a", "sources": sources})
+        self.assertEqual(5, result.count("\n- d"))
+        self.assertNotIn("근거:", render_private_response({"answer": "a", "sources": []}))
+
+
 class SupportResponseShapeTest(unittest.TestCase):
     def test_reads_ticket_id_from_nested_ticket_object(self) -> None:
         result = render_private_response(

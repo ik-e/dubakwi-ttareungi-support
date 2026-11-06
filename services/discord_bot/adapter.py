@@ -106,6 +106,32 @@ def failure_message(codes: object) -> str:
     return GENERIC_FAILURE_MESSAGE
 
 
+MAX_SOURCES = 5
+
+
+def _one_line(value: object, limit: int) -> str:
+    if not isinstance(value, str):
+        return ""
+    return " ".join(value.split())[:limit]
+
+
+def _source_lines(sources: object) -> list[str]:
+    """Show only the document and section of each source; other fields are never displayed."""
+    if not isinstance(sources, list):
+        return []
+    lines: list[str] = []
+    for source in sources[:MAX_SOURCES]:
+        if not isinstance(source, dict):
+            continue
+        doc = _one_line(source.get("doc"), 80)
+        section = _one_line(source.get("section"), 80)
+        if doc and section:
+            lines.append(f"- {doc} / {section}")
+        elif doc:
+            lines.append(f"- {doc}")
+    return lines
+
+
 def render_private_response(payload: Any) -> str:
     if not isinstance(payload, dict):
         raise ContractError("응답 형식이 올바르지 않습니다.")
@@ -115,6 +141,12 @@ def render_private_response(payload: Any) -> str:
         raise ContractError("답변이 준비되지 않았습니다.")
 
     suffix: list[str] = []
+    source_lines = _source_lines(payload.get("sources"))
+    if source_lines:
+        suffix.append("근거:\n" + "\n".join(source_lines))
+    reason = _one_line(payload.get("reason"), 200)
+    if reason:
+        suffix.append(f"안내: {reason}")
     case_ref = payload.get("case_ref")
     if isinstance(case_ref, str) and case_ref.strip():
         suffix.append(f"문의 연결값: {case_ref.strip()}")
