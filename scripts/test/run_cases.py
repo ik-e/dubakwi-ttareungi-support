@@ -151,6 +151,7 @@ def normalize(file_name, raw):
                 "body": s["body"],
                 "expect": s.get("expect", {}),
                 "assert": s.get("assert", []),
+                "pause": s.get("pause"),
             }
             for s in x["steps"]
         ]
@@ -241,9 +242,21 @@ def prepare_request(raw, run_id, results):
     return request
 
 
+STOP_WORDS = {"stop", "n", "no", "q", "중단"}
+
+
+def ask_operator(message):
+    """Show a step confirmation on stderr. Returns the answer, or None on EOF."""
+    print(message, file=sys.stderr, flush=True)
+    try:
+        return input()
+    except EOFError:
+        return None
+
+
 def blocked_reason(unit, opts):
-    if unit["requires"]:
-        return f"requires: {unit['requires']}"
+    if unit["requires"] and unit["id"] not in (opts.ready or []):
+        return f"requires: {unit['requires']} (준비되면 --ready {unit['id']})"
     if not unit["steps"]:
         return "no request to send (operator step)"
     copy = unit["test_copy"]
@@ -520,6 +533,7 @@ def run_unit(unit, ctx):
     if reason:
         return head | {"status": "blocked", "reason": reason}, None
     requests, results, hooks = {}, {}, {}
+    stopped_at = None
     url = ctx["url"]
     if unit["test_copy"]:
         url = f"{ctx['base_url']}/webhook/{unit['test_copy']['webhook']}"
@@ -544,6 +558,14 @@ def run_unit(unit, ctx):
                 "hooks": hooks,
             }, None
         for step in unit["steps"]:
+            if step.get("pause"):
+                prompt = (
+                    f"[{unit['id']} step{step['step']}] {step['pause']} (계속: Enter, 중단: stop)"
+                )
+                answer = ctx["prompt"](prompt)
+                if answer is None or answer.strip().lower() in STOP_WORDS:
+                    stopped_at = step["step"]
+                    break
             try:
                 request = prepare_request(step["body"], ctx["run_id"], results)
             except LookupError as err:
@@ -556,8 +578,12 @@ def run_unit(unit, ctx):
 
     checks = []
     for step in unit["steps"]:
-        checks += judge_step(step, results[step["step"]], ctx["case_bodies"], results)
-    ctx["case_bodies"][unit["name"]] = results[unit["steps"][-1]["step"]]["body"]
+        if step["step"] in results:
+            checks += judge_step(step, results[step["step"]], ctx["case_bodies"], results)
+    if stopped_at is not None and not results:
+        reason = f"operator stopped before step{stopped_at}"
+        return head | {"status": "halted", "reason": reason, "halt": reason, "hooks": hooks}, None
+    ctx["case_bodies"][unit["name"]] = results[max(results)]["body"]
     guard = unit.get("search_guard")
     globals_ = [g for no in results for g in global_checks(no, requests[no], results[no], guard)]
     unverified = list(unit["checks"])
@@ -588,6 +614,10 @@ def run_unit(unit, ctx):
             seconds = results[no]["elapsed_ms"] / 1000
             unverified.append(f"목표 시간 초과: step{no} {seconds:.1f}s > {target}s (성능 기록)")
     status = case_status(checks, globals_ + log_checks, unverified, unit["manual"])
+    if stopped_at is not None:
+        status = "halted"
+        reason = f"operator stopped before step{stopped_at}; later steps not sent"
+        head = head | {"reason": reason, "halt": reason}
     public = head | {
         "status": status,
         "steps": [public_step(no, requests[no], results[no]) for no in sorted(results)],
@@ -606,7 +636,7 @@ def run_unit(unit, ctx):
     }
 
 
-def execute(args, base=ROOT, now=None):
+def execute(args, base=ROOT, now=None, prompt=ask_operator):
     now = now or datetime.now(KST)
     files = args.cases_file or DEFAULT_CASE_FILES
     loaded = load_cases(base, files, args.case)
@@ -631,6 +661,7 @@ def execute(args, base=ROOT, now=None):
         "timeout": args.timeout,
         "data_api": args.data_api.rstrip("/"),
         "case_bodies": {},
+        "prompt": prompt,
     }
     public_cases, raw_cases, file_hooks = [], [], {}
     halted = None
@@ -658,6 +689,10 @@ def execute(args, base=ROOT, now=None):
             public_cases.append(public)
             if raw:
                 raw_cases.append(raw)
+            if public.get("halt"):
+                halted = (
+                    f"{unit['id']} {public['halt']}: 시험 상태를 수동으로 확인한 뒤 새 실행 필요"
+                )
             for stage in ("before", "after"):
                 if not all(h["ok"] for h in public.get("hooks", {}).get(stage, [])):
                     halted = (
@@ -680,6 +715,7 @@ def execute(args, base=ROOT, now=None):
         "auth_header_sent": bool(headers),
         "auth_token_env": token_env,
         "log_check": bool(args.check_logs),
+        "ready": list(args.ready or []),
         "versions": {
             "git": git_info(base),
             "workflow": args.workflow_version,
@@ -742,6 +778,11 @@ def parse_args(argv):
         "--manual-fault-ready",
         action="store_true",
         help="manual faults (e.g. flow.py llm down) were switched on by hand",
+    )
+    p.add_argument(
+        "--ready",
+        nargs="*",
+        help="case ids whose x_dubakwi.requires preparation the operator confirmed; others stay blocked",
     )
     p.add_argument(
         "--check-logs",

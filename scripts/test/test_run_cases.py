@@ -537,6 +537,61 @@ class RunnerTests(unittest.TestCase):
         failed = [g["id"] for g in case["global_checks"] if not g["passed"]]
         self.assertEqual((case["status"], failed), ("fail", ["G06"]))
 
+    def run_with_prompt(self, answers, *extra):
+        asked = []
+
+        def prompt(message):
+            asked.append(message)
+            return answers.pop(0) if answers else None
+
+        args = RUN.parse_args(
+            ["--base-url", self.base_url, "--data-api", self.base_url, "--env", "local"]
+            + ["--desc", "unit", "--path", "mock", "--cases-file", "cases/test.json", *extra]
+        )
+        summary, _ = RUN.execute(args, base=self.base, now=NOW, prompt=prompt)
+        return summary, asked
+
+    def paused_case(self, name="P"):
+        return {
+            "name": name,
+            "x_dubakwi": {
+                "id": name,
+                "requires": "시험 사본 준비",
+                "steps": [
+                    {"step": 1, "body": req("p-1"), "expect": {"status": 200}},
+                    {
+                        "step": 2,
+                        "pause": "고장 해제 확인",
+                        "body": req("p-1"),
+                        "expect": {"status": 200},
+                    },
+                ],
+            },
+        }
+
+    def test_requires_unblocks_only_with_ready_and_pause_continues_on_enter(self):
+        self.write_cases(self.paused_case())
+        summary, asked = self.run_with_prompt([""])
+        self.assertEqual(summary["cases"][0]["status"], "blocked")
+        self.assertEqual(asked, [])
+
+        summary, asked = self.run_with_prompt([""], "--ready", "P")
+        self.assertEqual(summary["cases"][0]["status"], "pass")
+        self.assertEqual(len(asked), 1)
+        self.assertIn("[P step2] 고장 해제 확인", asked[0])
+        self.assertEqual(len(self.webhook_calls()), 2)
+        self.assertEqual(summary["ready"], ["P"])
+
+    def test_stop_at_pause_halts_the_case_and_later_cases(self):
+        self.write_cases(self.paused_case("P"), self.simple("Later"))
+        summary, _ = self.run_with_prompt(["stop"], "--ready", "P")
+        by_id = {c["id"]: c for c in summary["cases"]}
+        self.assertEqual(by_id["P"]["status"], "halted")
+        self.assertEqual([s["step"] for s in by_id["P"]["steps"]], [1])
+        self.assertEqual(by_id["Later"]["status"], "blocked")
+        self.assertIn("P operator stopped before step2", by_id["Later"]["reason"])
+        self.assertEqual(len(self.webhook_calls()), 1)
+
     def test_not_implemented_is_not_sent_and_counts_are_split_by_category(self):
         self.write_cases(
             self.simple("N"),
