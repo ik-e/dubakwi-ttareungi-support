@@ -5,6 +5,7 @@ import json
 import os
 import tempfile
 import threading
+import time
 import unittest
 from datetime import datetime
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
@@ -453,6 +454,32 @@ class RunnerTests(unittest.TestCase):
         ):
             self.run_tool("--auth-required")
 
+    def test_response_limit_g06_fails_slow_response_and_target_only_records(self):
+        def slow(request):
+            time.sleep(0.3)
+            return 200, ok_body(request)
+
+        FakeServer.reply = slow
+        self.write_cases(self.simple("T", target_seconds=0.1))
+        summary, _ = self.run_tool("--response-limit", "5")
+        case = summary["cases"][0]
+        g06 = [g for g in case["global_checks"] if g["id"] == "G06"]
+        self.assertEqual([g["passed"] for g in g06], [True])
+        self.assertEqual(case["status"], "auto_pass_unverified")
+        self.assertTrue(any(u.startswith("목표 시간 초과: step1") for u in case["unverified"]))
+
+        summary, _ = self.run_tool("--response-limit", "0.1")
+        case = summary["cases"][0]
+        failed = [g["id"] for g in case["global_checks"] if not g["passed"]]
+        self.assertEqual((case["status"], failed), ("fail", ["G06"]))
+
+    def test_default_response_limit_is_25_seconds(self):
+        self.write_cases(self.simple())
+        summary, _ = self.run_tool()
+        g06 = [g for g in summary["cases"][0]["global_checks"] if g["id"] == "G06"]
+        self.assertEqual((g06[0]["check"], g06[0]["passed"]), ("response within 25s", True))
+        self.assertEqual(summary["cases"][0]["status"], "pass")
+
     def test_contact_pattern_in_response_fails_global_check(self):
         FakeServer.reply = lambda r: (200, ok_body(r, answer="연락처 010-1234-5678"))
         self.write_cases(self.simple())
@@ -573,6 +600,15 @@ class CaseFileTests(unittest.TestCase):
                 if "fault_on" in step:
                     self.assertIn("fault_off", step)
         self.assertEqual(len({self.load(s["request"])["request_id"] for s in sent}), len(sent))
+
+    def test_wf01_eight_seconds_is_a_target_not_a_pass_limit(self):
+        data = self.load("cases/common.json")
+        wf01 = next(c for c in data["cases"] if c["x_dubakwi"]["id"] == "WF01")
+        self.assertNotIn("max_seconds", wf01["expect"])
+        self.assertEqual(wf01["x_dubakwi"]["target_seconds"], 8)
+        wf11 = next(c for c in data["cases"] if c["x_dubakwi"]["id"] == "WF11")
+        self.assertEqual(wf11["expect"]["max_seconds"], 6)
+        self.assertIn("25초", data["x_dubakwi"]["time_policy"]["upper_bound"])
 
     def test_p11_entry_case_is_separate_and_expects_skeleton_mock(self):
         self.assertNotIn("cases/p11-entry.json", RUN.DEFAULT_CASE_FILES)

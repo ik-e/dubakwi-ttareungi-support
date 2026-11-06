@@ -178,6 +178,7 @@ def normalize(file_name, raw):
         "expected_codes": x.get("expected_codes"),
         "checks": list(x.get("checks", [])),
         "manual": list(x.get("manual", [])),
+        "target_seconds": x.get("target_seconds"),
     }
 
 
@@ -532,6 +533,15 @@ def run_unit(unit, ctx):
         globals_.append(
             {"id": "H01", "step": None, "check": "after hooks succeeded", "passed": False}
         )
+    limit_ms = ctx["opts"].response_limit * 1000
+    for no in sorted(results):
+        within = results[no]["elapsed_ms"] <= limit_ms
+        check = f"response within {ctx['opts'].response_limit:g}s"
+        globals_.append({"id": "G06", "step": no, "check": check, "passed": within})
+        target = unit["target_seconds"]
+        if target is not None and results[no]["elapsed_ms"] > target * 1000:
+            seconds = results[no]["elapsed_ms"] / 1000
+            unverified.append(f"목표 시간 초과: step{no} {seconds:.1f}s > {target}s (성능 기록)")
     status = case_status(checks, globals_ + log_checks, unverified, unit["manual"])
     public = head | {
         "status": status,
@@ -707,6 +717,13 @@ def parse_args(argv):
         "--auth-required", action="store_true", help="stop if the token variable is not set"
     )
     p.add_argument("--timeout", type=float, default=30.0)
+    p.add_argument(
+        "--response-limit",
+        type=float,
+        default=25.0,
+        help="G06 upper bound for every response in seconds (R05 decision 2026-11-06: 20s "
+        "request deadline + 5s margin)",
+    )
     p.add_argument("--dry-run", action="store_true", help="print resolved requests, send nothing")
     return p.parse_args(argv)
 

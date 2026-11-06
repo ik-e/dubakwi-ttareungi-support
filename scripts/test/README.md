@@ -60,6 +60,7 @@ uv run --locked python scripts/test/run_cases.py --base-url <n8n 주소> --env v
 - [P11 입구 사례](../../cases/p11-entry.json)는 P19 게시 전까지만 쓰는 임시 사례다. 등록 사용자 조회 성공 경로의 골격 응답(`reason=skeleton_mock`)을 보며 업무 성공으로 세지 않는다. 기본 사례 목록에 없으므로 `--cases-file`로 지정한다.
 - `x_dubakwi.test_copy`가 있는 사례(TC08)는 `--test-copy-mode`·`--test-copy-sha256`을 함께 줄 때만 사본 webhook(`dubakwi-support-tc08`)으로 보내고, 없으면 blocked다. 모드·해시는 공개 요약에 남는다. 다른 사례는 원본 webhook으로 그대로 보낸다.
 - WF-09 2/2는 두 응답의 `ticket_id`·`priority`가 같고 2번째 `ticket.duplicate=true`인지 본다(R02·R05 제안 판정, PR #16). 티켓 1건과 D02 대조가 남아 있어 완전 통과로 기록하지 않는다.
+- 응답 시간(R05 결정 2026-11-06): 모든 응답은 G06으로 25초(`--response-limit`, 요청 시한 20초+여유 5초) 이하인지 자동 판정하고 넘으면 fail이다. 사례의 `x_dubakwi.target_seconds`(WF-01 8초)는 목표 시간이라 넘어도 fail이 아니라 `목표 시간 초과`로 unverified에 남긴다. WF-11처럼 가이드가 정한 `max_seconds`는 그대로 통과 기준이다.
 - `contains`는 목록 항목이 값과 같거나 항목의 필드 값이 같을 때(예: `sources`의 `doc`), 문자열이면 부분 문자열일 때 통과로 본다. flow.py의 실제 해석과 다르면 키트에 맞춘다.
 - run_cases.py는 request_id 앞에 실행묶음 ID를 붙이고 flow.py는 고정 ID를 보낸다. 요청 상태를 저장소에 남기는 설계에서는 flow.py 반복 실행이 재전송으로 판정될 수 있다.
 - `--path`에 data-api/jira/mock을 기록한다. data-api 결과를 Jira 연동 증거로 쓰지 않는다. 티켓/DLQ/알림 조회 자동화와 R02/R04 시험용 설정은 방법이 정해진 뒤 추가한다.
