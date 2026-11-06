@@ -1,0 +1,38 @@
+{
+  "run_id": "20261106-105556-local-daily-main",
+  "tasks": [
+    "P14",
+    "P24"
+  ],
+  "source_pr": 29,
+  "source_commit": "f45c39af471ef3a982cc44ae5122b4a379974a6c",
+  "scope": "Daily drafts only; broader integration edits excluded",
+  "change_from_source": "DAY81 link to unmerged infra file changed to immutable source URL",
+  "authorization": "User requested main inclusion of the just-reviewed daily drafts",
+  "checks": {
+    "official_five_sections": "passed",
+    "original_draft_hash": "matched",
+    "docs": {
+      "files": 20,
+      "links": 458,
+      "anchors": 51,
+      "errors": 0
+    },
+    "public_candidates": {
+      "files": 175,
+      "links": 549,
+      "errors": 0
+    },
+    "diff": "passed"
+  },
+  "not_run": [
+    "runtime tests",
+    "VM changes",
+    "Discord messages"
+  ],
+  "limits": [
+    "DAY80 retrospective draft",
+    "DAY81 interim as of 10:48 KST",
+    "role/instructor confirmation and evening numbers remain pending"
+  ]
+}
