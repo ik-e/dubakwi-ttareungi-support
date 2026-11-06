@@ -60,6 +60,20 @@ class RenderWorkflowTest(unittest.TestCase):
             render_tool.ensure_untracked_output(ROOT / "workflows" / "out.json")
         render_tool.ensure_untracked_output(ROOT / "runs" / "private-render" / "out.json")
 
+    def test_scope_replaces_only_the_assignment(self) -> None:
+        text = (
+            "const importedScope = '__DUBAKWI_SCOPE__';\n"
+            "const envScope = readEnvScope() || (importedScope !== '__DUBAKWI_SCOPE__' ? importedScope : '');"
+        )
+        rendered = render_tool.render(text, None, None, "dubakwi-dev")
+        self.assertIn("const importedScope = 'dubakwi-dev';", rendered)
+        self.assertIn("importedScope !== '__DUBAKWI_SCOPE__'", rendered)
+        with self.assertRaises(render_tool.RenderError):
+            render_tool.render("no assignment here", None, None, "dubakwi-dev")
+        for bad in ("a b", "x'; evil", ""):
+            with self.assertRaises(render_tool.RenderError, msg=bad):
+                render_tool.validate_scope(bad)
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -35,3 +35,6 @@ uv run --locked python scripts/dev/render_n8n_workflow.py --source workflows/dub
 - 출력은 Git 제외 경로인 `runs/`(공개용 `runs/public` 제외)에만 쓴다. 값이 안전하지 않으면(따옴표·공백·http 등) 만들지 않는다.
 - 만든 사본을 n8n에 가져온 뒤 Credential(`dubakwi-internal-key`, `dubakwi-Jira SW Cloud account`)과 state 하위 워크플로우를 연결한다. 이 도구는 Credential ID를 다루지 않는다.
 - `dubakwi-state.json`의 Jira 확인 노드(S09·S16)도 같은 `__JIRA_BASE_URL__`를 쓰므로 같은 방법으로 사본을 만든다.
+
+errors 워크플로우(`dubakwi-errors.json`, PR #28)는 `--scope dubakwi-dev`로 `importedScope` 대입값만 치환한다.
+값은 support의 scope와 같아야 한다. 같은 문자열이 비교식에도 있으므로 전체 문자열 치환은 쓰지 않는다(저장이 항상 차단됨).

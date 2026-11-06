@@ -22,6 +22,9 @@ from pathlib import Path
 
 JIRA_PLACEHOLDER = "__JIRA_BASE_URL__"
 MAP_PLACEHOLDER = "__ASSIGNEE_MAP_JSON__"
+SCOPE_PLACEHOLDER = "__DUBAKWI_SCOPE__"
+# errors 워크플로우의 대입문만 치환한다. 같은 문자열이 비교식에도 있어 전체 치환하면 저장이 항상 막힌다.
+SCOPE_ASSIGNMENT = re.compile(r"(const importedScope = ')" + SCOPE_PLACEHOLDER + r"(';)")
 SAFE_TEXT = re.compile(r"^[A-Za-z0-9:_.\-]+$")
 ROOT = Path(__file__).resolve().parents[2]
 
@@ -52,13 +55,30 @@ def validate_assignee_map(raw: str) -> str:
     return json.dumps(parsed, ensure_ascii=True, separators=(",", ":"))
 
 
-def render(text: str, jira_base: str | None, assignee_map: str | None) -> str:
+def validate_scope(value: str) -> str:
+    scope = value.strip()
+    if not SAFE_TEXT.match(scope):
+        raise RenderError("--scope에 허용되지 않는 문자가 있다(영문·숫자·: _ . - 만)")
+    return scope
+
+
+def render(
+    text: str, jira_base: str | None, assignee_map: str | None, scope: str | None = None
+) -> str:
     if jira_base is not None:
         text = text.replace(JIRA_PLACEHOLDER, validate_jira_base(jira_base))
     if assignee_map is not None:
         # JSON 문자열 안의 JS 소스에 들어가므로 JSON 이스케이프를 한 번 더 적용한다.
         escaped = json.dumps(validate_assignee_map(assignee_map))[1:-1]
         text = text.replace(MAP_PLACEHOLDER, escaped)
+    if scope is not None:
+        text, count = SCOPE_ASSIGNMENT.subn(
+            lambda m: m.group(1) + validate_scope(scope) + m.group(2), text
+        )
+        if count != 1:
+            raise RenderError(
+                "importedScope 대입문을 정확히 1곳 찾지 못했다(errors 워크플로우가 아니거나 형식이 바뀜)"
+            )
     return text
 
 
@@ -80,6 +100,9 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--output", required=True, type=Path)
     parser.add_argument("--jira-base")
     parser.add_argument("--assignee-map-file", type=Path)
+    parser.add_argument(
+        "--scope", help="errors 워크플로우의 importedScope 대입값(support와 같은 값)"
+    )
     args = parser.parse_args(argv)
 
     try:
@@ -87,7 +110,9 @@ def main(argv: list[str] | None = None) -> int:
         assignee = (
             args.assignee_map_file.read_text(encoding="utf-8") if args.assignee_map_file else None
         )
-        rendered = render(args.source.read_text(encoding="utf-8"), args.jira_base, assignee)
+        rendered = render(
+            args.source.read_text(encoding="utf-8"), args.jira_base, assignee, args.scope
+        )
         json.loads(rendered)  # 결과가 여전히 올바른 JSON인지 확인
     except (RenderError, OSError, json.JSONDecodeError) as error:
         print(f"실패: {error}", file=sys.stderr)
@@ -96,6 +121,8 @@ def main(argv: list[str] | None = None) -> int:
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(rendered, encoding="utf-8")
     left = [name for name in (JIRA_PLACEHOLDER, MAP_PLACEHOLDER) if name in rendered]
+    if args.scope is None and SCOPE_PLACEHOLDER in rendered:
+        left.append(SCOPE_PLACEHOLDER)
     print(f"작성: {args.output} (남은 자리표시자: {', '.join(left) if left else '없음'})")
     return 0
 
