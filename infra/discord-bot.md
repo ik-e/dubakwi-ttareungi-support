@@ -37,9 +37,20 @@ does not request Message Content intent because ordinary messages are outside th
 ## Validation and activation order
 
 1. R01 confirms the existing network and mounts the two private secret files.
+   The image runs as UID/GID `65532:65532`. Give that UID read access to the
+   dedicated bot secret copies (owner `65532`, mode `0600`); preserve the original
+   secret files and do not make them world-readable. The image copies the Python
+   package with the same owner so a private build context with restrictive modes
+   remains readable by the runtime user.
 2. Validate without starting: `docker compose --env-file <private-env> -f
    infra/discord-bot-compose.yaml config`.
-3. Build the adapter image and record its immutable image ID or digest.
+3. Build the adapter image and record its immutable image ID or digest. Before
+   connecting to Discord, use the same Compose configuration with `run --rm
+   --no-deps --entrypoint /app/.venv/bin/python discord-bot -c 'import os;
+   import services.discord_bot.bot; assert all(os.access(p, os.R_OK) for p in
+   [os.environ["DUBAKWI_DISCORD_BOT_TOKEN_FILE"],
+   os.environ["DUBAKWI_TEAM_KEY_FILE"]])'`. This checks package imports and secret
+   readability as the runtime UID without printing their values or starting the bot.
 4. Start only `discord-bot`; do not restart n8n or change the public P19 workflow.
    The runtime uses the Python environment installed during the image build directly;
    it must not run `uv sync` or create a cache on the read-only filesystem.
