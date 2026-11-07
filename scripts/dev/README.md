@@ -33,6 +33,7 @@ uv run --locked python scripts/dev/render_n8n_workflow.py --source workflows/dub
 ```
 
 - 출력은 Git 제외 경로인 `runs/`(공개용 `runs/public` 제외)에만 쓴다. 값이 안전하지 않으면(따옴표·공백·http 등) 만들지 않는다.
+- 대상 프로젝트의 생성 유형이 다르면 `--jira-issue-type-id 10003`처럼 실제 조회한 ID를 지정한다. 양의 정수만 허용하며 handoff H24의 `issuetype.id` 한 곳만 바꾼다. 노드/필드를 정확히 찾지 못하면 실패하고, 생략하면 기존 원본(현재10006)을 그대로 유지한다. 같은 숫자의 유형 의미도 사이트별로 조회해야 한다. URL·Credential·담당 매핑·문맥 작성자·scope·조회 API 연결은 유형 ID와 별도로 맞춘다.
 - 만든 사본을 n8n에 가져온 뒤 Credential(`dubakwi-internal-key`, `dubakwi-Jira SW Cloud account`)과 state 하위 워크플로우를 연결한다. 이 도구는 Credential ID를 다루지 않는다.
 - `dubakwi-state.json`의 Jira 확인 노드(S09·S16)도 같은 `__JIRA_BASE_URL__`를 쓰므로 같은 방법으로 사본을 만든다.
 
