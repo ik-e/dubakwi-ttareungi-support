@@ -3,7 +3,7 @@
 전체 구성·상태 관계·기능/시나리오 추적은 [최상위 시스템 설계서](SYSTEM-DESIGN.md)를 먼저 읽는다. 이 문서는 노드·엣지와 업무 계약의 상세 원본이다.
 
 - 작성: 2026-11-02 / 개정: 2026-11-06 KST
-- 버전·상태: **v0.17 / P19 B17 동적 모델 제한(전체20초·Jira/마무리 예약 유지), 사용자 지시 R01 대리 수정 후보 / P19 support 본체 연결(B04 팀 사용자 API, 7.5 시간 예산 20초 안 응답, 7.6 실패 문의 후속 제한)과 P12 handoff 변경 행(R04 v0.15) 통합**, 공동 검토 전. support는 로컬 Code·로컬 n8n(실제 LLM·검색·가짜 Jira·임시 PostgreSQL) 종단까지 확인했고, VM 실제 연동·공식 판정은 전이다. **v0.15 / P12 handoff Jira 생성·종료·이관·조회·보완 횟수와 state save·case_ref 초안 반영(변경 행: H04·H05(충돌 방지 label·문의 연결 검증)·H08·H09·H11·H17·H21·H22·H45~H48·H 시간 예산(응답 20초 기준, 합의 대기), 실행 증거 [runs/public/20261105-192700-team-n8n-r04-jira-close](../../runs/public/20261105-192700-team-n8n-r04-jira-close/report.md))**. 이전 v0.14 /  P11 support 골격 JSON·역할 프롬프트 초안·B05 사용자 응답 검증 추가**, 공동 검토 전. 골격은 로컬 Code 시험과 로컬 n8n Webhook 호출까지 확인했고 VM 실행·공식 판정은 전.
+- 버전·상태: **v0.18 / PR #36 W02 본체 수정(B08·B11·B23·B24·B25): 이관된 문의 후속의 횟수·역할·우선순위 유지와 보완 질문 회귀 방지(7.7), 사실 병합의 불일치 기록, D02 새 위험 기록·안내, 조회 `closed`=처리 종료.** 로컬 Code 시험(support-skeleton 154/154)만 확인했고 state/handoff 생산자(R04 J03)와 함께 반입·VM 판정은 전이다. **v0.17 / P19 B17 동적 모델 제한(전체20초·Jira/마무리 예약 유지), 사용자 지시 R01 대리 수정 후보 / P19 support 본체 연결(B04 팀 사용자 API, 7.5 시간 예산 20초 안 응답, 7.6 실패 문의 후속 제한)과 P12 handoff 변경 행(R04 v0.15) 통합**, 공동 검토 전. support는 로컬 Code·로컬 n8n(실제 LLM·검색·가짜 Jira·임시 PostgreSQL) 종단까지 확인했고, VM 실제 연동·공식 판정은 전이다. **v0.15 / P12 handoff Jira 생성·종료·이관·조회·보완 횟수와 state save·case_ref 초안 반영(변경 행: H04·H05(충돌 방지 label·문의 연결 검증)·H08·H09·H11·H17·H21·H22·H45~H48·H 시간 예산(응답 20초 기준, 합의 대기), 실행 증거 [runs/public/20261105-192700-team-n8n-r04-jira-close](../../runs/public/20261105-192700-team-n8n-r04-jira-close/report.md))**. 이전 v0.14 /  P11 support 골격 JSON·역할 프롬프트 초안·B05 사용자 응답 검증 추가**, 공동 검토 전. 골격은 로컬 Code 시험과 로컬 n8n Webhook 호출까지 확인했고 VM 실행·공식 판정은 전.
 - [공식 템플릿 — 공개본 제외 자료](../../docs/PUBLIC-SOURCES.md)의 8개 절 유지. 범위는 [TOPIC](TOPIC.md), 역할은 [팀 헌장](TEAM-CHARTER.md), 배정·구현 순서는 [개발 계획](../DEVELOPMENT-PLAN.md).
 - **티켓 최초 생성 위치를 뒤로 이동**했다. 일반 안내는 답변·검증 후 생성/종료, 정보 부족은 보완 질문 준비 후 생성/대기, 긴급은 분류 직후 생성/이관한다.
 
@@ -438,10 +438,10 @@ B28은 먼저 error_code=null && state_saved=true && 최신 state_ref를 확인�
 | B05 등록·권한 확인 | Code | Raw+B02.Ctx | Ctx | 서버 actor·권한·actor_ok 구성, 미등록400/조회장애 구분 |
 | B06 사용자 통과 | If | Ctx.actor_ok | Ctx | true 문맥 읽기, false 오류 응답 |
 | B07 요청 문맥 읽기 | Execute Sub-workflow | BeginRequest | BeginResult | 서버 scope/owner/execution·정규화 입력으로 저장 경계 begin 호출. body=BeginResult,최초 처리권과 보완 Jira 문맥 확인 |
-| B08 문맥 정리 | Code | BeginResult+B05.Ctx | Ctx | BeginResult 검사,mode=proceed/replay/pending/conflict/error를 그대로 request_mode로 매핑. state_ref/참조·기존 facts 복원,proceed만 이번 support.attempt 계산,Request/hash 유지. replay는 반환 복사본 duplicate 표시. 신규 ticket=null 허용,두 긴급 가드 false 초기화 |
+| B08 문맥 정리 | Code | BeginResult+B05.Ctx | Ctx | BeginResult 검사,mode=proceed/replay/pending/conflict/error를 그대로 request_mode로 매핑. state_ref/참조·기존 facts 복원,proceed만 이번 support.attempt 계산(신규 max(1,attempt), waiting_info 후속 max(attempt,저장+1), handed_off 후속은 저장값 유지),Request/hash 유지. handed_off 후속은 검증된 assignee_role(support/security)·priority(normal/high)가 없으면 추정하지 않고 state_error(7.7). replay는 반환 복사본 duplicate 표시. 신규 ticket=null 허용,두 긴급 가드 false 초기화 |
 | B09 신규·재전송 분기 | Switch | Ctx.request_mode | Ctx | out0 proceed;out1 replay;out2 pending;out3 conflict;fallback error/잘못된 봉투. pending/conflict는 처리권 없으므로 상태 변경0 |
 | B10 문의 분류 | Basic LLM Chain | 질문·기존 facts | LLMRaw | triage: 유형·긴급·명시사실·누락 JSON, 도구 없음 |
-| B11 분류 판정 | Code | LLMRaw+B08.Ctx | Ctx | 원문대조·가림. 긴급→분류실패→attempt>=3→필수정보 부족→사람판단→검색 순. needs_human=true라도 비긴급 누락이면 먼저 보완 |
+| B11 분류 판정 | Code | LLMRaw+B08.Ctx | Ctx | 원문대조·가림. 긴급→분류실패→attempt>=3→필수정보 부족→사람판단→검색 순. needs_human=true라도 비긴급 누락이면 먼저 보완. handed_off 후속은 사실 추출만 하고 항상 handoff/needs_human(보완·새 긴급·재배정 없음),urgency=high면 new_risk·uncertainties 기록(D02). 같은 key 다른 진술은 최신값+uncertainties,confirmed와 다르면 덮지 않고 필수 항목이면 missing에 남김. handed_off 후속은 기존 summary 유지 |
 | B12 업무 분기 | Switch | Ctx.plan | Ctx | out0 retrieve;out1 ask;out2 handoff;out3 urgent;fallback 오류 |
 | B13 검색·조회 준비 | Code | Ctx | Ctx+SearchRequest+LookupRequest | 독립 enabled, 필요 없는 갈래도 skipped 봉투. 이번 문의 ticket_id 불필요 |
 | B14 RAG 검색 | HTTP Request | SearchRequest | Raw | 보호된 dubakwi-search, 결과 봉투1개 |
@@ -453,9 +453,9 @@ B28은 먼저 error_code=null && state_saved=true && 최신 state_ref를 확인�
 | B20 답변 검증 | Basic LLM Chain | writer JSON·동일 근거 | LLMRaw | verifier: grounded,policy_ok,issues JSON, 도구 없음 |
 | B21 검증 판정 | Code | writer/verifier JSON+B17.Ctx | Ctx | 두 JSON·인용·가림·정책·앱/상황 적용 범위 검사. 성공 guidance/close, 실패 handoff |
 | B22 보완 질문 준비 | Code | facts+missing | Ctx | mode=ask,waiting_info. CaseFacts.missing만 질문,attempt<3. 티켓 확인·저장 성공 응답에는 case_ref를 반드시 포함 |
-| B23 이관 준비 | Code | 현재 Ctx | Ctx | outcome.mode=handoff/urgent, 역할·가린 맥락. urgent=high |
-| B24 고정 안내 준비 | Code | search/lookup/ticket_result | Ctx | 조회 API 사실/거절/긴급 초동 근거·허용 상태·전달 확인수준만 안내 |
-| B25 티켓 요청 준비 | Code | 현재 Ctx+Outcome | Ctx+TicketRequest | 최신 facts·근거·답변·역할·support.attempt와 state_ref 구성,action=close/wait/handoff. 긴급 후속만 ticket_required=false,expected_case_version은 Jira 문의 버전 |
+| B23 이관 준비 | Code | 현재 Ctx | Ctx | outcome.mode=handoff/urgent, 역할·가린 맥락. urgent=high. handed_off 후속은 '기존 문의에 추가 내용을 전달했습니다' 안내, new_risk면 '새로운 위험 내용은 담당자 확인이 필요합니다'(새 이관·재알림을 말하지 않음) |
+| B24 고정 안내 준비 | Code | search/lookup/ticket_result | Ctx | 조회 API 사실/거절/긴급 초동 근거·허용 상태·전달 확인수준만 안내. 조회 record.status=closed(직원이 Jira에서 닫았고 종료 이유 미확인)는 '처리 종료'로 표시하며 안내 종료·환불 해결로 말하지 않음 |
+| B25 티켓 요청 준비 | Code | 현재 Ctx+Outcome | Ctx+TicketRequest | 최신 facts·근거·답변·역할·support.attempt와 state_ref 구성,action=close/wait/handoff. 긴급 후속만 ticket_required=false,expected_case_version은 Jira 문의 버전. handed_off 후속은 같은 ticket_id·action=handoff에 저장된 assignee_role·priority를 그대로 보냄 |
 | B26 티켓 처리 필요 | If | Ctx.ticket_required | Ctx | true 최초 결과 처리;false 긴급 티켓 처리 후 후속 저장만 |
 | B27 티켓 생성·처리 | HTTP Request | TicketRequest | Raw | 보호된 dubakwi-handoff kind=process. 일반은 답변 검증 뒤 최초 생성, 보완은 재사용 |
 | B28 티켓 결과 확인 | Code | Raw+B25.Ctx | Ctx | 각 Effect·state_saved·state_ref 검사. error_code!=null 또는 state_saved=false면 ticket_ok=false가 우선. known ID 보존,현재 state_ref는 하위 응답 revision으로 교체,case_version은 support.version에 별도 반영 |
@@ -620,12 +620,12 @@ SupportCase/CaseFacts는 실행 중 조합하는 논리 문맥이며 별도 테�
 | Actor | id:string,role:citizen/support/security,access_levels:string[] | 요청 자기소개가 아닌 서버 조회 결과 |
 | CaseFacts | summary:string,reported:Fact[],confirmed:Fact[],attempted_actions:string[],missing:string[],uncertainties:string[],evidence_refs:Source[] | Fact={key:string,value:string,origin:user/document/api,reference?:string}. 앱·대상·장소·시각·증상·시도 조치를 명시한 경우만 기록, 모르면 missing |
 | Ctx | state_ref:StateRef／null,request:Request,actor:Actor／null,support:SupportCase／null,facts:CaseFacts,triage:Triage／null,outcome:Outcome／null,response:Response／InputError／null,security:Security,deadline_at:string | request_mode,plan,answer_plan,search,lookup,ticket_result,ticket_required:boolean,ticket_ok:boolean,urgent_dispatched:boolean,retrieval_done:boolean,response_ready:boolean,known_ticket_id,error. support는 B08부터, 외부 ticket은 B28 생성확인부터 필수 |
-| SupportCase | case_id:string,owner_id:string,ticket_id:string／null,first_request_id:string,attempt:int,version:int／null,status:string | status=received/waiting_info/closed_guidance/closed_rejected/handed_off/needs_review. 종료·담당 인수·문제 해결은 서로 다름 |
+| SupportCase | case_id:string,owner_id:string,ticket_id:string／null,first_request_id:string,attempt:int,version:int／null,status:string,assignee_role?:support／security／null,priority?:normal／high／null | status=received/waiting_info/closed_guidance/closed_rejected/handed_off/needs_review. 종료·담당 인수·문제 해결은 서로 다름. assignee_role·priority는 내부 선택 필드(PR #36 J02)로 handed_off 복원에서 필수,시민 Request/Response에 노출하지 않음 |
 | Triage | type:rental/return/breakdown/fees/followup/security/unknown,urgency:normal/high,missing:string[],needs_human:boolean,facts:CaseFacts,target_ticket_id:string／null | 추출값은 B11에서 사용자 진술·허용 기존기록과 대조. 분류 실패 자동 종료 금지 |
 | SearchRequest | request_id:string,enabled:boolean,query:string,access_levels:string[],deadline_at:string | 서버에서 enabled/공개컬렉션 결정, 시민이 memory_key를 지정하지 않음 |
 | SearchResult | request_id:string,status:ok/empty/skipped/error,evidence:Evidence[],error_code:string／null | Evidence={doc,section,chunk_id,text,score:number,access_level,source_url?,version,applies_to?:string[],source_checked_at?:string}. empty/skipped/error는 근거[]지만 의미 다름 |
 | LookupRequest | request_id:string,kind:lookup,enabled:boolean,actor_id:string,target_ticket_id:string／null | enabled=false면 provider 조회0, skipped 결과 |
-| LookupResult | request_id:string,status:ok/skipped/denied/error,record:{ticket_id,owner_id,status,observed_at,masked_phone?,masked_email?}／null,masked:int>=0 | 타인 record=null. target_ticket_id와 이번 문의 ticket_id는 별개 |
+| LookupResult | request_id:string,status:ok/skipped/denied/error,record:{ticket_id,owner_id,status,observed_at,masked_phone?,masked_email?}／null,masked:int>=0 | 타인 record=null. target_ticket_id와 이번 문의 ticket_id는 별개. record.status는 SupportCase 상태 또는 조회용 closed(직원 종료, enum 추가 아님) |
 | Outcome | mode:guidance/ask/handoff/urgent/deny/failure,route:공통5종,answer:string,sources:Source[],close_required:boolean,support_status:string,reason:string／null | Source={doc,section,score:number}. urgent는 route 담당자 이관 유지, 다른 조회 권한거절은 별도 설명 |
 | SaveRequest | op:save,state_ref:StateRef,case_id:string,first_request_id:string,attempt:int>=1,expected_case_version:int／null,ticket_id:string,facts:CaseFacts,outcome:Outcome,response:Response | attempt는 B08이 정한 이번 유효 횟수. state_ref.state_revision은 요청 레코드 버전,expected_case_version은 Jira 문의 버전. 실제 물리 갱신 매핑은 R04 |
 | Response | request_id,route:자동 답변/보완 질문/담당자 이관/권한 없음/차단,answer,sources:Source[],ticket:null／{ticket_id,priority,duplicate:boolean},agents:string[],security:Security | case_ref?:string,reason?,timings?. 정상 업무 결과에는 현재 case_ref,보완 질문은 필수. 비이관 ticket=null 유지. InputError={error:string,codes:string[]} |
@@ -1057,6 +1057,7 @@ R02 적용(2026-11-06, 강사 피드백 "호출별 timeout·재시도를 합쳐�
 - **R05 시간 기준 제안(2026-11-06, `r05/p07-r04-contract-cases` `d3d6515`):** WF-01 목표 8초(기록용, 3회), 모든 응답 상한 25초(실패 기준), 20초 시한을 넘으면 `deadline_exceeded` 이관. 위 예산은 최악 경로도 20초 안에 응답하도록 짜여 25초 상한 안이고, B27은 15초를 기다리기 전에 남은 시간으로 제한을 정한다. WF-01 8초는 로컬 일반 응답 4.3~6.4초로 안이지만 VM mock LN07은 8.184초여서 VM 재측정이 필요하다.
 - **B27 근거 수치(R04 요청, 2026-11-06):** `87ee11c` 가짜 Jira 예행의 n8n 실행 기록에서 B27 시작 시각을 읽었다([기록](../../runs/public/20261106-120545-local-n8n-p19-b27-time-evidence/summary.json)). 이관 경로(한도·근거 없음·사람 판단·긴급)는 B27이 1.4~2.3초에 시작해 제한 14.2~15초로 R04 생성 후 이관 최악 약 13초를 다 기다린다. 자동 답변(종료) 경로는 5.5~6.4초에 시작해 제한 10.1~11.0초로 R04 종료 최악 약 11초와 같거나 조금 짧고, LLM이 느린 경우(대표 문장 최대 왕복 8.8초)는 약 8초로 줄어든다. 그래서 handoff 종료 경로의 최악을 약 8초 안으로 줄일 수 있는지가 R04 조정 대상이다. B27이 끊기면 `ticket_unknown`, B27 전 시간 조건에 걸리면 `deadline_exceeded`로 이관한다.
 - **WF-11(R05 질문, 2026-11-06):** R02가 "티켓이 느릴 때"라고 한 것은 B27 handoff(Jira 생성·종료)다. WF-11은 조회 지연 사례이고 가이드 값은 `max_seconds` 6초다. support는 과정 data-api의 tickets를 호출하지 않고, 본인 문의 조회는 B15(handoff 조회 경로, 2.5초)로 한다. 조회가 느리면 B15가 2.5초에 끊고 `lookup_error`로 이관하는데, 이관에는 B27 티켓 생성이 따른다. 추정(측정 아님): 분류 1.2~2.0초 + B15 2.5초 + B27 생성 약 2.0~4.3초 = 약 5.7~8.8초로 6초를 넘을 수 있다. 이전 mock 시험(티켓 즉시 응답)은 2.7초에 이관했다. 6초 안에 들려면 B27 생성이 약 1.5초 안이어야 해서, WF-11에서 지연을 어디에 넣는지(B15 경로 또는 Jira)와 6초에 이관 티켓 생성을 포함할지를 R05·R04와 정해야 한다.
+- **B14 3초 초과(R03 PR #45 검토, 2026-11-07):** R05 WF-01 실행 #796은 검색 약 3,018ms로 B14 제한(3초)에 걸려 이관됐다(정상 #305는 1,889ms, 단계별 원인은 R03 측정 전). 제한만 올리는 것은 효과가 작다. VM 실측 앞단(B07 0.543초 + 분류 2.252초)이면 B17 최소 조건(남은 14초)을 지키는 검색 상한이 약 3.2초라, 로컬 Code 시험으로 검색 3.018초는 자동 답변, 제한을 4초로 올린 가정의 3.5초·3.9초는 B17 `deadline_exceeded` 이관이었다(임시 사례, 저장소 미추가). 그래서 B14는 3초를 유지하고 검색 지연 원인(임베딩·네트워크)을 먼저 줄인다. 제한을 바꾸려면 분류 4초·답변 최소 5초 중 어디서 줄일지 R03·R05와 함께 정한다.
 - **재시도(R04 제안, 2026-11-05):** LLM은 재시도하지 않는다. GET 조회는 제한적으로 재시도할 수 있다. 생성·종료·배정은 무조건 재시도하지 않고 Jira 재조회로 미반영이 확인된 경우만 재시도한다. 7.4절의 401·403 무재시도와 총 2회 이하는 유지한다.
 
 결정이 필요한 것: WF-11 6초에 이관 티켓 생성을 포함할지와 지연 주입 위치(R05·R04, 가이드 확인), VM에서 답변 경로 축소 정도와 handoff 실측(R01 재측정). 20초 안 응답과 B27 효과 미확인 처리는 R04·R05 합의로 확정하고, 실제 n8n·VM 측정 전까지 수치는 초기 기준값으로 둔다.
@@ -1074,6 +1075,22 @@ R01 결정(2026-11-06, PR #39): **실패한 문의의 연속 처리는 현재 �
 - **확인 범위:** 임시 PostgreSQL 16(#27 `86d78e7` `001`~`007`)에서 state·case 함수를 직접 호출했고, support는 state 응답을 그대로 전달한다(FL35·FL85·FL86). n8n·Discord·VM 종단은 미실행이다.
 - **정상 시험 조건:** `request_id`는 실행마다 새로 만든다. 실패 주입 문의는 이후 정상 보완·한도 시험에 재사용하지 않는다. 실패 주입 뒤 남은 행을 `resolve`로 복구 완료 처리하지 않는다. 새 문의 성공을 기존 실패 문의의 복구 성공으로 기록하지 않는다.
 - **시민 안내:** `case_busy`는 정상 처리 중에도 나므로 모든 경우에 새 문의를 유도하지 않는다. 안내 문구와 Discord 어댑터의 오류 안내(같은 문의 연결값으로 다시 시도)는 R04가 맞춘다.
+
+### 7.7. 이관된 문의의 후속 처리 (J02 · D02)
+
+PR #36 공통 기준(J01~J03 v1.2 2절·5절, 전체 계획 D02)을 support가 소비하는 방식이다. 기준 자체는 영향 검토 전이며, state/handoff 생산자(R04)가 같은 값을 돌려주는 버전과 함께 활성화한다.
+
+| 들어온 요청 | support 처리 | 유지하는 값 | 하지 않는 것 |
+| --- | --- | --- | --- |
+| waiting_info 문의의 후속 | 기존 facts에 새 진술 병합 후 분류 | 같은 case·ticket, 횟수 = max(요청값, 저장값+1) | 알고 있는 항목 재질문, 빈 facts로 초기화 |
+| handed_off 문의의 후속 | 분류 모델은 사실 추출만. route `담당자 이관`, reason `needs_human`, action=handoff | 같은 ticket, 저장 횟수(요청 attempt 무시), 최초 assignee_role·priority, 기존 summary | 보완 질문 회귀, 새 긴급 이관, 재배정·재알림(R04가 0으로 막음) |
+| handed_off 후속에 새 위험 진술(urgency=high) | 위와 같고 uncertainties에 `추가 위험 진술` 기록, 새 위험 안내 문구 | 위와 같음 | 우선순위 상향, 긴급 재알림, 위험 해결 약속 |
+| handed_off인데 역할·우선순위가 검증되지 않음 | B08이 state_error → 실패 기록·DLQ·알림 | known ID | received/waiting_info로 추정, 새 Jira 쓰기 |
+| 같은 key의 다른 사용자 진술 | 최신 진술 사용, uncertainties에 불일치 기록 | 이전 문맥은 Jira에 보존(R04) | confirmed로 승격 |
+| confirmed와 다른 사용자 진술 | confirmed 유지, 필수 항목이면 missing에 남겨 다시 확인 | confirmed 값 | 사용자 진술로 덮기 |
+
+- **확인 범위:** 로컬 Code 시험 FL95~FL103(PR #36 예제 CV02~CV05·CV18·CV19·CV25 대응). 수정 전 main에서는 FL100을 뺀 8건이 실패하고 수정본은 154/154 통과한다. 실제 LLM이 이관 후속 문장에서 사실을 얼마나 잘 뽑는지, R04 생산자와의 결합, n8n·VM 실행은 미실행이다.
+- **D02 한계:** 추가 위험은 기록과 기존 담당자 확인까지만 지원한다. 자동 긴급 재배정·재알림과 초동 근거 덧붙이기는 하지 않는다. 다른 사건은 새 문의로 접수한다.
 
 ## 8. 64~79일차에서 가져온 것
 
