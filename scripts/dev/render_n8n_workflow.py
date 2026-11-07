@@ -135,6 +135,47 @@ def ensure_untracked_output(output: Path) -> None:
         raise RenderError("출력은 Git 제외 경로인 runs/ 아래(runs/public 제외)여야 한다")
 
 
+def configure_alert_api(text: str, origin: str, credential_id: str) -> str:
+    """Keep the Discord secret outside workflow JSON; preserve HTTP effect normalization."""
+    if not re.fullmatch(r"http://[A-Za-z0-9_.-]+(?::[0-9]{1,5})?", origin):
+        raise RenderError("알림 API는 경로/인증정보 없는 내부 HTTP origin이어야 한다")
+    if not SAFE_TEXT.fullmatch(credential_id):
+        raise RenderError("내부 Credential ID 형식 오류")
+    workflow = json.loads(text)
+    targets = [
+        n
+        for n in workflow.get("nodes", [])
+        if n.get("name", "").split(" ")[0] in {"H11", "X04", "E09"}
+    ]
+    if len(targets) != 1 or targets[0]["type"] != "n8n-nodes-base.httpRequest":
+        raise RenderError("지원하는 알림 HTTP 노드를 정확히 1곳 찾지 못했다")
+    target = targets[0]
+    if target["parameters"].get("url") not in {
+        "http://data-api:8800/alerts",
+        "={{ $json.req.url }}",
+    }:
+        raise RenderError("알림 URL 원본이 예상과 다르다")
+    target["parameters"].update(
+        url=origin + "/alerts",
+        authentication="genericCredentialType",
+        genericAuthType="httpHeaderAuth",
+    )
+    target["credentials"] = {
+        "httpHeaderAuth": {"id": credential_id, "name": "dubakwi-internal-key"}
+    }
+    if target["name"].startswith("H11 "):
+        plans = [n for n in workflow["nodes"] if n["name"].startswith("H20 ")]
+        if (
+            len(plans) != 1
+            or plans[0]["parameters"]["jsCode"].count("http://data-api:8800/alerts") != 1
+        ):
+            raise RenderError("H20 알림 계획 원본이 예상과 다르다")
+        plans[0]["parameters"]["jsCode"] = plans[0]["parameters"]["jsCode"].replace(
+            "http://data-api:8800/alerts", origin + "/alerts"
+        )
+    return json.dumps(workflow, ensure_ascii=False, indent=2) + "\n"
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
         description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
@@ -148,6 +189,8 @@ def main(argv: list[str] | None = None) -> int:
     )
     parser.add_argument("--assignee-map-file", type=Path)
     parser.add_argument("--context-authors-file", type=Path)
+    parser.add_argument("--alert-api-origin", help="선택 UX 알림 API 내부 origin; Discord URL 아님")
+    parser.add_argument("--alert-internal-credential-id")
     parser.add_argument(
         "--scope", help="errors 워크플로우의 importedScope 대입값(support와 같은 값)"
     )
@@ -166,6 +209,12 @@ def main(argv: list[str] | None = None) -> int:
             args.context_authors_file.read_text("utf-8") if args.context_authors_file else None,
             args.jira_issue_type_id,
         )
+        if bool(args.alert_api_origin) != bool(args.alert_internal_credential_id):
+            raise RenderError("알림 API origin과 내부 Credential ID를 함께 지정해야 한다")
+        if args.alert_api_origin:
+            rendered = configure_alert_api(
+                rendered, args.alert_api_origin, args.alert_internal_credential_id
+            )
         json.loads(rendered)  # 결과가 여전히 올바른 JSON인지 확인
     except (RenderError, OSError, json.JSONDecodeError) as error:
         print(f"실패: {error}", file=sys.stderr)

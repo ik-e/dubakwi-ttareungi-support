@@ -34,7 +34,8 @@ uv run --locked python scripts/dev/render_n8n_workflow.py --source workflows/dub
 
 - 출력은 Git 제외 경로인 `runs/`(공개용 `runs/public` 제외)에만 쓴다. 값이 안전하지 않으면(따옴표·공백·http 등) 만들지 않는다.
 - 대상 프로젝트의 생성 유형이 다르면 `--jira-issue-type-id 10003`처럼 실제 조회한 ID를 지정한다. 양의 정수만 허용하며 handoff H24의 `issuetype.id` 한 곳만 바꾼다. 노드/필드를 정확히 찾지 못하면 실패하고, 생략하면 기존 원본(현재10006)을 그대로 유지한다. 같은 숫자의 유형 의미도 사이트별로 조회해야 한다. URL·Credential·담당 매핑·문맥 작성자·scope·조회 API 연결은 유형 ID와 별도로 맞춘다.
-- 만든 사본을 n8n에 가져온 뒤 Credential(`dubakwi-internal-key`, `dubakwi-Jira SW Cloud account`)과 state 하위 워크플로우를 연결한다. 이 도구는 Credential ID를 다루지 않는다.
+  - 선택 UX 알림은 `--alert-api-origin http://<ux-api>:8801 --alert-internal-credential-id <id>`를 함께 지정한다. support X04·handoff H11/H20·errors E09의 알림 설정만 내부 API로 연결한다. Discord URL은 넣지 않는다. [비공개 파일·전송/실패 계약](../../infra/user-api-deployment.md#optional-isolated-ux-discord-egress)을 따른다. 생략하면 기존 알림 설정을 유지하고 예상과 다른 노드는 실패한다.
+  - 만든 사본을 n8n에 가져온 뒤 Credential(`dubakwi-internal-key`, `dubakwi-Jira SW Cloud account`)과 state 하위 워크플로우를 연결한다. 알림 선택 인자 외 Credential ID는 별도로 연결한다.
 - `dubakwi-state.json`의 Jira 확인 노드(S09·S16)도 같은 `__JIRA_BASE_URL__`를 쓰므로 같은 방법으로 사본을 만든다.
 
 errors 워크플로우(`dubakwi-errors.json`, PR #28)는 `--scope dubakwi-dev`로 `importedScope` 대입값만 치환한다.

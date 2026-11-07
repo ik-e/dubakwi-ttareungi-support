@@ -8,6 +8,7 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import parse_qs, unquote, urlparse
 
+from services.user_api.discord_alerts import AlertError, deliver
 from services.user_api.records_provider import RecordsError, RecordsProvider, Settings
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -63,6 +64,8 @@ def safe_log_path(request_target: str) -> str:
         return "/records/:ticket_id"
     if path == "/healthz":
         return "/healthz"
+    if path == "/alerts":
+        return "/alerts"
     return "/unknown"
 
 
@@ -85,6 +88,31 @@ class Handler(BaseHTTPRequestHandler):
         expected = internal_key()
         supplied = self.headers.get("X-Internal-Key", "")
         return bool(expected) and hmac.compare_digest(expected, supplied)
+
+    def do_POST(self) -> None:  # noqa: N802
+        if not self.authenticated():
+            self.send_json(HTTPStatus.UNAUTHORIZED, {"error": "unauthorized"})
+            return
+        secret = os.environ.get("DUBAKWI_DISCORD_ALERT_FILE")
+        if self.path != "/alerts" or not secret:
+            self.send_json(HTTPStatus.NOT_FOUND, {"error": "not_found"})
+            return
+        try:
+            length = int(self.headers.get("Content-Length", "0"))
+            if not 0 < length <= 8192:
+                raise AlertError(400, "invalid_alert")
+            self.connection.settimeout(2)
+            payload = json.loads(self.rfile.read(length))
+            deliver(payload, Path(secret))
+        except AlertError as exc:
+            self.send_json(HTTPStatus(exc.status), {"error": exc.code})
+            return
+        except Exception:
+            self.send_json(HTTPStatus.BAD_REQUEST, {"error": "invalid_alert"})
+            return
+        self.send_response(HTTPStatus.NO_CONTENT)
+        self.send_header("Content-Length", "0")
+        self.end_headers()
 
     def do_GET(self) -> None:  # noqa: N802
         parsed = urlparse(self.path)

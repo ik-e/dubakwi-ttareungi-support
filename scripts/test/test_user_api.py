@@ -42,6 +42,43 @@ class UserApiTest(unittest.TestCase):
     def test_health_does_not_require_secret(self):
         self.assertEqual((200, {"ok": True}), self.get("/healthz", None))
 
+    def post_alert(self, body=b"{}", key="test-internal-key"):
+        request = urllib.request.Request(
+            self.base + "/alerts", data=body, headers={"X-Internal-Key": key}, method="POST"
+        )
+        try:
+            with urllib.request.urlopen(request, timeout=2) as response:
+                return response.status, response.read()
+        except urllib.error.HTTPError as exc:
+            return exc.code, exc.read()
+
+    def test_alert_endpoint_is_disabled_without_explicit_secret_file(self):
+        with patch.dict(os.environ, {}, clear=True), patch.object(server, "deliver") as delivery:
+            self.assertEqual(404, self.post_alert()[0])
+            delivery.assert_not_called()
+
+    def test_alert_endpoint_requires_internal_auth_and_valid_body(self):
+        with (
+            patch.dict(os.environ, {"DUBAKWI_DISCORD_ALERT_FILE": "/private/test"}),
+            patch.object(server, "deliver") as delivery,
+        ):
+            self.assertEqual(401, self.post_alert(key="wrong")[0])
+            self.assertEqual(400, self.post_alert(body=b"not-json")[0])
+            self.assertEqual(400, self.post_alert(body=b"x" * 8193)[0])
+            delivery.assert_not_called()
+
+    def test_alert_endpoint_ack_and_unknown_result_are_distinct(self):
+        with (
+            patch.dict(os.environ, {"DUBAKWI_DISCORD_ALERT_FILE": "/private/test"}),
+            patch.object(server, "deliver") as delivery,
+        ):
+            self.assertEqual((204, b""), self.post_alert())
+            delivery.assert_called_once()
+            delivery.side_effect = server.AlertError(504, "alert_result_unknown")
+            status, body = self.post_alert()
+            self.assertEqual(504, status)
+            self.assertEqual("alert_result_unknown", json.loads(body)["error"])
+
     def test_user_response_has_only_authorization_fields(self):
         status, payload = self.get("/employees/citizen-a")
         self.assertEqual(200, status)

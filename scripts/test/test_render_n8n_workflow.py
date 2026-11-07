@@ -15,6 +15,32 @@ SPEC.loader.exec_module(render_tool)
 
 
 class RenderWorkflowTest(unittest.TestCase):
+    def test_private_alert_origin_changes_only_delivery_configuration(self):
+        for kind, target_prefix in (("handoff", "H11 "), ("support", "X04 "), ("errors", "E09 ")):
+            source = (ROOT / "workflows" / f"dubakwi-{kind}.json").read_text("utf-8")
+            original = json.loads(source)
+            rendered = json.loads(
+                render_tool.configure_alert_api(source, "http://ux-api:8801", "internal-test")
+            )
+            self.assertEqual(original["connections"], rendered["connections"])
+            self.assertEqual(len(original["nodes"]), len(rendered["nodes"]))
+            target = next(n for n in rendered["nodes"] if n["name"].startswith(target_prefix))
+            self.assertEqual("http://ux-api:8801/alerts", target["parameters"]["url"])
+            self.assertEqual("internal-test", target["credentials"]["httpHeaderAuth"]["id"])
+            self.assertNotIn("http://data-api:8800/alerts", json.dumps(rendered))
+
+    def test_alert_render_rejects_external_secret_or_unknown_layout(self):
+        text = (ROOT / "workflows/dubakwi-handoff.json").read_text("utf-8")
+        for origin in (
+            "https://discord.com/api/webhooks/1/token",
+            "http://ux-api/path",
+            "http://" + "user:pass@" + "ux-api",
+        ):
+            with self.assertRaises(render_tool.RenderError):
+                render_tool.configure_alert_api(text, origin, "internal-test")
+        with self.assertRaises(render_tool.RenderError):
+            render_tool.configure_alert_api('{"nodes": []}', "http://ux-api", "internal-test")
+
     def test_repository_workflow_has_only_placeholders(self) -> None:
         text = (ROOT / "workflows" / "dubakwi-handoff.json").read_text(encoding="utf-8")
         self.assertIn(render_tool.JIRA_PLACEHOLDER, text)

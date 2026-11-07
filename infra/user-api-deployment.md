@@ -1,5 +1,33 @@
 # Team user and ownership API deployment
 
+## Optional isolated UX Discord egress
+
+An isolated UX copy may set `DUBAKWI_DISCORD_ALERT_FILE` to a read-only private
+JSON file with `webhook_url` and the verified administrator `channel_id`.
+Without this setting, `POST /alerts` is disabled (404). The existing
+`X-Internal-Key` protects it; no Discord token or caller-supplied target is accepted.
+This reuses the existing API process, not a new listener or public port. Do not
+enable it or change environment/secrets on the normal service as part of UX testing.
+
+Render only the UX support/handoff/errors copies with
+`--alert-api-origin http://<ux-api>:8801 --alert-internal-credential-id <id>`.
+The renderer preserves HTTP status handling and workflow connections. It never
+places the Discord URL in a node, item, or exported workflow. The VM copies must
+also use the UX scope, Jira credential/origin, users and records bindings.
+
+Before sending, confirm the supplied Webhook's guild and administrator channel
+with a read-only Discord API request. Store its URL outside Git, parent0700/file0600,
+readable only by API UID10001. Send one bounded attempt (`wait=true`, total1.5s),
+mask contacts/links and disable mentions. A matching message/channel ack returns204;
+an upstream4xx returns424, uncertainty503/504/502. There is no automatic retry:
+the existing Jira attempt marker and DLQ own effect reconciliation.
+Jira reads and DB read-only permissions remain unchanged.
+
+After activation, verify delivery, the state/save gate and failure handling,
+then check workflow JSON, saved executions and logs for the private URL/token.
+An HTTP ack is distinct from a human reading the notification. Roll back only the
+UX image/config and copies; retain issues/state/DLQ evidence.
+
 ## PR36 local candidate — live records
 
 Compose now fixes `DUBAKWI_RECORDS_MODE=jira`. File records are local fixture
