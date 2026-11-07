@@ -1,7 +1,7 @@
 # 구현 현황과 사용자 기준 마감 계획
 
 - 작성일: 2026-11-08 KST
-- 버전·상태: v3.7 / R02 새 UX 개선만 담당, R01 기존 업무 로직 통합·마감. TC-15 격리 State/DLQ 및 Support/Handoff 사본은 게시했으나 VM 요청 경로가 없어 요청 0건; Support B01·Handoff H01 트리거를 비활성화했다. 종단 시험은 미판정. TC-07 migration 010 finish 및 VM inspect가 확인됐다. migrations 011~016의 CAS claim/resume/effect-aware release/verified complete는 disposable DB에서 통과했으며 VM에는 미적용이다. VM read-only preflight에서 서비스 DB에 recovery dispatcher가 없음을 확인했다. operator workflow와 Handoff capsule 계약을 보강했다. release가 재개 action의 최종 효과 판정을 failed/unknown/confirmed로 기록하고 unknown 다음 claim을 Jira 재확인까지 막는 계약을 2026-11-08 disposable PostgreSQL에서 검증했다. 운영자가 Jira에서 실제 효과를 대조·수행한 뒤 complete를 제출해야 한다. create/alert producer capsule, 실제 Jira/VM 시험, stale claim 운영 절차는 미완료
+- 버전·상태: v3.8 / R02는 새 UX 개선만 담당하고 R01은 기존 업무 로직 통합·마감을 담당한다. TC-15 종단은 미판정이다. TC-07 recovery는 PR #51의 `b323a26`을 기본 브랜치에 반영했다. 2026-11-08 fresh private backup에서 별도 VM restore DB를 만들고 migrations 010–016, controlled recovery 계약 3종, 저장 snapshot 동등성을 확인했다. 동시 claim 확인은 web SSH 연결 종료로 판정하지 못했다. 라이브 DB는 변경하지 않았고 n8n workflow/credential도 아직 반입하지 않았다. Jira·Discord 효과 0건. operator 자격 증명 경계, 라이브 migration, workflow 비활성 import와 inspect가 남았다. create/alert producer capsule 및 실제 Jira action 복구도 미완료다.
 - 기준 코드: `main` `6f9561b` (PR #36 통합본과 후속 PR #46~#50 반영)
 - 기준 실행: [PR #36 실제 VM 통합 검증](../../runs/public/20261107-170503-vm-pr36-integration/report.md)
 - 결정 방식: 사용자는 R01이 PR #36처럼 전체 마감을 통합 추진하고 타 역할의 검증 회신을 기다리지 않도록 지시했다. 이 문서는 R01 관측·판정만 기록하며 타 역할 승인이나 미실행 시험을 만들어내지 않는다.

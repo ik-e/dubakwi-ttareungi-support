@@ -1,0 +1,40 @@
+{
+  "run_id": "20261108-080045-vm-tc07-recovery",
+  "date_kst": "2026-11-08",
+  "environment": "aio-t2 web SSH; PostgreSQL 16.15",
+  "source": {
+    "branch": "main",
+    "commit": "b323a26eb0308a600e1110c3ed3e69a2057cb2f4",
+    "pull_request": 51
+  },
+  "result": "restore_contracts_passed_live_apply_pending",
+  "backup": {
+    "fresh_private_custom_dump": true,
+    "file_mode": "0600",
+    "archive_list_check": "passed",
+    "details_public": false
+  },
+  "restore_rehearsal": {
+    "separate_database": true,
+    "migrations_010_016": "passed",
+    "controlled_recovery_contract": "passed",
+    "controlled_recovery_claim_release_contract": "passed",
+    "controlled_recovery_unknown_effect_contract": "passed",
+    "storage_snapshot_before_after": "identical",
+    "concurrent_claim_race": "indeterminate_first_claim_committed_second_result_unobserved"
+  },
+  "live": {
+    "migration_writes": 0,
+    "state_or_dlq_changes": 0,
+    "n8n_workflow_changes": 0,
+    "credential_changes": 0,
+    "jira_effects": 0,
+    "discord_effects": 0
+  },
+  "pending": [
+    "Reconnect through the web SSH UI and inspect the restore DB after the interrupted concurrent claim attempt",
+    "Repeat concurrent claim test and capture one-winner/recovery-conflict result",
+    "Verify dedicated operator credential boundary before importing or enabling the operator workflow",
+    "Apply migrations to the live service DB and verify operator-only inspect"
+  ]
+}

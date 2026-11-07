@@ -61,9 +61,15 @@ item directly in the database to simulate completion.
 In a disposable DB, run constraint/function/role contracts and the new
 `verification/case-context-contract.sql`. The legacy `case-contract.sql` verifies
 005 before upgrading. Local PostgreSQL16.15 upgrade, permission denial,
-two concurrent begin calls and bounded-query checks passed. VM rollout and
-mixed-version restoration remain unverified. Roll back only to a tested
-compatible app/SQL combination.
+two concurrent begin calls and bounded-query checks passed. On 2026-11-08 a
+fresh private VM backup was restored into a separate database; migrations
+010~016 and all three controlled-recovery contracts passed, and the storage
+snapshot matched before and after. The concurrent recovery-claim rehearsal was
+interrupted before its result could be captured. The live service database and
+n8n remain unchanged; live migration, dedicated operator credential, workflow
+import and operator-only inspect are still pending. Mixed-version restoration
+and rollback remain unverified. Roll back only to a tested compatible app/SQL
+combination.
 
 This directory prepares the two PostgreSQL tables owned by the R04 storage
 boundary. Jira remains the ticket source of truth, and n8n keeps its own
