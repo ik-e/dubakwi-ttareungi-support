@@ -104,3 +104,7 @@ Jira mock와 실제 PostgreSQL의 로컬 결과는 VM/Jira/Discord 공식 판정
 
 
 `node scripts/test/p19-shared-contract-cases.js`는 공통 BeginResult golden fixture3개를 S05→B08 코드에 통과시키고, AUTH01~07의 서버 응답 대역을 B05→B13→RAG Validate 코드에 통과시킨다. HTTP/실제 사용자 조회·벡터 검색/LLM·권한 종단 판정이 아니며 공통 unittest에서 함께 실행한다.
+
+G03 연락처 검사는 중첩된 문자열 값과 키를 검사한다. 숫자형 검색 점수·시간을 JSON
+문자열로 바꿔 휴대전화로 오인하지 않는다. 문자열로 전달된 숫자나 request_id는 검사에서
+제외하지 않는다. 이전 실행 결과는 보존하고 검사기 버전과 재판정 근거를 새 기록에 남긴다.
