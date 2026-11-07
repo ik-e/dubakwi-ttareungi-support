@@ -11,8 +11,17 @@ services:
       DUBAKWI_RECORDS_FILE: /app/data/records.json
       DUBAKWI_INTERNAL_KEY_FILE: /run/secrets/dubakwi_internal_key
       DUBAKWI_USER_API_PORT: "8801"
+      DUBAKWI_RECORDS_MODE: jira
+      DUBAKWI_SCOPE: ${DUBAKWI_SCOPE:?Set the verified team scope}
+      DUBAKWI_JIRA_BASE: ${DUBAKWI_JIRA_BASE:?Set the HTTPS Jira origin}
+      DUBAKWI_DB_DSN_FILE: /run/secrets/dubakwi_records_dsn
+      DUBAKWI_JIRA_AUTH_FILE: /run/secrets/dubakwi_jira_auth
+      DUBAKWI_JIRA_CONTEXT_AUTHORS_FILE: /run/secrets/dubakwi_jira_authors
     secrets:
       - dubakwi_internal_key
+      - dubakwi_records_dsn
+      - dubakwi_jira_auth
+      - dubakwi_jira_authors
     networks:
       n8n-existing:
         aliases:
@@ -24,6 +33,11 @@ services:
       retries: 6
       start_period: 10s
     read_only: true
+    volumes:
+      - type: bind
+        source: ${DUBAKWI_USERS_OVERRIDE_FILE:?Preserve the existing private registered-user file}
+        target: /app/data/users.json
+        read_only: true
     tmpfs:
       - /tmp:size=16m,mode=1777
     security_opt:
@@ -35,5 +49,11 @@ networks:
     name: ${DUBAKWI_N8N_NETWORK:?Set the verified existing n8n network}
 
 secrets:
+  dubakwi_records_dsn:
+    file: ${DUBAKWI_DB_DSN_FILE:?Set the private read-only DB DSN file}
+  dubakwi_jira_auth:
+    file: ${DUBAKWI_JIRA_AUTH_FILE:?Set the private Jira authentication file}
+  dubakwi_jira_authors:
+    file: ${DUBAKWI_JIRA_CONTEXT_AUTHORS_FILE:?Set the private service author allowlist}
   dubakwi_internal_key:
     file: ${DUBAKWI_INTERNAL_KEY_FILE:?Set the private X-Internal-Key file}

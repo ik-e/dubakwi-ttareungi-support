@@ -66,7 +66,8 @@
         "operation": "executeQuery",
         "query": "SELECT dubakwi_service.dlq_apply($1::jsonb) AS result;",
         "options": {
-          "queryReplacement": "={{ JSON.stringify($('D02 계약 검사와 안전 차단').item.json.payload) }}"
+          "queryReplacement": "={{ JSON.stringify($('D02 계약 검사와 안전 차단').item.json.payload) }}",
+          "connectionTimeout": 1
         }
       },
       "credentials": {

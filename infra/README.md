@@ -1,5 +1,13 @@
 # Docker Compose 배포와 운영
 
+팀 키의 실행 기록 노출과 2026-11-07 현행 보존 제한은 [실행 데이터 보안](execution-data-security.md)을 따른다. 활성 팀 키 입구3개 저장 해제와 DB 임시/삭제 대기 원문 잔존을 구분하며 현재 키 교체가 필요하다.
+
+전체 잔여 작업은 [64개 수정·검증 계획](full-system-closure-plan.md)·[항목별 예정 시험](contracts/full-system-coverage.json)을 따른다. J01~J03 병렬 개발의 상태·조회·문맥·효과·편집 인계·시험 기준은 [공통 기준 v1.2](parallel-integration-contract-v1.md)과 [모의 예제25개](contracts/parallel-contract-v1.examples.json)를 따른다. 기준안 작성과 역할 검토·실제 구현·배포 완료를 구분한다.
+
+설계 요구별 구현·배포·검증의 부족 항목은 [설계·구현 대조표](design-implementation-mapping.md)에서 확인한다. 정상 한 건의 성공과 전체 수명주기 완료를 구분하며, 상태 원장은 개발 계획을 따른다.
+
+Discord부터 Jira·DB·비공개 응답까지의 전체 연동 목표와 R01 실행 인계는 [전체 연동 관리](p19-s1-readiness.md)·[PR #36](https://github.com/ik-e/dubakwi-ttareungi-support/pull/36)에서 확인한다. 조회한 후보·확정 배포 버전·실제 실행 성공을 구분하며, 공식 진행 상태는 개발 원장·업무 계약은 각 설계서를 따른다.
+
 Docker Compose 채택: 2026-11-03 사용자 결정. 편집·배포 R01, 저장/영속성 검토 R04, 흐름 연결 R02/R03, VM 검증 R05. 책임 원본은 [팀 헌장](../docs/project/TEAM-CHARTER.md), 절차 규칙은 [AGENTS](../AGENTS.md)다.
 
 - 버전: v0.9 / 2026-11-05 PostgreSQL 독립 배포 준비본·R04 검토 인계
@@ -12,7 +20,7 @@ Docker Compose 채택: 2026-11-03 사용자 결정. 편집·배포 R01, 저장/�
 | --- | --- | --- |
 | `infra/compose.yaml` | 미작성. 현재는 기존 VM Compose를 유지하며 새 파일로 대체/기동하지 않음 | 기존 설치·데이터/비밀 보존·D01/D03·R04 연결 인계 |
 | [postgres-compose.yaml](postgres-compose.yaml)·[PostgreSQL 준비/검토](postgres-deployment.md) | R01 검토용 준비본. 기존 n8n과 별도 project, 공개 포트 없음·external 볼륨·파일 secrets | PR #23 수정은 재시험/병합 완료. R04 준비본 검토·D01 물리 DB 채택·실제 환경 확인 전 VM 미적용 |
-| Discord Gateway 봇 | R04 슬래시 명령 어댑터·별도 Compose 준비. R01 VM 반입, 비밀 연결, 실제 Gateway/n8n 종단 검증은 미실행 | D07,3초 defer·허용 계정 매핑·중복·전송 실패·토큰 만료 검증 |
+| Discord Gateway 봇 | main37ec341 이미지로 R01 VM 기동·비공개 설정 연결·Gateway 접속 확인. 정상 Webhook288·등록자 Discord305 비공개 응답·Jira done·DB completed 확인. 공식 전체 판정 후속 | D07,3초 defer·허용 계정 매핑·중복·전송 실패·토큰 만료 검증 |
 | [.env.example](../.env.example) | R05 도구의 확인된 Webhook 키 환경변수·빈 값 작성. VM Compose 설정과 별개 | 실제 키는 환경별 비공개 연결 |
 | `.env` | 환경별 비밀/설정, Git 제외 | 비밀 공급·접근권한·백업 방식 |
 | `infra/db/migrations/` | R04, 물리 DB 채택 시 추가 | 저장소 공개 계약·원자성·버전·백업/복구 |
@@ -66,3 +74,7 @@ R01은 compose·배포 버전·환경 비밀/암호화 키의 안전한 복구 �
 | 2026-11-05 | v0.3 | 기존 n8n 보존·SQLite/설정 기준 백업과 키 후보 준비의 완료/미완료 연결 |
 | 2026-11-04 | v0.2 | 기존 n8n 유지·환경 관측·운영 경로 준비·배포 전 점검/인계·시험용 환경 예시 연결 |
 | 2026-11-03 | v0.1 | Docker Compose 배포·업데이트·백업/복구 기준 초안 |
+
+## PR36 로컬 통합 후보
+
+[현재 후보·반입 중단 조건](pr36-local-candidate.md), [인증 헤더 저장 경계](execution-data-security.md), [오류 알림·수동 확인](errors-recovery-handoff.md)을 함께 확인한다. 문서/로컬 검증과 실제 VM 배포·복원·공식 판정은 구분한다.

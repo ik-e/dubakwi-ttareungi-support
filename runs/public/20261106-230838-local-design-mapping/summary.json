@@ -1,0 +1,86 @@
+{
+  "recorded_date_kst": "2026-11-06",
+  "environment": "local design/source and existing execution-evidence review; no new VM run",
+  "document": "infra/design-implementation-mapping.md",
+  "document_version": "v1.0",
+  "baseline_main": "eb747dfd3db761a1ecf98ee477d222f1fe2a8b93",
+  "reviewed_working_branch": "r01/p19-s1-readiness",
+  "requirement_count": 64,
+  "requirement_group_counts": {
+    "C": 8,
+    "B": 9,
+    "J": 15,
+    "S": 10,
+    "R": 8,
+    "E": 8,
+    "O": 6
+  },
+  "workflow_node_counts": {
+    "support": 54,
+    "handoff": 48,
+    "state": 20,
+    "dlq": 6,
+    "errors": 8,
+    "index": 11,
+    "search": 19
+  },
+  "origin_main_git_lf_sha256": {
+    "docs/project/SYSTEM-DESIGN.md": "de327277cb5e4f2d4bb02c6a15ecec8655388b4a21106f64726f9931506c5eb8",
+    "docs/project/WORKFLOW-DESIGN.md": "bcd5338eefb5e526dc26f8cf6137ae122a44f2471a99aa3311ff52af8281cc0f",
+    "docs/project/STORAGE-DESIGN.md": "40a53457e85e60d414ac333ea343e7f20db467d47b405ecb49e89732985e034d",
+    "docs/project/RAG-ARCHITECTURE.md": "612241dd1c20d2d035c067156f341237e311a6c7f392c0d9a5cfd813f5b91ab8",
+    "docs/project/TEAM-CHARTER.md": "0d4d6ebaf2c458fdc9f138d9144fb3ac3acda41027b61328de9c3f58203192a6",
+    "workflows/dubakwi-support.json": "b445ad5d2923d4484fcd1991daa52fe11e2fca67f5da3590e99c79c37f97784d",
+    "workflows/dubakwi-handoff.json": "ce390759eceb6c05c58bf97011ae9220f945965e19bf10aa0c9432ab361fba7a",
+    "workflows/dubakwi-state.json": "917230d49e63bd2f5200b3ca12fca35aea6ddf9be1a4a36ec879615d5fa189f5",
+    "workflows/dubakwi-dlq.json": "823aa26059583d35656cadbf236deeb6273c8c3aaa04abac77fc7ddf9a17ef68",
+    "workflows/dubakwi-errors.json": "747eeb0eca30de847a41f03c8df0321b871080edb936549f8dbb409d589e4f79",
+    "workflows/dubakwi-index.json": "a38a03a65b174d985543e5e3f6fd6128ded53d744fb65ead14aa95537e24e48e",
+    "workflows/dubakwi-search.json": "9a6c8da7d432c2d4c29a62a1610a27e5adcf3152377f52e3d887683b4f2e2175",
+    "services/user_api/server.py": "25a74ec3c50b43f4a1be1f2d65cbbfe251aada9cafebae49f7c32ecea6fb2a40",
+    "services/discord_bot/bot.py": "0dbb081dc4db464afee801ade69b90890074a4c7241a790443b8d7af0bd5d247",
+    "services/discord_bot/adapter.py": "f086ebd7f0d81e3d890e40be07655cd3ba9863596aafd9674329778ccbae51a3",
+    "infra/db/migrations/003-create-storage-functions.sql": "36b6fed24fd2d8e77c40c3afdbfffe4a475e78bc8a1806f505236695326a201b",
+    "infra/db/migrations/005-create-case-functions.sql": "3bf69ce610b1454cc5d8515890f05bd683ac8bf2e0c22e0fea9d80870039e7b1",
+    "infra/db/migrations/007-deduplicate-alert-marker-dlq.sql": "27e0030a8396b1f8c583d1de4d73bfb97a444175e04ee732c6c89e740cbf0a07",
+    "cases/common.json": "3a86f0aac439b8490f1c612aaf25d5a0781b989223e07f6065b4b3e20be96d85",
+    "cases/team.json": "2778d39df98eeba96e25dcf7a336d50c4711fd888ec2d5f96fba2dda25236f53",
+    "cases/team-extended.json": "97469443f6a5111c0230a1a201adb514223fb0c2c272e0eb92a6b44c77054c49"
+  },
+  "remote_evidence_paths_verified": {
+    "c85e200": [
+      "runs/public/20261106-162030-vm-p19-s1-r05-verdict/report.md",
+      "runs/public/20261106-165456-vm-p22-p19-subset/report.md",
+      "runs/public/20261106-174635-vm-p22-p19-handoff/report.md",
+      "runs/public/20261106-205024-vm-p22-p19-repeat-r1/report.md",
+      "runs/public/20261106-203339-vm-p22-wf09-retest/report.md"
+    ],
+    "a5f50e8": [
+      "docs/project/EXECUTION-RESULT.md"
+    ]
+  },
+  "limitations": [
+    "No exhaustive equivalence proof of every diagram edge",
+    "No fresh VM export or whole Jira data audit",
+    "Code, deployment and final acceptance treated separately",
+    "Unverified evidence is not a pass"
+  ],
+  "mutations": {
+    "workflow": false,
+    "vm": false,
+    "jira": false,
+    "db": false
+  },
+  "recorded_at_kst": "2026-11-06 23:08:38",
+  "checks": {
+    "requirements_unique": 64,
+    "mapping_row_columns": 6,
+    "workflow_inventories": 7,
+    "baseline_source_hashes": 21,
+    "remote_report_paths_exist_in_pinned_commits": 6,
+    "project_docs_errors": 0,
+    "public_file_links_errors": 0,
+    "diff": "passed",
+    "scope": "Documentation/source/evidence checks only; no runtime tests"
+  }
+}

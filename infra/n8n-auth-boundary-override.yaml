@@ -1,0 +1,4 @@
+# Combine with the EXISTING VM compose file. Never use this as a new stack.
+services:
+  n8n:
+    image: ${DUBAKWI_N8N_AUTH_IMAGE:?Set the reviewed auth-boundary image digest}

@@ -1,0 +1,96 @@
+{
+  "recorded_at": "2026-11-05T22:58:22+09:00",
+  "environment": "local documentation and GitHub metadata review",
+  "base_main": "9086cff4bee7fa42fe6f479ec70a5c653e4dfe75",
+  "input_branch_head": "ca776df00ca011fe0142f1d8c56d0df79d1a4cfc",
+  "open_prs": [
+    {
+      "headRefOid": "7b1456c81bae073365882b6e99381b8fba9acc13",
+      "isDraft": true,
+      "number": 35,
+      "reviewDecision": ""
+    },
+    {
+      "headRefOid": "53f7c591fa4684bb519265cc54c8f3d833b9a912",
+      "isDraft": true,
+      "number": 34,
+      "reviewDecision": ""
+    },
+    {
+      "headRefOid": "403ee43270a641c8a8001262467c379eb300012d",
+      "isDraft": true,
+      "number": 33,
+      "reviewDecision": ""
+    },
+    {
+      "headRefOid": "6fe853204394a4001baacc0630df2d248685f957",
+      "isDraft": true,
+      "number": 32,
+      "reviewDecision": ""
+    },
+    {
+      "headRefOid": "06e92236d8c9ebfeb81f6db59a8ad851d1b232da",
+      "isDraft": false,
+      "number": 31,
+      "reviewDecision": ""
+    },
+    {
+      "headRefOid": "ca776df00ca011fe0142f1d8c56d0df79d1a4cfc",
+      "isDraft": true,
+      "number": 29,
+      "reviewDecision": ""
+    },
+    {
+      "headRefOid": "ff1917860e8a43379301a59a0b751be7cd613083",
+      "isDraft": false,
+      "number": 28,
+      "reviewDecision": "CHANGES_REQUESTED"
+    },
+    {
+      "headRefOid": "168c79c160d847115aa00f01e30107a2ebcb617c",
+      "isDraft": false,
+      "number": 27,
+      "reviewDecision": "CHANGES_REQUESTED"
+    },
+    {
+      "headRefOid": "dfcaff2c16aeacd57b7aec1d728d89517472e361",
+      "isDraft": false,
+      "number": 24,
+      "reviewDecision": ""
+    },
+    {
+      "headRefOid": "6afb94d7c79a948312cd3c415d15284d202bdee9",
+      "isDraft": true,
+      "number": 16,
+      "reviewDecision": ""
+    }
+  ],
+  "scope": [
+    "integration version baseline",
+    "P12/P18/P19/P20 progress correction",
+    "deployment stop recovery and test checklist",
+    "presentation evidence boundary"
+  ],
+  "checks": {
+    "documentation": {
+      "result": "pass",
+      "files": 20,
+      "local_links": 471,
+      "anchor_links": 51
+    },
+    "public_candidates": {
+      "result": "pass",
+      "files": 176,
+      "local_links": 574
+    },
+    "diff": "pass"
+  },
+  "not_run": [
+    "VM inventory/deploy",
+    "HTTP/service regression",
+    "Jira/DB writes",
+    "Discord read/post",
+    "PDF visual/rights review"
+  ],
+  "secret_scan": "tscan/gitleaks unavailable; public candidate checker passed as partial substitute, no full secret scan"
+}

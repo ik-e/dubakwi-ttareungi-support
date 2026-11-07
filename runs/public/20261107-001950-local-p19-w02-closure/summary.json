@@ -1,0 +1,134 @@
+{
+  "label": "P19 W02 closure (PR #36 1a2d8e0) local Code",
+  "executed_at_kst": "2026-11-07T00:19:50.811+09:00",
+  "scope": "support Code-node harness only; mock begin/process/save/search/lookup; no real LLM, n8n, R04 producer, Jira, DB or VM",
+  "workflow_sha256": {
+    "main_eb747df": "b445ad5d2923d448...",
+    "w02": "ae479ec11900bbf257c1168c7092e3ec4f6864551513eb269a7faf0fb1a082e0"
+  },
+  "totals": {
+    "main_eb747df": "146/154",
+    "w02": "154/154"
+  },
+  "static_failures": {
+    "main_eb747df": [],
+    "w02": []
+  },
+  "new_cases": [
+    {
+      "id": "FL95",
+      "contract_example": "CV03",
+      "title": "CV03 이관 후속은 저장 횟수·역할·우선순위를 유지하고 같은 티켓으로 이관",
+      "main_eb747df": "fail",
+      "w02": "pass",
+      "main_failures": [
+        "reason: 기대 \"needs_human\", 실제 \"attempt_limit\"",
+        "sent_attempt: 기대 3, 실제 99",
+        "sent_summary: 기대 \"반납 확인 문의\", 실제 \"결제 금액 추가\"",
+        "answer에 기존 문의에 추가 내용을 전달 없음: 담당자 확인이 필요한 문의로 분류했습니다. 처리 결과는 담당자 확인 후 안내됩니다."
+      ]
+    },
+    {
+      "id": "FL96",
+      "contract_example": "CV03",
+      "title": "이관 후속은 정보가 부족해도 보완 질문으로 돌아가지 않음",
+      "main_eb747df": "fail",
+      "w02": "pass",
+      "main_failures": [
+        "reason: 기대 \"needs_human\", 실제 \"attempt_limit\"",
+        "sent_attempt: 기대 3, 실제 4"
+      ]
+    },
+    {
+      "id": "FL97",
+      "contract_example": "CV04",
+      "title": "CV04 보안 이관 후속은 security·high 유지",
+      "main_eb747df": "fail",
+      "w02": "pass",
+      "main_failures": [
+        "reason: 기대 \"needs_human\", 실제 \"attempt_limit\"",
+        "priority: 기대 \"high\", 실제 \"normal\"",
+        "sent_priority: 기대 \"high\", 실제 \"normal\""
+      ]
+    },
+    {
+      "id": "FL98",
+      "contract_example": "D02",
+      "title": "이관 후속의 새 위험은 기록만 하고 새 긴급 이관·재배정하지 않음",
+      "main_eb747df": "fail",
+      "w02": "pass",
+      "main_failures": [
+        "reason: 기대 \"needs_human\", 실제 \"urgent\"",
+        "search: 기대 0, 실제 1",
+        "priority: 기대 \"normal\", 실제 \"high\"",
+        "sent_priority: 기대 \"normal\", 실제 \"high\"",
+        "uncertainties에 추가 위험 진술 없음: []",
+        "answer에 새로운 위험 내용은 담당자 확인이 필요 없음: 담당자 확인이 필요한 문의로 분류했습니다. 처리 결과는 담당자 확인 후 안내됩니다. 초동 안내: QR을 스캔해 대여합니다."
+      ]
+    },
+    {
+      "id": "FL99",
+      "contract_example": "CV05",
+      "title": "CV05 이관 상태인데 역할이 검증되지 않으면 추정 없이 state_error",
+      "main_eb747df": "fail",
+      "w02": "pass",
+      "main_failures": [
+        "reason: 기대 \"state_error\", 실제 \"attempt_limit\"",
+        "llm: 기대 0, 실제 1",
+        "process: 기대 0, 실제 1",
+        "saves: 기대 0, 실제 1",
+        "dlq: 기대 1, 실제 0",
+        "alerts: 기대 1, 실제 0",
+        "fail_status: 기대 \"failed\", 실제 undefined"
+      ]
+    },
+    {
+      "id": "FL100",
+      "contract_example": "CV02",
+      "title": "CV02 보완 후속은 기존 사실·조치를 유지하고 아는 항목을 다시 묻지 않음",
+      "main_eb747df": "pass",
+      "w02": "pass",
+      "main_failures": []
+    },
+    {
+      "id": "FL101",
+      "contract_example": "CV19",
+      "title": "CV19 같은 항목의 다른 사용자 진술은 최신 값과 불일치 기록",
+      "main_eb747df": "fail",
+      "w02": "pass",
+      "main_failures": [
+        "uncertainties에 station_or_place: 이전 진술과 다름 없음: []"
+      ]
+    },
+    {
+      "id": "FL102",
+      "contract_example": "CV25",
+      "title": "CV25 확인된 값과 다른 진술은 덮지 않고 다시 확인",
+      "main_eb747df": "fail",
+      "w02": "pass",
+      "main_failures": [
+        "route: 기대 \"보완 질문\", 실제 \"자동 답변\"",
+        "uncertainties에 확인된 값과 이번 진술이 다름 없음: []",
+        "missing에 station_or_place 없음: []",
+        "answer에 반납 장소 없음: QR을 스캔해 대여합니다."
+      ]
+    },
+    {
+      "id": "FL103",
+      "contract_example": "CV18",
+      "title": "CV18 직원이 닫은 조회 대상은 처리 종료로 표시하고 대상 변경 없음",
+      "main_eb747df": "fail",
+      "w02": "pass",
+      "main_failures": [
+        "answer에 처리 종료 없음: 문의 T-9의 현재 상태는 확인 중입니다."
+      ]
+    }
+  ],
+  "not_executed": [
+    "real LLM triage on handed_off follow-up sentences",
+    "R04 state/handoff producer returning assignee_role/priority (J03) combined run",
+    "local n8n import",
+    "VM / real Jira / DB",
+    "R05 official AC-J02/AC-B07 judgement"
+  ]
+}

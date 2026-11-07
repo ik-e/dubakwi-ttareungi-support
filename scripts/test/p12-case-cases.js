@@ -8,6 +8,7 @@ const labelFor = (scope, owner, rid) => "dubakwi-" + crypto.createHash("sha256")
 const root = path.resolve(__dirname, "../..");
 const workflow = JSON.parse(fs.readFileSync(path.join(root, "workflows", "dubakwi-state.json"), "utf8"));
 const nodes = new Map(workflow.nodes.map((node) => [node.name, node]));
+const CC=require("../../services/user_api/case_context.js")();
 
 const beginInput = (over = {}) => ({
   op: "begin", scope: "dubakwi-team", execution_id: "exec-2", input_hash: "b".repeat(64), actor: {id: "citizen-a"},
@@ -17,7 +18,7 @@ const beginInput = (over = {}) => ({
 function run(input, fake) {
   const outputs = new Map();
   const calls = [];
-  const lookup = (name) => ({item: {json: outputs.get(name)}});
+  const lookup = (name) => ({item: {json: outputs.get(name)},first:()=>({json:outputs.get(name)})});
   const evalExpr = (expr, json) => new Function("$json", "$", `return ${expr.replace(/^=\{\{\s*|\s*\}\}$/g, "")};`)(json, lookup);
   let current = "S01 상태 명령 수신";
   let json = input;
@@ -28,7 +29,7 @@ function run(input, fake) {
     const next = () => workflow.connections[current]?.main[0]?.[0]?.node ?? null;
     if (current !== "S01 상태 명령 수신") {
       if (node.type === "n8n-nodes-base.code") {
-        json = new Function("$json", "$", node.parameters.jsCode)(json, lookup)[0].json;
+        json = new Function("$json", "$", "$input", node.parameters.jsCode.replaceAll("__JIRA_CONTEXT_AUTHORS_JSON__", '["service-test"]'))(json, lookup, {all:()=>[{json}]})[0].json;
       } else if (node.type === "n8n-nodes-base.if") {
         const value = evalExpr(node.parameters.conditions.conditions[0].leftValue, json);
         outputs.set(current, json);
@@ -36,7 +37,13 @@ function run(input, fake) {
         continue;
       } else if (node.type === "n8n-nodes-base.httpRequest") {
         calls.push({jira: json.req.path});
-        json = fake.jira ?? {statusCode: 0};
+        if(current.startsWith('S22 ')){
+          const b={scope:input.scope,case_id:'case-abc',owner_id:'citizen-a',first_request_id:'req-1',ticket_key:'JBYS-10'};
+          const support={case_id:b.case_id,owner_id:b.owner_id,ticket_id:b.ticket_key,first_request_id:b.first_request_id,attempt:2,version:null,status:'waiting_info',assignee_role:null,priority:'normal'};
+          const facts={summary:'기존 문의',reported:[],confirmed:[],attempted_actions:[],missing:[],uncertainties:[],evidence_refs:[]};
+          const snap=CC.buildSnapshot(b,'req-1','wait',1,support,facts);
+          json={statusCode:200,body:{startAt:0,total:1,comments:[{body:CC.MARKER+'\n'+JSON.stringify(snap),author:{accountId:'service-test'}}]}};
+        }else json = fake.jira ?? {statusCode: 0};
       } else if (node.type === "n8n-nodes-base.postgres") {
         const query = node.parameters.query;
         const payload = JSON.parse(evalExpr(node.parameters.options.queryReplacement, json));
@@ -70,7 +77,7 @@ const jiraIssue = (category, text = "보완 횟수: 1", over = {}) => ({
     },
   },
 });
-const ownedCase = {ok: true, found: true, owner_match: true, busy: false, jira_issue_key: "JBYS-10", first_request_id: "req-1"};
+const ownedCase = {ok: true, found: true, owner_match: true, busy: false, jira_issue_key: "JBYS-10", first_request_id: "req-1",latest_completed_request_id:"req-1"};
 const base = (over) => ({state_apply: needVerification, case_lookup: () => ownedCase, case_begin: () => ({mode: "proceed"}), jira: jiraIssue("indeterminate"), ...over});
 
 // 1. 정상 보완: 열린 Jira + 기존 보완 횟수를 읽어 case_begin에 전달, 결과를 그대로 반환

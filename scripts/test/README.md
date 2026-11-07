@@ -93,3 +93,14 @@ uv run --locked python scripts/test/run_cases.py --base-url <n8n 주소> --env v
 ## P13 hook 실패 중단 (2026-11-05 R01 인계 수정)
 
 사용자 인계로 R01이 hook 실패 처리와 회귀시험을 대리 수정했다. 파일 수준 초기화 또는 사례 before hook이 실패하면 이후 모든 사례·파일을 blocked로 남기고 Webhook을 보내지 않는다. 사례 after hook은 응답/준비 실패에도 시도하며, 해제 실패 시 현재 응답 판정과 별도로 H01 실패를 기록하고 뒤의 모든 사례·파일을 차단한다. 수동으로 고장/초기화 상태를 확인한 뒤 새 실행묶음으로 재시험한다. `--no-hooks`는 자체 준비/고장이 없는 선택 입력 사례에만 사용하며 준비가 필요한 사례의 차단을 해제하지 않는다.
+
+## PR36 후속 시험 준비
+
+`make_boundary_fault_copy.py --source <실제 연결 사본> --mode <모드> --output runs/<새 사본>.json`은 create/bind/context/close/assign/alert/save/state_fail/dlq/unexpected 한 경계만 바꾼 비활성 사본을 만든다. 원본/공용 Credential을 변경하거나 실행하지 않는다. state_fail+dlq 이중 실패는 같은 scope의 별도 두 사본을 묶은 뒤 사용한다. LLM/시간 사본은 PR43의 `make_llm_time_fault.py`, 검증기 사본은 `make_verifier_fault.py`를 유지한다.
+
+R05 runner의 `--ready TC17 TC18`은 단계별 원 실행 종료/고장 해제 확인 후 진행한다. 해제 실패는 halted이며 다음 사례를 보내지 않는다. `--no-hooks`로 필요한 고장/해제를 우회하지 않는다. TC07은 recovery/not_implemented이며 새 정상 문의를 기존 실패의 복구로 세지 않는다. 원본41개 정의와 반복·최초 실패를 보존한다.
+
+Jira mock와 실제 PostgreSQL의 로컬 결과는 VM/Jira/Discord 공식 판정과 분리한다. provider 시험은 `test_records_provider.py`, 공통 문맥 fixture는 `test_case_context.py`, 최종 save amendment는 `p12-save-cases.js`가 다룬다.
+
+
+`node scripts/test/p19-shared-contract-cases.js`는 공통 BeginResult golden fixture3개를 S05→B08 코드에 통과시키고, AUTH01~07의 서버 응답 대역을 B05→B13→RAG Validate 코드에 통과시킨다. HTTP/실제 사용자 조회·벡터 검색/LLM·권한 종단 판정이 아니며 공통 unittest에서 함께 실행한다.

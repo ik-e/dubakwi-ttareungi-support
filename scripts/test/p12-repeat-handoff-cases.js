@@ -66,7 +66,10 @@ if (nodes.get("H50 Jira 알림 성공 표식")?.parameters?.options?.timeout !==
   throw new Error("alert success marker write must have a bounded timeout");
 }
 const markerEdges = workflow.connections["H49 알림 성공 표식 필요"]?.main ?? [];
-if (markerEdges[0]?.[0]?.node !== "H50 Jira 알림 성공 표식" || markerEdges[1]?.[0]?.node !== "H12 티켓 결과 구성") {
+const markerGuard = markerEdges[0]?.[0]?.node;
+const markerAllow = workflow.connections[markerGuard]?.main?.[0]?.[0]?.node;
+const guardedTarget = workflow.connections[markerAllow]?.main?.[0]?.[0]?.node;
+if (guardedTarget !== "H50 Jira 알림 성공 표식" || markerEdges[1]?.[0]?.node !== "H12 티켓 결과 구성") {
   throw new Error("alert marker routing is incomplete");
 }
 

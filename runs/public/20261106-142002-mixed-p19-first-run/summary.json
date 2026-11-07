@@ -1,0 +1,84 @@
+{
+  "executed_date": "2026-11-06 KST",
+  "environment": "team VM n8n2.42.6/PostgreSQL16.15; local review",
+  "versions": {
+    "support": "c5ed5fa",
+    "support_latest_identical_json": "66d5c3d",
+    "dependencies_main": "c6dd178",
+    "discord_review": "6cda17d"
+  },
+  "case": "R03 QR baseline citizen/public",
+  "executions": {
+    "support": "257",
+    "state_begin": "258",
+    "search": "259",
+    "handoff_lookup": "260",
+    "handoff_transfer": "261",
+    "state_dependencies": [
+      "262",
+      "263",
+      "264"
+    ],
+    "dlq": "265"
+  },
+  "result": {
+    "http": 200,
+    "client_elapsed_seconds": 10.43,
+    "reported_total_ms": 8626,
+    "route": "transfer",
+    "reason": "partial_effect",
+    "normal_baseline_pass": false,
+    "search_status": "ok",
+    "search_evidence_count": 5,
+    "expected_section_rank": 2,
+    "all_evidence_access_level": "public",
+    "triage_ms": 2252,
+    "search_http_ms": 2264,
+    "b17_remaining_ms": 14941,
+    "b17_required_ms": 15500,
+    "first_diversion": "deadline_exceeded before answer generation",
+    "jira_creation": "confirmed; known key/id preserved privately",
+    "assignment": "failed assignee_unmapped; mapping intentionally empty",
+    "db_processing_status": "unknown",
+    "db_current_step": "B29",
+    "db_error_code": "partial_effect",
+    "db_revision": 3,
+    "db_final_response_present": false,
+    "dlq_status": "pending",
+    "dlq_attempts": 1,
+    "dlq_write_ok": true
+  },
+  "discord": {
+    "focused_unittest_passed": 20,
+    "ruff_check": "passed",
+    "ruff_format_files": 69,
+    "vm_env_created": true,
+    "env_mode": "0600",
+    "team_key_matches_webhook": true,
+    "token_present": false,
+    "started": false
+  },
+  "limits": [
+    "No request replay or new normal request after Jira effect",
+    "No direct DB mutation, Jira cleanup or original execution retry",
+    "No R05 official verdict",
+    "No separate Jira REST read in this run; creation confirmation from native handoff execution and DB references",
+    "R02/R04/R05 contract review needed before timing change"
+  ],
+  "details": "report.md",
+  "checks": {
+    "project_docs": {
+      "files": 20,
+      "links": 470,
+      "anchors": 51,
+      "errors": 0
+    },
+    "public_candidates": {
+      "files": 215,
+      "links": 577,
+      "errors": 0
+    },
+    "diff": "passed",
+    "tscan": "not provided; candidate paths/link audit plus changed-text secret pattern scan used; no history guarantee"
+  }
+}

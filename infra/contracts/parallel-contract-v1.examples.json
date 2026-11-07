@@ -1,0 +1,656 @@
+{
+  "schema": "dubakwi-parallel-contract-examples-v1",
+  "version": "1.3",
+  "status": "R01 working baseline; producer/consumer/R05 change review pending; not implemented/deployed proof",
+  "scope": "J01/J02/J03; no real IDs/secrets; not run_cases.py format",
+  "fixtures": {
+    "begin_waiting": {
+      "request_id": "contract-followup-a",
+      "mode": "proceed",
+      "state_ref": {
+        "scope": "dubakwi-contract-v1",
+        "request_id": "contract-followup-a",
+        "owner_id": "citizen-a",
+        "input_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "execution_id": "contract-exec-a",
+        "state_revision": 0
+      },
+      "support": {
+        "case_id": "case-contract-a",
+        "owner_id": "citizen-a",
+        "ticket_id": "JBYS-9001",
+        "first_request_id": "contract-first-a",
+        "attempt": 1,
+        "version": null,
+        "status": "waiting_info",
+        "assignee_role": null,
+        "priority": null
+      },
+      "facts": {
+        "summary": "반납 확인 문의",
+        "reported": [
+          {
+            "key": "station_or_place",
+            "value": "가상 대여소 A",
+            "origin": "user"
+          }
+        ],
+        "confirmed": [],
+        "attempted_actions": [
+          "앱 재실행"
+        ],
+        "missing": [
+          "returned_at"
+        ],
+        "uncertainties": [],
+        "evidence_refs": []
+      },
+      "response": null,
+      "http_status": 200,
+      "error_code": null
+    },
+    "begin_handed_off": {
+      "request_id": "contract-followup-a",
+      "mode": "proceed",
+      "state_ref": {
+        "scope": "dubakwi-contract-v1",
+        "request_id": "contract-followup-a",
+        "owner_id": "citizen-a",
+        "input_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "execution_id": "contract-exec-a",
+        "state_revision": 0
+      },
+      "support": {
+        "case_id": "case-contract-a",
+        "owner_id": "citizen-a",
+        "ticket_id": "JBYS-9001",
+        "first_request_id": "contract-first-a",
+        "attempt": 3,
+        "version": null,
+        "status": "handed_off",
+        "assignee_role": "support",
+        "priority": "normal"
+      },
+      "facts": {
+        "summary": "반납 확인 문의",
+        "reported": [
+          {
+            "key": "station_or_place",
+            "value": "가상 대여소 A",
+            "origin": "user"
+          }
+        ],
+        "confirmed": [],
+        "attempted_actions": [
+          "앱 재실행"
+        ],
+        "missing": [
+          "charge_detail"
+        ],
+        "uncertainties": [],
+        "evidence_refs": []
+      },
+      "response": null,
+      "http_status": 200,
+      "error_code": null
+    },
+    "begin_security": {
+      "request_id": "contract-followup-a",
+      "mode": "proceed",
+      "state_ref": {
+        "scope": "dubakwi-contract-v1",
+        "request_id": "contract-followup-a",
+        "owner_id": "citizen-a",
+        "input_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "execution_id": "contract-exec-a",
+        "state_revision": 0
+      },
+      "support": {
+        "case_id": "case-contract-a",
+        "owner_id": "citizen-a",
+        "ticket_id": "JBYS-9001",
+        "first_request_id": "contract-first-a",
+        "attempt": 3,
+        "version": null,
+        "status": "handed_off",
+        "assignee_role": "security",
+        "priority": "high"
+      },
+      "facts": {
+        "summary": "반납 확인 문의",
+        "reported": [
+          {
+            "key": "station_or_place",
+            "value": "가상 대여소 A",
+            "origin": "user"
+          }
+        ],
+        "confirmed": [],
+        "attempted_actions": [
+          "앱 재실행"
+        ],
+        "missing": [
+          "charge_detail"
+        ],
+        "uncertainties": [],
+        "evidence_refs": []
+      },
+      "response": null,
+      "http_status": 200,
+      "error_code": null
+    },
+    "record_own": {
+      "ticket_id": "JBYS-9001",
+      "case_id": "case-contract-a",
+      "owner_id": "citizen-a",
+      "status": "handed_off",
+      "summary": "가상 반납 확인 문의",
+      "contact": {
+        "phone": "***-****-0001",
+        "email": "c***@example.invalid"
+      }
+    }
+  },
+  "cases": [
+    {
+      "id": "CV01",
+      "boundary": "R04→R02 begin",
+      "given": "fixture:begin_waiting",
+      "when": {
+        "operation": "begin",
+        "case_ref": "case-contract-a"
+      },
+      "then": {
+        "support_status": "waiting_info",
+        "facts_equal_fixture": true,
+        "ticket_id": "JBYS-9001",
+        "restore_from_empty_forbidden": true
+      }
+    },
+    {
+      "id": "CV02",
+      "boundary": "R02 facts merge",
+      "given": "fixture:begin_waiting",
+      "when": {
+        "question": "반납 시각은 오후 3시였어요.",
+        "new_reported": [
+          {
+            "key": "returned_at",
+            "value": "오후 3시",
+            "origin": "user"
+          }
+        ]
+      },
+      "then": {
+        "reported_contains_keys": [
+          "station_or_place",
+          "returned_at"
+        ],
+        "attempted_actions_preserved": [
+          "앱 재실행"
+        ],
+        "must_not_ask": [
+          "반납 장소"
+        ],
+        "effective_attempt": 2
+      }
+    },
+    {
+      "id": "CV03",
+      "boundary": "R02/R04 handed-off continuation",
+      "given": "fixture:begin_handed_off",
+      "when": {
+        "question": "결제 금액은 3000원입니다.",
+        "attempt": 99
+      },
+      "then": {
+        "route": "담당자 이관",
+        "support_status": "handed_off",
+        "effective_attempt": 3,
+        "ticket_request_action": "handoff",
+        "ticket_id": "JBYS-9001",
+        "assignee_role": "support",
+        "priority": "normal",
+        "external_calls": {
+          "create": 0,
+          "assignment": 0,
+          "alert": 0
+        },
+        "context_saved": "confirmed",
+        "save_required": true
+      }
+    },
+    {
+      "id": "CV04",
+      "boundary": "R02/R04 security continuation",
+      "given": "fixture:begin_security",
+      "when": {
+        "question": "추가로 받은 문자 내용도 전달합니다."
+      },
+      "then": {
+        "support_status": "handed_off",
+        "assignee_role": "security",
+        "priority": "high",
+        "external_calls": {
+          "create": 0,
+          "assignment": 0,
+          "alert": 0
+        },
+        "context_saved": "confirmed",
+        "save_required": true
+      }
+    },
+    {
+      "id": "CV05",
+      "boundary": "R04 incomplete restoration",
+      "given": {
+        "status": "handed_off",
+        "verified_role": null
+      },
+      "when": {
+        "operation": "begin"
+      },
+      "then": {
+        "http_status": 503,
+        "error_code": "state_error",
+        "fallback_to_waiting_info": false,
+        "new_jira_write": 0
+      }
+    },
+    {
+      "id": "CV06",
+      "boundary": "R04 closed case",
+      "given": {
+        "jira_status_category": "done",
+        "owner_match": true
+      },
+      "when": {
+        "case_ref": "case-contract-a"
+      },
+      "then": {
+        "http_status": 409,
+        "codes": [
+          "case_closed"
+        ],
+        "jira_write": 0,
+        "reuse_as_new_case": false
+      }
+    },
+    {
+      "id": "CV07",
+      "boundary": "R04 case ownership",
+      "given": {
+        "case_owner": "citizen-b"
+      },
+      "when": {
+        "actor_id": "citizen-a",
+        "case_ref": "case-contract-b"
+      },
+      "then": {
+        "http_status": 403,
+        "codes": [
+          "case_access_denied"
+        ],
+        "support": null,
+        "facts": null,
+        "jira_write": 0
+      }
+    },
+    {
+      "id": "CV08",
+      "boundary": "R04 invalid case",
+      "given": {
+        "case_found": false
+      },
+      "when": {
+        "case_ref": "case-contract-missing"
+      },
+      "then": {
+        "http_status": 400,
+        "codes": [
+          "invalid_case_ref"
+        ],
+        "jira_write": 0
+      }
+    },
+    {
+      "id": "CV09",
+      "boundary": "R04 busy case",
+      "given": {
+        "active_request_status": "unknown"
+      },
+      "when": {
+        "case_ref": "case-contract-a",
+        "request_id": "contract-new-followup"
+      },
+      "then": {
+        "http_status": 409,
+        "codes": [
+          "case_busy"
+        ],
+        "jira_write": 0,
+        "new_llm_call": 0
+      }
+    },
+    {
+      "id": "CV10",
+      "boundary": "R04 request review",
+      "given": {
+        "request_id": "contract-old",
+        "request_status": "unknown"
+      },
+      "when": {
+        "request_id": "contract-old",
+        "same_input": true
+      },
+      "then": {
+        "http_status": 409,
+        "codes": [
+          "request_requires_review"
+        ],
+        "jira_write": 0,
+        "automatic_resume": false
+      }
+    },
+    {
+      "id": "CV11",
+      "boundary": "R04 completed replay",
+      "given": {
+        "request_status": "completed",
+        "same_input": true,
+        "ticket_id": "JBYS-9001"
+      },
+      "when": {
+        "request_id": "contract-replay"
+      },
+      "then": {
+        "mode": "replay",
+        "ticket_duplicate": true,
+        "external_calls": {
+          "llm": 0,
+          "create": 0,
+          "assignment": 0,
+          "alert": 0
+        },
+        "same_response_except_ticket_duplicate": true
+      }
+    },
+    {
+      "id": "CV12",
+      "boundary": "R04 request conflict",
+      "given": {
+        "existing_request_id": "contract-conflict",
+        "owner_id": "citizen-a"
+      },
+      "when": {
+        "request_id": "contract-conflict",
+        "actor_id": "citizen-b"
+      },
+      "then": {
+        "http_status": 409,
+        "codes": [
+          "request_conflict"
+        ],
+        "original_response_visible": false,
+        "external_write": 0
+      }
+    },
+    {
+      "id": "CV13",
+      "boundary": "R01→R04 actual records API",
+      "given": {
+        "owner_match": true,
+        "source": "verified current Jira and server binding"
+      },
+      "when": {
+        "method": "GET",
+        "path": "/records/JBYS-9001",
+        "requester": "citizen-a"
+      },
+      "then": {
+        "http_status": 200,
+        "body": {
+          "ticket_id": "JBYS-9001",
+          "case_id": "case-contract-a",
+          "owner_id": "citizen-a",
+          "status": "handed_off",
+          "summary": "가상 반납 확인 문의",
+          "contact": {
+            "phone": "***-****-0001",
+            "email": "c***@example.invalid"
+          }
+        },
+        "lookup_status": "ok",
+        "lookup_owner": "citizen-a",
+        "masked": 2,
+        "target_jira_write": 0
+      }
+    },
+    {
+      "id": "CV14",
+      "boundary": "R01→R04 other record",
+      "given": {
+        "owner_id": "citizen-b"
+      },
+      "when": {
+        "path": "/records/JBYS-9002",
+        "requester": "citizen-a"
+      },
+      "then": {
+        "http_status": 403,
+        "lookup_status": "denied",
+        "record": null,
+        "masked": 0,
+        "citizen_message_class": "not_owner_or_absent",
+        "target_jira_write": 0
+      }
+    },
+    {
+      "id": "CV15",
+      "boundary": "R01→R04 absent record",
+      "given": {
+        "found": false
+      },
+      "when": {
+        "path": "/records/JBYS-9999",
+        "requester": "citizen-a"
+      },
+      "then": {
+        "http_status": 404,
+        "lookup_status": "denied",
+        "record": null,
+        "masked": 0,
+        "citizen_message_class": "not_owner_or_absent",
+        "target_jira_write": 0
+      }
+    },
+    {
+      "id": "CV16",
+      "boundary": "R01→R04 upstream failure",
+      "given": {
+        "jira_read_failed": true
+      },
+      "when": {
+        "path": "/records/JBYS-9001",
+        "requester": "citizen-a"
+      },
+      "then": {
+        "http_status": 503,
+        "lookup_status": "error",
+        "error_code": "lookup_error",
+        "record": null,
+        "must_not_return": "denied",
+        "target_jira_write": 0
+      }
+    },
+    {
+      "id": "CV17",
+      "boundary": "R04 lookup disabled",
+      "given": {},
+      "when": {
+        "kind": "lookup",
+        "enabled": false,
+        "actor_id": "citizen-a",
+        "target_ticket_id": null
+      },
+      "then": {
+        "lookup_status": "skipped",
+        "record": null,
+        "provider_calls": 0
+      }
+    },
+    {
+      "id": "CV18",
+      "boundary": "R01/R02 staff-closed lookup",
+      "given": {
+        "owner_match": true,
+        "jira_status_category": "done",
+        "specific_close_reason_verified": false
+      },
+      "when": {
+        "kind": "lookup",
+        "target_ticket_id": "JBYS-9001"
+      },
+      "then": {
+        "lookup_status": "ok",
+        "record_status": "closed",
+        "display_status": "처리 종료",
+        "claim_refund_or_repair_completed": false,
+        "target_jira_write": 0
+      }
+    },
+    {
+      "id": "CV19",
+      "boundary": "R02 conflicting user statements",
+      "given": "fixture:begin_waiting",
+      "when": {
+        "new_reported": [
+          {
+            "key": "station_or_place",
+            "value": "가상 대여소 B",
+            "origin": "user"
+          }
+        ]
+      },
+      "then": {
+        "latest_reported_value": "가상 대여소 B",
+        "uncertainty_present": true,
+        "promote_to_confirmed": false,
+        "prior_jira_context_preserved": true
+      }
+    },
+    {
+      "id": "CV20",
+      "boundary": "R04 existing effect unknown",
+      "given": {
+        "support_status": "handed_off",
+        "alert_effect": "unknown"
+      },
+      "when": {
+        "operation": "handoff_followup"
+      },
+      "then": {
+        "automatic_alert_calls": 0,
+        "success": false,
+        "known_ticket_preserved": true,
+        "recovery_preserved": true
+      }
+    },
+    {
+      "id": "CV21",
+      "boundary": "R04 save completion",
+      "given": {
+        "jira_context_verified": true,
+        "finish_ok": true
+      },
+      "when": {
+        "operation": "save"
+      },
+      "then": {
+        "save_ok": true,
+        "db_processing_status": "completed",
+        "extra_finish_call_by_support": 0
+      }
+    },
+    {
+      "id": "CV23",
+      "boundary": "request gate before closed case check",
+      "given": {
+        "request_status": "completed",
+        "same_owner_and_hash": true,
+        "jira_category": "done"
+      },
+      "when": {
+        "operation": "resend_same_request"
+      },
+      "then": {
+        "mode": "replay",
+        "http_status": 200,
+        "case_closed": false,
+        "new_jira_calls": 0
+      }
+    },
+    {
+      "id": "CV24",
+      "boundary": "identity before replay",
+      "given": {
+        "request_status": "completed",
+        "same_owner_and_hash": false
+      },
+      "when": {
+        "operation": "resend_same_request"
+      },
+      "then": {
+        "http_status": 409,
+        "error_code": "request_conflict",
+        "prior_response_exposed": false
+      }
+    },
+    {
+      "id": "CV25",
+      "boundary": "conflicting required fact remains unresolved",
+      "given": {
+        "confirmed": [
+          {
+            "key": "station_or_place",
+            "value": "가상 대여소 A",
+            "origin": "api"
+          }
+        ]
+      },
+      "when": {
+        "new_reported": [
+          {
+            "key": "station_or_place",
+            "value": "가상 대여소 B",
+            "origin": "user"
+          }
+        ]
+      },
+      "then": {
+        "prior_confirmed_preserved": true,
+        "uncertainty_present": true,
+        "missing_contains": "station_or_place",
+        "promote_to_confirmed": false
+      }
+    },
+    {
+      "id": "CV22",
+      "boundary": "R04 save failure",
+      "given": {
+        "jira_context_verified": false,
+        "known_ticket": "JBYS-9001"
+      },
+      "when": {
+        "operation": "save"
+      },
+      "then": {
+        "save_ok": false,
+        "db_completed": false,
+        "known_ticket_preserved": true,
+        "support_dlq_writer": "X03 only",
+        "handoff_extra_dlq_write": 0
+      }
+    }
+  ]
+}

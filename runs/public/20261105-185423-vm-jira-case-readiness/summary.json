@@ -1,0 +1,62 @@
+{
+  "run_id": "20261105-185423-vm-jira-case-readiness",
+  "recorded_at_kst": "2026-11-05T18:54:23.544615+09:00",
+  "environment": "team VM plus isolated local Docker",
+  "source_commit": "60f8886b74319ddf809d71cf4dd5c3c3533c8d97",
+  "jira": {
+    "credential": "existing n8n Jira Credential; secret not exported",
+    "before": {
+      "resolution_count": 0,
+      "resolved_requires_resolution": true,
+      "resolved_allowed_values_count": 0,
+      "administer_jira": true
+    },
+    "create_http_status": 201,
+    "resolution_registered_and_available": true,
+    "verify_http_statuses": [
+      200,
+      200,
+      200
+    ],
+    "test_issue_status_after": "Pending",
+    "issue_created_or_closed_by_r01": false,
+    "one_time_post_node_disabled": true,
+    "helpers_unpublished": true
+  },
+  "vm_database": {
+    "disposable_database": true,
+    "migrations_001_through_006": "passed",
+    "runtime_constraint_function_case_and_role_contracts": "passed",
+    "service_state_apply_unchanged": true,
+    "service_005_006_applied": false
+  },
+  "protection": {
+    "five_existing_workflows_nodes_connections_settings_active_version_unchanged": true
+  },
+  "limits": [
+    "Existing test issue termination and save/finish remain R04 follow-up.",
+    "Service DB 005~006 and 20-node state deployment require reviewed main version and coordinated rollout.",
+    "Assignee role mapping, alert body, whole-path deadline and R05 verdict remain pending.",
+    "VM naive wall-clock was about one hour ahead of local KST; do not combine host timestamps as latency measurements."
+  ],
+  "first_attempts": [
+    "n8n execute --file was deprecated and returned --id has to be set; no API calls on this attempt. A new unpublished helper was imported and executed by id."
+  ],
+  "documentation_checks": {
+    "files": 20,
+    "local_links": 454,
+    "anchors": 50,
+    "errors": 0
+  },
+  "public_candidate_checks": {
+    "files": 173,
+    "public_local_links": 542,
+    "errors": 0
+  },
+  "secret_check": {
+    "tscan_available": false,
+    "fallback": "current changed-text key/token patterns and Git public-candidate checks",
+    "pattern_matches": 0,
+    "limits": "Not a full secret/history/PII scan"
+  }
+}

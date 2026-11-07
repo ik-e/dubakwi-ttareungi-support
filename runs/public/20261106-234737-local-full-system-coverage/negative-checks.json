@@ -1,0 +1,71 @@
+{
+  "environment": "local validator mutation checks; no service calls",
+  "checks": [
+    {
+      "mutation": "remove requirement",
+      "detected": true,
+      "errors": [
+        "coverage mismatch: missing=['O06'], extra=[]"
+      ]
+    },
+    {
+      "mutation": "duplicate requirement",
+      "detected": true,
+      "errors": [
+        "duplicate requirement or acceptance ID"
+      ]
+    },
+    {
+      "mutation": "weaken completion condition",
+      "detected": true,
+      "errors": [
+        "completion condition lost: C01"
+      ]
+    },
+    {
+      "mutation": "unknown dependency",
+      "detected": true,
+      "errors": [
+        "unknown dependency: W99",
+        "dependency drift: C01",
+        "dependency drift: C02",
+        "dependency drift: C05",
+        "dependency drift: C06",
+        "dependency drift: C07",
+        "dependency drift: C08"
+      ]
+    },
+    {
+      "mutation": "cyclic live dependency",
+      "detected": true,
+      "errors": [
+        "cyclic live dependency: W01",
+        "dependency drift: O01",
+        "dependency drift: O02"
+      ]
+    },
+    {
+      "mutation": "unsupported exemption",
+      "detected": true,
+      "errors": [
+        "unexpected exemption: C01"
+      ]
+    },
+    {
+      "mutation": "forged context owner",
+      "detected": true,
+      "errors": [
+        "context binding mismatch: owner_id"
+      ]
+    },
+    {
+      "mutation": "wrong event hash",
+      "detected": true,
+      "errors": [
+        "context event hash mismatch"
+      ]
+    }
+  ],
+  "detected": 8,
+  "missed": 0
+}

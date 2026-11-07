@@ -151,6 +151,7 @@ def normalize(file_name, raw):
                 "body": s["body"],
                 "expect": s.get("expect", {}),
                 "assert": s.get("assert", []),
+                "pause": s.get("pause"),
             }
             for s in x["steps"]
         ]
@@ -178,6 +179,9 @@ def normalize(file_name, raw):
         "expected_codes": x.get("expected_codes"),
         "checks": list(x.get("checks", [])),
         "manual": list(x.get("manual", [])),
+        "target_seconds": x.get("target_seconds"),
+        "category": x.get("category", "normal"),
+        "not_implemented": x.get("not_implemented"),
     }
 
 
@@ -185,7 +189,8 @@ def load_cases(base, files, wanted):
     loaded = []
     for name in files:
         data = json.loads((base / name).read_text(encoding="utf-8"))
-        units = [normalize(name, c) for c in data["cases"]]
+        guard = data.get("x_dubakwi", {}).get("search_guard")
+        units = [normalize(name, c) | {"search_guard": guard} for c in data["cases"]]
         if wanted:
             units = [u for u in units if u["id"] in wanted or u["name"] in wanted]
         loaded.append(
@@ -237,9 +242,21 @@ def prepare_request(raw, run_id, results):
     return request
 
 
+STOP_WORDS = {"stop", "n", "no", "q", "중단"}
+
+
+def ask_operator(message):
+    """Show a step confirmation on stderr. Returns the answer, or None on EOF."""
+    print(message, file=sys.stderr, flush=True)
+    try:
+        return input()
+    except EOFError:
+        return None
+
+
 def blocked_reason(unit, opts):
-    if unit["requires"]:
-        return f"requires: {unit['requires']}"
+    if unit["requires"] and unit["id"] not in (opts.ready or []):
+        return f"requires: {unit['requires']} (준비되면 --ready {unit['id']})"
     if not unit["steps"]:
         return "no request to send (operator step)"
     copy = unit["test_copy"]
@@ -372,23 +389,50 @@ def judge_step(step, result, earlier_cases, step_results):
             add("not_contains", path, value, not flow_contains(actual, value))
     for item in step["assert"]:
         value = item.get("value")
+        shown = value
         if item["op"] == "same_as":
+            # Compare against the earlier response, but record only the reference: the
+            # resolved value can be a Jira key or case_ref that must stay out of public files.
             if "case" in value:
                 ref = earlier_cases.get(value["case"])
+                shown = {"same_as": f"case {value['case']}", "path": value["path"]}
             else:
                 ref = step_results.get(value["step"], {}).get("body")
+                shown = {"same_as": f"step{value['step']}", "path": value["path"]}
             value = resolve(ref, value["path"]) if ref is not None else MISSING
         actual = resolve(body, item["path"]) if body is not None else MISSING
-        add(f"x:{item['op']}", item["path"], value, check(item["op"], actual, value))
+        add(f"x:{item['op']}", item["path"], shown, check(item["op"], actual, value))
     return out
 
 
-def global_checks(step_no, request, result):
+def search_guard_checks(step_no, request, body, guard):
+    """S01-S03 for search requests without restricted access: no restricted leak at all."""
+    if "restricted" in (request.get("access_levels") or []):
+        return []
+    evidence = body.get("evidence") if isinstance(body, dict) else None
+    items = [e for e in evidence if isinstance(e, dict)] if isinstance(evidence, list) else []
+    levels = [e.get("access_level") for e in items]
+    docs = [e.get("doc") for e in items]
+    text = _text(body) if body is not None else ""
+    return [
+        ("S01", step_no, "no restricted evidence", "restricted" not in levels),
+        ("S02", step_no, "no restricted canary text", guard["canary_prefix"] not in text),
+        ("S03", step_no, "no restricted doc id", not set(docs) & set(guard["restricted_docs"])),
+    ]
+
+
+def global_checks(step_no, request, result, guard=None):
     out = []
     body = result["body"]
     if body is not None:
         leaked = PHONE.search(_text(body)) or EMAIL.search(_text(body))
         out.append(("G03", step_no, "contact pattern absent", not leaked))
+    if guard is not None:
+        if result["status"] == 200 and isinstance(body, dict):
+            echoed = body.get("request_id") == request["request_id"]
+            out.append(("G01", step_no, "request_id echoed", echoed))
+        out += search_guard_checks(step_no, request, body, guard)
+        return [{"id": i, "step": s, "check": c, "passed": p} for i, s, c, p in out]
     if result["status"] == 200 and isinstance(body, dict):
         echoed = body.get("request_id") == request["request_id"]
         out.append(("G01", step_no, "request_id echoed", echoed))
@@ -447,6 +491,22 @@ def public_step(no, request, result):
     body = result["body"] if isinstance(result["body"], dict) else {}
     ticket = body.get("ticket") if isinstance(body.get("ticket"), dict) else None
     security = body.get("security") if isinstance(body.get("security"), dict) else {}
+    if isinstance(body.get("evidence"), list):
+        return {
+            "step": no,
+            "request_id": request["request_id"],
+            "access_levels": request.get("access_levels"),
+            "http_status": result["status"],
+            "elapsed_ms": result["elapsed_ms"],
+            "transport_error": result["error"],
+            "search_status": body.get("status"),
+            "error_code": body.get("error_code"),
+            "evidence": [
+                {k: e.get(k) for k in ("doc", "section", "access_level", "score")}
+                for e in body["evidence"]
+                if isinstance(e, dict)
+            ],
+        }
     return {
         "step": no,
         "request_id": request["request_id"],
@@ -471,10 +531,14 @@ def write_new(path, data):
 def run_unit(unit, ctx):
     """Send one unit (with its hooks). Returns (public entry, raw entry or None)."""
     head = {"id": unit["id"], "name": unit["name"], "file": unit["file"]}
+    head["category"] = unit["category"]
+    if unit["not_implemented"]:
+        return head | {"status": "not_implemented", "reason": unit["not_implemented"]}, None
     reason = blocked_reason(unit, ctx["opts"])
     if reason:
         return head | {"status": "blocked", "reason": reason}, None
     requests, results, hooks = {}, {}, {}
+    stopped_at = None
     url = ctx["url"]
     if unit["test_copy"]:
         url = f"{ctx['base_url']}/webhook/{unit['test_copy']['webhook']}"
@@ -499,6 +563,14 @@ def run_unit(unit, ctx):
                 "hooks": hooks,
             }, None
         for step in unit["steps"]:
+            if step.get("pause"):
+                prompt = (
+                    f"[{unit['id']} step{step['step']}] {step['pause']} (계속: Enter, 중단: stop)"
+                )
+                answer = ctx["prompt"](prompt)
+                if answer is None or answer.strip().lower() in STOP_WORDS:
+                    stopped_at = step["step"]
+                    break
             try:
                 request = prepare_request(step["body"], ctx["run_id"], results)
             except LookupError as err:
@@ -511,9 +583,14 @@ def run_unit(unit, ctx):
 
     checks = []
     for step in unit["steps"]:
-        checks += judge_step(step, results[step["step"]], ctx["case_bodies"], results)
-    ctx["case_bodies"][unit["name"]] = results[unit["steps"][-1]["step"]]["body"]
-    globals_ = [g for no in results for g in global_checks(no, requests[no], results[no])]
+        if step["step"] in results:
+            checks += judge_step(step, results[step["step"]], ctx["case_bodies"], results)
+    if stopped_at is not None and not results:
+        reason = f"operator stopped before step{stopped_at}"
+        return head | {"status": "halted", "reason": reason, "halt": reason, "hooks": hooks}, None
+    ctx["case_bodies"][unit["name"]] = results[max(results)]["body"]
+    guard = unit.get("search_guard")
+    globals_ = [g for no in results for g in global_checks(no, requests[no], results[no], guard)]
     unverified = list(unit["checks"])
     if unit["expected_codes"]:
         unverified.append(f"codes 문자열 대조 전: {unit['expected_codes']}")
@@ -532,7 +609,20 @@ def run_unit(unit, ctx):
         globals_.append(
             {"id": "H01", "step": None, "check": "after hooks succeeded", "passed": False}
         )
+    limit_ms = ctx["opts"].response_limit * 1000
+    for no in sorted(results):
+        within = results[no]["elapsed_ms"] <= limit_ms
+        check = f"response within {ctx['opts'].response_limit:g}s"
+        globals_.append({"id": "G06", "step": no, "check": check, "passed": within})
+        target = unit["target_seconds"]
+        if target is not None and results[no]["elapsed_ms"] > target * 1000:
+            seconds = results[no]["elapsed_ms"] / 1000
+            unverified.append(f"목표 시간 초과: step{no} {seconds:.1f}s > {target}s (성능 기록)")
     status = case_status(checks, globals_ + log_checks, unverified, unit["manual"])
+    if stopped_at is not None:
+        status = "halted"
+        reason = f"operator stopped before step{stopped_at}; later steps not sent"
+        head = head | {"reason": reason, "halt": reason}
     public = head | {
         "status": status,
         "steps": [public_step(no, requests[no], results[no]) for no in sorted(results)],
@@ -551,7 +641,7 @@ def run_unit(unit, ctx):
     }
 
 
-def execute(args, base=ROOT, now=None):
+def execute(args, base=ROOT, now=None, prompt=ask_operator):
     now = now or datetime.now(KST)
     files = args.cases_file or DEFAULT_CASE_FILES
     loaded = load_cases(base, files, args.case)
@@ -576,6 +666,7 @@ def execute(args, base=ROOT, now=None):
         "timeout": args.timeout,
         "data_api": args.data_api.rstrip("/"),
         "case_bodies": {},
+        "prompt": prompt,
     }
     public_cases, raw_cases, file_hooks = [], [], {}
     halted = None
@@ -593,6 +684,7 @@ def execute(args, base=ROOT, now=None):
                         "id": unit["id"],
                         "name": unit["name"],
                         "file": unit["file"],
+                        "category": unit["category"],
                         "status": "blocked",
                         "reason": halted,
                     }
@@ -602,6 +694,10 @@ def execute(args, base=ROOT, now=None):
             public_cases.append(public)
             if raw:
                 raw_cases.append(raw)
+            if public.get("halt"):
+                halted = (
+                    f"{unit['id']} {public['halt']}: 시험 상태를 수동으로 확인한 뒤 새 실행 필요"
+                )
             for stage in ("before", "after"):
                 if not all(h["ok"] for h in public.get("hooks", {}).get(stage, [])):
                     halted = (
@@ -609,9 +705,11 @@ def execute(args, base=ROOT, now=None):
                     )
                     break
 
-    counts = {}
+    counts, by_category = {}, {}
     for item in public_cases:
         counts[item["status"]] = counts.get(item["status"], 0) + 1
+        group = by_category.setdefault(item.get("category", "normal"), {})
+        group[item["status"]] = group.get(item["status"], 0) + 1
     summary = {
         "run_id": run_id,
         "executed_at": now.isoformat(timespec="seconds"),
@@ -622,6 +720,7 @@ def execute(args, base=ROOT, now=None):
         "auth_header_sent": bool(headers),
         "auth_token_env": token_env,
         "log_check": bool(args.check_logs),
+        "ready": list(args.ready or []),
         "versions": {
             "git": git_info(base),
             "workflow": args.workflow_version,
@@ -636,8 +735,12 @@ def execute(args, base=ROOT, now=None):
         },
         "file_hooks": file_hooks,
         "counts": counts,
+        "counts_by_category": by_category,
         "meaning": "auto_pass_unverified = response checks passed but ticket/state/DLQ/alert/n8n "
         "or manual checks are still open; it is not a full pass",
+        "category_meaning": "normal = 정상 경로, failure_handling = 실패 시 안전 처리·재전송/후속 차단, "
+        "recovery = 실패 건의 복구 작업. not_implemented는 기능 미구현이며 fail·pass로 세지 않는다. "
+        "신규 문의 성공을 기존 실패 문의의 복구 성공으로 세지 않는다",
         "cases": public_cases,
     }
     if args.dry_run:
@@ -682,6 +785,11 @@ def parse_args(argv):
         help="manual faults (e.g. flow.py llm down) were switched on by hand",
     )
     p.add_argument(
+        "--ready",
+        nargs="*",
+        help="case ids whose x_dubakwi.requires preparation the operator confirmed; others stay blocked",
+    )
+    p.add_argument(
         "--check-logs",
         action="store_true",
         help="after each case read data-api /logs and check the B35 entry (L01-L03)",
@@ -707,6 +815,13 @@ def parse_args(argv):
         "--auth-required", action="store_true", help="stop if the token variable is not set"
     )
     p.add_argument("--timeout", type=float, default=30.0)
+    p.add_argument(
+        "--response-limit",
+        type=float,
+        default=25.0,
+        help="G06 upper bound for every response in seconds (R05 decision 2026-11-06: 20s "
+        "request deadline + 5s margin)",
+    )
     p.add_argument("--dry-run", action="store_true", help="print resolved requests, send nothing")
     return p.parse_args(argv)
 

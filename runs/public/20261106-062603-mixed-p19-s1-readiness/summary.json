@@ -1,0 +1,110 @@
+{
+  "run_id": "20261106-062603-mixed-p19-s1-readiness",
+  "recorded_at": "2026-11-06T06:28:37.317636+09:00",
+  "tasks": [
+    "P12",
+    "P19"
+  ],
+  "owner": "R01",
+  "environment": "local candidate generation and existing VM read-only checks",
+  "source_refs": {
+    "support": "5e0026c",
+    "producer": "6a963c6",
+    "state_dlq_handoff": "1b83d18",
+    "errors": "ff19178"
+  },
+  "scope_decision": "dubakwi-p19-real",
+  "review_status": {
+    "pr27": "R01 approved and CI pass; R02/R05 pending",
+    "pr16": "draft; no review recorded",
+    "pr28": "changes requested at ff19178; state throw blocks DLQ",
+    "user_report": "no separate R02/R05 review replies received"
+  },
+  "local_checks_executed": {
+    "r02_code_cases": 125,
+    "passed": 125,
+    "failed": 0,
+    "http_jira_llm_db": "substitutes; no new live S1"
+  },
+  "vm_readonly": {
+    "request_rows_in_scope": 0,
+    "dlq_rows_in_scope": 0,
+    "target_support_id_exists": false,
+    "target_support_path_collision": false,
+    "case_lookup_present": false,
+    "case_begin_present": false,
+    "DUBAKWI_SCOPE_present": false,
+    "n8n_running": true,
+    "health": 200,
+    "bundle_in_searched_deploy_tree": false,
+    "scope_reserved_or_locked": false
+  },
+  "candidate": {
+    "previous_private_scope": "different dated rehearsal scope; old artifacts preserved",
+    "initial_fixed_scope_assertion": "failed against previous candidate before any import",
+    "new_scope": "dubakwi-p19-real",
+    "source_dirty": false,
+    "actual_lf_hash_matches_manifest": true,
+    "bound_support_sha256": "534c5f6365a15a6d8e7813140af005482aa53309b133dbc8b2bfce84a9bee0af",
+    "dependency_hashes": {
+      "state": {
+        "path": "workflows/dubakwi-state.json",
+        "ref": "1b83d18",
+        "sha256": "45b96868f74ced275c19817893149675dc9208937264c8fcdd91a79b5a0f5d0f"
+      },
+      "dlq": {
+        "path": "workflows/dubakwi-dlq.json",
+        "ref": "1b83d18",
+        "sha256": "9c466061b7e480c4f0a007771f1d5fbf108a496c2b6944bac521e589e0acb6c9"
+      },
+      "handoff": {
+        "path": "workflows/dubakwi-handoff.json",
+        "ref": "1b83d18",
+        "sha256": "9d65d8c756e18ec1032121081c96784b4a33e2e0351602e349cbd3fca9b451d7"
+      },
+      "errors": {
+        "path": "workflows/dubakwi-errors.json",
+        "ref": "ff19178",
+        "sha256": "bf8146de49a64f74a9b506b053b43f51662e5591a7d71494f8b2deb10d2b5549"
+      }
+    },
+    "credentials_reference_nodes": 8,
+    "error_workflow_attached": false,
+    "active": false,
+    "ids": "inherited private references; must recheck at deployment",
+    "private_path": "runs/20261106-062603-s1-readiness/bundle-verified",
+    "git_ignored": true
+  },
+  "target_mutations": {
+    "main_merge": false,
+    "vm_import_publish": false,
+    "migrations": false,
+    "business_rows": false,
+    "credential_changes": false,
+    "service_restart": false,
+    "jira_calls": 0
+  },
+  "verdict": "R01 preflight/candidate preparation complete; await role review and required errors fix before main/service rollout",
+  "limits": [
+    "Read-only observations are point-in-time and must be repeated before deployment.",
+    "No whole S1/Jira close/role assignment/replay or official acceptance executed.",
+    "No live backup/restore rerun; fresh backup required immediately before later changes.",
+    "Existing partial-integration evidence remains in PR35; this run does not replace it."
+  ],
+  "document_checks": {
+    "files": 20,
+    "links": 455,
+    "anchors": 50,
+    "errors": 0
+  },
+  "public_candidate_checks": {
+    "files": 172,
+    "links": 544,
+    "errors": 0
+  },
+  "other_checks": {
+    "json": "pass",
+    "diff": "pass",
+    "secret_scan": "tscan/Gitleaks unavailable; public candidate patterns only, not full secret/PII assurance"
+  }
+}

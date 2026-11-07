@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "scope": "dubakwi-contract-v1",
+  "case_id": "case-contract-a",
+  "owner_id": "citizen-a",
+  "first_request_id": "contract-first-a",
+  "ticket_key": "JBYS-9001",
+  "request_id": "contract-followup-a",
+  "revision": 2,
+  "phase": "save",
+  "support": {
+    "case_id": "case-contract-a",
+    "owner_id": "citizen-a",
+    "ticket_id": "JBYS-9001",
+    "first_request_id": "contract-first-a",
+    "attempt": 3,
+    "version": null,
+    "status": "handed_off",
+    "assignee_role": "support",
+    "priority": "normal"
+  },
+  "facts": {
+    "summary": "반납 확인 문의",
+    "reported": [
+      {
+        "key": "station_or_place",
+        "value": "가상 대여소 A",
+        "origin": "user"
+      }
+    ],
+    "confirmed": [],
+    "attempted_actions": [
+      "앱 재실행"
+    ],
+    "missing": [
+      "charge_detail"
+    ],
+    "uncertainties": [],
+    "evidence_refs": []
+  },
+  "event_id": "2edd4a2c7b298b6ce1f4937fde10734ab7ec93acaaf9940ee4b3097ee730be94"
+}

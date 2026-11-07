@@ -1,0 +1,59 @@
+{
+  "executed_date": "2026-11-06 KST",
+  "task": "P19 exposed X-Team-Key rotation",
+  "environment": "existing team VM n8n; same Credential; bot stopped",
+  "results": {
+    "credential_saved_by_user": true,
+    "private_sync_helper": "completed",
+    "authentication": {
+      "trial_empty_request": {
+        "new_key_http": 400,
+        "old_key_http": 403
+      },
+      "existing_support_empty_request": {
+        "new_key_http": 400,
+        "old_key_http": 403
+      },
+      "interpretation": "400 is expected invalid_input after successful authentication; not normal business success"
+    },
+    "synchronized": [
+      "VM webhook-key environment file",
+      "Discord bot team-key file",
+      "current R02 private handoff"
+    ],
+    "files_match": true,
+    "bot_key_mode": "0600",
+    "bot_key_uid": 65532,
+    "handoff_mode": "0600",
+    "backup": "Git-excluded private pre-rotation backup retained",
+    "secret_values_logged_or_committed": false
+  },
+  "not_performed": [
+    "Jira API token change",
+    "Jira transition or issue mutation",
+    "normal request replay",
+    "bot startup",
+    "n8n restart"
+  ],
+  "remaining": [
+    "R02/R04/R05 reload updated private handoff; cached old client keys now fail403",
+    "Jira close transition problem remains",
+    "normal Webhook and Discord full-chain verdict pending"
+  ],
+  "details": "report.md",
+  "checks": {
+    "project_docs": {
+      "files": 20,
+      "links": 472,
+      "anchors": 51,
+      "errors": 0
+    },
+    "public_candidates": {
+      "files": 219,
+      "links": 583,
+      "errors": 0
+    },
+    "diff": "passed",
+    "secret_scan": "tscan unavailable; exact new-key exclusion and changed-text credential patterns; not a history guarantee"
+  }
+}

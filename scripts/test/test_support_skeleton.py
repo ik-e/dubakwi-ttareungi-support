@@ -22,9 +22,33 @@ SCRIPT = ROOT / "scripts" / "test" / "support-skeleton-cases.js"
 
 class SupportSkeletonTest(unittest.TestCase):
     @unittest.skipUnless(shutil.which("node"), "Node.js가 없어 Code 노드를 실행할 수 없음")
+    def test_verifier_boundary_rejects_approved_unsafe_text(self) -> None:
+        result = subprocess.run(
+            ["node", str(ROOT / "scripts/test/support-verifier-boundary-cases.js")],
+            cwd=ROOT,
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+            check=False,
+        )
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
+    @unittest.skipUnless(shutil.which("node"), "Node.js가 없어 Code 노드를 실행할 수 없음")
     def test_code_nodes_pass_local_cases(self) -> None:
         result = subprocess.run(
             ["node", str(SCRIPT)],
+            cwd=ROOT,
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+            check=False,
+        )
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
+    @unittest.skipUnless(shutil.which("node"), "Node.js가 없어 Code 노드를 실행할 수 없음")
+    def test_shared_contract_and_permission_fixtures(self) -> None:
+        result = subprocess.run(
+            ["node", str(ROOT / "scripts/test/p19-shared-contract-cases.js")],
             cwd=ROOT,
             capture_output=True,
             text=True,

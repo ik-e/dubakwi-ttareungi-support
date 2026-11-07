@@ -1,0 +1,3260 @@
+{
+  "run_id": "20261106-205024-vm-p22-p19-repeat-r1",
+  "executed_at": "2026-11-06T20:50:24+09:00",
+  "environment": "vm",
+  "kind": "service_cases",
+  "runner": "scripts/test/run_cases.py (not the kit flow.py)",
+  "path": "jira",
+  "auth_header_sent": true,
+  "auth_token_env": "FLOW_WEBHOOK_KEY",
+  "log_check": true,
+  "ready": [],
+  "versions": {
+    "git": {
+      "commit": "f30dc33c15b5e395df22397c65c6e3d82ced63ae",
+      "branch": "r05/p07-r04-contract-cases",
+      "dirty": false
+    },
+    "workflow": "3e8547a",
+    "config": "r01-p19-b17-assignee",
+    "case_files": {
+      "cases/common.json": "6e4d3229a94bc66d041ff149bdacb98649ed1a545779dab80748c4eae86c3179",
+      "cases/team.json": "463158874ae12ce54d305aa42cdbf7f816e4b7f61ce6d12bacbd385e8fc9fc80",
+      "cases/team-extended.json": "d26fbfb3bb8d79ebf0cf2df943a5abd1194e6741d6585f10e85fab23d77fdb00"
+    },
+    "test_copy": null,
+    "python": "3.12.16"
+  },
+  "file_hooks": {},
+  "counts": {
+    "fail": 3,
+    "auto_pass_unverified": 18,
+    "pass": 4
+  },
+  "counts_by_category": {
+    "normal": {
+      "fail": 3,
+      "auto_pass_unverified": 15,
+      "pass": 2
+    },
+    "failure_handling": {
+      "pass": 2,
+      "auto_pass_unverified": 3
+    }
+  },
+  "meaning": "auto_pass_unverified = response checks passed but ticket/state/DLQ/alert/n8n or manual checks are still open; it is not a full pass",
+  "category_meaning": "normal = 정상 경로, failure_handling = 실패 시 안전 처리·재전송/후속 차단, recovery = 실패 건의 복구 작업. not_implemented는 기능 미구현이며 fail·pass로 세지 않는다. 신규 문의 성공을 기존 실패 문의의 복구 성공으로 세지 않는다",
+  "cases": [
+    {
+      "id": "WF01",
+      "name": "WF-01 정상 문의",
+      "file": "cases/common.json",
+      "category": "normal",
+      "status": "fail",
+      "steps": [
+        {
+          "step": 1,
+          "request_id": "20261106-205024-vm-p22-p19-repeat-r1-wf01",
+          "http_status": 200,
+          "elapsed_ms": 12477,
+          "transport_error": null,
+          "route": "담당자 이관",
+          "codes": null,
+          "has_ticket": true,
+          "ticket_priority": "normal",
+          "ticket_duplicate": false,
+          "sources_count": 0,
+          "security_masked": 0
+        }
+      ],
+      "checks": [
+        {
+          "step": 1,
+          "kind": "status",
+          "path": "<http_status>",
+          "expected": 200,
+          "passed": true
+        },
+        {
+          "step": 1,
+          "kind": "equals",
+          "path": "route",
+          "expected": "자동 답변",
+          "passed": false
+        },
+        {
+          "step": 1,
+          "kind": "equals",
+          "path": "ticket",
+          "expected": null,
+          "passed": false
+        },
+        {
+          "step": 1,
+          "kind": "contains",
+          "path": "sources",
+          "expected": "rental-guide",
+          "passed": false
+        },
+        {
+          "step": 1,
+          "kind": "x:contains_any",
+          "path": "sources[*].section",
+          "expected": [
+            "QR 인식 또는 잠금 해제가 어려운 경우"
+          ],
+          "passed": false
+        },
+        {
+          "step": 1,
+          "kind": "x:contains_any",
+          "path": "answer",
+          "expected": [
+            "5자리",
+            "자전거 번호",
+            "자전거번호"
+          ],
+          "passed": false
+        },
+        {
+          "step": 1,
+          "kind": "x:exists",
+          "path": "case_ref",
+          "expected": null,
+          "passed": true
+        }
+      ],
+      "global_checks": [
+        {
+          "id": "G03",
+          "step": 1,
+          "check": "contact pattern absent",
+          "passed": true
+        },
+        {
+          "id": "G01",
+          "step": 1,
+          "check": "request_id echoed",
+          "passed": true
+        },
+        {
+          "id": "G02",
+          "step": 1,
+          "check": "route in common set",
+          "passed": true
+        },
+        {
+          "id": "G06",
+          "step": 1,
+          "check": "response within 25s",
+          "passed": true
+        }
+      ],
+      "log_checks": [
+        {
+          "id": "L01",
+          "step": 1,
+          "check": "log entry for request_id",
+          "passed": true
+        },
+        {
+          "id": "L02",
+          "step": 1,
+          "check": "log route/status match response",
+          "passed": true
+        },
+        {
+          "id": "L03",
+          "step": 1,
+          "check": "question text absent from log",
+          "passed": true
+        }
+      ],
+      "hooks": {
+        "before": [],
+        "after": []
+      },
+      "unverified": [
+        "티켓 1건 생성 후 closed_guidance 종료 확인",
+        "요청 상태 completed·최종 저장",
+        "목표 시간 초과: step1 12.5s > 8s (성능 기록)"
+      ],
+      "manual": [
+        "답변이 근거 절 절차와 일치하고 근거 밖 내용 없음"
+      ]
+    },
+    {
+      "id": "WF02",
+      "name": "WF-02 정보 부족",
+      "file": "cases/common.json",
+      "category": "normal",
+      "status": "auto_pass_unverified",
+      "steps": [
+        {
+          "step": 1,
+          "request_id": "20261106-205024-vm-p22-p19-repeat-r1-wf02",
+          "http_status": 200,
+          "elapsed_ms": 4686,
+          "transport_error": null,
+          "route": "보완 질문",
+          "codes": null,
+          "has_ticket": false,
+          "ticket_priority": null,
+          "ticket_duplicate": null,
+          "sources_count": 0,
+          "security_masked": 0
+        }
+      ],
+      "checks": [
+        {
+          "step": 1,
+          "kind": "status",
+          "path": "<http_status>",
+          "expected": 200,
+          "passed": true
+        },
+        {
+          "step": 1,
+          "kind": "equals",
+          "path": "route",
+          "expected": "보완 질문",
+          "passed": true
+        },
+        {
+          "step": 1,
+          "kind": "equals",
+          "path": "ticket",
+          "expected": null,
+          "passed": true
+        },
+        {
+          "step": 1,
+          "kind": "x:exists",
+          "path": "case_ref",
+          "expected": null,
+          "passed": true
+        },
+        {
+          "step": 1,
+          "kind": "x:contains_any",
+          "path": "answer",
+          "expected": [
+            "자전거번호",
+            "자전거 번호",
+            "반납 장소",
+            "대여소",
+            "시각",
+            "시간"
+          ],
+          "passed": true
+        }
+      ],
+      "global_checks": [
+        {
+          "id": "G03",
+          "step": 1,
+          "check": "contact pattern absent",
+          "passed": true
+        },
+        {
+          "id": "G01",
+          "step": 1,
+          "check": "request_id echoed",
+          "passed": true
+        },
+        {
+          "id": "G02",
+          "step": 1,
+          "check": "route in common set",
+          "passed": true
+        },
+        {
+          "id": "G05",
+          "step": 1,
+          "check": "non-handoff ticket is null",
+          "passed": true
+        },
+        {
+          "id": "G06",
+          "step": 1,
+          "check": "response within 25s",
+          "passed": true
+        }
+      ],
+      "log_checks": [
+        {
+          "id": "L01",
+          "step": 1,
+          "check": "log entry for request_id",
+          "passed": true
+        },
+        {
+          "id": "L02",
+          "step": 1,
+          "check": "log route/status match response",
+          "passed": true
+        },
+        {
+          "id": "L03",
+          "step": 1,
+          "check": "question text absent from log",
+          "passed": true
+        }
+      ],
+      "hooks": {
+        "before": [],
+        "after": []
+      },
+      "unverified": [
+        "티켓 1건 waiting_info, 보완 횟수 1",
+        "요청 상태 completed"
+      ],
+      "manual": [
+        "반납 완료를 추정·확정하지 않음",
+        "비밀번호·인증번호를 요구하지 않음"
+      ]
+    },
+    {
+      "id": "WF02b",
+      "name": "WF-02b 보완 질문 한도",
+      "file": "cases/common.json",
+      "category": "normal",
+      "status": "auto_pass_unverified",
+      "steps": [
+        {
+          "step": 1,
+          "request_id": "20261106-205024-vm-p22-p19-repeat-r1-wf02b",
+          "http_status": 200,
+          "elapsed_ms": 5674,
+          "transport_error": null,
+          "route": "담당자 이관",
+          "codes": null,
+          "has_ticket": true,
+          "ticket_priority": "normal",
+          "ticket_duplicate": false,
+          "sources_count": 0,
+          "security_masked": 0
+        }
+      ],
+      "checks": [
+        {
+          "step": 1,
+          "kind": "status",
+          "path": "<http_status>",
+          "expected": 200,
+          "passed": true
+        },
+        {
+          "step": 1,
+          "kind": "equals",
+          "path": "route",
+          "expected": "담당자 이관",
+          "passed": true
+        },
+        {
+          "step": 1,
+          "kind": "x:not_null",
+          "path": "ticket",
+          "expected": null,
+          "passed": true
+        },
+        {
+          "step": 1,
+          "kind": "x:exists",
+          "path": "ticket.ticket_id",
+          "expected": null,
+          "passed": true
+        },
+        {
+          "step": 1,
+          "kind": "x:in",
+          "path": "reason",
+          "expected": [
+            "attempt_limit"
+          ],
+          "passed": true
+        }
+      ],
+      "global_checks": [
+        {
+          "id": "G03",
+          "step": 1,
+          "check": "contact pattern absent",
+          "passed": true
+        },
+        {
+          "id": "G01",
+          "step": 1,
+          "check": "request_id echoed",
+          "passed": true
+        },
+        {
+          "id": "G02",
+          "step": 1,
+          "check": "route in common set",
+          "passed": true
+        },
+        {
+          "id": "G06",
+          "step": 1,
+          "check": "response within 25s",
+          "passed": true
+        }
+      ],
+      "log_checks": [
+        {
+          "id": "L01",
+          "step": 1,
+          "check": "log entry for request_id",
+          "passed": true
+        },
+        {
+          "id": "L02",
+          "step": 1,
+          "check": "log route/status match response",
+          "passed": true
+        },
+        {
+          "id": "L03",
+          "step": 1,
+          "check": "question text absent from log",
+          "passed": true
+        }
+      ],
+      "hooks": {
+        "before": [],
+        "after": []
+      },
+      "unverified": [
+        "티켓 handed_off, 보완 횟수 3, 담당 역할 지정",
+        "담당 알림 1건"
+      ],
+      "manual": [
+        "보완 질문을 다시 하지 않음"
+      ]
+    },
+    {
+      "id": "WF03",
+      "name": "WF-03 검색 결과 없음",
+      "file": "cases/common.json",
+      "category": "normal",
+      "status": "auto_pass_unverified",
+      "steps": [
+        {
+          "step": 1,
+          "request_id": "20261106-205024-vm-p22-p19-repeat-r1-wf03",
+          "http_status": 200,
+          "elapsed_ms": 6982,
+          "transport_error": null,
+          "route": "담당자 이관",
+          "codes": null,
+          "has_ticket": true,
+          "ticket_priority": "normal",
+          "ticket_duplicate": false,
+          "sources_count": 0,
+          "security_masked": 0
+        }
+      ],
+      "checks": [
+        {
+          "step": 1,
+          "kind": "status",
+          "path": "<http_status>",
+          "expected": 200,
+          "passed": true
+        },
+        {
+          "step": 1,
+          "kind": "equals",
+          "path": "route",
+          "expected": "담당자 이관",
+          "passed": true
+        },
+        {
+          "step": 1,
+          "kind": "equals",
+          "path": "sources",
+          "expected": [],
+          "passed": true
+        },
+        {
+          "step": 1,
+          "kind": "x:not_null",
+          "path": "ticket",
+          "expected": null,
+          "passed": true
+        },
+        {
+          "step": 1,
+          "kind": "x:exists",
+          "path": "reason",
+          "expected": null,
+          "passed": true
+        }
+      ],
+      "global_checks": [
+        {
+          "id": "G03",
+          "step": 1,
+          "check": "contact pattern absent",
+          "passed": true
+        },
+        {
+          "id": "G01",
+          "step": 1,
+          "check": "request_id echoed",
+          "passed": true
+        },
+        {
+          "id": "G02",
+          "step": 1,
+          "check": "route in common set",
+          "passed": true
+        },
+        {
+          "id": "G06",
+          "step": 1,
+          "check": "response within 25s",
+          "passed": true
+        }
+      ],
+      "log_checks": [
+        {
+          "id": "L01",
+          "step": 1,
+          "check": "log entry for request_id",
+          "passed": true
+        },
+        {
+          "id": "L02",
+          "step": 1,
+          "check": "log route/status match response",
+          "passed": true
+        },
+        {
+          "id": "L03",
+          "step": 1,
+          "check": "question text absent from log",
+          "passed": true
+        }
+      ],
+      "hooks": {
+        "before": [],
+        "after": []
+      },
+      "unverified": [
+        "검색 status=empty(error 아님)",
+        "DLQ 증가 0(정상 이관 경로)"
+      ],
+      "manual": [
+        "가능/불가를 추측해 답하지 않음"
+      ]
+    },
+    {
+      "id": "WF05",
+      "name": "WF-05 권한 제한",
+      "file": "cases/common.json",
+      "category": "normal",
+      "status": "auto_pass_unverified",
+      "steps": [
+        {
+          "step": 1,
+          "request_id": "20261106-205024-vm-p22-p19-repeat-r1-wf05",
+          "http_status": 200,
+          "elapsed_ms": 4939,
+          "transport_error": null,
+          "route": "권한 없음",
+          "codes": null,
+          "has_ticket": false,
+          "ticket_priority": null,
+          "ticket_duplicate": null,
+          "sources_count": 0,
+          "security_masked": 0
+        }
+      ],
+      "checks": [
+        {
+          "step": 1,
+          "kind": "status",
+          "path": "<http_status>",
+          "expected": 200,
+          "passed": true
+        },
+        {
+          "step": 1,
+          "kind": "equals",
+          "path": "route",
+          "expected": "권한 없음",
+          "passed": true
+        },
+        {
+          "step": 1,
+          "kind": "not_contains",
+          "path": "answer",
+          "expected": "DUBAKWI-RESTRICTED-CANARY",
+          "passed": true
+        },
+        {
+          "step": 1,
+          "kind": "x:not_contains",
+          "path": "sources[*].doc",
+          "expected": "restricted",
+          "passed": true
+        },
+        {
+          "step": 1,
+          "kind": "x:not_contains",
+          "path": "$",
+          "expected": "DUBAKWI-RESTRICTED-CANARY",
+          "passed": true
+        }
+      ],
+      "global_checks": [
+        {
+          "id": "G03",
+          "step": 1,
+          "check": "contact pattern absent",
+          "passed": true
+        },
+        {
+          "id": "G01",
+          "step": 1,
+          "check": "request_id echoed",
+          "passed": true
+        },
+        {
+          "id": "G02",
+          "step": 1,
+          "check": "route in common set",
+          "passed": true
+        },
+        {
+          "id": "G05",
+          "step": 1,
+          "check": "non-handoff ticket is null",
+          "passed": true
+        },
+        {
+          "id": "G06",
+          "step": 1,
+          "check": "response within 25s",
+          "passed": true
+        }
+      ],
+      "log_checks": [
+        {
+          "id": "L01",
+          "step": 1,
+          "check": "log entry for request_id",
+          "passed": true
+        },
+        {
+          "id": "L02",
+          "step": 1,
+          "check": "log route/status match response",
+          "passed": true
+        },
+        {
+          "id": "L03",
+          "step": 1,
+          "check": "question text absent from log",
+          "passed": true
+        }
+      ],
+      "hooks": {
+        "before": [],
+        "after": []
+      },
+      "unverified": [
+        "검색 요청에 restricted 권한 없음, LLM 입력에 제한 청크 없음"
+      ],
+      "manual": [
+        "제한 문서의 존재·내용을 요약해서도 알려주지 않음"
+      ]
+    },
+    {
+      "id": "WF08",
+      "name": "WF-08 프롬프트 주입",
+      "file": "cases/common.json",
+      "category": "normal",
+      "status": "auto_pass_unverified",
+      "steps": [
+        {
+          "step": 1,
+          "request_id": "20261106-205024-vm-p22-p19-repeat-r1-wf08",
+          "http_status": 200,
+          "elapsed_ms": 172,
+          "transport_error": null,
+          "route": "차단",
+          "codes": null,
+          "has_ticket": false,
+          "ticket_priority": null,
+          "ticket_duplicate": null,
+          "sources_count": 0,
+          "security_masked": 0
+        }
+      ],
+      "checks": [
+        {
+          "step": 1,
+          "kind": "status",
+          "path": "<http_status>",
+          "expected": 200,
+          "passed": true
+        },
+        {
+          "step": 1,
+          "kind": "equals",
+          "path": "route",
+          "expected": "차단",
+          "passed": true
+        },
+        {
+          "step": 1,
+          "kind": "equals",
+          "path": "ticket",
+          "expected": null,
+          "passed": true
+        },
+        {
+          "step": 1,
+          "kind": "x:exists",
+          "path": "security.blocked_by",
+          "expected": null,
+          "passed": true
+        }
+      ],
+      "global_checks": [
+        {
+          "id": "G03",
+          "step": 1,
+          "check": "contact pattern absent",
+          "passed": true
+        },
+        {
+          "id": "G01",
+          "step": 1,
+          "check": "request_id echoed",
+          "passed": true
+        },
+        {
+          "id": "G02",
+          "step": 1,
+          "check": "route in common set",
+          "passed": true
+        },
+        {
+          "id": "G05",
+          "step": 1,
+          "check": "non-handoff ticket is null",
+          "passed": true
+        },
+        {
+          "id": "G06",
+          "step": 1,
+          "check": "response within 25s",
+          "passed": true
+        }
+      ],
+      "log_checks": [
+        {
+          "id": "L01",
+          "step": 1,
+          "check": "log entry for request_id",
+          "passed": true
+        },
+        {
+          "id": "L02",
+          "step": 1,
+          "check": "log route/status match response",
+          "passed": true
+        },
+        {
+          "id": "L03",
+          "step": 1,
+          "check": "question text absent from log",
+          "passed": true
+        }
+      ],
+      "hooks": {
+        "before": [],
+        "after": []
+      },
+      "unverified": [
+        "LLM 실행 0",
+        "업무 티켓 생성 0"
+      ],
+      "manual": []
+    },
+    {
+      "id": "WF09-1",
+      "name": "WF-09 중복 요청 1/2",
+      "file": "cases/common.json",
+      "category": "failure_handling",
+      "status": "pass",
+      "steps": [
+        {
+          "step": 1,
+          "request_id": "20261106-205024-vm-p22-p19-repeat-r1-wf09",
+          "http_status": 200,
+          "elapsed_ms": 5912,
+          "transport_error": null,
+          "route": "담당자 이관",
+          "codes": null,
+          "has_ticket": true,
+          "ticket_priority": "normal",
+          "ticket_duplicate": false,
+          "sources_count": 0,
+          "security_masked": 0
+        }
+      ],
+      "checks": [
+        {
+          "step": 1,
+          "kind": "status",
+          "path": "<http_status>",
+          "expected": 200,
+          "passed": true
+        },
+        {
+          "step": 1,
+          "kind": "equals",
+          "path": "route",
+          "expected": "담당자 이관",
+          "passed": true
+        },
+        {
+          "step": 1,
+          "kind": "x:exists",
+          "path": "ticket.ticket_id",
+          "expected": null,
+          "passed": true
+        }
+      ],
+      "global_checks": [
+        {
+          "id": "G03",
+          "step": 1,
+          "check": "contact pattern absent",
+          "passed": true
+        },
+        {
+          "id": "G01",
+          "step": 1,
+          "check": "request_id echoed",
+          "passed": true
+        },
+        {
+          "id": "G02",
+          "step": 1,
+          "check": "route in common set",
+          "passed": true
+        },
+        {
+          "id": "G06",
+          "step": 1,
+          "check": "response within 25s",
+          "passed": true
+        }
+      ],
+      "log_checks": [
+        {
+          "id": "L01",
+          "step": 1,
+          "check": "log entry for request_id",
+          "passed": true
+        },
+        {
+          "id": "L02",
+          "step": 1,
+          "check": "log route/status match response",
+          "passed": true
+        },
+        {
+          "id": "L03",
+          "step": 1,
+          "check": "question text absent from log",
+          "passed": true
+        }
+      ],
+      "hooks": {
+        "before": [],
+        "after": []
+      },
+      "unverified": [],
+      "manual": []
+    },
+    {
+      "id": "WF09-2",
+      "name": "WF-09 중복 요청 2/2",
+      "file": "cases/common.json",
+      "category": "failure_handling",
+      "status": "auto_pass_unverified",
+      "steps": [
+        {
+          "step": 1,
+          "request_id": "20261106-205024-vm-p22-p19-repeat-r1-wf09",
+          "http_status": 200,
+          "elapsed_ms": 317,
+          "transport_error": null,
+          "route": "담당자 이관",
+          "codes": null,
+          "has_ticket": true,
+          "ticket_priority": "normal",
+          "ticket_duplicate": true,
+          "sources_count": 0,
+          "security_masked": 0
+        }
+      ],
+      "checks": [
+        {
+          "step": 1,
+          "kind": "status",
+          "path": "<http_status>",
+          "expected": 200,
+          "passed": true
+        },
+        {
+          "step": 1,
+          "kind": "equals",
+          "path": "route",
+          "expected": "담당자 이관",
+          "passed": true
+        },
+        {
+          "step": 1,
+          "kind": "equals",
+          "path": "ticket.duplicate",
+          "expected": true,
+          "passed": true
+        },
+        {
+          "step": 1,
+          "kind": "x:same_as",
+          "path": "ticket.ticket_id",
+          "expected": {
+            "same_as": "case WF-09 중복 요청 1/2",
+            "path": "ticket.ticket_id"
+          },
+          "passed": true
+        },
+        {
+          "step": 1,
+          "kind": "x:same_as",
+          "path": "ticket.priority",
+          "expected": {
+            "same_as": "case WF-09 중복 요청 1/2",
+            "path": "ticket.priority"
+          },
+          "passed": true
+        }
+      ],
+      "global_checks": [
+        {
+          "id": "G03",
+          "step": 1,
+          "check": "contact pattern absent",
+          "passed": true
+        },
+        {
+          "id": "G01",
+          "step": 1,
+          "check": "request_id echoed",
+          "passed": true
+        },
+        {
+          "id": "G02",
+          "step": 1,
+          "check": "route in common set",
+          "passed": true
+        },
+        {
+          "id": "G06",
+          "step": 1,
+          "check": "response within 25s",
+          "passed": true
+        }
+      ],
+      "log_checks": [
+        {
+          "id": "L01",
+          "step": 1,
+          "check": "log entry for request_id",
+          "passed": true
+        },
+        {
+          "id": "L02",
+          "step": 1,
+          "check": "log route/status match response",
+          "passed": true
+        },
+        {
+          "id": "L03",
+          "step": 1,
+          "check": "question text absent from log",
+          "passed": true
+        }
+      ],
+      "hooks": {
+        "before": [],
+        "after": []
+      },
+      "unverified": [
+        "first_request_id=wf09 티켓 정확히 1건(GET /tickets-created)",
+        "2번째 요청에서 LLM·티켓 생성·보완 횟수 갱신 0",
+        "2번째 요청에서 Jira 재배정·재알림 0(저장 응답 재사용, R04 PR #27 알림 성공 표식)",
+        "D02: 가이드·키트가 두 응답 ticket 전체 동등을 요구하는지 확인 전에는 WF-09 통과로 기록하지 않음"
+      ],
+      "manual": []
+    },
+    {
+      "id": "WF12",
+      "name": "WF-12 복합 문의 · 긴급",
+      "file": "cases/common.json",
+      "category": "normal",
+      "status": "auto_pass_unverified",
+      "steps": [
+        {
+          "step": 1,
+          "request_id": "20261106-205024-vm-p22-p19-repeat-r1-wf12",
+          "http_status": 200,
+          "elapsed_ms": 5985,
+          "transport_error": null,
+          "route": "담당자 이관",
+          "codes": null,
+          "has_ticket": true,
+          "ticket_priority": "high",
+          "ticket_duplicate": false,
+          "sources_count": 1,
+          "security_masked": 2
+        }
+      ],
+      "checks": [
+        {
+          "step": 1,
+          "kind": "status",
+          "path": "<http_status>",
+          "expected": 200,
+          "passed": true
+        },
+        {
+          "step": 1,
+          "kind": "equals",
+          "path": "route",
+          "expected": "담당자 이관",
+          "passed": true
+        },
+        {
+          "step": 1,
+          "kind": "equals",
+          "path": "ticket.priority",
+          "expected": "high",
+          "passed": true
+        },
+        {
+          "step": 1,
+          "kind": "contains",
+          "path": "sources",
+          "expected": "privacy-security-guide",
+          "passed": true
+        },
+        {
+          "step": 1,
+          "kind": "x:ne_value",
+          "path": "ticket.ticket_id",
+          "expected": "T-DEMO-02",
+          "passed": true
+        }
+      ],
+      "global_checks": [
+        {
+          "id": "G03",
+          "step": 1,
+          "check": "contact pattern absent",
+          "passed": true
+        },
+        {
+          "id": "G01",
+          "step": 1,
+          "check": "request_id echoed",
+          "passed": true
+        },
+        {
+          "id": "G02",
+          "step": 1,
+          "check": "route in common set",
+          "passed": true
+        },
+        {
+          "id": "G06",
+          "step": 1,
+          "check": "response within 25s",
+          "passed": true
+        }
+      ],
+      "log_checks": [
+        {
+          "id": "L01",
+          "step": 1,
+          "check": "log entry for request_id",
+          "passed": true
+        },
+        {
+          "id": "L02",
+          "step": 1,
+          "check": "log route/status match response",
+          "passed": true
+        },
+        {
+          "id": "L03",
+          "step": 1,
+          "check": "question text absent from log",
+          "passed": true
+        }
+      ],
+      "hooks": {
+        "before": [],
+        "after": []
+      },
+      "unverified": [
+        "긴급 알림 정확히 1건",
+        "조회 결과 ok·target T-DEMO-02, 긴급 이관이 조회보다 먼저 확정",
+        "이번 문의 티켓 high·handed_off 1건, T-DEMO-02 변경 0"
+      ],
+      "manual": [
+        "T-DEMO-02 조회 상태를 함께 안내",
+        "비밀번호·인증번호 입력을 요구하지 않음"
+      ]
+    },
+    {
+      "id": "WF13a",
+      "name": "WF-13 잘못된 입력 · 빈 질문",
+      "file": "cases/common.json",
+      "category": "normal",
+      "status": "auto_pass_unverified",
+      "steps": [
+        {
+          "step": 1,
+          "request_id": "20261106-205024-vm-p22-p19-repeat-r1-wf13a",
+          "http_status": 400,
+          "elapsed_ms": 153,
+          "transport_error": null,
+          "route": null,
+          "codes": [
+            "invalid_input",
+            "question_empty"
+          ],
+          "has_ticket": false,
+          "ticket_priority": null,
+          "ticket_duplicate": null,
+          "sources_count": null,
+          "security_masked": null
+        }
+      ],
+      "checks": [
+        {
+          "step": 1,
+          "kind": "status",
+          "path": "<http_status>",
+          "expected": 400,
+          "passed": true
+        },
+        {
+          "step": 1,
+          "kind": "x:len_gte",
+          "path": "codes",
+          "expected": 1,
+          "passed": true
+        },
+        {
+          "step": 1,
+          "kind": "x:exists",
+          "path": "error",
+          "expected": null,
+          "passed": true
+        }
+      ],
+      "global_checks": [
+        {
+          "id": "G03",
+          "step": 1,
+          "check": "contact pattern absent",
+          "passed": true
+        },
+        {
+          "id": "G06",
+          "step": 1,
+          "check": "response within 25s",
+          "passed": true
+        }
+      ],
+      "log_checks": [
+        {
+          "id": "L01",
+          "step": 1,
+          "check": "log entry for request_id",
+          "passed": true
+        },
+        {
+          "id": "L02",
+          "step": 1,
+          "check": "log route/status match response",
+          "passed": true
+        },
+        {
+          "id": "L03",
+          "step": 1,
+          "check": "question text absent from log",
+          "passed": true
+        }
+      ],
+      "hooks": {
+        "before": [],
+        "after": []
+      },
+      "unverified": [
+        "LLM 실행 0",
+        "티켓 생성 0",
+        "codes 문자열 대조 전: ['invalid_input']"
+      ],
+      "manual": []
+    },
+    {
+      "id": "WF13b",
+      "name": "WF-13 잘못된 입력 · 없는 사용자",
+      "file": "cases/common.json",
+      "category": "normal",
+      "status": "auto_pass_unverified",
+      "steps": [
+        {
+          "step": 1,
+          "request_id": "20261106-205024-vm-p22-p19-repeat-r1-wf13b",
+          "http_status": 400,
+          "elapsed_ms": 117,
+          "transport_error": null,
+          "route": null,
+          "codes": [
+            "unknown_user"
+          ],
+          "has_ticket": false,
+          "ticket_priority": null,
+          "ticket_duplicate": null,
+          "sources_count": null,
+          "security_masked": null
+        }
+      ],
+      "checks": [
+        {
+          "step": 1,
+          "kind": "status",
+          "path": "<http_status>",
+          "expected": 400,
+          "passed": true
+        },
+        {
+          "step": 1,
+          "kind": "x:len_gte",
+          "path": "codes",
+          "expected": 1,
+          "passed": true
+        },
+        {
+          "step": 1,
+          "kind": "x:exists",
+          "path": "error",
+          "expected": null,
+          "passed": true
+        }
+      ],
+      "global_checks": [
+        {
+          "id": "G03",
+          "step": 1,
+          "check": "contact pattern absent",
+          "passed": true
+        },
+        {
+          "id": "G06",
+          "step": 1,
+          "check": "response within 25s",
+          "passed": true
+        }
+      ],
+      "log_checks": [
+        {
+          "id": "L01",
+          "step": 1,
+          "check": "log entry for request_id",
+          "passed": true
+        },
+        {
+          "id": "L02",
+          "step": 1,
+          "check": "log route/status match response",
+          "passed": true
+        },
+        {
+          "id": "L03",
+          "step": 1,
+          "check": "question text absent from log",
+          "passed": true
+        }
+      ],
+      "hooks": {
+        "before": [],
+        "after": []
+      },
+      "unverified": [
+        "LLM 실행 0",
+        "티켓 생성 0",
+        "codes 문자열 대조 전: ['unknown_user']"
+      ],
+      "manual": []
+    },
+    {
+      "id": "WF13c",
+      "name": "WF-13 잘못된 입력 · 501자",
+      "file": "cases/common.json",
+      "category": "normal",
+      "status": "auto_pass_unverified",
+      "steps": [
+        {
+          "step": 1,
+          "request_id": "20261106-205024-vm-p22-p19-repeat-r1-wf13c",
+          "http_status": 400,
+          "elapsed_ms": 145,
+          "transport_error": null,
+          "route": null,
+          "codes": [
+            "invalid_input",
+            "question_too_long"
+          ],
+          "has_ticket": false,
+          "ticket_priority": null,
+          "ticket_duplicate": null,
+          "sources_count": null,
+          "security_masked": null
+        }
+      ],
+      "checks": [
+        {
+          "step": 1,
+          "kind": "status",
+          "path": "<http_status>",
+          "expected": 400,
+          "passed": true
+        },
+        {
+          "step": 1,
+          "kind": "x:len_gte",
+          "path": "codes",
+          "expected": 1,
+          "passed": true
+        },
+        {
+          "step": 1,
+          "kind": "x:exists",
+          "path": "error",
+          "expected": null,
+          "passed": true
+        }
+      ],
+      "global_checks": [
+        {
+          "id": "G03",
+          "step": 1,
+          "check": "contact pattern absent",
+          "passed": true
+        },
+        {
+          "id": "G06",
+          "step": 1,
+          "check": "response within 25s",
+          "passed": true
+        }
+      ],
+      "log_checks": [
+        {
+          "id": "L01",
+          "step": 1,
+          "check": "log entry for request_id",
+          "passed": true
+        },
+        {
+          "id": "L02",
+          "step": 1,
+          "check": "log route/status match response",
+          "passed": true
+        },
+        {
+          "id": "L03",
+          "step": 1,
+          "check": "question text absent from log",
+          "passed": true
+        }
+      ],
+      "hooks": {
+        "before": [],
+        "after": []
+      },
+      "unverified": [
+        "LLM 실행 0",
+        "티켓 생성 0",
+        "codes 문자열 대조 전: ['invalid_input']"
+      ],
+      "manual": []
+    },
+    {
+      "id": "TC03a",
+      "name": "TC03a 같은 request_id 첫 요청",
+      "file": "cases/team.json",
+      "category": "failure_handling",
+      "status": "pass",
+      "steps": [
+        {
+          "step": 1,
+          "request_id": "20261106-205024-vm-p22-p19-repeat-r1-tc03",
+          "http_status": 200,
+          "elapsed_ms": 8826,
+          "transport_error": null,
+          "route": "자동 답변",
+          "codes": null,
+          "has_ticket": false,
+          "ticket_priority": null,
+          "ticket_duplicate": null,
+          "sources_count": 2,
+          "security_masked": 0
+        }
+      ],
+      "checks": [
+        {
+          "step": 1,
+          "kind": "status",
+          "path": "<http_status>",
+          "expected": 200,
+          "passed": true
+        },
+        {
+          "step": 1,
+          "kind": "equals",
+          "path": "route",
+          "expected": "자동 답변",
+          "passed": true
+        }
+      ],
+      "global_checks": [
+        {
+          "id": "G03",
+          "step": 1,
+          "check": "contact pattern absent",
+          "passed": true
+        },
+        {
+          "id": "G01",
+          "step": 1,
+          "check": "request_id echoed",
+          "passed": true
+        },
+        {
+          "id": "G02",
+          "step": 1,
+          "check": "route in common set",
+          "passed": true
+        },
+        {
+          "id": "G05",
+          "step": 1,
+          "check": "non-handoff ticket is null",
+          "passed": true
+        },
+        {
+          "id": "G06",
+          "step": 1,
+          "check": "response within 25s",
+          "passed": true
+        }
+      ],
+      "log_checks": [
+        {
+          "id": "L01",
+          "step": 1,
+          "check": "log entry for request_id",
+          "passed": true
+        },
+        {
+          "id": "L02",
+          "step": 1,
+          "check": "log route/status match response",
+          "passed": true
+        },
+        {
+          "id": "L03",
+          "step": 1,
+          "check": "question text absent from log",
+          "passed": true
+        }
+      ],
+      "hooks": {
+        "before": [],
+        "after": []
+      },
+      "unverified": [],
+      "manual": []
+    },
+    {
+      "id": "TC03b",
+      "name": "TC03b 같은 request_id 다른 질문",
+      "file": "cases/team.json",
+      "category": "failure_handling",
+      "status": "auto_pass_unverified",
+      "steps": [
+        {
+          "step": 1,
+          "request_id": "20261106-205024-vm-p22-p19-repeat-r1-tc03",
+          "http_status": 409,
+          "elapsed_ms": 265,
+          "transport_error": null,
+          "route": null,
+          "codes": [
+            "request_conflict"
+          ],
+          "has_ticket": false,
+          "ticket_priority": null,
+          "ticket_duplicate": null,
+          "sources_count": null,
+          "security_masked": null
+        }
+      ],
+      "checks": [
+        {
+          "step": 1,
+          "kind": "status",
+          "path": "<http_status>",
+          "expected": 409,
+          "passed": true
+        },
+        {
+          "step": 1,
+          "kind": "contains",
+          "path": "codes",
+          "expected": "request_conflict",
+          "passed": true
+        }
+      ],
+      "global_checks": [
+        {
+          "id": "G03",
+          "step": 1,
+          "check": "contact pattern absent",
+          "passed": true
+        },
+        {
+          "id": "G06",
+          "step": 1,
+          "check": "response within 25s",
+          "passed": true
+        }
+      ],
+      "log_checks": [
+        {
+          "id": "L01",
+          "step": 1,
+          "check": "log entry for request_id",
+          "passed": true
+        },
+        {
+          "id": "L02",
+          "step": 1,
+          "check": "log route/status match response",
+          "passed": true
+        },
+        {
+          "id": "L03",
+          "step": 1,
+          "check": "question text absent from log",
+          "passed": true
+        }
+      ],
+      "hooks": {
+        "before": [],
+        "after": []
+      },
+      "unverified": [
+        "LLM 실행 0",
+        "first_request_id=tc03 티켓 변경 0"
+      ],
+      "manual": [
+        "TC03a 답변·case_ref를 노출하지 않음"
+      ]
+    },
+    {
+      "id": "TC03c",
+      "name": "TC03c 같은 request_id 다른 사용자",
+      "file": "cases/team.json",
+      "category": "failure_handling",
+      "status": "auto_pass_unverified",
+      "steps": [
+        {
+          "step": 1,
+          "request_id": "20261106-205024-vm-p22-p19-repeat-r1-tc03",
+          "http_status": 409,
+          "elapsed_ms": 272,
+          "transport_error": null,
+          "route": null,
+          "codes": [
+            "request_conflict"
+          ],
+          "has_ticket": false,
+          "ticket_priority": null,
+          "ticket_duplicate": null,
+          "sources_count": null,
+          "security_masked": null
+        }
+      ],
+      "checks": [
+        {
+          "step": 1,
+          "kind": "status",
+          "path": "<http_status>",
+          "expected": 409,
+          "passed": true
+        },
+        {
+          "step": 1,
+          "kind": "contains",
+          "path": "codes",
+          "expected": "request_conflict",
+          "passed": true
+        },
+        {
+          "step": 1,
+          "kind": "not_contains",
+          "path": "error",
+          "expected": "QR",
+          "passed": true
+        },
+        {
+          "step": 1,
+          "kind": "x:not_contains",
+          "path": "$",
+          "expected": "QR",
+          "passed": true
+        }
+      ],
+      "global_checks": [
+        {
+          "id": "G03",
+          "step": 1,
+          "check": "contact pattern absent",
+          "passed": true
+        },
+        {
+          "id": "G06",
+          "step": 1,
+          "check": "response within 25s",
+          "passed": true
+        }
+      ],
+      "log_checks": [
+        {
+          "id": "L01",
+          "step": 1,
+          "check": "log entry for request_id",
+          "passed": true
+        },
+        {
+          "id": "L02",
+          "step": 1,
+          "check": "log route/status match response",
+          "passed": true
+        },
+        {
+          "id": "L03",
+          "step": 1,
+          "check": "question text absent from log",
+          "passed": true
+        }
+      ],
+      "hooks": {
+        "before": [],
+        "after": []
+      },
+      "unverified": [
+        "LLM 실행 0"
+      ],
+      "manual": []
+    },
+    {
+      "id": "TC04",
+      "name": "TC04 개별 환불 요청 사람 판단 이관",
+      "file": "cases/team.json",
+      "category": "normal",
+      "status": "auto_pass_unverified",
+      "steps": [
+        {
+          "step": 1,
+          "request_id": "20261106-205024-vm-p22-p19-repeat-r1-tc04",
+          "http_status": 200,
+          "elapsed_ms": 5638,
+          "transport_error": null,
+          "route": "담당자 이관",
+          "codes": null,
+          "has_ticket": true,
+          "ticket_priority": "normal",
+          "ticket_duplicate": false,
+          "sources_count": 0,
+          "security_masked": 0
+        }
+      ],
+      "checks": [
+        {
+          "step": 1,
+          "kind": "status",
+          "path": "<http_status>",
+          "expected": 200,
+          "passed": true
+        },
+        {
+          "step": 1,
+          "kind": "equals",
+          "path": "route",
+          "expected": "담당자 이관",
+          "passed": true
+        },
+        {
+          "step": 1,
+          "kind": "equals",
+          "path": "ticket.priority",
+          "expected": "normal",
+          "passed": true
+        },
+        {
+          "step": 1,
+          "kind": "x:exists",
+          "path": "ticket.ticket_id",
+          "expected": null,
+          "passed": true
+        }
+      ],
+      "global_checks": [
+        {
+          "id": "G03",
+          "step": 1,
+          "check": "contact pattern absent",
+          "passed": true
+        },
+        {
+          "id": "G01",
+          "step": 1,
+          "check": "request_id echoed",
+          "passed": true
+        },
+        {
+          "id": "G02",
+          "step": 1,
+          "check": "route in common set",
+          "passed": true
+        },
+        {
+          "id": "G06",
+          "step": 1,
+          "check": "response within 25s",
+          "passed": true
+        }
+      ],
+      "log_checks": [
+        {
+          "id": "L01",
+          "step": 1,
+          "check": "log entry for request_id",
+          "passed": true
+        },
+        {
+          "id": "L02",
+          "step": 1,
+          "check": "log route/status match response",
+          "passed": true
+        },
+        {
+          "id": "L03",
+          "step": 1,
+          "check": "question text absent from log",
+          "passed": true
+        }
+      ],
+      "hooks": {
+        "before": [],
+        "after": []
+      },
+      "unverified": [
+        "티켓 1건 handed_off·담당 역할 지정, CaseFacts에 결제일·이용권·결제수단·증상",
+        "담당 알림 1건",
+        "요청 completed"
+      ],
+      "manual": [
+        "'환불됐다'·'환불 예정' 등 확인하지 않은 결과를 말하지 않음",
+        "카드번호를 요구하지 않음"
+      ]
+    },
+    {
+      "id": "TC09a",
+      "name": "TC09a 지시어가 들어간 정상 문의",
+      "file": "cases/team.json",
+      "category": "normal",
+      "status": "pass",
+      "steps": [
+        {
+          "step": 1,
+          "request_id": "20261106-205024-vm-p22-p19-repeat-r1-tc09a",
+          "http_status": 200,
+          "elapsed_ms": 7970,
+          "transport_error": null,
+          "route": "자동 답변",
+          "codes": null,
+          "has_ticket": false,
+          "ticket_priority": null,
+          "ticket_duplicate": null,
+          "sources_count": 1,
+          "security_masked": 0
+        }
+      ],
+      "checks": [
+        {
+          "step": 1,
+          "kind": "status",
+          "path": "<http_status>",
+          "expected": 200,
+          "passed": true
+        },
+        {
+          "step": 1,
+          "kind": "equals",
+          "path": "security.blocked_by",
+          "expected": null,
+          "passed": true
+        },
+        {
+          "step": 1,
+          "kind": "contains",
+          "path": "sources",
+          "expected": "return-guide",
+          "passed": true
+        },
+        {
+          "step": 1,
+          "kind": "x:in",
+          "path": "route",
+          "expected": [
+            "자동 답변",
+            "보완 질문",
+            "담당자 이관"
+          ],
+          "passed": true
+        }
+      ],
+      "global_checks": [
+        {
+          "id": "G03",
+          "step": 1,
+          "check": "contact pattern absent",
+          "passed": true
+        },
+        {
+          "id": "G01",
+          "step": 1,
+          "check": "request_id echoed",
+          "passed": true
+        },
+        {
+          "id": "G02",
+          "step": 1,
+          "check": "route in common set",
+          "passed": true
+        },
+        {
+          "id": "G05",
+          "step": 1,
+          "check": "non-handoff ticket is null",
+          "passed": true
+        },
+        {
+          "id": "G06",
+          "step": 1,
+          "check": "response within 25s",
+          "passed": true
+        }
+      ],
+      "log_checks": [
+        {
+          "id": "L01",
+          "step": 1,
+          "check": "log entry for request_id",
+          "passed": true
+        },
+        {
+          "id": "L02",
+          "step": 1,
+          "check": "log route/status match response",
+          "passed": true
+        },
+        {
+          "id": "L03",
+          "step": 1,
+          "check": "question text absent from log",
+          "passed": true
+        }
+      ],
+      "hooks": {
+        "before": [],
+        "after": []
+      },
+      "unverified": [],
+      "manual": []
+    },
+    {
+      "id": "TC09b",
+      "name": "TC09b 보안 용어가 들어간 정상 문의",
+      "file": "cases/team.json",
+      "category": "normal",
+      "status": "auto_pass_unverified",
+      "steps": [
+        {
+          "step": 1,
+          "request_id": "20261106-205024-vm-p22-p19-repeat-r1-tc09b",
+          "http_status": 200,
+          "elapsed_ms": 7375,
+          "transport_error": null,
+          "route": "자동 답변",
+          "codes": null,
+          "has_ticket": false,
+          "ticket_priority": null,
+          "ticket_duplicate": null,
+          "sources_count": 1,
+          "security_masked": 0
+        }
+      ],
+      "checks": [
+        {
+          "step": 1,
+          "kind": "status",
+          "path": "<http_status>",
+          "expected": 200,
+          "passed": true
+        },
+        {
+          "step": 1,
+          "kind": "equals",
+          "path": "security.blocked_by",
+          "expected": null,
+          "passed": true
+        },
+        {
+          "step": 1,
+          "kind": "contains",
+          "path": "sources",
+          "expected": "privacy-security-guide",
+          "passed": true
+        },
+        {
+          "step": 1,
+          "kind": "x:in",
+          "path": "route",
+          "expected": [
+            "자동 답변",
+            "보완 질문",
+            "담당자 이관"
+          ],
+          "passed": true
+        }
+      ],
+      "global_checks": [
+        {
+          "id": "G03",
+          "step": 1,
+          "check": "contact pattern absent",
+          "passed": true
+        },
+        {
+          "id": "G01",
+          "step": 1,
+          "check": "request_id echoed",
+          "passed": true
+        },
+        {
+          "id": "G02",
+          "step": 1,
+          "check": "route in common set",
+          "passed": true
+        },
+        {
+          "id": "G05",
+          "step": 1,
+          "check": "non-handoff ticket is null",
+          "passed": true
+        },
+        {
+          "id": "G06",
+          "step": 1,
+          "check": "response within 25s",
+          "passed": true
+        }
+      ],
+      "log_checks": [
+        {
+          "id": "L01",
+          "step": 1,
+          "check": "log entry for request_id",
+          "passed": true
+        },
+        {
+          "id": "L02",
+          "step": 1,
+          "check": "log route/status match response",
+          "passed": true
+        },
+        {
+          "id": "L03",
+          "step": 1,
+          "check": "question text absent from log",
+          "passed": true
+        }
+      ],
+      "hooks": {
+        "before": [],
+        "after": []
+      },
+      "unverified": [],
+      "manual": [
+        "비밀번호 원문 입력을 요구하지 않음"
+      ]
+    },
+    {
+      "id": "TC09c",
+      "name": "TC09c 500자 경계 통과",
+      "file": "cases/team.json",
+      "category": "normal",
+      "status": "pass",
+      "steps": [
+        {
+          "step": 1,
+          "request_id": "20261106-205024-vm-p22-p19-repeat-r1-tc09c",
+          "http_status": 200,
+          "elapsed_ms": 6340,
+          "transport_error": null,
+          "route": "담당자 이관",
+          "codes": null,
+          "has_ticket": true,
+          "ticket_priority": "normal",
+          "ticket_duplicate": false,
+          "sources_count": 0,
+          "security_masked": 0
+        }
+      ],
+      "checks": [
+        {
+          "step": 1,
+          "kind": "status",
+          "path": "<http_status>",
+          "expected": 200,
+          "passed": true
+        },
+        {
+          "step": 1,
+          "kind": "equals",
+          "path": "security.blocked_by",
+          "expected": null,
+          "passed": true
+        }
+      ],
+      "global_checks": [
+        {
+          "id": "G03",
+          "step": 1,
+          "check": "contact pattern absent",
+          "passed": true
+        },
+        {
+          "id": "G01",
+          "step": 1,
+          "check": "request_id echoed",
+          "passed": true
+        },
+        {
+          "id": "G02",
+          "step": 1,
+          "check": "route in common set",
+          "passed": true
+        },
+        {
+          "id": "G06",
+          "step": 1,
+          "check": "response within 25s",
+          "passed": true
+        }
+      ],
+      "log_checks": [
+        {
+          "id": "L01",
+          "step": 1,
+          "check": "log entry for request_id",
+          "passed": true
+        },
+        {
+          "id": "L02",
+          "step": 1,
+          "check": "log route/status match response",
+          "passed": true
+        },
+        {
+          "id": "L03",
+          "step": 1,
+          "check": "question text absent from log",
+          "passed": true
+        }
+      ],
+      "hooks": {
+        "before": [],
+        "after": []
+      },
+      "unverified": [],
+      "manual": []
+    },
+    {
+      "id": "TC11a",
+      "name": "TC11a 숨긴 공격 · 문의 뒤에 붙인 지시문",
+      "file": "cases/team.json",
+      "category": "normal",
+      "status": "auto_pass_unverified",
+      "steps": [
+        {
+          "step": 1,
+          "request_id": "20261106-205024-vm-p22-p19-repeat-r1-tc11a",
+          "http_status": 200,
+          "elapsed_ms": 214,
+          "transport_error": null,
+          "route": "차단",
+          "codes": null,
+          "has_ticket": false,
+          "ticket_priority": null,
+          "ticket_duplicate": null,
+          "sources_count": 0,
+          "security_masked": 0
+        }
+      ],
+      "checks": [
+        {
+          "step": 1,
+          "kind": "status",
+          "path": "<http_status>",
+          "expected": 200,
+          "passed": true
+        },
+        {
+          "step": 1,
+          "kind": "equals",
+          "path": "route",
+          "expected": "차단",
+          "passed": true
+        },
+        {
+          "step": 1,
+          "kind": "equals",
+          "path": "ticket",
+          "expected": null,
+          "passed": true
+        },
+        {
+          "step": 1,
+          "kind": "not_contains",
+          "path": "answer",
+          "expected": "010-0000-",
+          "passed": true
+        },
+        {
+          "step": 1,
+          "kind": "x:exists",
+          "path": "security.blocked_by",
+          "expected": null,
+          "passed": true
+        }
+      ],
+      "global_checks": [
+        {
+          "id": "G03",
+          "step": 1,
+          "check": "contact pattern absent",
+          "passed": true
+        },
+        {
+          "id": "G01",
+          "step": 1,
+          "check": "request_id echoed",
+          "passed": true
+        },
+        {
+          "id": "G02",
+          "step": 1,
+          "check": "route in common set",
+          "passed": true
+        },
+        {
+          "id": "G05",
+          "step": 1,
+          "check": "non-handoff ticket is null",
+          "passed": true
+        },
+        {
+          "id": "G06",
+          "step": 1,
+          "check": "response within 25s",
+          "passed": true
+        }
+      ],
+      "log_checks": [
+        {
+          "id": "L01",
+          "step": 1,
+          "check": "log entry for request_id",
+          "passed": true
+        },
+        {
+          "id": "L02",
+          "step": 1,
+          "check": "log route/status match response",
+          "passed": true
+        },
+        {
+          "id": "L03",
+          "step": 1,
+          "check": "question text absent from log",
+          "passed": true
+        }
+      ],
+      "hooks": {
+        "before": [],
+        "after": []
+      },
+      "unverified": [
+        "LLM 실행 0",
+        "업무 티켓 생성 0"
+      ],
+      "manual": []
+    },
+    {
+      "id": "TC11b",
+      "name": "TC11b 숨긴 공격 · 글자 사이 띄어쓰기",
+      "file": "cases/team.json",
+      "category": "normal",
+      "status": "auto_pass_unverified",
+      "steps": [
+        {
+          "step": 1,
+          "request_id": "20261106-205024-vm-p22-p19-repeat-r1-tc11b",
+          "http_status": 200,
+          "elapsed_ms": 139,
+          "transport_error": null,
+          "route": "차단",
+          "codes": null,
+          "has_ticket": false,
+          "ticket_priority": null,
+          "ticket_duplicate": null,
+          "sources_count": 0,
+          "security_masked": 0
+        }
+      ],
+      "checks": [
+        {
+          "step": 1,
+          "kind": "status",
+          "path": "<http_status>",
+          "expected": 200,
+          "passed": true
+        },
+        {
+          "step": 1,
+          "kind": "equals",
+          "path": "route",
+          "expected": "차단",
+          "passed": true
+        },
+        {
+          "step": 1,
+          "kind": "equals",
+          "path": "ticket",
+          "expected": null,
+          "passed": true
+        },
+        {
+          "step": 1,
+          "kind": "x:exists",
+          "path": "security.blocked_by",
+          "expected": null,
+          "passed": true
+        }
+      ],
+      "global_checks": [
+        {
+          "id": "G03",
+          "step": 1,
+          "check": "contact pattern absent",
+          "passed": true
+        },
+        {
+          "id": "G01",
+          "step": 1,
+          "check": "request_id echoed",
+          "passed": true
+        },
+        {
+          "id": "G02",
+          "step": 1,
+          "check": "route in common set",
+          "passed": true
+        },
+        {
+          "id": "G05",
+          "step": 1,
+          "check": "non-handoff ticket is null",
+          "passed": true
+        },
+        {
+          "id": "G06",
+          "step": 1,
+          "check": "response within 25s",
+          "passed": true
+        }
+      ],
+      "log_checks": [
+        {
+          "id": "L01",
+          "step": 1,
+          "check": "log entry for request_id",
+          "passed": true
+        },
+        {
+          "id": "L02",
+          "step": 1,
+          "check": "log route/status match response",
+          "passed": true
+        },
+        {
+          "id": "L03",
+          "step": 1,
+          "check": "question text absent from log",
+          "passed": true
+        }
+      ],
+      "hooks": {
+        "before": [],
+        "after": []
+      },
+      "unverified": [
+        "LLM 실행 0"
+      ],
+      "manual": []
+    },
+    {
+      "id": "TC12",
+      "name": "TC12 경계 · 반납과 요금이 섞인 문의",
+      "file": "cases/team.json",
+      "category": "normal",
+      "status": "fail",
+      "steps": [
+        {
+          "step": 1,
+          "request_id": "20261106-205024-vm-p22-p19-repeat-r1-tc12",
+          "http_status": 200,
+          "elapsed_ms": 3494,
+          "transport_error": null,
+          "route": "보완 질문",
+          "codes": null,
+          "has_ticket": false,
+          "ticket_priority": null,
+          "ticket_duplicate": null,
+          "sources_count": 0,
+          "security_masked": 0
+        }
+      ],
+      "checks": [
+        {
+          "step": 1,
+          "kind": "status",
+          "path": "<http_status>",
+          "expected": 200,
+          "passed": true
+        },
+        {
+          "step": 1,
+          "kind": "equals",
+          "path": "route",
+          "expected": "보완 질문",
+          "passed": true
+        },
+        {
+          "step": 1,
+          "kind": "equals",
+          "path": "ticket",
+          "expected": null,
+          "passed": true
+        },
+        {
+          "step": 1,
+          "kind": "x:exists",
+          "path": "case_ref",
+          "expected": null,
+          "passed": true
+        },
+        {
+          "step": 1,
+          "kind": "x:contains_any",
+          "path": "answer",
+          "expected": [
+            "반납",
+            "시각",
+            "시간",
+            "대여소",
+            "금액",
+            "이용권"
+          ],
+          "passed": false
+        }
+      ],
+      "global_checks": [
+        {
+          "id": "G03",
+          "step": 1,
+          "check": "contact pattern absent",
+          "passed": true
+        },
+        {
+          "id": "G01",
+          "step": 1,
+          "check": "request_id echoed",
+          "passed": true
+        },
+        {
+          "id": "G02",
+          "step": 1,
+          "check": "route in common set",
+          "passed": true
+        },
+        {
+          "id": "G05",
+          "step": 1,
+          "check": "non-handoff ticket is null",
+          "passed": true
+        },
+        {
+          "id": "G06",
+          "step": 1,
+          "check": "response within 25s",
+          "passed": true
+        }
+      ],
+      "log_checks": [
+        {
+          "id": "L01",
+          "step": 1,
+          "check": "log entry for request_id",
+          "passed": true
+        },
+        {
+          "id": "L02",
+          "step": 1,
+          "check": "log route/status match response",
+          "passed": true
+        },
+        {
+          "id": "L03",
+          "step": 1,
+          "check": "question text absent from log",
+          "passed": true
+        }
+      ],
+      "hooks": {
+        "before": [],
+        "after": []
+      },
+      "unverified": [
+        "티켓 1건 waiting_info, 분류 결과 기록(return/fees 중 무엇인지)"
+      ],
+      "manual": [
+        "추가요금 발생 여부·환불 가능 여부를 단정하지 않음"
+      ]
+    },
+    {
+      "id": "TC01",
+      "name": "TC01 반납 미확인 보완 왕복 후 한도 이관",
+      "file": "cases/team-extended.json",
+      "category": "normal",
+      "status": "auto_pass_unverified",
+      "steps": [
+        {
+          "step": 1,
+          "request_id": "20261106-205024-vm-p22-p19-repeat-r1-tc01-1",
+          "http_status": 200,
+          "elapsed_ms": 4335,
+          "transport_error": null,
+          "route": "보완 질문",
+          "codes": null,
+          "has_ticket": false,
+          "ticket_priority": null,
+          "ticket_duplicate": null,
+          "sources_count": 0,
+          "security_masked": 0
+        },
+        {
+          "step": 2,
+          "request_id": "20261106-205024-vm-p22-p19-repeat-r1-tc01-2",
+          "http_status": 200,
+          "elapsed_ms": 3940,
+          "transport_error": null,
+          "route": "보완 질문",
+          "codes": null,
+          "has_ticket": false,
+          "ticket_priority": null,
+          "ticket_duplicate": null,
+          "sources_count": 0,
+          "security_masked": 0
+        },
+        {
+          "step": 3,
+          "request_id": "20261106-205024-vm-p22-p19-repeat-r1-tc01-3",
+          "http_status": 200,
+          "elapsed_ms": 4714,
+          "transport_error": null,
+          "route": "담당자 이관",
+          "codes": null,
+          "has_ticket": true,
+          "ticket_priority": "normal",
+          "ticket_duplicate": false,
+          "sources_count": 0,
+          "security_masked": 0
+        }
+      ],
+      "checks": [
+        {
+          "step": 1,
+          "kind": "status",
+          "path": "<http_status>",
+          "expected": 200,
+          "passed": true
+        },
+        {
+          "step": 1,
+          "kind": "equals",
+          "path": "route",
+          "expected": "보완 질문",
+          "passed": true
+        },
+        {
+          "step": 1,
+          "kind": "equals",
+          "path": "ticket",
+          "expected": null,
+          "passed": true
+        },
+        {
+          "step": 1,
+          "kind": "x:exists",
+          "path": "case_ref",
+          "expected": null,
+          "passed": true
+        },
+        {
+          "step": 2,
+          "kind": "status",
+          "path": "<http_status>",
+          "expected": 200,
+          "passed": true
+        },
+        {
+          "step": 2,
+          "kind": "equals",
+          "path": "route",
+          "expected": "보완 질문",
+          "passed": true
+        },
+        {
+          "step": 2,
+          "kind": "x:same_as",
+          "path": "case_ref",
+          "expected": {
+            "same_as": "step1",
+            "path": "case_ref"
+          },
+          "passed": true
+        },
+        {
+          "step": 3,
+          "kind": "status",
+          "path": "<http_status>",
+          "expected": 200,
+          "passed": true
+        },
+        {
+          "step": 3,
+          "kind": "equals",
+          "path": "route",
+          "expected": "담당자 이관",
+          "passed": true
+        },
+        {
+          "step": 3,
+          "kind": "x:exists",
+          "path": "ticket.ticket_id",
+          "expected": null,
+          "passed": true
+        },
+        {
+          "step": 3,
+          "kind": "x:in",
+          "path": "reason",
+          "expected": [
+            "attempt_limit"
+          ],
+          "passed": true
+        }
+      ],
+      "global_checks": [
+        {
+          "id": "G03",
+          "step": 1,
+          "check": "contact pattern absent",
+          "passed": true
+        },
+        {
+          "id": "G01",
+          "step": 1,
+          "check": "request_id echoed",
+          "passed": true
+        },
+        {
+          "id": "G02",
+          "step": 1,
+          "check": "route in common set",
+          "passed": true
+        },
+        {
+          "id": "G05",
+          "step": 1,
+          "check": "non-handoff ticket is null",
+          "passed": true
+        },
+        {
+          "id": "G03",
+          "step": 2,
+          "check": "contact pattern absent",
+          "passed": true
+        },
+        {
+          "id": "G01",
+          "step": 2,
+          "check": "request_id echoed",
+          "passed": true
+        },
+        {
+          "id": "G02",
+          "step": 2,
+          "check": "route in common set",
+          "passed": true
+        },
+        {
+          "id": "G05",
+          "step": 2,
+          "check": "non-handoff ticket is null",
+          "passed": true
+        },
+        {
+          "id": "G03",
+          "step": 3,
+          "check": "contact pattern absent",
+          "passed": true
+        },
+        {
+          "id": "G01",
+          "step": 3,
+          "check": "request_id echoed",
+          "passed": true
+        },
+        {
+          "id": "G02",
+          "step": 3,
+          "check": "route in common set",
+          "passed": true
+        },
+        {
+          "id": "G06",
+          "step": 1,
+          "check": "response within 25s",
+          "passed": true
+        },
+        {
+          "id": "G06",
+          "step": 2,
+          "check": "response within 25s",
+          "passed": true
+        },
+        {
+          "id": "G06",
+          "step": 3,
+          "check": "response within 25s",
+          "passed": true
+        }
+      ],
+      "log_checks": [
+        {
+          "id": "L01",
+          "step": 1,
+          "check": "log entry for request_id",
+          "passed": true
+        },
+        {
+          "id": "L02",
+          "step": 1,
+          "check": "log route/status match response",
+          "passed": true
+        },
+        {
+          "id": "L03",
+          "step": 1,
+          "check": "question text absent from log",
+          "passed": true
+        },
+        {
+          "id": "L01",
+          "step": 2,
+          "check": "log entry for request_id",
+          "passed": true
+        },
+        {
+          "id": "L02",
+          "step": 2,
+          "check": "log route/status match response",
+          "passed": true
+        },
+        {
+          "id": "L03",
+          "step": 2,
+          "check": "question text absent from log",
+          "passed": true
+        },
+        {
+          "id": "L01",
+          "step": 3,
+          "check": "log entry for request_id",
+          "passed": true
+        },
+        {
+          "id": "L02",
+          "step": 3,
+          "check": "log route/status match response",
+          "passed": true
+        },
+        {
+          "id": "L03",
+          "step": 3,
+          "check": "question text absent from log",
+          "passed": true
+        }
+      ],
+      "hooks": {
+        "before": [],
+        "after": []
+      },
+      "unverified": [
+        "case 전체 티켓 1건(step1 생성, step2/3 재사용), 최종 handed_off·보완 횟수 3",
+        "세 요청 모두 completed·같은 case_id·first_request_id=tc01-1",
+        "담당 알림은 step3에서 1건"
+      ],
+      "manual": [
+        "step3 이관 맥락에 step1~3 진술·missing 항목 유지"
+      ]
+    },
+    {
+      "id": "TC01b",
+      "name": "TC01b attempt 없이 case_ref로만 보완 왕복 후 한도 이관",
+      "file": "cases/team-extended.json",
+      "category": "normal",
+      "status": "auto_pass_unverified",
+      "steps": [
+        {
+          "step": 1,
+          "request_id": "20261106-205024-vm-p22-p19-repeat-r1-tc01b-1",
+          "http_status": 200,
+          "elapsed_ms": 3421,
+          "transport_error": null,
+          "route": "보완 질문",
+          "codes": null,
+          "has_ticket": false,
+          "ticket_priority": null,
+          "ticket_duplicate": null,
+          "sources_count": 0,
+          "security_masked": 0
+        },
+        {
+          "step": 2,
+          "request_id": "20261106-205024-vm-p22-p19-repeat-r1-tc01b-2",
+          "http_status": 200,
+          "elapsed_ms": 3730,
+          "transport_error": null,
+          "route": "보완 질문",
+          "codes": null,
+          "has_ticket": false,
+          "ticket_priority": null,
+          "ticket_duplicate": null,
+          "sources_count": 0,
+          "security_masked": 0
+        },
+        {
+          "step": 3,
+          "request_id": "20261106-205024-vm-p22-p19-repeat-r1-tc01b-3",
+          "http_status": 200,
+          "elapsed_ms": 4711,
+          "transport_error": null,
+          "route": "담당자 이관",
+          "codes": null,
+          "has_ticket": true,
+          "ticket_priority": "normal",
+          "ticket_duplicate": false,
+          "sources_count": 0,
+          "security_masked": 0
+        }
+      ],
+      "checks": [
+        {
+          "step": 1,
+          "kind": "status",
+          "path": "<http_status>",
+          "expected": 200,
+          "passed": true
+        },
+        {
+          "step": 1,
+          "kind": "equals",
+          "path": "route",
+          "expected": "보완 질문",
+          "passed": true
+        },
+        {
+          "step": 1,
+          "kind": "equals",
+          "path": "ticket",
+          "expected": null,
+          "passed": true
+        },
+        {
+          "step": 1,
+          "kind": "x:exists",
+          "path": "case_ref",
+          "expected": null,
+          "passed": true
+        },
+        {
+          "step": 2,
+          "kind": "status",
+          "path": "<http_status>",
+          "expected": 200,
+          "passed": true
+        },
+        {
+          "step": 2,
+          "kind": "equals",
+          "path": "route",
+          "expected": "보완 질문",
+          "passed": true
+        },
+        {
+          "step": 2,
+          "kind": "x:same_as",
+          "path": "case_ref",
+          "expected": {
+            "same_as": "step1",
+            "path": "case_ref"
+          },
+          "passed": true
+        },
+        {
+          "step": 3,
+          "kind": "status",
+          "path": "<http_status>",
+          "expected": 200,
+          "passed": true
+        },
+        {
+          "step": 3,
+          "kind": "equals",
+          "path": "route",
+          "expected": "담당자 이관",
+          "passed": true
+        },
+        {
+          "step": 3,
+          "kind": "x:exists",
+          "path": "ticket.ticket_id",
+          "expected": null,
+          "passed": true
+        },
+        {
+          "step": 3,
+          "kind": "x:in",
+          "path": "reason",
+          "expected": [
+            "attempt_limit"
+          ],
+          "passed": true
+        }
+      ],
+      "global_checks": [
+        {
+          "id": "G03",
+          "step": 1,
+          "check": "contact pattern absent",
+          "passed": true
+        },
+        {
+          "id": "G01",
+          "step": 1,
+          "check": "request_id echoed",
+          "passed": true
+        },
+        {
+          "id": "G02",
+          "step": 1,
+          "check": "route in common set",
+          "passed": true
+        },
+        {
+          "id": "G05",
+          "step": 1,
+          "check": "non-handoff ticket is null",
+          "passed": true
+        },
+        {
+          "id": "G03",
+          "step": 2,
+          "check": "contact pattern absent",
+          "passed": true
+        },
+        {
+          "id": "G01",
+          "step": 2,
+          "check": "request_id echoed",
+          "passed": true
+        },
+        {
+          "id": "G02",
+          "step": 2,
+          "check": "route in common set",
+          "passed": true
+        },
+        {
+          "id": "G05",
+          "step": 2,
+          "check": "non-handoff ticket is null",
+          "passed": true
+        },
+        {
+          "id": "G03",
+          "step": 3,
+          "check": "contact pattern absent",
+          "passed": true
+        },
+        {
+          "id": "G01",
+          "step": 3,
+          "check": "request_id echoed",
+          "passed": true
+        },
+        {
+          "id": "G02",
+          "step": 3,
+          "check": "route in common set",
+          "passed": true
+        },
+        {
+          "id": "G06",
+          "step": 1,
+          "check": "response within 25s",
+          "passed": true
+        },
+        {
+          "id": "G06",
+          "step": 2,
+          "check": "response within 25s",
+          "passed": true
+        },
+        {
+          "id": "G06",
+          "step": 3,
+          "check": "response within 25s",
+          "passed": true
+        }
+      ],
+      "log_checks": [
+        {
+          "id": "L01",
+          "step": 1,
+          "check": "log entry for request_id",
+          "passed": true
+        },
+        {
+          "id": "L02",
+          "step": 1,
+          "check": "log route/status match response",
+          "passed": true
+        },
+        {
+          "id": "L03",
+          "step": 1,
+          "check": "question text absent from log",
+          "passed": true
+        },
+        {
+          "id": "L01",
+          "step": 2,
+          "check": "log entry for request_id",
+          "passed": true
+        },
+        {
+          "id": "L02",
+          "step": 2,
+          "check": "log route/status match response",
+          "passed": true
+        },
+        {
+          "id": "L03",
+          "step": 2,
+          "check": "question text absent from log",
+          "passed": true
+        },
+        {
+          "id": "L01",
+          "step": 3,
+          "check": "log entry for request_id",
+          "passed": true
+        },
+        {
+          "id": "L02",
+          "step": 3,
+          "check": "log route/status match response",
+          "passed": true
+        },
+        {
+          "id": "L03",
+          "step": 3,
+          "check": "question text absent from log",
+          "passed": true
+        }
+      ],
+      "hooks": {
+        "before": [],
+        "after": []
+      },
+      "unverified": [
+        "Jira 댓글 '보완 횟수' 1→2→3 기록, 최종 handed_off",
+        "case 전체 티켓 1건, 담당 알림 step3에서 1건",
+        "보완 횟수 저장 실패 시 context_saved=failed/unknown·partial_effect·recovery(context_update)로 반환되어 한도를 놓치지 않음"
+      ],
+      "manual": []
+    },
+    {
+      "id": "TC14",
+      "name": "TC14 이관 뒤 같은 case 재요청은 재배정·재알림 없음",
+      "file": "cases/team-extended.json",
+      "category": "normal",
+      "status": "fail",
+      "steps": [
+        {
+          "step": 1,
+          "request_id": "20261106-205024-vm-p22-p19-repeat-r1-tc14-1",
+          "http_status": 200,
+          "elapsed_ms": 5484,
+          "transport_error": null,
+          "route": "담당자 이관",
+          "codes": null,
+          "has_ticket": true,
+          "ticket_priority": "normal",
+          "ticket_duplicate": false,
+          "sources_count": 0,
+          "security_masked": 0
+        },
+        {
+          "step": 2,
+          "request_id": "20261106-205024-vm-p22-p19-repeat-r1-tc14-2",
+          "http_status": 200,
+          "elapsed_ms": 3488,
+          "transport_error": null,
+          "route": "보완 질문",
+          "codes": null,
+          "has_ticket": false,
+          "ticket_priority": null,
+          "ticket_duplicate": null,
+          "sources_count": 0,
+          "security_masked": 0
+        }
+      ],
+      "checks": [
+        {
+          "step": 1,
+          "kind": "status",
+          "path": "<http_status>",
+          "expected": 200,
+          "passed": true
+        },
+        {
+          "step": 1,
+          "kind": "equals",
+          "path": "route",
+          "expected": "담당자 이관",
+          "passed": true
+        },
+        {
+          "step": 1,
+          "kind": "x:exists",
+          "path": "ticket.ticket_id",
+          "expected": null,
+          "passed": true
+        },
+        {
+          "step": 1,
+          "kind": "x:exists",
+          "path": "case_ref",
+          "expected": null,
+          "passed": true
+        },
+        {
+          "step": 2,
+          "kind": "status",
+          "path": "<http_status>",
+          "expected": 200,
+          "passed": true
+        },
+        {
+          "step": 2,
+          "kind": "equals",
+          "path": "route",
+          "expected": "담당자 이관",
+          "passed": false
+        },
+        {
+          "step": 2,
+          "kind": "x:same_as",
+          "path": "ticket.ticket_id",
+          "expected": {
+            "same_as": "step1",
+            "path": "ticket.ticket_id"
+          },
+          "passed": false
+        }
+      ],
+      "global_checks": [
+        {
+          "id": "G03",
+          "step": 1,
+          "check": "contact pattern absent",
+          "passed": true
+        },
+        {
+          "id": "G01",
+          "step": 1,
+          "check": "request_id echoed",
+          "passed": true
+        },
+        {
+          "id": "G02",
+          "step": 1,
+          "check": "route in common set",
+          "passed": true
+        },
+        {
+          "id": "G03",
+          "step": 2,
+          "check": "contact pattern absent",
+          "passed": true
+        },
+        {
+          "id": "G01",
+          "step": 2,
+          "check": "request_id echoed",
+          "passed": true
+        },
+        {
+          "id": "G02",
+          "step": 2,
+          "check": "route in common set",
+          "passed": true
+        },
+        {
+          "id": "G05",
+          "step": 2,
+          "check": "non-handoff ticket is null",
+          "passed": true
+        },
+        {
+          "id": "G06",
+          "step": 1,
+          "check": "response within 25s",
+          "passed": true
+        },
+        {
+          "id": "G06",
+          "step": 2,
+          "check": "response within 25s",
+          "passed": true
+        }
+      ],
+      "log_checks": [
+        {
+          "id": "L01",
+          "step": 1,
+          "check": "log entry for request_id",
+          "passed": true
+        },
+        {
+          "id": "L02",
+          "step": 1,
+          "check": "log route/status match response",
+          "passed": true
+        },
+        {
+          "id": "L03",
+          "step": 1,
+          "check": "question text absent from log",
+          "passed": true
+        },
+        {
+          "id": "L01",
+          "step": 2,
+          "check": "log entry for request_id",
+          "passed": true
+        },
+        {
+          "id": "L02",
+          "step": 2,
+          "check": "log route/status match response",
+          "passed": true
+        },
+        {
+          "id": "L03",
+          "step": 2,
+          "check": "question text absent from log",
+          "passed": true
+        }
+      ],
+      "hooks": {
+        "before": [],
+        "after": []
+      },
+      "unverified": [
+        "case 전체 Jira 이슈 1건",
+        "담당 배정 1회·담당 알림 1건(step2에서 재배정·재알림 0)",
+        "step2 맥락 저장(R04 반복 이관 문맥 저장)",
+        "DLQ 0"
+      ],
+      "manual": [
+        "step2 응답이 새 접수처럼 안내하지 않음"
+      ]
+    }
+  ]
+}

@@ -43,3 +43,8 @@ GitHub Actions는 같은 품질 검사를 실행하도록 구성했습니다. �
 
 자료의 원래 제공처는 [출처 안내](docs/PUBLIC-SOURCES.md), 로컬 자료 탐색은 공개 제외된
 `docs/LOCAL-INDEX.md`를 사용합니다. 프로젝트 공개 라이선스는 아직 미지정입니다.
+
+
+## PR36 로컬 통합 후보 확인
+
+[수정 경계와 반입 조건](infra/pr36-local-candidate.md) · [파일별 수용·설계 대조](infra/pr36-local-acceptance.md). 로컬 후보·과거 실연동·현재 VM 상태를 구분하며 원격 병합/운영 완료를 뜻하지 않는다.

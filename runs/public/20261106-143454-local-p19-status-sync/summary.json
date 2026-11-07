@@ -1,0 +1,67 @@
+{
+  "recorded_date": "2026-11-06 KST",
+  "task": "P19 PR36 status and evidence synchronization",
+  "environment": "local review; prior same-session VM token check and actual search execution cited separately",
+  "versions": {
+    "integration_previous_head": "b93b90e",
+    "discord_review": "fc292314c5d4df7162bf437120dae005f53385e5"
+  },
+  "results": {
+    "token_record": {
+      "nonempty": true,
+      "file_mode": "0600",
+      "owner_uid": 65532,
+      "owner_gid": 65532,
+      "runtime_uid_readable": true,
+      "network_during_check": "none",
+      "token_value_disclosed": false,
+      "discord_auth_validated": false
+    },
+    "discord_local_review": {
+      "delta": "invalid/foreign case notices unified; unknown_user notice added; request and success response code unchanged",
+      "focused_tests_passed": 20,
+      "ruff_check": "passed",
+      "ruff_format_files": 4,
+      "official_r05_verdict": "not inferred from commit message"
+    },
+    "rag_evidence": {
+      "r03_review": "PR36 issuecomment-6677639989",
+      "r03_scope": "static source review: omitted includeDocumentMetadata uses true default in n8n2.42.6 load mode",
+      "actual_search_execution": "259",
+      "parent_execution": "257",
+      "status": "ok",
+      "evidence_count": 5,
+      "expected_section_rank": 2,
+      "all_returned_evidence_access_level": "public",
+      "scope_limit": "one baseline citizen path; no full role matrix verdict"
+    }
+  },
+  "remaining": {
+    "G3": "normal baseline failed; timing gate and assignment mapping unresolved",
+    "G4": "token prepared, adapter review/deployment/build/start remain",
+    "G5": "not executed"
+  },
+  "not_performed": [
+    "new VM request or workflow edit",
+    "bot startup or Discord login",
+    "Jira/DB mutation",
+    "PR merge"
+  ],
+  "historical_evidence": "Prior reports retained unchanged; prior empty-token observations remain historical",
+  "details": "report.md",
+  "checks": {
+    "project_docs": {
+      "files": 20,
+      "links": 471,
+      "anchors": 51,
+      "errors": 0
+    },
+    "public_candidates": {
+      "files": 217,
+      "links": 581,
+      "errors": 0
+    },
+    "diff": "passed",
+    "secret_scan": "tscan unavailable; changed-text credential patterns and candidate audit only; no history guarantee"
+  }
+}

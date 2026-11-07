@@ -1,0 +1,48 @@
+{
+  "executed_at": "2026-11-06 16:39:39 KST",
+  "environment": "Discord Gateway → team VM n8n → actual user API/LLM/search/Jira/PostgreSQL",
+  "case_id": "P19 registered Discord normal baseline",
+  "source": {
+    "support": "3e8547a",
+    "bot_main": "37ec341",
+    "state_dlq_handoff": "a930e24",
+    "errors": "8c53cf7"
+  },
+  "execution_id": "305",
+  "execution_status": "success",
+  "started_at_kst": "2026-11-06 16:39:39.439",
+  "stopped_at_kst": "2026-11-06 16:39:52.577",
+  "n8n_elapsed_seconds": 13.138,
+  "route": "자동 답변",
+  "discord_request_prefix_verified": true,
+  "user_report": {
+    "answer_received": true,
+    "references_received": true,
+    "case_ref_received": true,
+    "ephemeral_confirmed": true
+  },
+  "references": [
+    "rental-guide / 대여 준비와 시작",
+    "rental-guide / QR 인식 또는 잠금 해제가 어려운 경우"
+  ],
+  "db": {
+    "status": "completed",
+    "step": "respond",
+    "revision": 4,
+    "final_response_present": true
+  },
+  "jira_independent_read": {
+    "http_status": 200,
+    "status_category": "done",
+    "status": "완료",
+    "resolution": "완료"
+  },
+  "dlq_count": 0,
+  "verdict": "R01 normal integration baseline passed; final role confirmation pending",
+  "not_claimed": [
+    "full permission/failure/concurrency/timing verdict",
+    "automated recovery implementation",
+    "R05 official acceptance"
+  ],
+  "details": "report.md"
+}

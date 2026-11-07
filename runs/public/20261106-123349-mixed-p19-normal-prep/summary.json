@@ -1,0 +1,20 @@
+{
+  "executed_date": "2026-11-06 KST",
+  "environment": "local Windows locked Python/Node; team VM read-only PostgreSQL/n8n metadata via existing Edge SSH",
+  "versions": {"support": "c5ed5fa", "state_dlq_handoff": "a930e24", "errors": "8c53cf7", "control_pr36": "e2e1852"},
+  "configuration": {"scope": "dubakwi-p19-real", "planned_trial_path": "/webhook/dubakwi-support-p19-real", "binding_ids": "private candidate; inherited credential IDs require live recheck"},
+  "cases": {
+    "support_code": {"passed": 136, "total": 136, "static_errors": 0},
+    "support_unittest": {"passed": 76, "skipped_http": 7, "total": 83},
+    "r04_unittest": {"passed": 81, "skipped_http": 7, "total": 88},
+    "r04_ruff": "check/format passed; 60 files",
+    "candidate": {"support_and_errors_generated": true, "normalized_lf_file_hashes_match_manifest": true, "original_dependency_hashes_match": true, "errors_scope_matches_support": true, "active": false, "imported": false, "published": false},
+    "vm_database": {"read_exit": 0, "available_functions": ["state_ref_json", "state_apply", "dlq_apply"], "case_lookup_present": false, "case_begin_present": false, "alert_marker_index_present": false, "scope_request_rows": 0, "scope_dlq_rows": 0},
+    "vm_copies": {"state_nodes": 11, "dlq_nodes": 5, "handoff_nodes": 9, "errors_nodes": 7, "active": false, "published": false, "target_support_present": false, "running_waiting_new_executions": 0},
+    "images": {"n8n": "n8nio/n8n:2.42.6", "postgres": "postgres:16.15-bookworm"}
+  },
+  "result": "NOT READY for normal webhook; candidate generation and preflight complete, not G0/G1/G2 completion",
+  "limitations": ["generator produces only support/errors; dependency manifest does not import state/DLQ/handoff", "SQL005-007 and runtime grants require reviewed deployment and verification", "PR27 and PR28 remain open; latest impact review/main deployment conditions unresolved", "R03 fixed normal question and expected evidence needed before call", "Discord adapter/token/mapping are separate G4/G5 tasks"],
+  "not_executed": ["workflow import/publication", "service SQL/grant changes", "actual LLM/search/Jira business call", "normal webhook", "Discord call"],
+  "details": "report.md"
+}

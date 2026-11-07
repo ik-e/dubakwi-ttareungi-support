@@ -1,5 +1,27 @@
 # R04 service-storage migrations
 
+## PR36 local upgrade candidate — 2026-11-07
+
+After immutable 001–007, apply 008 then 009. 008 restores verified snapshots
+and adds read-only record binding. Old callers without verified context fail
+closed; update state/handoff/support together while ingress is paused. Do not
+delete old migrations, rows, responses, DLQ items or Jira issues.
+
+For 009, `runtime_role` must name the **actual n8n execution login**. Do not widen
+the existing NOLOGIN group's direct case-function permissions implicitly.
+Provision the separate API login outside Git with `dubakwi_records_reader` only;
+it must not inherit the app/runtime write role. 009 sets execution-login statement
+timeout500ms and lock timeout250ms for fresh sessions. Renew the affected pool
+in the maintenance window and verify with SHOW. PG-node connection timeout is1s.
+These are candidate limits, not a measured full-path20s guarantee.
+
+In a disposable DB, run constraint/function/role contracts and the new
+`verification/case-context-contract.sql`. The legacy `case-contract.sql` verifies
+005 before upgrading. Local PostgreSQL16.15 upgrade, permission denial,
+two concurrent begin calls and bounded-query checks passed. VM rollout and
+mixed-version restoration remain unverified. Roll back only to a tested
+compatible app/SQL combination.
+
 This directory prepares the two PostgreSQL tables owned by the R04 storage
 boundary. Jira remains the ticket source of truth, and n8n keeps its own
 execution history. Database data, dumps, connection strings, and passwords must

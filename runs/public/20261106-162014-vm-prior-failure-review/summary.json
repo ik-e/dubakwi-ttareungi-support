@@ -1,0 +1,42 @@
+{
+  "checked_at": "2026-11-06 16:20 KST",
+  "environment": "team VM PostgreSQL and n8n metadata, read only",
+  "case_id": "prior failed integration request review",
+  "original_execution_id": "279",
+  "original_execution": {
+    "status": "success",
+    "stopped": true,
+    "business_success": false
+  },
+  "db": {
+    "processing_status": "unknown",
+    "current_step": "B29",
+    "error_code": "partial_effect",
+    "revision": 3,
+    "final_response_present": false
+  },
+  "dlq": {
+    "count": 1,
+    "replay_status": "pending",
+    "failed_step": "B29",
+    "error_code": "partial_effect",
+    "attempts": 1,
+    "created_or_reused": "confirmed",
+    "assigned": "failed",
+    "assignment_error": "assignee_unmapped",
+    "closed": "none",
+    "context_saved": "none",
+    "alert": "none",
+    "recovery_action": "assign",
+    "known_jira_reference_preserved": true
+  },
+  "decision": "preserve for manual review; no automatic replay or close",
+  "mutations": {
+    "jira_write": false,
+    "db_change": false,
+    "retry": false
+  },
+  "normal_baseline_execution": "305, separate request",
+  "role_confirmation": "User relayed R04 read-only pass for Jira/state/save/Discord; R05 official verdict remains separate",
+  "details": "report.md"
+}

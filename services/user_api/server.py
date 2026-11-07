@@ -8,10 +8,23 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import parse_qs, unquote, urlparse
 
+from services.user_api.records_provider import RecordsError, RecordsProvider, Settings
+
 ROOT = Path(__file__).resolve().parents[2]
 USERS_FILE = Path(os.environ.get("DUBAKWI_USERS_FILE", ROOT / "data" / "users.json"))
 RECORDS_FILE = Path(os.environ.get("DUBAKWI_RECORDS_FILE", ROOT / "data" / "records.json"))
 KEY_FILE = os.environ.get("DUBAKWI_INTERNAL_KEY_FILE")
+RECORDS_MODE = os.environ.get("DUBAKWI_RECORDS_MODE", "fixture")
+
+
+def live_record(ticket_id: str, requester: str) -> dict:
+    if requester not in load_items(USERS_FILE, "users"):
+        raise RecordsError(403, "record_access_denied")
+    provider = RecordsProvider(Settings.from_env(os.environ))
+    record = provider.lookup(ticket_id, requester)
+    user = load_items(USERS_FILE, "users")[requester]
+    record["contact"] = masked_contact(user.get("contact", {}))
+    return record
 
 
 def load_items(path: Path, key: str) -> dict[str, dict]:
@@ -101,6 +114,20 @@ class Handler(BaseHTTPRequestHandler):
         if parsed.path.startswith("/records/"):
             ticket_id = unquote(parsed.path.removeprefix("/records/"))
             requester = parse_qs(parsed.query).get("requester", [""])[0]
+            if RECORDS_MODE == "jira":
+                try:
+                    record = live_record(ticket_id, requester)
+                except RecordsError as exc:
+                    self.send_json(HTTPStatus(exc.status), {"error": exc.code})
+                    return
+                except Exception:
+                    self.send_json(HTTPStatus.SERVICE_UNAVAILABLE, {"error": "lookup_error"})
+                    return
+                self.send_json(HTTPStatus.OK, record)
+                return
+            if RECORDS_MODE != "fixture":
+                self.send_json(HTTPStatus.SERVICE_UNAVAILABLE, {"error": "lookup_error"})
+                return
             record = load_items(RECORDS_FILE, "records").get(ticket_id)
             if record is None:
                 self.send_json(HTTPStatus.NOT_FOUND, {"error": "record_not_found"})

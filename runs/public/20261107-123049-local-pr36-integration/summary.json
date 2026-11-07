@@ -1,0 +1,71 @@
+{
+  "run_id": "20261107-123049-local-pr36-integration",
+  "date_kst": "2026-11-07",
+  "environment": "local candidate and isolated Docker; no shared VM changes",
+  "base_commit": "34636ce1361695402ee961732326b2d04330debf",
+  "working_tree_uncommitted": true,
+  "unit": {
+    "run": 130,
+    "passed": 123,
+    "skipped_environment": 7,
+    "failed_final": 0,
+    "first_failure_preserved": true
+  },
+  "discord": {
+    "run": 22,
+    "passed": 22
+  },
+  "static_checks": [
+    "ruff",
+    "ruff-format",
+    "generated-source-parity",
+    "project-docs",
+    "public-files",
+    "full-system-structure",
+    "diff-check"
+  ],
+  "gitleaks": {
+    "raw_findings": 1,
+    "reviewed_false_positive_git_commit": 1,
+    "remaining_findings": 0,
+    "scope": "candidate files only; not Git history"
+  },
+  "isolated_integration": [
+    "PostgreSQL16.15 migrations001-009 / readonly rights / concurrency / timeout",
+    "n8n2.42.6 patched image authentication and saved-key boundary",
+    "n8n HTTP pagination and Code mock protocol",
+    "user API image r2 UID10001 / health200 / psycopg3.3.8"
+  ],
+  "course_flow_check": {
+    "search": "pass_with_typeversion_warnings",
+    "errors": "pass",
+    "support_state_handoff": "fail_due_to_course_credential_allowlist; not waived"
+  },
+  "runtime_not_executed": [
+    "shared VM deployment",
+    "live team/internal key rotations",
+    "actual Jira and LLM regressions",
+    "seven end-to-end permission cases",
+    "all P19 normal/failure/recovery verdicts",
+    "Discord live rerun",
+    "backup restore / compatible rollback drill"
+  ],
+  "known_limitations": [
+    "no automatic replay driver",
+    "limited deterministic answer guard is not a general semantic verifier",
+    "search latency root cause unmeasured",
+    "source-file reconciliation/final role reviews pending"
+  ],
+  "critical_source_sha256": {
+    "workflows/dubakwi-support.json": "439f3bd91554a5064c36761dc9588c5c987c0e0b3e130cb49c85803b613109de",
+    "workflows/dubakwi-state.json": "5fd51f40fabf9f870ee80e36c62a975a8dd2ebf7d4b532a7a44442ff1a1b23f5",
+    "workflows/dubakwi-handoff.json": "37c086bda38805ee25a1639b7087bf3be96f7f41d8e4f39059c9ece38d5d0700",
+    "workflows/dubakwi-errors.json": "6284014645960ea90f641ad21a945c49f2cd5d6b22f563a5e8612e59eb487c45",
+    "workflows/dubakwi-dlq.json": "c6f8d1deaeb2f740b15ad904bee3fe53ccd012c963de6625ff8f36bf5db6c1a7",
+    "services/user_api/case_context.py": "a2a3aafd263cdb7736606608652d63f356575db6531280c9999f09fbeaf46b37",
+    "services/user_api/case_context.js": "09573ebea69c9f940d677119df9750ca975c5b49c666195ab9bc36f3ace35a7b",
+    "services/user_api/records_provider.py": "e7f2996e12e6f513fdd46fd257d68efc74979f93db2dc3f3219e119bc18830ad",
+    "infra/db/migrations/008-replace-case-context-functions.sql": "bbe3886655769518285e77eabfdc4a907e559410686df8efcd1c9d9343fa63d8",
+    "infra/db/migrations/009-grant-case-context-functions.sql": "a63714868581c938b9876f295b172bd16af700836997be7b702e8fc44487683a"
+  }
+}

@@ -1,0 +1,1753 @@
+{
+  "run_id": "20261105-162516-vm-p22-search",
+  "executed_at": "2026-11-05T16:25:16+09:00",
+  "environment": "vm",
+  "kind": "service_cases",
+  "runner": "scripts/test/run_cases.py (not the kit flow.py)",
+  "path": "mock",
+  "auth_header_sent": true,
+  "auth_token_env": "DUBAKWI_INTERNAL_KEY",
+  "log_check": false,
+  "versions": {
+    "git": {
+      "commit": "52c192df700bafd954230b07fceabea24928d549",
+      "branch": "r05/p22-search-eval",
+      "dirty": false
+    },
+    "workflow": "0e44fdb",
+    "config": "unrecorded",
+    "case_files": {
+      "cases/search.json": "a843b5395f561e7603a9e1e41a4dfb90a770270711eaacae3d74508114bff405"
+    },
+    "test_copy": null,
+    "python": "3.12.16"
+  },
+  "file_hooks": {},
+  "counts": {
+    "pass": 14,
+    "fail": 2
+  },
+  "meaning": "auto_pass_unverified = response checks passed but ticket/state/DLQ/alert/n8n or manual checks are still open; it is not a full pass",
+  "cases": [
+    {
+      "id": "SR-WF01",
+      "name": "SR-WF01 QR 인식 곤란",
+      "file": "cases/search.json",
+      "status": "pass",
+      "steps": [
+        {
+          "step": 1,
+          "request_id": "20261105-162516-vm-p22-search-sr-wf01",
+          "access_levels": [
+            "public"
+          ],
+          "http_status": 200,
+          "elapsed_ms": 3628,
+          "transport_error": null,
+          "search_status": "ok",
+          "error_code": null,
+          "evidence": [
+            {
+              "doc": "rental-guide",
+              "section": "대여 준비와 시작",
+              "access_level": "public",
+              "score": 0.6286357206282996
+            },
+            {
+              "doc": "rental-guide",
+              "section": "QR 인식 또는 잠금 해제가 어려운 경우",
+              "access_level": "public",
+              "score": 0.562718795944491
+            },
+            {
+              "doc": "breakdown-report",
+              "section": "방치·도난 신고",
+              "access_level": "public",
+              "score": 0.550495152267325
+            },
+            {
+              "doc": "return-guide",
+              "section": "반납이 완료되지 않을 때",
+              "access_level": "public",
+              "score": 0.5404267481185703
+            },
+            {
+              "doc": "support-followup",
+              "section": "분실물·습득물",
+              "access_level": "public",
+              "score": 0.5081904707846853
+            }
+          ]
+        }
+      ],
+      "checks": [
+        {
+          "step": 1,
+          "kind": "status",
+          "path": "<http_status>",
+          "expected": 200,
+          "passed": true
+        },
+        {
+          "step": 1,
+          "kind": "equals",
+          "path": "status",
+          "expected": "ok",
+          "passed": true
+        },
+        {
+          "step": 1,
+          "kind": "contains",
+          "path": "evidence",
+          "expected": "rental-guide",
+          "passed": true
+        },
+        {
+          "step": 1,
+          "kind": "x:contains_any",
+          "path": "evidence[*].section",
+          "expected": [
+            "QR 인식 또는 잠금 해제가 어려운 경우"
+          ],
+          "passed": true
+        }
+      ],
+      "global_checks": [
+        {
+          "id": "G03",
+          "step": 1,
+          "check": "contact pattern absent",
+          "passed": true
+        },
+        {
+          "id": "G01",
+          "step": 1,
+          "check": "request_id echoed",
+          "passed": true
+        },
+        {
+          "id": "S01",
+          "step": 1,
+          "check": "no restricted evidence",
+          "passed": true
+        },
+        {
+          "id": "S02",
+          "step": 1,
+          "check": "no restricted canary text",
+          "passed": true
+        },
+        {
+          "id": "S03",
+          "step": 1,
+          "check": "no restricted doc id",
+          "passed": true
+        }
+      ],
+      "log_checks": [],
+      "hooks": {
+        "before": [],
+        "after": []
+      },
+      "unverified": [],
+      "manual": []
+    },
+    {
+      "id": "SR-WF02",
+      "name": "SR-WF02 반납 미완료",
+      "file": "cases/search.json",
+      "status": "pass",
+      "steps": [
+        {
+          "step": 1,
+          "request_id": "20261105-162516-vm-p22-search-sr-wf02",
+          "access_levels": [
+            "public"
+          ],
+          "http_status": 200,
+          "elapsed_ms": 783,
+          "transport_error": null,
+          "search_status": "ok",
+          "error_code": null,
+          "evidence": [
+            {
+              "doc": "support-followup",
+              "section": "분실물·습득물",
+              "access_level": "public",
+              "score": 0.4305539217594506
+            },
+            {
+              "doc": "return-guide",
+              "section": "반납이 완료되지 않을 때",
+              "access_level": "public",
+              "score": 0.4267352455531654
+            },
+            {
+              "doc": "return-guide",
+              "section": "임시잠금",
+              "access_level": "public",
+              "score": 0.3508820452048257
+            },
+            {
+              "doc": "return-guide",
+              "section": "반납 방법",
+              "access_level": "public",
+              "score": 0.3501545250040361
+            },
+            {
+              "doc": "support-followup",
+              "section": "분실물 접수 — 교육용 가상 설정",
+              "access_level": "public",
+              "score": 0.31518005092885515
+            }
+          ]
+        }
+      ],
+      "checks": [
+        {
+          "step": 1,
+          "kind": "status",
+          "path": "<http_status>",
+          "expected": 200,
+          "passed": true
+        },
+        {
+          "step": 1,
+          "kind": "equals",
+          "path": "status",
+          "expected": "ok",
+          "passed": true
+        },
+        {
+          "step": 1,
+          "kind": "contains",
+          "path": "evidence",
+          "expected": "return-guide",
+          "passed": true
+        },
+        {
+          "step": 1,
+          "kind": "x:contains_any",
+          "path": "evidence[*].section",
+          "expected": [
+            "반납이 완료되지 않을 때"
+          ],
+          "passed": true
+        }
+      ],
+      "global_checks": [
+        {
+          "id": "G03",
+          "step": 1,
+          "check": "contact pattern absent",
+          "passed": true
+        },
+        {
+          "id": "G01",
+          "step": 1,
+          "check": "request_id echoed",
+          "passed": true
+        },
+        {
+          "id": "S01",
+          "step": 1,
+          "check": "no restricted evidence",
+          "passed": true
+        },
+        {
+          "id": "S02",
+          "step": 1,
+          "check": "no restricted canary text",
+          "passed": true
+        },
+        {
+          "id": "S03",
+          "step": 1,
+          "check": "no restricted doc id",
+          "passed": true
+        }
+      ],
+      "log_checks": [],
+      "hooks": {
+        "before": [],
+        "after": []
+      },
+      "unverified": [],
+      "manual": []
+    },
+    {
+      "id": "SR-WF03",
+      "name": "SR-WF03 관련 근거 없음",
+      "file": "cases/search.json",
+      "status": "pass",
+      "steps": [
+        {
+          "step": 1,
+          "request_id": "20261105-162516-vm-p22-search-sr-wf03",
+          "access_levels": [
+            "public"
+          ],
+          "http_status": 200,
+          "elapsed_ms": 694,
+          "transport_error": null,
+          "search_status": "empty",
+          "error_code": null,
+          "evidence": []
+        }
+      ],
+      "checks": [
+        {
+          "step": 1,
+          "kind": "status",
+          "path": "<http_status>",
+          "expected": 200,
+          "passed": true
+        },
+        {
+          "step": 1,
+          "kind": "equals",
+          "path": "status",
+          "expected": "empty",
+          "passed": true
+        },
+        {
+          "step": 1,
+          "kind": "equals",
+          "path": "evidence",
+          "expected": [],
+          "passed": true
+        }
+      ],
+      "global_checks": [
+        {
+          "id": "G03",
+          "step": 1,
+          "check": "contact pattern absent",
+          "passed": true
+        },
+        {
+          "id": "G01",
+          "step": 1,
+          "check": "request_id echoed",
+          "passed": true
+        },
+        {
+          "id": "S01",
+          "step": 1,
+          "check": "no restricted evidence",
+          "passed": true
+        },
+        {
+          "id": "S02",
+          "step": 1,
+          "check": "no restricted canary text",
+          "passed": true
+        },
+        {
+          "id": "S03",
+          "step": 1,
+          "check": "no restricted doc id",
+          "passed": true
+        }
+      ],
+      "log_checks": [],
+      "hooks": {
+        "before": [],
+        "after": []
+      },
+      "unverified": [],
+      "manual": []
+    },
+    {
+      "id": "SR-WF04",
+      "name": "SR-WF04 중복 결제 환불",
+      "file": "cases/search.json",
+      "status": "pass",
+      "steps": [
+        {
+          "step": 1,
+          "request_id": "20261105-162516-vm-p22-search-sr-wf04",
+          "access_levels": [
+            "public"
+          ],
+          "http_status": 200,
+          "elapsed_ms": 705,
+          "transport_error": null,
+          "search_status": "ok",
+          "error_code": null,
+          "evidence": [
+            {
+              "doc": "fees-refund-guide",
+              "section": "결제 오류와 영수증",
+              "access_level": "public",
+              "score": 0.43279981358571024
+            },
+            {
+              "doc": "fees-refund-guide",
+              "section": "개별 요금·환불 문의 — 교육용 가상 설정",
+              "access_level": "public",
+              "score": 0.43182206237246135
+            },
+            {
+              "doc": "fees-refund-guide",
+              "section": "환불 신청",
+              "access_level": "public",
+              "score": 0.4117542518420165
+            },
+            {
+              "doc": "fees-refund-guide",
+              "section": "미사용권 유효기간 — 충돌 판단과 교육용 가상 설정",
+              "access_level": "public",
+              "score": 0.410065571683575
+            },
+            {
+              "doc": "rental-guide",
+              "section": "외국인 이용권",
+              "access_level": "public",
+              "score": 0.37081141035911264
+            }
+          ]
+        }
+      ],
+      "checks": [
+        {
+          "step": 1,
+          "kind": "status",
+          "path": "<http_status>",
+          "expected": 200,
+          "passed": true
+        },
+        {
+          "step": 1,
+          "kind": "equals",
+          "path": "status",
+          "expected": "ok",
+          "passed": true
+        },
+        {
+          "step": 1,
+          "kind": "contains",
+          "path": "evidence",
+          "expected": "fees-refund-guide",
+          "passed": true
+        }
+      ],
+      "global_checks": [
+        {
+          "id": "G03",
+          "step": 1,
+          "check": "contact pattern absent",
+          "passed": true
+        },
+        {
+          "id": "G01",
+          "step": 1,
+          "check": "request_id echoed",
+          "passed": true
+        },
+        {
+          "id": "S01",
+          "step": 1,
+          "check": "no restricted evidence",
+          "passed": true
+        },
+        {
+          "id": "S02",
+          "step": 1,
+          "check": "no restricted canary text",
+          "passed": true
+        },
+        {
+          "id": "S03",
+          "step": 1,
+          "check": "no restricted doc id",
+          "passed": true
+        }
+      ],
+      "log_checks": [],
+      "hooks": {
+        "before": [],
+        "after": []
+      },
+      "unverified": [],
+      "manual": []
+    },
+    {
+      "id": "SR-WF12",
+      "name": "SR-WF12 사칭 링크 보안",
+      "file": "cases/search.json",
+      "status": "fail",
+      "steps": [
+        {
+          "step": 1,
+          "request_id": "20261105-162516-vm-p22-search-sr-wf12",
+          "access_levels": [
+            "public"
+          ],
+          "http_status": 200,
+          "elapsed_ms": 725,
+          "transport_error": null,
+          "search_status": "ok",
+          "error_code": null,
+          "evidence": [
+            {
+              "doc": "return-guide",
+              "section": "반납 방법",
+              "access_level": "public",
+              "score": 0.4464169074401111
+            },
+            {
+              "doc": "support-followup",
+              "section": "분실물·습득물",
+              "access_level": "public",
+              "score": 0.42656961932975307
+            },
+            {
+              "doc": "support-followup",
+              "section": "분실물 접수 — 교육용 가상 설정",
+              "access_level": "public",
+              "score": 0.4087683931729642
+            },
+            {
+              "doc": "return-guide",
+              "section": "반납이 완료되지 않을 때",
+              "access_level": "public",
+              "score": 0.3953370788913286
+            },
+            {
+              "doc": "return-guide",
+              "section": "반납 상태 조회 — 교육용 가상 설정",
+              "access_level": "public",
+              "score": 0.37431259194462135
+            }
+          ]
+        }
+      ],
+      "checks": [
+        {
+          "step": 1,
+          "kind": "status",
+          "path": "<http_status>",
+          "expected": 200,
+          "passed": true
+        },
+        {
+          "step": 1,
+          "kind": "equals",
+          "path": "status",
+          "expected": "ok",
+          "passed": true
+        },
+        {
+          "step": 1,
+          "kind": "contains",
+          "path": "evidence",
+          "expected": "privacy-security-guide",
+          "passed": false
+        },
+        {
+          "step": 1,
+          "kind": "x:contains_any",
+          "path": "evidence[*].section",
+          "expected": [
+            "계정 노출·침해 의심 시 공개 초동 안내"
+          ],
+          "passed": false
+        }
+      ],
+      "global_checks": [
+        {
+          "id": "G03",
+          "step": 1,
+          "check": "contact pattern absent",
+          "passed": true
+        },
+        {
+          "id": "G01",
+          "step": 1,
+          "check": "request_id echoed",
+          "passed": true
+        },
+        {
+          "id": "S01",
+          "step": 1,
+          "check": "no restricted evidence",
+          "passed": true
+        },
+        {
+          "id": "S02",
+          "step": 1,
+          "check": "no restricted canary text",
+          "passed": true
+        },
+        {
+          "id": "S03",
+          "step": 1,
+          "check": "no restricted doc id",
+          "passed": true
+        }
+      ],
+      "log_checks": [],
+      "hooks": {
+        "before": [],
+        "after": []
+      },
+      "unverified": [],
+      "manual": []
+    },
+    {
+      "id": "SR-TC04",
+      "name": "SR-TC04 개별 환불 요청",
+      "file": "cases/search.json",
+      "status": "fail",
+      "steps": [
+        {
+          "step": 1,
+          "request_id": "20261105-162516-vm-p22-search-sr-tc04",
+          "access_levels": [
+            "public"
+          ],
+          "http_status": 200,
+          "elapsed_ms": 703,
+          "transport_error": null,
+          "search_status": "ok",
+          "error_code": null,
+          "evidence": [
+            {
+              "doc": "fees-refund-guide",
+              "section": "기본 이용시간과 추가요금",
+              "access_level": "public",
+              "score": 0.5885697027817123
+            },
+            {
+              "doc": "rental-guide",
+              "section": "대여 준비와 시작",
+              "access_level": "public",
+              "score": 0.4813762366544347
+            },
+            {
+              "doc": "return-guide",
+              "section": "반납 방법",
+              "access_level": "public",
+              "score": 0.4573754147685691
+            },
+            {
+              "doc": "fees-refund-guide",
+              "section": "결제 오류와 영수증",
+              "access_level": "public",
+              "score": 0.44224747548375104
+            },
+            {
+              "doc": "rental-guide",
+              "section": "가족권 등록과 어린이 이용",
+              "access_level": "public",
+              "score": 0.4338307413131518
+            }
+          ]
+        }
+      ],
+      "checks": [
+        {
+          "step": 1,
+          "kind": "status",
+          "path": "<http_status>",
+          "expected": 200,
+          "passed": true
+        },
+        {
+          "step": 1,
+          "kind": "equals",
+          "path": "status",
+          "expected": "ok",
+          "passed": true
+        },
+        {
+          "step": 1,
+          "kind": "contains",
+          "path": "evidence",
+          "expected": "fees-refund-guide",
+          "passed": true
+        },
+        {
+          "step": 1,
+          "kind": "x:contains_any",
+          "path": "evidence[*].section",
+          "expected": [
+            "개별 요금·환불 문의 — 교육용 가상 설정",
+            "환불 신청"
+          ],
+          "passed": false
+        }
+      ],
+      "global_checks": [
+        {
+          "id": "G03",
+          "step": 1,
+          "check": "contact pattern absent",
+          "passed": true
+        },
+        {
+          "id": "G01",
+          "step": 1,
+          "check": "request_id echoed",
+          "passed": true
+        },
+        {
+          "id": "S01",
+          "step": 1,
+          "check": "no restricted evidence",
+          "passed": true
+        },
+        {
+          "id": "S02",
+          "step": 1,
+          "check": "no restricted canary text",
+          "passed": true
+        },
+        {
+          "id": "S03",
+          "step": 1,
+          "check": "no restricted doc id",
+          "passed": true
+        }
+      ],
+      "log_checks": [],
+      "hooks": {
+        "before": [],
+        "after": []
+      },
+      "unverified": [],
+      "manual": []
+    },
+    {
+      "id": "SR-TC09a",
+      "name": "SR-TC09a 지시어가 들어간 반납 문의",
+      "file": "cases/search.json",
+      "status": "pass",
+      "steps": [
+        {
+          "step": 1,
+          "request_id": "20261105-162516-vm-p22-search-sr-tc09a",
+          "access_levels": [
+            "public"
+          ],
+          "http_status": 200,
+          "elapsed_ms": 714,
+          "transport_error": null,
+          "search_status": "ok",
+          "error_code": null,
+          "evidence": [
+            {
+              "doc": "return-guide",
+              "section": "반납이 완료되지 않을 때",
+              "access_level": "public",
+              "score": 0.5405236170041741
+            },
+            {
+              "doc": "support-followup",
+              "section": "분실물·습득물",
+              "access_level": "public",
+              "score": 0.5184044288697774
+            },
+            {
+              "doc": "return-guide",
+              "section": "반납 방법",
+              "access_level": "public",
+              "score": 0.4760269369977588
+            },
+            {
+              "doc": "breakdown-report",
+              "section": "방치·도난 신고",
+              "access_level": "public",
+              "score": 0.4546079577729801
+            },
+            {
+              "doc": "return-guide",
+              "section": "임시잠금",
+              "access_level": "public",
+              "score": 0.4440714762381952
+            }
+          ]
+        }
+      ],
+      "checks": [
+        {
+          "step": 1,
+          "kind": "status",
+          "path": "<http_status>",
+          "expected": 200,
+          "passed": true
+        },
+        {
+          "step": 1,
+          "kind": "equals",
+          "path": "status",
+          "expected": "ok",
+          "passed": true
+        },
+        {
+          "step": 1,
+          "kind": "contains",
+          "path": "evidence",
+          "expected": "return-guide",
+          "passed": true
+        },
+        {
+          "step": 1,
+          "kind": "x:contains_any",
+          "path": "evidence[*].section",
+          "expected": [
+            "반납 방법",
+            "반납이 완료되지 않을 때"
+          ],
+          "passed": true
+        }
+      ],
+      "global_checks": [
+        {
+          "id": "G03",
+          "step": 1,
+          "check": "contact pattern absent",
+          "passed": true
+        },
+        {
+          "id": "G01",
+          "step": 1,
+          "check": "request_id echoed",
+          "passed": true
+        },
+        {
+          "id": "S01",
+          "step": 1,
+          "check": "no restricted evidence",
+          "passed": true
+        },
+        {
+          "id": "S02",
+          "step": 1,
+          "check": "no restricted canary text",
+          "passed": true
+        },
+        {
+          "id": "S03",
+          "step": 1,
+          "check": "no restricted doc id",
+          "passed": true
+        }
+      ],
+      "log_checks": [],
+      "hooks": {
+        "before": [],
+        "after": []
+      },
+      "unverified": [],
+      "manual": []
+    },
+    {
+      "id": "SR-TC09b",
+      "name": "SR-TC09b 비밀번호 찾기",
+      "file": "cases/search.json",
+      "status": "pass",
+      "steps": [
+        {
+          "step": 1,
+          "request_id": "20261105-162516-vm-p22-search-sr-tc09b",
+          "access_levels": [
+            "public"
+          ],
+          "http_status": 200,
+          "elapsed_ms": 871,
+          "transport_error": null,
+          "search_status": "ok",
+          "error_code": null,
+          "evidence": [
+            {
+              "doc": "privacy-security-guide",
+              "section": "로그인과 계정 찾기",
+              "access_level": "public",
+              "score": 0.4440421383088841
+            },
+            {
+              "doc": "privacy-security-guide",
+              "section": "개인정보와 계정 보호",
+              "access_level": "public",
+              "score": 0.42844999270091066
+            },
+            {
+              "doc": "breakdown-report",
+              "section": "방치·도난 신고",
+              "access_level": "public",
+              "score": 0.36199164648749066
+            },
+            {
+              "doc": "support-followup",
+              "section": "분실물·습득물",
+              "access_level": "public",
+              "score": 0.34274886303837937
+            },
+            {
+              "doc": "privacy-security-guide",
+              "section": "계정 노출·침해 의심 시 공개 초동 안내",
+              "access_level": "public",
+              "score": 0.3273766836405499
+            }
+          ]
+        }
+      ],
+      "checks": [
+        {
+          "step": 1,
+          "kind": "status",
+          "path": "<http_status>",
+          "expected": 200,
+          "passed": true
+        },
+        {
+          "step": 1,
+          "kind": "equals",
+          "path": "status",
+          "expected": "ok",
+          "passed": true
+        },
+        {
+          "step": 1,
+          "kind": "contains",
+          "path": "evidence",
+          "expected": "privacy-security-guide",
+          "passed": true
+        },
+        {
+          "step": 1,
+          "kind": "x:contains_any",
+          "path": "evidence[*].section",
+          "expected": [
+            "로그인과 계정 찾기"
+          ],
+          "passed": true
+        }
+      ],
+      "global_checks": [
+        {
+          "id": "G03",
+          "step": 1,
+          "check": "contact pattern absent",
+          "passed": true
+        },
+        {
+          "id": "G01",
+          "step": 1,
+          "check": "request_id echoed",
+          "passed": true
+        },
+        {
+          "id": "S01",
+          "step": 1,
+          "check": "no restricted evidence",
+          "passed": true
+        },
+        {
+          "id": "S02",
+          "step": 1,
+          "check": "no restricted canary text",
+          "passed": true
+        },
+        {
+          "id": "S03",
+          "step": 1,
+          "check": "no restricted doc id",
+          "passed": true
+        }
+      ],
+      "log_checks": [],
+      "hooks": {
+        "before": [],
+        "after": []
+      },
+      "unverified": [],
+      "manual": []
+    },
+    {
+      "id": "SR-WF05",
+      "name": "SR-WF05 시민의 내부 정책 요청",
+      "file": "cases/search.json",
+      "status": "pass",
+      "steps": [
+        {
+          "step": 1,
+          "request_id": "20261105-162516-vm-p22-search-sr-wf05",
+          "access_levels": [
+            "public"
+          ],
+          "http_status": 200,
+          "elapsed_ms": 670,
+          "transport_error": null,
+          "search_status": "ok",
+          "error_code": null,
+          "evidence": [
+            {
+              "doc": "fees-refund-guide",
+              "section": "개별 요금·환불 문의 — 교육용 가상 설정",
+              "access_level": "public",
+              "score": 0.32359451624089014
+            },
+            {
+              "doc": "rental-guide",
+              "section": "가족권 대여 — 교육용 가상 설정",
+              "access_level": "public",
+              "score": 0.32242599273999334
+            },
+            {
+              "doc": "rental-guide",
+              "section": "가족권 등록과 어린이 이용",
+              "access_level": "public",
+              "score": 0.3184767421946752
+            },
+            {
+              "doc": "fees-refund-guide",
+              "section": "서울페이+·서울사랑상품권 결제",
+              "access_level": "public",
+              "score": 0.3183151764988498
+            },
+            {
+              "doc": "fees-refund-guide",
+              "section": "마일리지·운영 여부 — 교육용 가상 설정",
+              "access_level": "public",
+              "score": 0.30071717061472775
+            }
+          ]
+        }
+      ],
+      "checks": [
+        {
+          "step": 1,
+          "kind": "status",
+          "path": "<http_status>",
+          "expected": 200,
+          "passed": true
+        },
+        {
+          "step": 1,
+          "kind": "x:in",
+          "path": "status",
+          "expected": [
+            "ok",
+            "empty"
+          ],
+          "passed": true
+        }
+      ],
+      "global_checks": [
+        {
+          "id": "G03",
+          "step": 1,
+          "check": "contact pattern absent",
+          "passed": true
+        },
+        {
+          "id": "G01",
+          "step": 1,
+          "check": "request_id echoed",
+          "passed": true
+        },
+        {
+          "id": "S01",
+          "step": 1,
+          "check": "no restricted evidence",
+          "passed": true
+        },
+        {
+          "id": "S02",
+          "step": 1,
+          "check": "no restricted canary text",
+          "passed": true
+        },
+        {
+          "id": "S03",
+          "step": 1,
+          "check": "no restricted doc id",
+          "passed": true
+        }
+      ],
+      "log_checks": [],
+      "hooks": {
+        "before": [],
+        "after": []
+      },
+      "unverified": [],
+      "manual": []
+    },
+    {
+      "id": "SR-R01",
+      "name": "SR-R01 시민의 이관 정책 겨냥 질문",
+      "file": "cases/search.json",
+      "status": "pass",
+      "steps": [
+        {
+          "step": 1,
+          "request_id": "20261105-162516-vm-p22-search-sr-r01",
+          "access_levels": [
+            "public"
+          ],
+          "http_status": 200,
+          "elapsed_ms": 747,
+          "transport_error": null,
+          "search_status": "ok",
+          "error_code": null,
+          "evidence": [
+            {
+              "doc": "breakdown-report",
+              "section": "사고 상담 — 교육용 가상 설정",
+              "access_level": "public",
+              "score": 0.3749935431301454
+            },
+            {
+              "doc": "support-followup",
+              "section": "상담 시간·처리 상태 — 교육용 가상 설정",
+              "access_level": "public",
+              "score": 0.31046694636898187
+            }
+          ]
+        }
+      ],
+      "checks": [
+        {
+          "step": 1,
+          "kind": "status",
+          "path": "<http_status>",
+          "expected": 200,
+          "passed": true
+        },
+        {
+          "step": 1,
+          "kind": "x:in",
+          "path": "status",
+          "expected": [
+            "ok",
+            "empty"
+          ],
+          "passed": true
+        }
+      ],
+      "global_checks": [
+        {
+          "id": "G03",
+          "step": 1,
+          "check": "contact pattern absent",
+          "passed": true
+        },
+        {
+          "id": "G01",
+          "step": 1,
+          "check": "request_id echoed",
+          "passed": true
+        },
+        {
+          "id": "S01",
+          "step": 1,
+          "check": "no restricted evidence",
+          "passed": true
+        },
+        {
+          "id": "S02",
+          "step": 1,
+          "check": "no restricted canary text",
+          "passed": true
+        },
+        {
+          "id": "S03",
+          "step": 1,
+          "check": "no restricted doc id",
+          "passed": true
+        }
+      ],
+      "log_checks": [],
+      "hooks": {
+        "before": [],
+        "after": []
+      },
+      "unverified": [],
+      "manual": []
+    },
+    {
+      "id": "SR-R02",
+      "name": "SR-R02 시민의 티켓 수명주기 겨냥 질문",
+      "file": "cases/search.json",
+      "status": "pass",
+      "steps": [
+        {
+          "step": 1,
+          "request_id": "20261105-162516-vm-p22-search-sr-r02",
+          "access_levels": [
+            "public"
+          ],
+          "http_status": 200,
+          "elapsed_ms": 666,
+          "transport_error": null,
+          "search_status": "ok",
+          "error_code": null,
+          "evidence": [
+            {
+              "doc": "return-guide",
+              "section": "반납 상태 조회 — 교육용 가상 설정",
+              "access_level": "public",
+              "score": 0.5276643955335594
+            },
+            {
+              "doc": "fees-refund-guide",
+              "section": "개별 요금·환불 문의 — 교육용 가상 설정",
+              "access_level": "public",
+              "score": 0.488618368921891
+            },
+            {
+              "doc": "fees-refund-guide",
+              "section": "결제 오류와 영수증",
+              "access_level": "public",
+              "score": 0.4817557170148303
+            },
+            {
+              "doc": "support-followup",
+              "section": "분실물 접수 — 교육용 가상 설정",
+              "access_level": "public",
+              "score": 0.443955584689093
+            },
+            {
+              "doc": "breakdown-report",
+              "section": "사고 상담 — 교육용 가상 설정",
+              "access_level": "public",
+              "score": 0.4289514620008576
+            }
+          ]
+        }
+      ],
+      "checks": [
+        {
+          "step": 1,
+          "kind": "status",
+          "path": "<http_status>",
+          "expected": 200,
+          "passed": true
+        },
+        {
+          "step": 1,
+          "kind": "x:in",
+          "path": "status",
+          "expected": [
+            "ok",
+            "empty"
+          ],
+          "passed": true
+        }
+      ],
+      "global_checks": [
+        {
+          "id": "G03",
+          "step": 1,
+          "check": "contact pattern absent",
+          "passed": true
+        },
+        {
+          "id": "G01",
+          "step": 1,
+          "check": "request_id echoed",
+          "passed": true
+        },
+        {
+          "id": "S01",
+          "step": 1,
+          "check": "no restricted evidence",
+          "passed": true
+        },
+        {
+          "id": "S02",
+          "step": 1,
+          "check": "no restricted canary text",
+          "passed": true
+        },
+        {
+          "id": "S03",
+          "step": 1,
+          "check": "no restricted doc id",
+          "passed": true
+        }
+      ],
+      "log_checks": [],
+      "hooks": {
+        "before": [],
+        "after": []
+      },
+      "unverified": [],
+      "manual": []
+    },
+    {
+      "id": "SR-R03",
+      "name": "SR-R03 질문 속 담당자 자기소개",
+      "file": "cases/search.json",
+      "status": "pass",
+      "steps": [
+        {
+          "step": 1,
+          "request_id": "20261105-162516-vm-p22-search-sr-r03",
+          "access_levels": [
+            "public"
+          ],
+          "http_status": 200,
+          "elapsed_ms": 842,
+          "transport_error": null,
+          "search_status": "ok",
+          "error_code": null,
+          "evidence": [
+            {
+              "doc": "fees-refund-guide",
+              "section": "개별 요금·환불 문의 — 교육용 가상 설정",
+              "access_level": "public",
+              "score": 0.3474484295376802
+            },
+            {
+              "doc": "return-guide",
+              "section": "반납 상태 조회 — 교육용 가상 설정",
+              "access_level": "public",
+              "score": 0.3203884301814192
+            },
+            {
+              "doc": "privacy-security-guide",
+              "section": "계정 침해 문의 — 교육용 가상 설정",
+              "access_level": "public",
+              "score": 0.31946458021005936
+            },
+            {
+              "doc": "breakdown-report",
+              "section": "사고 상담 — 교육용 가상 설정",
+              "access_level": "public",
+              "score": 0.3013347640744904
+            }
+          ]
+        }
+      ],
+      "checks": [
+        {
+          "step": 1,
+          "kind": "status",
+          "path": "<http_status>",
+          "expected": 200,
+          "passed": true
+        },
+        {
+          "step": 1,
+          "kind": "x:in",
+          "path": "status",
+          "expected": [
+            "ok",
+            "empty"
+          ],
+          "passed": true
+        }
+      ],
+      "global_checks": [
+        {
+          "id": "G03",
+          "step": 1,
+          "check": "contact pattern absent",
+          "passed": true
+        },
+        {
+          "id": "G01",
+          "step": 1,
+          "check": "request_id echoed",
+          "passed": true
+        },
+        {
+          "id": "S01",
+          "step": 1,
+          "check": "no restricted evidence",
+          "passed": true
+        },
+        {
+          "id": "S02",
+          "step": 1,
+          "check": "no restricted canary text",
+          "passed": true
+        },
+        {
+          "id": "S03",
+          "step": 1,
+          "check": "no restricted doc id",
+          "passed": true
+        }
+      ],
+      "log_checks": [],
+      "hooks": {
+        "before": [],
+        "after": []
+      },
+      "unverified": [],
+      "manual": []
+    },
+    {
+      "id": "SR-R04",
+      "name": "SR-R04 restricted만 지정한 잘못된 권한",
+      "file": "cases/search.json",
+      "status": "pass",
+      "steps": [
+        {
+          "step": 1,
+          "request_id": "20261105-162516-vm-p22-search-sr-r04",
+          "access_levels": [
+            "restricted"
+          ],
+          "http_status": 200,
+          "elapsed_ms": 162,
+          "transport_error": null,
+          "search_status": "error",
+          "error_code": "invalid_request",
+          "evidence": []
+        }
+      ],
+      "checks": [
+        {
+          "step": 1,
+          "kind": "status",
+          "path": "<http_status>",
+          "expected": 200,
+          "passed": true
+        },
+        {
+          "step": 1,
+          "kind": "equals",
+          "path": "status",
+          "expected": "error",
+          "passed": true
+        },
+        {
+          "step": 1,
+          "kind": "equals",
+          "path": "error_code",
+          "expected": "invalid_request",
+          "passed": true
+        },
+        {
+          "step": 1,
+          "kind": "x:not_contains",
+          "path": "$",
+          "expected": "DUBAKWI-RESTRICTED-CANARY",
+          "passed": true
+        }
+      ],
+      "global_checks": [
+        {
+          "id": "G03",
+          "step": 1,
+          "check": "contact pattern absent",
+          "passed": true
+        },
+        {
+          "id": "G01",
+          "step": 1,
+          "check": "request_id echoed",
+          "passed": true
+        }
+      ],
+      "log_checks": [],
+      "hooks": {
+        "before": [],
+        "after": []
+      },
+      "unverified": [],
+      "manual": []
+    },
+    {
+      "id": "SR-STAFF01",
+      "name": "SR-STAFF01 담당자 이관 정책 양성 대조",
+      "file": "cases/search.json",
+      "status": "pass",
+      "steps": [
+        {
+          "step": 1,
+          "request_id": "20261105-162516-vm-p22-search-sr-staff01",
+          "access_levels": [
+            "public",
+            "restricted"
+          ],
+          "http_status": 200,
+          "elapsed_ms": 1014,
+          "transport_error": null,
+          "search_status": "ok",
+          "error_code": null,
+          "evidence": [
+            {
+              "doc": "handoff-policy",
+              "section": "정보 최소화",
+              "access_level": "restricted",
+              "score": 0.42807381639724196
+            },
+            {
+              "doc": "breakdown-report",
+              "section": "사고 상담 — 교육용 가상 설정",
+              "access_level": "public",
+              "score": 0.3749935431301454
+            },
+            {
+              "doc": "handoff-policy",
+              "section": "긴급 이관",
+              "access_level": "restricted",
+              "score": 0.3189064617577742
+            },
+            {
+              "doc": "support-followup",
+              "section": "상담 시간·처리 상태 — 교육용 가상 설정",
+              "access_level": "public",
+              "score": 0.31046694636898187
+            },
+            {
+              "doc": "handoff-policy",
+              "section": "일반 이관",
+              "access_level": "restricted",
+              "score": 0.3002558807163303
+            }
+          ]
+        }
+      ],
+      "checks": [
+        {
+          "step": 1,
+          "kind": "status",
+          "path": "<http_status>",
+          "expected": 200,
+          "passed": true
+        },
+        {
+          "step": 1,
+          "kind": "equals",
+          "path": "status",
+          "expected": "ok",
+          "passed": true
+        },
+        {
+          "step": 1,
+          "kind": "contains",
+          "path": "evidence",
+          "expected": "handoff-policy",
+          "passed": true
+        },
+        {
+          "step": 1,
+          "kind": "x:contains_any",
+          "path": "evidence[*].access_level",
+          "expected": [
+            "restricted"
+          ],
+          "passed": true
+        }
+      ],
+      "global_checks": [
+        {
+          "id": "G03",
+          "step": 1,
+          "check": "contact pattern absent",
+          "passed": true
+        },
+        {
+          "id": "G01",
+          "step": 1,
+          "check": "request_id echoed",
+          "passed": true
+        }
+      ],
+      "log_checks": [],
+      "hooks": {
+        "before": [],
+        "after": []
+      },
+      "unverified": [],
+      "manual": []
+    },
+    {
+      "id": "SR-STAFF02",
+      "name": "SR-STAFF02 담당자 티켓 수명주기 양성 대조",
+      "file": "cases/search.json",
+      "status": "pass",
+      "steps": [
+        {
+          "step": 1,
+          "request_id": "20261105-162516-vm-p22-search-sr-staff02",
+          "access_levels": [
+            "public",
+            "restricted"
+          ],
+          "http_status": 200,
+          "elapsed_ms": 908,
+          "transport_error": null,
+          "search_status": "ok",
+          "error_code": null,
+          "evidence": [
+            {
+              "doc": "ticket-lifecycle",
+              "section": "확인 및 이관",
+              "access_level": "restricted",
+              "score": 0.6237866000219551
+            },
+            {
+              "doc": "return-guide",
+              "section": "반납 상태 조회 — 교육용 가상 설정",
+              "access_level": "public",
+              "score": 0.5276643955335594
+            },
+            {
+              "doc": "ticket-lifecycle",
+              "section": "접수",
+              "access_level": "restricted",
+              "score": 0.5242218999297922
+            },
+            {
+              "doc": "handoff-policy",
+              "section": "일반 이관",
+              "access_level": "restricted",
+              "score": 0.5180085560323051
+            },
+            {
+              "doc": "fees-refund-guide",
+              "section": "개별 요금·환불 문의 — 교육용 가상 설정",
+              "access_level": "public",
+              "score": 0.488618368921891
+            }
+          ]
+        }
+      ],
+      "checks": [
+        {
+          "step": 1,
+          "kind": "status",
+          "path": "<http_status>",
+          "expected": 200,
+          "passed": true
+        },
+        {
+          "step": 1,
+          "kind": "equals",
+          "path": "status",
+          "expected": "ok",
+          "passed": true
+        },
+        {
+          "step": 1,
+          "kind": "contains",
+          "path": "evidence",
+          "expected": "ticket-lifecycle",
+          "passed": true
+        },
+        {
+          "step": 1,
+          "kind": "x:contains_any",
+          "path": "evidence[*].access_level",
+          "expected": [
+            "restricted"
+          ],
+          "passed": true
+        }
+      ],
+      "global_checks": [
+        {
+          "id": "G03",
+          "step": 1,
+          "check": "contact pattern absent",
+          "passed": true
+        },
+        {
+          "id": "G01",
+          "step": 1,
+          "check": "request_id echoed",
+          "passed": true
+        }
+      ],
+      "log_checks": [],
+      "hooks": {
+        "before": [],
+        "after": []
+      },
+      "unverified": [],
+      "manual": []
+    },
+    {
+      "id": "SR-OFF",
+      "name": "SR-OFF 검색 비활성",
+      "file": "cases/search.json",
+      "status": "pass",
+      "steps": [
+        {
+          "step": 1,
+          "request_id": "20261105-162516-vm-p22-search-sr-off",
+          "access_levels": [
+            "public"
+          ],
+          "http_status": 200,
+          "elapsed_ms": 98,
+          "transport_error": null,
+          "search_status": "skipped",
+          "error_code": null,
+          "evidence": []
+        }
+      ],
+      "checks": [
+        {
+          "step": 1,
+          "kind": "status",
+          "path": "<http_status>",
+          "expected": 200,
+          "passed": true
+        },
+        {
+          "step": 1,
+          "kind": "equals",
+          "path": "status",
+          "expected": "skipped",
+          "passed": true
+        },
+        {
+          "step": 1,
+          "kind": "equals",
+          "path": "evidence",
+          "expected": [],
+          "passed": true
+        }
+      ],
+      "global_checks": [
+        {
+          "id": "G03",
+          "step": 1,
+          "check": "contact pattern absent",
+          "passed": true
+        },
+        {
+          "id": "G01",
+          "step": 1,
+          "check": "request_id echoed",
+          "passed": true
+        },
+        {
+          "id": "S01",
+          "step": 1,
+          "check": "no restricted evidence",
+          "passed": true
+        },
+        {
+          "id": "S02",
+          "step": 1,
+          "check": "no restricted canary text",
+          "passed": true
+        },
+        {
+          "id": "S03",
+          "step": 1,
+          "check": "no restricted doc id",
+          "passed": true
+        }
+      ],
+      "log_checks": [],
+      "hooks": {
+        "before": [],
+        "after": []
+      },
+      "unverified": [],
+      "manual": []
+    }
+  ]
+}
