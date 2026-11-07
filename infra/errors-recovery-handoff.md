@@ -1,5 +1,7 @@
 # 오류 운영 알림과 수동 확인
 
+2026-11-08 VM restore rehearsal 후속: [실행 결과](../runs/public/20261108-080045-vm-tc07-recovery/report.md). 서비스 DB fresh backup을 별도 restore DB에 복원해 migrations 010–016과 계약 3종을 통과했으며 서비스 DB·workflow·credential은 변경하지 않았다. 경합 시험 중 첫 claim이 restore DB에 commit된 것은 확인했지만 web SSH 연결이 다시 끊겨 두 번째 결과는 확인하지 못했다. 1승/1충돌 판정은 보류한다.
+
 2026-11-08 상태 보충: Edge VM의 parameterized `recovery_finish(inspect)`가 운영자 credential로 `ok:true`를 반환했다. 이후 migrations 011~016은 local disposable PostgreSQL에서만 확인했다. [저장 경계 계약 결과](../runs/public/20261108-010000-local-tc07-complete-contract/report.md)는 payload 없는 capsule의 안전 거절, CAS claim→resume의 새 StateRef, 실패 시 failed/pending 복귀, 확인된 action Response 저장과 DLQ resolved, unknown effect·중복 완료 거부를 포함한다. [Handoff capsule 시험](../runs/public/20261108-071500-local-tc07-handoff-capsules/report.md)은 close/assign 및 검증된 H61 context snapshot 재개 입력을 local fixture로 확인했다. VM [read-only preflight](../runs/public/20261108-072200-vm-tc07-recovery-preflight/report.md)는 서비스 DB에 recovery dispatcher가 없음을 확인했다. Migration 015 complete는 운영자의 외부 Jira 확인 attestation을 받고 DB 상태만 원자 갱신하며 Jira/Discord를 호출하지 않는다. 실제 Jira action과 VM 반입은 미실행이다.
 
 2026-11-07 R01 로컬 통합 후보. 자동 재처리 엔진은 범위 밖이다. migration 010은
