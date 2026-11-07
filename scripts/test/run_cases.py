@@ -421,11 +421,23 @@ def search_guard_checks(step_no, request, body, guard):
     ]
 
 
+def contact_text(value):
+    """Inspect text, including nested keys, without treating numeric scores as phones."""
+    if isinstance(value, str):
+        return value
+    if isinstance(value, dict):
+        return "\n".join(contact_text(part) for item in value.items() for part in item)
+    if isinstance(value, list):
+        return "\n".join(contact_text(item) for item in value)
+    return ""
+
+
 def global_checks(step_no, request, result, guard=None):
     out = []
     body = result["body"]
     if body is not None:
-        leaked = PHONE.search(_text(body)) or EMAIL.search(_text(body))
+        text = contact_text(body)
+        leaked = PHONE.search(text) or EMAIL.search(text)
         out.append(("G03", step_no, "contact pattern absent", not leaked))
     if guard is not None:
         if result["status"] == 200 and isinstance(body, dict):

@@ -651,6 +651,23 @@ class RunnerTests(unittest.TestCase):
         g03 = [g for g in summary["cases"][0]["global_checks"] if g["id"] == "G03"]
         self.assertFalse(g03[0]["passed"])
 
+    def test_numeric_similarity_score_is_not_a_contact(self):
+        body = ok_body(req(), sources=[{"score": 0.010123456789}])
+        checks = RUN.global_checks(1, req(), {"status": 200, "body": body})
+        self.assertTrue(next(c["passed"] for c in checks if c["id"] == "G03"))
+
+    def test_nested_contact_text_and_identifiers_are_still_checked(self):
+        for extra in (
+            {"nested": {"note": "synthetic citizen@example.invalid"}},
+            {"request_id": "synthetic-01012345678"},
+            {"sources": [{"score": "0.010123456789"}]},
+            {"nested": {"010-1234-5678": "synthetic key"}},
+        ):
+            with self.subTest(extra=extra):
+                body = ok_body(req(), **extra)
+                checks = RUN.global_checks(1, req(), {"status": 200, "body": body})
+                self.assertFalse(next(c["passed"] for c in checks if c["id"] == "G03"))
+
     def test_existing_run_directory_gets_suffix(self):
         self.write_cases(self.simple())
         first, _ = self.run_tool()
