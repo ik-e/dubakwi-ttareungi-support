@@ -1,0 +1,101 @@
+{
+  "run_id": "20261106-101302-vm-operations-backup",
+  "date": "2026-11-06 KST",
+  "owner": "R01",
+  "task": "P04",
+  "environment": "team VM, existing web SSH session",
+  "observations": {
+    "root_disk_used_percent": 24,
+    "root_disk_available_gb": 44,
+    "available_memory_mb": 1557,
+    "n8n_health_http": 200,
+    "postgres_user_api_course_api": "healthy",
+    "db_user_api_host_ports": 0,
+    "user_api_health_http": 200,
+    "user_api_without_auth_http": 401,
+    "scope_env_present": false,
+    "live_request_state": {
+      "completed": 3,
+      "processing": 2
+    },
+    "live_dead_letters": {
+      "pending": 2
+    },
+    "service_functions": [
+      "dlq_apply",
+      "state_apply",
+      "state_ref_json"
+    ],
+    "case_functions_present": false,
+    "owner_runtime_app_privileged_flags": "superuser/createdb/createrole/bypassrls all false"
+  },
+  "backup": {
+    "created": true,
+    "location": "private VM operations backup directory; exact path in Git-ignored handoff",
+    "directory_mode": "0700",
+    "file_modes": "0600",
+    "service_dump_bytes": 35368,
+    "n8n_sqlite_bytes": 119582976,
+    "config_bytes": 56,
+    "pg_restore_archive_list": "passed",
+    "sqlite_integrity": "ok",
+    "checksum_recheck": "passed",
+    "same_disk_backup": true
+  },
+  "restore": {
+    "separate_database": true,
+    "target_preexisting_check": "absent before creation",
+    "target_retained": true,
+    "no_owner_no_acl": true,
+    "schema_table_function_grants": "reapplied on restore DB only, equivalent to main002/004",
+    "request_and_dlq_data_hashes_match_live": true,
+    "runtime_select_insert_update_execute_privilege_checks": true,
+    "runtime_delete_truncate_privilege_denied": true,
+    "actual_delete_under_set_role": "permission denied, transaction rolled back on disconnect",
+    "actual_runtime_password_login": "not tested in this run"
+  },
+  "preservation": {
+    "live_db_before_after_hashes_match": true,
+    "all_workflow_rows_before_after_match": true,
+    "all_credential_rows_before_after_match": true,
+    "workflow_counts": {
+      "inactive": 45,
+      "active": 2
+    },
+    "service_restarts": 0,
+    "operating_workflow_changes": 0,
+    "service_migrations_applied": 0,
+    "jira_calls": 0,
+    "automatic_reprocessing": false
+  },
+  "initial_failure": {
+    "type": "remote terminal removed multiline newlines causing Python SyntaxError",
+    "state_changes": false,
+    "retry": "escaped single-line exec; backup and restore succeeded"
+  },
+  "not_run": [
+    "service SQL005~007 deployment",
+    "workflow publishing",
+    "actual Jira/LLM full S1",
+    "runtime TCP/SCRAM revalidation",
+    "n8n full volume restore",
+    "off-host backup copy",
+    "retention cleanup",
+    "Discord messages"
+  ],
+  "checks": {
+    "docs": {
+      "files": 20,
+      "local_links": 453,
+      "anchors": 50,
+      "errors": 0
+    },
+    "public_candidates": {
+      "files": 175,
+      "links": 541,
+      "errors": 0
+    },
+    "diff": "passed",
+    "limited_secret_patterns": "no matches; not full history/PII scan"
+  }
+}

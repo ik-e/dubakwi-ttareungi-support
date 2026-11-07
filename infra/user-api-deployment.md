@@ -1,5 +1,36 @@
 # Team user and ownership API deployment
 
+## PR36 local candidate — live records
+
+Compose now fixes `DUBAKWI_RECORDS_MODE=jira`. File records are local fixture
+mode only. Missing live configuration, DB/Jira failure and invalid context return
+503 and never fall back to fixtures. `/employees` keeps its contract.
+
+Preserve the VM's private five-user override with `DUBAKWI_USERS_OVERRIDE_FILE`
+(read-only bind). Supply scope, HTTPS Jira origin and read-only private files:
+DB DSN, Jira auth JSON (`email`/`token`), service-author accountId array. Pass that
+array to `render_n8n_workflow.py --context-authors-file`; state also needs the
+assignee map for final-save verification. Keep all real values outside Git.
+
+Apply008/009 first. The API uses its own read-only DB login and refuses a
+write-capable login. Jira calls are GET only, redirects refused, with a total
+1.2-second read budget. Latest-completed binding, complete comments, trusted
+author and current Jira state must agree. Staff-closed without a verified chatbot
+close reason is generic `closed`.
+
+The image includes locked psycopg and both provider/parser modules. Build context
+is allowlisted by `.dockerignore`. Local health/UID10001/driver import and actual
+PostgreSQL reader integration passed; Jira responses were mocked. Verify real
+Jira reads, users/env/secret preservation and image digest before activation.
+
+The DB driver is the optional `records` extra, so an unchanged bot build does not
+gain a DB dependency. Local live-provider execution uses `uv run --locked --extra
+records python -m services.user_api.server`; the API Dockerfile installs that same
+locked extra. Fixture/Code-only tests do not need a database driver.
+
+The guidance below is historical fixture deployment, not the live rollout order.
+T-DEMO records are not live Jira ownership proof.
+
 This service supplies the reviewed `data/users.json` and `data/records.json`
 fixtures without modifying the course data-api.
 
@@ -39,3 +70,8 @@ GET http://dubakwi-user-api:8801/records/T-DEMO-01?requester=citizen-a
 Deployment and live n8n evidence remain incomplete until R01 performs these
 steps on the VM and R05 records the official registered/unregistered/ownership
 cases.
+
+
+## 조회 응답 시간 경계의 로컬 보완
+
+records provider는1.2초 내부 deadline과1.25초 응답 대기 제한을 사용한다. DNS/socket이 자체 timeout을 넘겨 대기해도503으로 답하며 읽기 작업만 최대4개까지 남길 수 있다. 슬롯이 차면 추가 작업을 대기열에 넣지 않고503으로 거절한다. 남은 작업에는 SELECT/GET만 허용되며 쓰기/재시도/모의 records fallback은 없다. 실제 VM 스케줄링·네트워크 지연은 별도 측정한다.

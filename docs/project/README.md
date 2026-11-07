@@ -102,3 +102,8 @@ R01 GitLab79 재사용 후속: [data-api·과정 도구 적용](../../runs/publi
 R05 P13/P25 통합 산출물: [공통 사례](../../cases/common.json), [팀 사례](../../cases/team.json), [팀 확장](../../cases/team-extended.json), [P11 임시 입구 사례](../../cases/p11-entry.json), [시연 순서 초안](../../requests/demo-sequence.json), [R05 VM 부분 시험 보고서](../../runs/public/20261105-143325-vm-p13-official/report.md), [새 R01 통합 검토](../../runs/public/20261105-154737-local-r05-integration-review/summary.json). 사례 형식/도구·시연 초안·골격 부분 시험을 구분하며 P13 전체 완료·실제 시연 성공은 아니다.
 
 - [따릉이 챗봇 조사 요약·출처](../rag-knowledge/chatbot_documents/README.md): 원문·사진은 내부 보관, 공개본은 직접 작성한 요약과 링크만 포함.
+
+
+## PR36 로컬 통합 수용 기록
+
+현재 후보의 원본 파일 수용·제외·역사 보존 및 설계 대조는 [로컬 수용 대조](../../infra/pr36-local-acceptance.md)를 따른다. [실행 결과서](EXECUTION-RESULT.md)는 과거 정상1건·반복/실패·PASS*·미실행을 구분하며 이번 로컬 시험을 실제 VM 통과로 합산하지 않는다. [R03 발표 대본](presentation/r03-rag-script.md)은 PR24 당시 초안이고 PDF/이미지는 공개하지 않았다.

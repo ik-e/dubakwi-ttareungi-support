@@ -83,7 +83,7 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "parameters": {
-        "jsCode": "const safe = $('E02 오류 가림과 안전 차단').item.json;\nconst effect = (status, errorCode = null) => ({status, error_code: errorCode});\nreturn [{json:{\n  op:'put', scope:safe.scope, request_id:null, case_id:null, jira_issue_id:null, jira_issue_key:null,\n  failed_step:safe.failed_node_id, error_code:safe.error_code, summary:'예상 밖 워크플로우 중단', attempts:0,\n  effects:{created_or_reused:effect(safe.effect),context_saved:effect('none'),closed:effect('none'),assigned:effect('none'),alert:effect('none','alert_backend_unconfigured')},\n  recovery:safe.recovery, last_execution_id:safe.execution_id\n}}];"
+        "jsCode": "const safe = $('E02 오류 가림과 안전 차단').item.json;\nconst effect = (status, errorCode = null) => ({status, error_code: errorCode});\nreturn [{json:{\n  op:'put', scope:safe.scope, request_id:null, case_id:null, jira_issue_id:null, jira_issue_key:null,\n  failed_step:safe.failed_node_id, error_code:safe.error_code, summary:'예상 밖 워크플로우 중단', attempts:0,\n  effects:{created_or_reused:effect(safe.effect),context_saved:effect('none'),closed:effect('none'),assigned:effect('none'),alert:effect('none')},\n  recovery:safe.recovery, last_execution_id:safe.execution_id\n}}];"
       },
       "position": [
         1060,
@@ -117,11 +117,11 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "parameters": {
-        "jsCode": "const safe = $('E02 오류 가림과 안전 차단').item.json;\nconst dlq = $json;\nconst stored = dlq && dlq.ok === true;\nreturn [{json:{ok:false,skipped:false,state_ref:null,dlq_id:stored ? (dlq.dlq_id ?? null) : null,error_code:stored ? 'workflow_runtime_error' : 'error_storage_failed',execution_id:safe.execution_id}}];"
+        "jsCode": "const safe=$('E02 오류 가림과 안전 차단').first().json;\nconst dlq=$('E04 오류 보관').first().json;\nconst stored=dlq && dlq.ok===true;\nconst status=Number($json.statusCode??0);\nconst alert=status>=200&&status<300?'confirmed':status>=400&&status<500?'failed':'unknown';\nreturn [{json:{ok:false,skipped:false,state_ref:null,dlq_id:stored?(dlq.dlq_id??null):null,error_code:stored?'workflow_runtime_error':'error_storage_failed',execution_id:safe.execution_id,operational_alert:{status:alert,kind:'api_acceptance',http_status:status||null}}}];"
       },
       "position": [
-        1580,
-        -100
+        1450,
+        0
       ]
     },
     {
@@ -135,6 +135,33 @@
         800,
         120
       ]
+    },
+    {
+      "name": "E09 운영 실패 알림",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "onError": "continueRegularOutput",
+      "retryOnFail": false,
+      "position": [
+        1200,
+        0
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "http://data-api:8800/alerts",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({workflow:'dubakwi-errors',node:$('E02 오류 가림과 안전 차단').first().json.failed_node_id,message:'예상 밖 워크플로우 중단',severity:'error',reason:'workflow_runtime_error',execution_id:$('E02 오류 가림과 안전 차단').first().json.execution_id,scope:$('E02 오류 가림과 안전 차단').first().json.scope}) }}",
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true,
+              "neverError": true
+            }
+          },
+          "timeout": 1500
+        }
+      }
     }
   ],
   "connections": {
@@ -201,6 +228,17 @@
       ]
     },
     "E04 오류 보관": {
+      "main": [
+        [
+          {
+            "node": "E09 운영 실패 알림",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "E09 운영 실패 알림": {
       "main": [
         [
           {

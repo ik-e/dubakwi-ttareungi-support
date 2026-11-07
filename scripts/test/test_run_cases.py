@@ -5,6 +5,7 @@ import json
 import os
 import tempfile
 import threading
+import time
 import unittest
 from datetime import datetime
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
@@ -147,6 +148,70 @@ class RunnerTests(unittest.TestCase):
     def simple(self, name="A", **x):
         return flow_case(name, req(), {"status": 200, "equals": {"route": "차단"}}, **x)
 
+    def write_search(self, *cases):
+        guard = {"restricted_docs": ["handoff-policy"], "canary_prefix": "TEST-CANARY"}
+        data = {"webhook": "dubakwi-search", "x_dubakwi": {"search_guard": guard}}
+        data["cases"] = list(cases)
+        path = self.base / "cases/test.json"
+        path.write_text(json.dumps(data, ensure_ascii=False), encoding="utf-8")
+
+    @staticmethod
+    def search_case(name, levels, expect=None):
+        body = {"request_id": name.lower(), "enabled": True, "query": "q"}
+        body |= {"access_levels": levels, "deadline_at": "2099-01-01T00:00:00Z"}
+        return flow_case(name, body, expect or {"status": 200, "equals": {"status": "ok"}})
+
+    @staticmethod
+    def search_reply(*evidence):
+        def reply(request):
+            items = [
+                {"doc": d, "section": "s", "access_level": a, "score": 0.5, "text": t}
+                for d, a, t in evidence
+            ]
+            body = {"request_id": request["request_id"], "status": "ok", "evidence": items}
+            return 200, body
+
+        return reply
+
+    def test_search_guard_passes_public_evidence_and_skips_support_checks(self):
+        FakeServer.reply = self.search_reply(("rental-guide", "public", "SECRET-EVIDENCE-TEXT"))
+        self.write_search(self.search_case("P", ["public"]))
+        summary, path = self.run_tool()
+        case = summary["cases"][0]
+        self.assertEqual(case["status"], "pass")
+        ids = [g["id"] for g in case["global_checks"]]
+        self.assertEqual(ids, ["G03", "G01", "S01", "S02", "S03", "G06"])
+        step = case["steps"][0]
+        self.assertEqual(step["search_status"], "ok")
+        self.assertEqual(
+            step["evidence"][0],
+            {"doc": "rental-guide", "section": "s", "access_level": "public", "score": 0.5},
+        )
+        self.assertNotIn("SECRET-EVIDENCE-TEXT", path.read_text(encoding="utf-8"))
+
+    def test_search_guard_fails_on_restricted_level_canary_or_doc_for_public_request(self):
+        leaks = [
+            (("x", "restricted", "t"), "S01"),
+            (("x", "public", "has TEST-CANARY-01"), "S02"),
+            (("handoff-policy", "public", "t"), "S03"),
+        ]
+        for evidence, expected in leaks:
+            with self.subTest(leak=expected):
+                FakeServer.reply = self.search_reply(evidence)
+                self.write_search(self.search_case("L", ["public"]))
+                summary, _ = self.run_tool()
+                case = summary["cases"][0]
+                failed = [g["id"] for g in case["global_checks"] if not g["passed"]]
+                self.assertEqual((case["status"], failed), ("fail", [expected]))
+
+    def test_search_guard_is_not_applied_when_restricted_access_is_requested(self):
+        FakeServer.reply = self.search_reply(("handoff-policy", "restricted", "TEST-CANARY-01"))
+        self.write_search(self.search_case("S", ["public", "restricted"]))
+        summary, _ = self.run_tool()
+        case = summary["cases"][0]
+        self.assertEqual(case["status"], "pass")
+        self.assertEqual([g["id"] for g in case["global_checks"]], ["G03", "G01", "G06"])
+
     def test_file_reset_failure_blocks_current_and_later_files_without_webhook(self):
         reset = [{"url": "http://localhost:8800/tickets-reset", "body": {}}]
         self.write_cases(self.simple("A"), before=reset)
@@ -265,9 +330,32 @@ class RunnerTests(unittest.TestCase):
             },
         ]
         self.write_cases({"name": "T", "x_dubakwi": {"id": "T", "steps": steps}})
-        summary, _ = self.run_tool()
+        summary, path = self.run_tool()
         self.assertEqual(self.webhook_calls()[1]["case_ref"], "case-77")
         self.assertEqual(summary["cases"][0]["status"], "pass")
+        same_as = [c for c in summary["cases"][0]["checks"] if c["kind"] == "x:same_as"][0]
+        self.assertEqual(same_as["expected"], {"same_as": "step1", "path": "case_ref"})
+        self.assertNotIn("case-77", path.read_text(encoding="utf-8"))
+
+    def test_failed_same_as_does_not_publish_earlier_value(self):
+        replies = iter([("case-secret-1", "보완 질문"), ("case-other-2", "보완 질문")])
+
+        def reply(request):
+            case_ref, route = next(replies)
+            return 200, ok_body(request, route=route, case_ref=case_ref)
+
+        FakeServer.reply = reply
+        same = {"path": "case_ref", "op": "same_as", "value": {"step": 1, "path": "case_ref"}}
+        steps = [
+            {"step": 1, "body": req("f1"), "expect": {"status": 200}},
+            {"step": 2, "body": req("f2"), "expect": {"status": 200}, "assert": [same]},
+        ]
+        self.write_cases({"name": "F", "x_dubakwi": {"id": "F", "steps": steps}})
+        summary, path = self.run_tool()
+        self.assertEqual(summary["cases"][0]["status"], "fail")
+        public = path.read_text(encoding="utf-8")
+        self.assertNotIn("case-secret-1", public)
+        self.assertNotIn("case-other-2", public)
 
     def test_same_as_across_cases_compares_earlier_case_response(self):
         tickets = iter(
@@ -453,6 +541,108 @@ class RunnerTests(unittest.TestCase):
         ):
             self.run_tool("--auth-required")
 
+    def test_response_limit_g06_fails_slow_response_and_target_only_records(self):
+        def slow(request):
+            time.sleep(0.3)
+            return 200, ok_body(request)
+
+        FakeServer.reply = slow
+        self.write_cases(self.simple("T", target_seconds=0.1))
+        summary, _ = self.run_tool("--response-limit", "5")
+        case = summary["cases"][0]
+        g06 = [g for g in case["global_checks"] if g["id"] == "G06"]
+        self.assertEqual([g["passed"] for g in g06], [True])
+        self.assertEqual(case["status"], "auto_pass_unverified")
+        self.assertTrue(any(u.startswith("목표 시간 초과: step1") for u in case["unverified"]))
+
+        summary, _ = self.run_tool("--response-limit", "0.1")
+        case = summary["cases"][0]
+        failed = [g["id"] for g in case["global_checks"] if not g["passed"]]
+        self.assertEqual((case["status"], failed), ("fail", ["G06"]))
+
+    def run_with_prompt(self, answers, *extra):
+        asked = []
+
+        def prompt(message):
+            asked.append(message)
+            return answers.pop(0) if answers else None
+
+        args = RUN.parse_args(
+            ["--base-url", self.base_url, "--data-api", self.base_url, "--env", "local"]
+            + ["--desc", "unit", "--path", "mock", "--cases-file", "cases/test.json", *extra]
+        )
+        summary, _ = RUN.execute(args, base=self.base, now=NOW, prompt=prompt)
+        return summary, asked
+
+    def paused_case(self, name="P"):
+        return {
+            "name": name,
+            "x_dubakwi": {
+                "id": name,
+                "requires": "시험 사본 준비",
+                "steps": [
+                    {"step": 1, "body": req("p-1"), "expect": {"status": 200}},
+                    {
+                        "step": 2,
+                        "pause": "고장 해제 확인",
+                        "body": req("p-1"),
+                        "expect": {"status": 200},
+                    },
+                ],
+            },
+        }
+
+    def test_requires_unblocks_only_with_ready_and_pause_continues_on_enter(self):
+        self.write_cases(self.paused_case())
+        summary, asked = self.run_with_prompt([""])
+        self.assertEqual(summary["cases"][0]["status"], "blocked")
+        self.assertEqual(asked, [])
+
+        summary, asked = self.run_with_prompt([""], "--ready", "P")
+        self.assertEqual(summary["cases"][0]["status"], "pass")
+        self.assertEqual(len(asked), 1)
+        self.assertIn("[P step2] 고장 해제 확인", asked[0])
+        self.assertEqual(len(self.webhook_calls()), 2)
+        self.assertEqual(summary["ready"], ["P"])
+
+    def test_stop_at_pause_halts_the_case_and_later_cases(self):
+        self.write_cases(self.paused_case("P"), self.simple("Later"))
+        summary, _ = self.run_with_prompt(["stop"], "--ready", "P")
+        by_id = {c["id"]: c for c in summary["cases"]}
+        self.assertEqual(by_id["P"]["status"], "halted")
+        self.assertEqual([s["step"] for s in by_id["P"]["steps"]], [1])
+        self.assertEqual(by_id["Later"]["status"], "blocked")
+        self.assertIn("P operator stopped before step2", by_id["Later"]["reason"])
+        self.assertEqual(len(self.webhook_calls()), 1)
+
+    def test_not_implemented_is_not_sent_and_counts_are_split_by_category(self):
+        self.write_cases(
+            self.simple("N"),
+            self.simple("F", category="failure_handling"),
+            self.simple("R", category="recovery", not_implemented="재개 기능 없음"),
+        )
+        summary, _ = self.run_tool()
+        by_id = {c["id"]: c for c in summary["cases"]}
+        self.assertEqual(by_id["R"]["status"], "not_implemented")
+        self.assertEqual(by_id["R"]["reason"], "재개 기능 없음")
+        self.assertEqual(len(self.webhook_calls()), 2)
+        self.assertEqual(
+            summary["counts_by_category"],
+            {
+                "normal": {"pass": 1},
+                "failure_handling": {"pass": 1},
+                "recovery": {"not_implemented": 1},
+            },
+        )
+        self.assertNotIn("fail", summary["counts"])
+
+    def test_default_response_limit_is_25_seconds(self):
+        self.write_cases(self.simple())
+        summary, _ = self.run_tool()
+        g06 = [g for g in summary["cases"][0]["global_checks"] if g["id"] == "G06"]
+        self.assertEqual((g06[0]["check"], g06[0]["passed"]), ("response within 25s", True))
+        self.assertEqual(summary["cases"][0]["status"], "pass")
+
     def test_contact_pattern_in_response_fails_global_check(self):
         FakeServer.reply = lambda r: (200, ok_body(r, answer="연락처 010-1234-5678"))
         self.write_cases(self.simple())
@@ -574,15 +764,68 @@ class CaseFileTests(unittest.TestCase):
                     self.assertIn("fault_off", step)
         self.assertEqual(len({self.load(s["request"])["request_id"] for s in sent}), len(sent))
 
+    def test_recovery_is_marked_not_implemented_and_tc18_splits_three_outcomes(self):
+        data = self.load("cases/team-extended.json")
+        by_id = {c["x_dubakwi"]["id"]: c["x_dubakwi"] for c in data["cases"]}
+        self.assertEqual(by_id["TC07"]["category"], "recovery")
+        self.assertIn("미구현", by_id["TC07"]["not_implemented"])
+        steps = by_id["TC18"]["steps"]
+        self.assertEqual(steps[0]["body"]["request_id"], steps[1]["body"]["request_id"])
+        self.assertEqual(steps[1]["expect"]["contains"]["codes"], ["request_requires_review"])
+        self.assertEqual(steps[2]["body"]["case_ref"], "{step1.case_ref}")
+        self.assertEqual(steps[2]["expect"]["contains"]["codes"], ["case_busy"])
+        self.assertNotIn("case_ref", steps[3]["body"])
+        self.assertEqual(steps[3]["expect"]["status"], 200)
+        self.assertIn("복구 성공이 아니다", by_id["TC18"]["judgment"]["new_inquiry_ok"])
+
+    def test_wf01_eight_seconds_is_a_target_not_a_pass_limit(self):
+        data = self.load("cases/common.json")
+        wf01 = next(c for c in data["cases"] if c["x_dubakwi"]["id"] == "WF01")
+        self.assertNotIn("max_seconds", wf01["expect"])
+        self.assertEqual(wf01["x_dubakwi"]["target_seconds"], 8)
+        wf11 = next(c for c in data["cases"] if c["x_dubakwi"]["id"] == "WF11")
+        self.assertEqual(wf11["expect"]["max_seconds"], 6)
+        self.assertIn("25초", data["x_dubakwi"]["time_policy"]["upper_bound"])
+
+    def test_search_cases_guard_public_requests_and_pair_staff_controls(self):
+        self.assertNotIn("cases/search.json", RUN.DEFAULT_CASE_FILES)
+        data = self.load("cases/search.json")
+        self.assertEqual(data["webhook"], "dubakwi-search")
+        guard = data["x_dubakwi"]["search_guard"]
+        self.assertEqual(guard["restricted_docs"], ["handoff-policy", "ticket-lifecycle"])
+        manifest = self.load("knowledge/manifest.json")
+        restricted = [
+            d["doc_id"] for d in manifest["documents"] if d["access_level"] == "restricted"
+        ]
+        self.assertEqual(sorted(restricted), sorted(guard["restricted_docs"]))
+        for doc in restricted:
+            text = (ROOT / f"knowledge/restricted/{doc}.md").read_text(encoding="utf-8")
+            self.assertIn(guard["canary_prefix"], text)
+        cases = {c["x_dubakwi"]["id"]: c for c in data["cases"]}
+        for case in data["cases"]:
+            with self.subTest(case=case["name"]):
+                for key in ("request_id", "enabled", "query", "access_levels", "deadline_at"):
+                    self.assertIn(key, case["body"])
+                self.assertEqual(case["expect"]["status"], 200)
+        for citizen, staff in (("SR-R01", "SR-STAFF01"), ("SR-R02", "SR-STAFF02")):
+            self.assertEqual(cases[citizen]["body"]["query"], cases[staff]["body"]["query"])
+            self.assertEqual(cases[citizen]["body"]["access_levels"], ["public"])
+            self.assertIn("restricted", cases[staff]["body"]["access_levels"])
+
     def test_p11_entry_case_is_separate_and_expects_skeleton_mock(self):
         self.assertNotIn("cases/p11-entry.json", RUN.DEFAULT_CASE_FILES)
         data = self.load("cases/p11-entry.json")
-        (case,) = data["cases"]
-        self.assertEqual(case["body"]["user"], "citizen-a")
-        equals = case["expect"]["equals"]
-        self.assertEqual(
-            equals, {"route": "담당자 이관", "reason": "skeleton_mock", "ticket": None}
-        )
+        team = {c["x_dubakwi"]["id"]: c for c in self.load("cases/team.json")["cases"]}
+        skeleton = {"route": "담당자 이관", "reason": "skeleton_mock", "ticket": None}
+        for case in data["cases"]:
+            with self.subTest(case=case["name"]):
+                self.assertEqual(case["body"]["user"], "citizen-a")
+                equals = case["expect"]["equals"]
+                self.assertEqual({k: equals[k] for k in skeleton}, skeleton)
+        by_id = {c["x_dubakwi"]["id"]: c for c in data["cases"]}
+        for p11, tc in (("P11-02", "TC09a"), ("P11-03", "TC09b")):
+            self.assertEqual(by_id[p11]["body"]["question"], team[tc]["body"]["question"])
+            self.assertIsNone(by_id[p11]["expect"]["equals"]["security.blocked_by"])
 
     def test_fault_cases_switch_fault_off_after(self):
         data = self.load("cases/common.json")

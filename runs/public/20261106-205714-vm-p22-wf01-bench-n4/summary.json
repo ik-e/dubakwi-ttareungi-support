@@ -1,0 +1,185 @@
+{
+  "run_id": "20261106-205714-vm-p22-wf01-bench-n4",
+  "executed_at": "2026-11-06T20:57:14+09:00",
+  "environment": "vm",
+  "kind": "service_cases",
+  "runner": "scripts/test/run_cases.py (not the kit flow.py)",
+  "path": "jira",
+  "auth_header_sent": true,
+  "auth_token_env": "FLOW_WEBHOOK_KEY",
+  "log_check": true,
+  "ready": [],
+  "versions": {
+    "git": {
+      "commit": "f30dc33c15b5e395df22397c65c6e3d82ced63ae",
+      "branch": "r05/p07-r04-contract-cases",
+      "dirty": false
+    },
+    "workflow": "3e8547a",
+    "config": "r01-p19-b17-assignee",
+    "case_files": {
+      "cases/common.json": "6e4d3229a94bc66d041ff149bdacb98649ed1a545779dab80748c4eae86c3179",
+      "cases/team.json": "463158874ae12ce54d305aa42cdbf7f816e4b7f61ce6d12bacbd385e8fc9fc80",
+      "cases/team-extended.json": "d26fbfb3bb8d79ebf0cf2df943a5abd1194e6741d6585f10e85fab23d77fdb00"
+    },
+    "test_copy": null,
+    "python": "3.12.16"
+  },
+  "file_hooks": {},
+  "counts": {
+    "auto_pass_unverified": 1
+  },
+  "counts_by_category": {
+    "normal": {
+      "auto_pass_unverified": 1
+    }
+  },
+  "meaning": "auto_pass_unverified = response checks passed but ticket/state/DLQ/alert/n8n or manual checks are still open; it is not a full pass",
+  "category_meaning": "normal = 정상 경로, failure_handling = 실패 시 안전 처리·재전송/후속 차단, recovery = 실패 건의 복구 작업. not_implemented는 기능 미구현이며 fail·pass로 세지 않는다. 신규 문의 성공을 기존 실패 문의의 복구 성공으로 세지 않는다",
+  "cases": [
+    {
+      "id": "WF01",
+      "name": "WF-01 정상 문의",
+      "file": "cases/common.json",
+      "category": "normal",
+      "status": "auto_pass_unverified",
+      "steps": [
+        {
+          "step": 1,
+          "request_id": "20261106-205714-vm-p22-wf01-bench-n4-wf01",
+          "http_status": 200,
+          "elapsed_ms": 8177,
+          "transport_error": null,
+          "route": "자동 답변",
+          "codes": null,
+          "has_ticket": false,
+          "ticket_priority": null,
+          "ticket_duplicate": null,
+          "sources_count": 2,
+          "security_masked": 0
+        }
+      ],
+      "checks": [
+        {
+          "step": 1,
+          "kind": "status",
+          "path": "<http_status>",
+          "expected": 200,
+          "passed": true
+        },
+        {
+          "step": 1,
+          "kind": "equals",
+          "path": "route",
+          "expected": "자동 답변",
+          "passed": true
+        },
+        {
+          "step": 1,
+          "kind": "equals",
+          "path": "ticket",
+          "expected": null,
+          "passed": true
+        },
+        {
+          "step": 1,
+          "kind": "contains",
+          "path": "sources",
+          "expected": "rental-guide",
+          "passed": true
+        },
+        {
+          "step": 1,
+          "kind": "x:contains_any",
+          "path": "sources[*].section",
+          "expected": [
+            "QR 인식 또는 잠금 해제가 어려운 경우"
+          ],
+          "passed": true
+        },
+        {
+          "step": 1,
+          "kind": "x:contains_any",
+          "path": "answer",
+          "expected": [
+            "5자리",
+            "자전거 번호",
+            "자전거번호"
+          ],
+          "passed": true
+        },
+        {
+          "step": 1,
+          "kind": "x:exists",
+          "path": "case_ref",
+          "expected": null,
+          "passed": true
+        }
+      ],
+      "global_checks": [
+        {
+          "id": "G03",
+          "step": 1,
+          "check": "contact pattern absent",
+          "passed": true
+        },
+        {
+          "id": "G01",
+          "step": 1,
+          "check": "request_id echoed",
+          "passed": true
+        },
+        {
+          "id": "G02",
+          "step": 1,
+          "check": "route in common set",
+          "passed": true
+        },
+        {
+          "id": "G05",
+          "step": 1,
+          "check": "non-handoff ticket is null",
+          "passed": true
+        },
+        {
+          "id": "G06",
+          "step": 1,
+          "check": "response within 25s",
+          "passed": true
+        }
+      ],
+      "log_checks": [
+        {
+          "id": "L01",
+          "step": 1,
+          "check": "log entry for request_id",
+          "passed": true
+        },
+        {
+          "id": "L02",
+          "step": 1,
+          "check": "log route/status match response",
+          "passed": true
+        },
+        {
+          "id": "L03",
+          "step": 1,
+          "check": "question text absent from log",
+          "passed": true
+        }
+      ],
+      "hooks": {
+        "before": [],
+        "after": []
+      },
+      "unverified": [
+        "티켓 1건 생성 후 closed_guidance 종료 확인",
+        "요청 상태 completed·최종 저장",
+        "목표 시간 초과: step1 8.2s > 8s (성능 기록)"
+      ],
+      "manual": [
+        "답변이 근거 절 절차와 일치하고 근거 밖 내용 없음"
+      ]
+    }
+  ]
+}

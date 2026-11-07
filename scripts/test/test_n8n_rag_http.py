@@ -36,7 +36,7 @@ class LocalRagHttpTest(unittest.TestCase):
     def test_authentication(self):
         with self.assertRaises(HTTPError) as caught:
             call("auth", "", ["public"], enabled=False, auth=False)
-        self.assertEqual(caught.exception.code, 403)
+        self.assertEqual(caught.exception.code, 401)
 
     def test_skip_and_invalid_permissions(self):
         result = call("skip", "", ["public"], enabled=False)

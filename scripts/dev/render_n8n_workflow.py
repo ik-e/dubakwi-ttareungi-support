@@ -23,6 +23,7 @@ from pathlib import Path
 JIRA_PLACEHOLDER = "__JIRA_BASE_URL__"
 MAP_PLACEHOLDER = "__ASSIGNEE_MAP_JSON__"
 SCOPE_PLACEHOLDER = "__DUBAKWI_SCOPE__"
+AUTHORS_PLACEHOLDER = "__JIRA_CONTEXT_AUTHORS_JSON__"
 # errors 워크플로우의 대입문만 치환한다. 같은 문자열이 비교식에도 있어 전체 치환하면 저장이 항상 막힌다.
 SCOPE_ASSIGNMENT = re.compile(r"(const importedScope = ')" + SCOPE_PLACEHOLDER + r"(';)")
 SAFE_TEXT = re.compile(r"^[A-Za-z0-9:_.\-]+$")
@@ -63,7 +64,11 @@ def validate_scope(value: str) -> str:
 
 
 def render(
-    text: str, jira_base: str | None, assignee_map: str | None, scope: str | None = None
+    text: str,
+    jira_base: str | None,
+    assignee_map: str | None,
+    scope: str | None = None,
+    context_authors: str | None = None,
 ) -> str:
     if jira_base is not None:
         text = text.replace(JIRA_PLACEHOLDER, validate_jira_base(jira_base))
@@ -79,6 +84,21 @@ def render(
             raise RenderError(
                 "importedScope 대입문을 정확히 1곳 찾지 못했다(errors 워크플로우가 아니거나 형식이 바뀜)"
             )
+    if context_authors is not None:
+        try:
+            authors = json.loads(context_authors)
+        except json.JSONDecodeError as error:
+            raise RenderError("문맥 작성자 목록은 JSON 배열이어야 한다") from error
+        if (
+            not isinstance(authors, list)
+            or not authors
+            or not all(
+                isinstance(author, str) and SAFE_TEXT.fullmatch(author) for author in authors
+            )
+        ):
+            raise RenderError("문맥 작성자 목록에 비어 있거나 안전하지 않은 ID가 있다")
+        escaped = json.dumps(json.dumps(authors, separators=(",", ":")))[1:-1]
+        text = text.replace(AUTHORS_PLACEHOLDER, escaped)
     return text
 
 
@@ -100,6 +120,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--output", required=True, type=Path)
     parser.add_argument("--jira-base")
     parser.add_argument("--assignee-map-file", type=Path)
+    parser.add_argument("--context-authors-file", type=Path)
     parser.add_argument(
         "--scope", help="errors 워크플로우의 importedScope 대입값(support와 같은 값)"
     )
@@ -111,7 +132,11 @@ def main(argv: list[str] | None = None) -> int:
             args.assignee_map_file.read_text(encoding="utf-8") if args.assignee_map_file else None
         )
         rendered = render(
-            args.source.read_text(encoding="utf-8"), args.jira_base, assignee, args.scope
+            args.source.read_text(encoding="utf-8"),
+            args.jira_base,
+            assignee,
+            args.scope,
+            args.context_authors_file.read_text("utf-8") if args.context_authors_file else None,
         )
         json.loads(rendered)  # 결과가 여전히 올바른 JSON인지 확인
     except (RenderError, OSError, json.JSONDecodeError) as error:
@@ -120,7 +145,11 @@ def main(argv: list[str] | None = None) -> int:
 
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(rendered, encoding="utf-8")
-    left = [name for name in (JIRA_PLACEHOLDER, MAP_PLACEHOLDER) if name in rendered]
+    left = [
+        name
+        for name in (JIRA_PLACEHOLDER, MAP_PLACEHOLDER, AUTHORS_PLACEHOLDER)
+        if name in rendered
+    ]
     if args.scope is None and SCOPE_PLACEHOLDER in rendered:
         left.append(SCOPE_PLACEHOLDER)
     print(f"작성: {args.output} (남은 자리표시자: {', '.join(left) if left else '없음'})")

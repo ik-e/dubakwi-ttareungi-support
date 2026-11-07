@@ -1,4 +1,5 @@
 import json
+import os
 import tempfile
 import threading
 import unittest
@@ -6,6 +7,7 @@ import urllib.error
 import urllib.request
 from http.server import ThreadingHTTPServer
 from pathlib import Path
+from unittest.mock import patch
 
 from services.user_api import server
 
@@ -71,6 +73,16 @@ class UserApiTest(unittest.TestCase):
         status, payload = self.get("/records/T-DEMO-02?requester=citizen-a")
         self.assertEqual(403, status)
         self.assertEqual("record_access_denied", payload["error"])
+
+    def test_live_mode_configuration_failure_does_not_return_fixture(self):
+        with patch.object(server, "RECORDS_MODE", "jira"), patch.dict(os.environ, {}, clear=True):
+            status, payload = self.get("/records/T-DEMO-01?requester=citizen-a")
+        self.assertEqual((status, payload), (503, {"error": "lookup_error"}))
+
+    def test_unknown_mode_fails_closed(self):
+        with patch.object(server, "RECORDS_MODE", "mistyped"):
+            status, payload = self.get("/records/T-DEMO-01?requester=citizen-a")
+        self.assertEqual((status, payload), (503, {"error": "lookup_error"}))
 
     def test_log_path_redacts_user_ticket_and_query_identifiers(self):
         self.assertEqual(

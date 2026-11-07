@@ -1,0 +1,141 @@
+{
+  "label": "llm-time-fault-local",
+  "executed_at_kst": "2026-11-06",
+  "base_commit": "de303d7",
+  "tool": "scripts/test/make_llm_time_fault.py (--source 정상 사본, --mode)",
+  "environment": "local n8n 2.42.6, course data-api 사본, gpt-4.1-mini, main ac772ae 색인, mock state·handoff·dlq. 로컬에서만 모드별 ID·경로를 따로 줘 다섯 사본을 함께 게시했고 확인 뒤 비활성화",
+  "scope": "R01 요청: LLM·시간 고장 시험의 주입 방법과 기대 결과를 R04·R05와 맞추기 전 로컬 확인. 대표 질문을 모드마다 2회. Jira·DB 효과는 mock이라 확인 대상이 아니다. VM·공식 판정이 아니다.",
+  "results": {
+    "llm_down_triage": [
+      {
+        "http": 200,
+        "route": "담당자 이관",
+        "reason": "llm_down",
+        "agents": [
+          "triage"
+        ],
+        "ticket": true,
+        "s": 1.6
+      },
+      {
+        "http": 200,
+        "route": "담당자 이관",
+        "reason": "llm_down",
+        "agents": [
+          "triage"
+        ],
+        "ticket": true,
+        "s": 1.1
+      }
+    ],
+    "llm_down_writer": [
+      {
+        "http": 200,
+        "route": "담당자 이관",
+        "reason": "llm_down",
+        "agents": [
+          "triage",
+          "retriever",
+          "writer",
+          "verifier"
+        ],
+        "ticket": true,
+        "s": 3.7
+      },
+      {
+        "http": 200,
+        "route": "담당자 이관",
+        "reason": "llm_down",
+        "agents": [
+          "triage",
+          "retriever",
+          "writer",
+          "verifier"
+        ],
+        "ticket": true,
+        "s": 3.4
+      }
+    ],
+    "llm_timeout_writer": [
+      {
+        "http": 200,
+        "route": "담당자 이관",
+        "reason": "llm_down",
+        "agents": [
+          "triage",
+          "retriever",
+          "writer",
+          "verifier"
+        ],
+        "ticket": true,
+        "s": 3.4
+      },
+      {
+        "http": 200,
+        "route": "담당자 이관",
+        "reason": "llm_down",
+        "agents": [
+          "triage",
+          "retriever",
+          "writer",
+          "verifier"
+        ],
+        "ticket": true,
+        "s": 3.2
+      }
+    ],
+    "deadline_at_triage": [
+      {
+        "http": 200,
+        "route": "담당자 이관",
+        "reason": "deadline_exceeded",
+        "agents": [
+          "triage"
+        ],
+        "ticket": true,
+        "s": 1.4
+      },
+      {
+        "http": 200,
+        "route": "담당자 이관",
+        "reason": "deadline_exceeded",
+        "agents": [
+          "triage"
+        ],
+        "ticket": true,
+        "s": 1.6
+      }
+    ],
+    "deadline_at_answer": [
+      {
+        "http": 200,
+        "route": "담당자 이관",
+        "reason": "deadline_exceeded",
+        "agents": [
+          "triage",
+          "retriever"
+        ],
+        "ticket": true,
+        "s": 2.1
+      },
+      {
+        "http": 200,
+        "route": "담당자 이관",
+        "reason": "deadline_exceeded",
+        "agents": [
+          "triage",
+          "retriever"
+        ],
+        "ticket": true,
+        "s": 2.5
+      }
+    ]
+  },
+  "summary": {
+    "llm_down_triage": "2/2 담당자 이관 llm_down, agents triage",
+    "llm_down_writer": "2/2 담당자 이관 llm_down",
+    "llm_timeout_writer": "2/2 담당자 이관 llm_down",
+    "deadline_at_triage": "2/2 담당자 이관 deadline_exceeded, 검색 없음",
+    "deadline_at_answer": "2/2 담당자 이관 deadline_exceeded, 검색 뒤"
+  }
+}

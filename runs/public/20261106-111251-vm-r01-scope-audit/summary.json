@@ -1,0 +1,22 @@
+{
+  "executed_date": "2026-11-06 KST",
+  "environment": "team VM via existing Edge web SSH; read-only n8n SQLite queries; isolated E02 code fixture in Node.js",
+  "versions": {"state_dlq_handoff_candidate": "86d78e7", "errors_candidate": "8c53cf7", "r02_manifest_tool": "ef1b199"},
+  "configuration": {"DUBAKWI_SCOPE": "unset in n8n container configuration", "N8N_BLOCK_ENV_ACCESS_IN_NODE": "unset; actual n8n Code-node environment access not executed"},
+  "cases": {
+    "s05_current": {"result": "pass; already updated", "sha256": "1f7f14332067568419eefffbc2187fd3ab42ec2f7316d9dcb83d9648a3b210f6", "matches_candidate": true, "edited_by_this_audit": false},
+    "state_clone": {"nodes": 11, "candidate_nodes": 20, "active": false, "published": false, "postgres_binding_matches_handoff": true},
+    "dlq_clone": {"nodes": 6, "parameters_match_candidate": true, "connections_match_candidate": true, "active": false, "published": false},
+    "handoff_clone": {"nodes": 9, "candidate_nodes": 48, "active": false, "published": false},
+    "errors_clone": {"nodes": 7, "imported_scope_fallback_present": false, "state_and_dlq_targets_match_designated_clones": true, "active": false, "published": false},
+    "e02_code_only_fixture_empty_env": {"scope": null, "storage_ready": false},
+    "e02_code_only_fixture_blocked_env": {"result": "throws; old code lacks environment-access guard"},
+    "p19_real_webhook_copy_present": false,
+    "running_waiting_new_executions_at_read": 0,
+    "inactive_backups_present": ["DLQ before update: 5 nodes", "state before S05 update: 11 nodes"]
+  },
+  "result": "S05 update complete; DLQ static comparison complete; current VM copies are not the complete latest candidate bundle; shared effective scope not established",
+  "artifact": "Redacted report.md; raw selected workflow snapshot saved only in private VM deployment directory with mode 0600",
+  "not_executed": ["workflow edits/import/publication", "n8n Code-node execution", "real ErrorTrigger", "PostgreSQL queries or migrations", "Jira writes", "full S1"],
+  "followup": "After remaining role reviews and main merge, render latest full copies with same scope and verified bindings; verify effective scope inside actual n8n Code execution before end-to-end tests"
+}

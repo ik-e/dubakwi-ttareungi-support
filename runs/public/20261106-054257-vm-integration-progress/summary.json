@@ -1,0 +1,141 @@
+{
+  "run_id": "20261106-054257-vm-integration-progress",
+  "recorded_at_kst": "2026-11-06T06:04:30.767060+09:00",
+  "tasks": [
+    "P12",
+    "P18",
+    "P19"
+  ],
+  "environment": "team VM; existing n8n main runtime; inactive copies and new R01 manual helpers",
+  "sources": {
+    "handoff": "1b83d1885e54596c408b2edd7751487e4f5b2e17",
+    "state_save_region": "first 11 nodes of 1b83d18; case_ref S12-S20 not imported",
+    "dlq": "1b83d18",
+    "p19_prepared_only": "6a963c64342df97f17a9b8e08c9ff5e726ef1b91"
+  },
+  "cases": [
+    {
+      "id": "LIVE01",
+      "result": "passed",
+      "description": "Code/SQL match; handoff45/state11/DLQ5 inactive; no concurrent target execution at start"
+    },
+    {
+      "id": "LIVE02",
+      "result": "passed",
+      "execution_id": 240,
+      "child_executions": [
+        241,
+        242,
+        243,
+        244
+      ],
+      "description": "Header Auth test webhook HTTP200; one new issue created; prepare/bind revision2"
+    },
+    {
+      "id": "LIVE03",
+      "result": "passed_for_reuse_wrapper_failed",
+      "execution_id": 245,
+      "child_executions": [
+        246,
+        247,
+        248
+      ],
+      "description": "Known-key reuse HTTP200 and context update, no second create, revision4; R01 save Set expression failed before state save call"
+    },
+    {
+      "id": "LIVE04",
+      "result": "passed",
+      "execution_id": 249,
+      "child_executions": [
+        250,
+        251
+      ],
+      "description": "Save-only retry performs Jira read then internal finish, revision5 completed; same begin replays stored response"
+    },
+    {
+      "id": "LIVE05",
+      "result": "passed",
+      "description": "Missing authentication HTTP403; test listener stopped, subsequent request HTTP404"
+    },
+    {
+      "id": "LIVE06",
+      "result": "passed",
+      "description": "One matching Jira issue, hashed label verified, remains open with no Resolution; no close/assignment/alert"
+    },
+    {
+      "id": "LIVE07",
+      "result": "passed",
+      "description": "One new scope row completed revision5 with response; scope DLQ rows0"
+    },
+    {
+      "id": "LIVE08",
+      "result": "passed",
+      "description": "All old-scope state/DLQ hashes and five protected workflows nodes/connections/settings/active/version unchanged; four new helpers unpublished; active target executions0"
+    },
+    {
+      "id": "LIVE09",
+      "result": "passed_archive_listing_only",
+      "description": "Pre-apply service DB custom dump written outside repository, SHA256 and archive list checked; no restore in this run"
+    }
+  ],
+  "p19_bundle": {
+    "prepared": true,
+    "imported": false,
+    "published": false,
+    "source_clean": true,
+    "credential_references_verified_without_secret_export": true,
+    "manifest_matches_LF_file_bytes": true,
+    "error_workflow_attached": false
+  },
+  "first_attempts": [
+    "Misread helper URL returned entity-not-found before workflow execution; exact ID verified from saved source/DB and retried.",
+    "Execution245 failed in R01 Save request expression after successful known-key reuse; source and failure retained; retry249 executes only save/replay, no Jira writes repeated.",
+    "P19 Windows cp949 decoder failure preserved, retried with Python UTF-8 mode.",
+    "Misread local Credential reference detected before import and corrected using VM ID byte comparison; failed preflight retained.",
+    "Windows CRLF bundle bytes differed from producer LF manifest hash; original retained and packaging normalized to LF before byte-hash verification.",
+    "GitHub approval succeeded; post-review JSON read hit cp949 decoding. UTF-8 state check confirmed approval without reposting it."
+  ],
+  "changes": {
+    "new_open_jira_test_issues": 1,
+    "new_db_scopes": 1,
+    "new_manual_read_helpers": 4,
+    "existing_business_workflow_changes": 0,
+    "public_p11_p19_changes": 0,
+    "shared_credential_changes": 0,
+    "service_migrations_005_006_applied": false,
+    "main_merge_performed": false
+  },
+  "limits": [
+    "This is create/wait/reuse/save/replay subflow verification, not S1 classification/RAG/LLM/final-channel success.",
+    "Known-key reuse tested; indexing-delay duplicate creation and notification deduplication not resolved.",
+    "R02/R05 review and main-based deployment needed before service005-006/full-state rollout.",
+    "PR28 state-throw/DLQ continuation and actual operational alert/scope remain blocked.",
+    "Whole-path timing, webhook production publication, mapped assignment, live case_ref and Discord/R05 official verdict pending."
+  ],
+  "r01_github_review": {
+    "state": "APPROVED",
+    "commit": "1b83d18",
+    "other_review_requests_pending": [
+      "htk0810",
+      "kiwi248"
+    ],
+    "main_merge_performed": false
+  },
+  "documentation_checks": {
+    "files": 20,
+    "links": 458,
+    "anchors": 50,
+    "errors": 0
+  },
+  "public_candidate_checks": {
+    "files": 181,
+    "links": 550,
+    "errors": 0
+  },
+  "secret_check": {
+    "tscan": "unavailable",
+    "fallback": "changed public text patterns and Git candidate checks",
+    "pattern_matches": 0,
+    "limits": "not a full history/PII/secret scan"
+  }
+}

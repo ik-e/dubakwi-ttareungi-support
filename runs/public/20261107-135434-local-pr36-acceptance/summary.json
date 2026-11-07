@@ -1,0 +1,72 @@
+{
+  "run_id": "20261107-135434-local-pr36-acceptance",
+  "date_kst": "2026-11-07",
+  "environment": "local review, Code/mock tests and isolated Docker only",
+  "baseline_head": "34636ce1361695402ee961732326b2d04330debf",
+  "candidate_uncommitted": true,
+  "source_prs": 10,
+  "source_pr_file_entries": 95,
+  "source_file_disposition_unresolved": 0,
+  "unpr_r05_files_reviewed": 53,
+  "historic_unique_files_preserved_sha256": 47,
+  "historic_collision_destinations_preserved": 3,
+  "design_requirements_compared": 64,
+  "original_checklist_items": 234,
+  "checklist": {
+    "local_pass": 173,
+    "local_part_verified_remaining_deferred": 25,
+    "deferred_runtime_or_final": 36
+  },
+  "unit": {
+    "run": 132,
+    "passed": 125,
+    "skipped_environment": 7,
+    "failed": 0
+  },
+  "discord": {
+    "run": 22,
+    "passed": 22
+  },
+  "support_code": {
+    "run": 157,
+    "passed": 157,
+    "inside_unit_wrapper": true
+  },
+  "shared_begin_fixtures": 3,
+  "permission_code_fixtures": 7,
+  "isolated_sql_restore": "upgrade/new restore/old rollback/permission reapply/failed migration preservation pass",
+  "provider_image": "pr36-context-r3 actual readonly PostgreSQL, Jira GET mock: own200/other403/missing404; write denied",
+  "provider_blocked_reader_seconds": 1.25,
+  "fault_copies_prepared_inactive": 18,
+  "lookup_fixture_recipes": 2,
+  "runner_dry_run": {
+    "definitions": 41,
+    "dry_run": 25,
+    "blocked": 15,
+    "not_implemented": 1,
+    "http_calls": 0
+  },
+  "compose_synthetic_config": 3,
+  "workflow_syntax_and_edges": 7,
+  "runtime_vm_modified": false,
+  "remote_prs_modified": false,
+  "known_limits": [
+    "automatic replay not implemented",
+    "course flow.py check incompatible with team credential allowlist in support/state/handoff; original failures retained",
+    "7 actual RAG HTTP tests need configured running RAG and credits; not replaced by mocks",
+    "61 compound/runtime/final checks not marked complete",
+    "some course original files and 17 raw result screenshots unavailable",
+    "LLM semantics/search latency/live external effects not verified"
+  ],
+  "static_final_status": "recorded in closing-results.json in local private evidence; report finalized after checks",
+  "source_sha256": {
+    "workflows/dubakwi-support.json": "8a9eda6a28d3f1ca4d2d183be99bb1f5915e06b55b7880caff649f14ea7a0856",
+    "workflows/dubakwi-state.json": "5fd51f40fabf9f870ee80e36c62a975a8dd2ebf7d4b532a7a44442ff1a1b23f5",
+    "workflows/dubakwi-handoff.json": "37c086bda38805ee25a1639b7087bf3be96f7f41d8e4f39059c9ece38d5d0700",
+    "workflows/dubakwi-errors.json": "6284014645960ea90f641ad21a945c49f2cd5d6b22f563a5e8612e59eb487c45",
+    "workflows/dubakwi-dlq.json": "c6f8d1deaeb2f740b15ad904bee3fe53ccd012c963de6625ff8f36bf5db6c1a7",
+    "services/user_api/records_provider.py": "b006c01865e978d95dd2c78d37e5041ade8ee9410189538ae2d8252c41e870fc",
+    "infra/db/migrations/008-replace-case-context-functions.sql": "bbe3886655769518285e77eabfdc4a907e559410686df8efcd1c9d9343fa63d8",
+    "infra/db/migrations/009-grant-case-context-functions.sql": "a63714868581c938b9876f295b172bd16af700836997be7b702e8fc44487683a"
+  }
+}

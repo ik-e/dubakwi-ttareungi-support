@@ -62,3 +62,11 @@ uv run --locked python scripts/dev/make_close_fault_copy.py --output runs/privat
 ## 인증 입구 실행 이력 보존 제한
 
 `protect_n8n_execution_data.py --source <렌더한사본> --output runs/private-render/<새파일>.json`은 Header Auth Webhook 사본의 성공/실패/수동/진행 저장만 해제한다. `uv run --locked python`으로 실행하며 출력 덮어쓰기를 거절한다. API나 VM은 변경하지 않고 업무 노드·연결·Credential을 보존한다. 이력 보존을 끄는 도구이며 실행 중/삭제 대기 DB 원문 미저장이나 과거 자료 삭제를 보장하지 않는다. 실제 적용·시험 관측은 [보안 기준](../../infra/execution-data-security.md)을 따른다.
+
+## PR36 문맥 원본·가져오기 후보
+
+`uv run --locked python scripts/dev/build_case_context_nodes.py`는 JS 공통 문맥 소스를 state/handoff JSON에 반영한다. `--check`는 원본과 생성본의 일치만 검사하며 API를 호출하지 않는다. JS/Python 파서는 같은 공격 fixture로 대조한다.
+
+가져오기 사본은 기존 render 도구의 `--context-authors-file <비공개 JSON 배열>`과 `--assignee-map-file <비공개 역할 매핑>`을 사용한다. 실제 서비스 댓글 작성 계정은 담당 배정 계정과 구분한다. 값은 Git 제외 runs/ 사본에만 들어가며 미치환 상태는 활성화하지 않는다.
+
+보안 이미지·DB·API·묶음 반입 조건은 [로컬 통합 후보](../../infra/pr36-local-candidate.md)를 따른다.

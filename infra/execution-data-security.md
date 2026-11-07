@@ -1,5 +1,35 @@
 # 팀 Webhook 키와 n8n 실행 데이터
 
+## PR36 로컬 보안 후보 — 2026-11-07
+
+`infra/n8n/Dockerfile`은 n8n2.42.6의 검증한 base digest와 Webhook 소스 SHA-256에
+고정된다. 빌드 시 `strip_webhook_auth.js`가 **기본 인증 성공 뒤, workflowData 생성 전**
+팀 경로 `dubakwi-`의 x-team-key/x-internal-key/authorization/cookie/proxy-authorization를
+req.headers·rawHeaders에서 제거한다. 인증을 끄거나 업무 Code에서 키를 비교하지 않는다.
+소스가 달라지면 빌드를 거절하며 임의 버전·새 헤더 이름의 보호를 보장하지 않는다.
+
+격리된 실제 로컬 n8n에서 합성 키를 사용해 정상200·실행오류500·누락/오키401을 확인했다.
+성공·오류 이력을 강제 보존해도 execution_data의 합성 팀/내부 키 일치는 각각0건이었다.
+다른 경로의 대조 실행에서는 원래 헤더 저장과 인증거절403이 유지됐다. v2는 팀 Header Auth 거절만 가이드/공개 계약의401로 맞춘다. IP 정책 거절과 설정 오류는 바꾸지 않는다. 첫 오류 fixture는 Respond 노드가
+빠져 인증 전에 실패했으므로 근거에서 제외하고 수정한 fixture의 재시험을 별도로 보존했다.
+이는 **로컬 후보 증거이며 VM 조치 완료·현재 키 교체·모든 원문/로그 비저장 증거가 아니다.**
+
+VM에서는 검토·main 병합 후 G-SEC-REMEDIATION 창에서만 적용한다.
+기존 Compose와 `n8n-auth-boundary-override.yaml`을 합쳐 기존 env/volume/암호화키를
+보존한다. 이미지 교체는 n8n 프로세스 재시작이 필요하므로 팀 유입뿐 아니라 해당 n8n의
+모든 활성 원 실행 종료와 공유 유지보수 창을 확인해야 한다. 별도 stack을 띄우지 않는다.
+현재 팀/내부 키는 모든 소비처와 함께 교체하고 새키 성공·구키 거절·새 원문 저장을
+값 출력 없이 대조한 뒤 업무 시험을 연다. 과거 비공개 교체 도구의 구키403 고정 기대는 새 후보의401로 맞춰 재검증해야 한다. 기존173/313행은 삭제 조건이나 외부 유출 증거가 아니다.
+
+노출 헤더를 추가/변경하면 정책·작성 경로·재시험을 함께 갱신한다. 이 패치는 질문/답변·
+임의 body·outbound 오류·백업 전체의 비밀을 일반적으로 제거하는 필터가 아니다. 보존 최소화와
+가린 관측, 별도 표면 점검을 유지한다. 원복이 필요하면 팀 유입을 닫은 채 검증된 원 이미지로
+돌리고 기존 실패/DB/volume은 보존한다. 구 이미지에서 팀 시험을 다시 열지 않는다.
+
+공식 경계 참고: [Webhook 원본](https://github.com/n8n-io/n8n/blob/master/packages/nodes-base/nodes/Webhook/Webhook.node.ts),
+[external hooks](https://docs.n8n.io/hosting/configuration/external-hooks/).
+master 문서만으로 설치본을 판정하지 않았으며 로컬 고정 이미지 소스를 별도 대조했다.
+
 - 2026-11-07 KST / R01 / O04·E05·W09·W11 후속 보안 조치
 - 사용자 요청: 키가 실행 기록에 남지 않도록 조치하고 현재 키의 교체 필요 여부 확인.
 - 상태: **활성 팀 키 입구3개 이력 보존 해제 적용, 현재 키 교체 필요 확인. 실행 중/삭제 유예 DB 원문까지 완전 미저장은 미달. 키 교체 자체는 아직 하지 않았다.**

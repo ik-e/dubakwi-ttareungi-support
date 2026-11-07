@@ -1,5 +1,7 @@
 # 서비스 저장소 관리 설계서 · 두바퀴
 
+현행 로컬 통합 후보: v0.5 / 2026-11-07. 새008/009·검증된 latest_completed 복원·최종 save 게이트·readonly records를 반영했다. 기존 SQL001~007과 날짜별 실행 결과는 보존한다.
+
 전체 구성과 요청·티켓·DLQ 상태의 관계는 [최상위 시스템 설계서](SYSTEM-DESIGN.md)를 참조한다. 저장 구조·계약·복구 상세의 원본은 이 문서다.
 
 - 작성: 2026-11-03 KST / 버전·상태: **v0.5 PostgreSQL 저장 계약·검증 준비본, VM 연결 전**.
@@ -237,7 +239,7 @@ E05의 fail은 state_ref가 없을 수 있다. 이때 서버 scope와 원 execut
 
 Begin의 pending은 request_in_progress/case_busy/request_requires_review 중 이유를 보존해 HTTP409로 반환한다. conflict는 request_conflict409,invalid_case_ref400,case_access_denied403,case_closed409를 구분하며 지원 문맥을 노출하지 않는다. B08/B09는 이 상태를 일반 장애로 바꾸거나 상태 쓰기를 실행하지 않는다. 물리 오류나 잘못된 봉투는 mode=error다. 호출자는 409의 codes로 두 경우를 구분해 안내한다: request_in_progress는 "처리 중이다", request_requires_review는 "처리 결과 확인이 필요하며, 같은 요청은 자동으로 다시 실행하지 않습니다"(R02 제안). 어느 쪽도 접수·완료·자동 복구를 약속하지 않는다.
 
-SupportCase.version은 실제 Jira 문의 버전을 확인했을 때 그 값,지원하지 않으면 null이다. SaveRequest.expected_case_version은 이에만 대응한다. 자동화 요청 사이 경합은3.1의 같은 case 활성 요청 단독 처리권으로 막는다. 담당자가 Jira에서 직접 바꾼 상태까지 로컬 revision이 보장하지 않으므로 Jira 변경 직전 owner·열림 상태·허용 전이를 다시 확인한다. 외부 전환 충돌은 덮어쓰지 않고 실패/재확인으로 남긴다.
+SupportCase.version은 현재 구현에서 null이다. 내부 댓글 revision은 Jira 물리 CAS 버전이 아니다. SaveRequest.expected_case_version은 이에만 대응한다. 자동화 요청 사이 경합은3.1의 같은 case 활성 요청 단독 처리권으로 막는다. 담당자가 Jira에서 직접 바꾼 상태까지 로컬 revision이 보장하지 않으므로 Jira 변경 직전 owner·열림 상태·허용 전이를 다시 확인한다. 외부 전환 충돌은 덮어쓰지 않고 실패/재확인으로 남긴다.
 
 보완 횟수는 Jira가 원본이다. BeginResult는 기존 저장 횟수를 읽어 반환하고, B08의 이번 유효 횟수 계산·TicketRequest.attempt/SaveRequest.attempt 계약은 워크플로우6.4.5를 따른다. R04는 전달한 횟수를 Jira에 동일 값으로 기록하며 저장 단계/복구마다 추가 증가하지 않는다. create/finish/context_update 복구 캡슐에도 해당 횟수를 보존한다. 요청 input_hash는 수신 Request 기준으로 유지하며 계산된 support.attempt 때문에 재전송 해시가 달라지지 않게 한다. request_state에 별도 전체 문맥/횟수 원장을 추가하지 않는다.
 
@@ -300,3 +302,11 @@ support는 state 응답의 `error` 문장을 그대로 전달하므로 dubakwi-s
 
 processing으로 오래 남은 요청의 해제는 운영자가 한다. n8n Executions에서 원 실행이 끝났는지와 Jira 효과(known ID)를 먼저 확인하고, 끝났으면 state의 fail 명령(서버가 scope·원 execution_id로 소유 행을 찾는 운영 경로)으로 failed 또는 unknown과 error_code를 남긴 뒤 DLQ의 claim·resolve로 복구한다. 원 실행이 진행 중이면 해제하지 않고, 서비스 DB 행을 직접 수정하거나 삭제하지 않는다.
 
+
+## R01 통합 후보 계약 정정 — 2026-11-07
+
+기준 버전: local integration v1.3. [공통 기준 12절](../../infra/parallel-integration-contract-v1.md#12-r01-통합-후보-계약-정정--2026-11-07)이 이 변경의 생산·소비·시험 경계다. 기존 실행 수치는 당시 증거로 보존하며 이번 문서 수정은 구현·VM·공식 통과를 뜻하지 않는다.
+
+SupportCase.version / TicketResult.case_version / expected_case_version은 Jira 물리 CAS를 지원하지 않으므로 null이다. 내부 댓글 revision과 StateRef.state_revision은 독립 값이다. DB latest_completed_request_id로 후속 복원 대상을 고르고 service author·case/owner/scope/first_request/key·중복 이벤트 무결성을 검증한다.
+
+SaveRequest는 내부 필수 deadline_at(ISO8601 절대 시각)을 전달한다. 최종 facts/업무 상태가 이미 확인된 현재 요청 문맥과 같으면 재사용하고, 다르면 phase=save 문맥을 조건부 기록·재조회한 뒤 finish한다. 마감 부족·문맥 불일치·저장 장애는 성공으로 취급하지 않으며 known ID/recovery를 보존한다. 전체20초와 관측상한25초를 변경하지 않는다.

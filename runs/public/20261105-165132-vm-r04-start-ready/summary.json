@@ -1,0 +1,37 @@
+{
+  "run_id": "20261105-165132-vm-r04-start-ready",
+  "verified_at_kst": "2026-11-05T16:55:09.973946+09:00",
+  "environment": "team VM, existing web SSH; R01 readiness preparation",
+  "code_version": {
+    "main": "9086cff",
+    "state_dlq": "365c419",
+    "handoff": "e273daa",
+    "errors": "ff19178"
+  },
+  "configuration_version": "four business copies unchanged; two new unpublished manual helpers",
+  "cases": [
+    {"case_id": "READY01", "status": "passed", "description": "Four copy IDs, code, SQL, connections and unpublished state match private deployment manifests"},
+    {"case_id": "READY02", "status": "passed", "execution_id": "168", "description": "Actual n8n Postgres node read", "result": {"database_name": "dubakwi_service", "runtime_user": "dubakwi_app", "state_fn": true, "dlq_fn": true}},
+    {"case_id": "READY03", "status": "passed", "parent_execution_id": "169", "child_execution_id": "170", "description": "Fresh unowned state fail probe; actual S04 SQL and S05 execution", "result": {"ok": true, "skipped": true, "error_code": null}},
+    {"case_id": "READY04", "status": "passed", "description": "Probe scope state rows zero; protected workflow and Credential row hashes unchanged"},
+    {"case_id": "READY05", "status": "passed", "description": "All four copies and two helpers unpublished; n8n and user API health200", "http_statuses": [200, 200]}
+  ],
+  "changes": {
+    "new_manual_helpers": 2,
+    "public_p11_p19_changes": 0,
+    "shared_credential_changes": 0,
+    "business_state_writes": 0,
+    "jira_calls": 0,
+    "service_restarts": 0
+  },
+  "first_attempts": ["Stale terminal element rejected before input; refreshed observation and retry succeeded"],
+  "limits": [
+    "One read-only and unowned state probe do not establish full state/DLQ/Jira success.",
+    "DUBAKWI_SCOPE/errors execution, Jira implementation and R05 official verdict remain pending.",
+    "Actual environment IDs and helper source JSON remain in restricted VM and Git-ignored handoff files."
+  ],
+  "documentation_checks": {"files": 20, "local_links": 453, "anchors": 50, "errors": 0},
+  "public_candidate_checks": {"files": 171, "links": 539, "errors": 0},
+  "private_handoff_git_ignored": true,
+  "details_reference": "report.md"
+}

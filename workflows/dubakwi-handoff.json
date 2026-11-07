@@ -23,7 +23,7 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "parameters": {
-        "jsCode": "const input = $json.body ?? $json;\nconst isObj = (v) => v !== null && typeof v === 'object' && !Array.isArray(v);\nconst isText = (v) => typeof v === 'string' && v.trim().length > 0;\nconst hasOwn = (v, key) => Object.prototype.hasOwnProperty.call(v, key);\nconst isNullableVersion = (v) => v === null || (Number.isInteger(v) && v >= 0);\nconst isStateRef = (v) => isObj(v) && isText(v.scope) && isText(v.request_id) && isText(v.owner_id) && /^[0-9a-f]{64}$/.test(v.input_hash) && isText(v.execution_id) && Number.isInteger(v.state_revision) && v.state_revision >= 0;\nconst isSource = (v) => isObj(v) && isText(v.doc) && isText(v.section) && typeof v.score === 'number' && Number.isFinite(v.score);\nconst isFact = (v) => isObj(v) && isText(v.key) && typeof v.value === 'string' && ['user','document','api'].includes(v.origin) && (!hasOwn(v,'reference') || typeof v.reference === 'string');\nconst isFacts = (v) => isObj(v) && typeof v.summary === 'string' && Array.isArray(v.reported) && v.reported.every(isFact) && Array.isArray(v.confirmed) && v.confirmed.every(isFact) && Array.isArray(v.attempted_actions) && v.attempted_actions.every((x) => typeof x === 'string') && Array.isArray(v.missing) && v.missing.every((x) => typeof x === 'string') && Array.isArray(v.uncertainties) && v.uncertainties.every((x) => typeof x === 'string') && Array.isArray(v.evidence_refs) && v.evidence_refs.every(isSource);\nconst effect = () => ({status:'none'});\nconst effects = () => ({created_or_reused:effect(),context_saved:effect(),closed:effect(),assigned:effect(),alert:effect()});\nconst respond = (body, http_status) => ({route:'respond',body,http_status});\nif (!isObj(input) || !isText(input.request_id) || !['lookup','process'].includes(input.kind)) return [{json:respond({request_id:isObj(input)&&isText(input.request_id)?input.request_id:null,status:'error',record:null,masked:0,error_code:'invalid_tool_request'},400)}];\nif (input.kind === 'lookup') {\n  const valid = typeof input.enabled === 'boolean' && isText(input.actor_id) && (input.target_ticket_id === null || isText(input.target_ticket_id));\n  if (!valid) return [{json:respond({request_id:input.request_id,status:'error',record:null,masked:0,error_code:'invalid_tool_request'},400)}];\n  if (!input.enabled) return [{json:respond({request_id:input.request_id,status:'skipped',record:null,masked:0,error_code:null},200)}];\n  if (input.target_ticket_id === null) return [{json:respond({request_id:input.request_id,status:'error',record:null,masked:0,error_code:'invalid_tool_request'},400)}];\n  return [{json:{route:'lookup',request:{request_id:input.request_id,actor_id:input.actor_id,target_ticket_id:input.target_ticket_id}}}];\n}\nconst valid = isStateRef(input.state_ref) && hasOwn(input,'expected_case_version') && isNullableVersion(input.expected_case_version) && isText(input.case_id) && isText(input.actor_id) && isText(input.first_request_id) && Number.isInteger(input.attempt) && input.attempt >= 1 && (input.ticket_id === null || isText(input.ticket_id)) && isText(input.title) && isText(input.category) && ['close','wait','handoff'].includes(input.action) && ['normal','high'].includes(input.priority) && hasOwn(input,'assignee_role') && (input.assignee_role === null || isText(input.assignee_role)) && isFacts(input.context) && typeof input.answer === 'string' && Array.isArray(input.sources) && input.sources.every(isSource) && hasOwn(input,'close_status') && (input.close_status === null || ['closed_guidance','closed_rejected'].includes(input.close_status)) && isText(input.transition_key);\nif (!valid) return [{json:respond({request_id:input.request_id,ticket_id:input.ticket_id??null,case_version:null,state_saved:false,state_ref:null,recovery:{version:1,mode:'manual_required',action:'inspect_only',args:null,reference:null,reason:'티켓 요청 계약 오류'},effects:effects(),error_code:'invalid_tool_request'},400)}];\nreturn [{json:{route:'prepare',op:'prepare',state_ref:input.state_ref,args:{current_step:'H05'},request:input}}];"
+        "jsCode": "const input = $json.body ?? $json;\nconst isObj = (v) => v !== null && typeof v === 'object' && !Array.isArray(v);\nconst isText = (v) => typeof v === 'string' && v.trim().length > 0;\nconst hasOwn = (v, key) => Object.prototype.hasOwnProperty.call(v, key);\nconst isNullableVersion = (v) => v === null;\nconst isStateRef = (v) => isObj(v) && isText(v.scope) && isText(v.request_id) && isText(v.owner_id) && /^[0-9a-f]{64}$/.test(v.input_hash) && isText(v.execution_id) && Number.isInteger(v.state_revision) && v.state_revision >= 0;\nconst isSource = (v) => isObj(v) && isText(v.doc) && isText(v.section) && typeof v.score === 'number' && Number.isFinite(v.score);\nconst isFact = (v) => isObj(v) && isText(v.key) && typeof v.value === 'string' && ['user','document','api'].includes(v.origin) && (!hasOwn(v,'reference') || typeof v.reference === 'string');\nconst isFacts = (v) => isObj(v) && typeof v.summary === 'string' && Array.isArray(v.reported) && v.reported.every(isFact) && Array.isArray(v.confirmed) && v.confirmed.every(isFact) && Array.isArray(v.attempted_actions) && v.attempted_actions.every((x) => typeof x === 'string') && Array.isArray(v.missing) && v.missing.every((x) => typeof x === 'string') && Array.isArray(v.uncertainties) && v.uncertainties.every((x) => typeof x === 'string') && Array.isArray(v.evidence_refs) && v.evidence_refs.every(isSource);\nconst effect = () => ({status:'none'});\nconst effects = () => ({created_or_reused:effect(),context_saved:effect(),closed:effect(),assigned:effect(),alert:effect()});\nconst respond = (body, http_status) => ({route:'respond',body,http_status});\nif (!isObj(input) || !isText(input.request_id) || !['lookup','process'].includes(input.kind)) return [{json:respond({request_id:isObj(input)&&isText(input.request_id)?input.request_id:null,status:'error',record:null,masked:0,error_code:'invalid_tool_request'},400)}];\nif (input.kind === 'lookup') {\n  const valid = typeof input.enabled === 'boolean' && isText(input.actor_id) && (input.target_ticket_id === null || isText(input.target_ticket_id));\n  if (!valid) return [{json:respond({request_id:input.request_id,status:'error',record:null,masked:0,error_code:'invalid_tool_request'},400)}];\n  if (!input.enabled) return [{json:respond({request_id:input.request_id,status:'skipped',record:null,masked:0,error_code:null},200)}];\n  if (input.target_ticket_id === null) return [{json:respond({request_id:input.request_id,status:'error',record:null,masked:0,error_code:'invalid_tool_request'},400)}];\n  return [{json:{route:'lookup',request:{request_id:input.request_id,actor_id:input.actor_id,target_ticket_id:input.target_ticket_id}}}];\n}\nconst valid = isStateRef(input.state_ref) && input.request_id === input.state_ref.request_id && input.actor_id === input.state_ref.owner_id && hasOwn(input,'expected_case_version') && isNullableVersion(input.expected_case_version) && isText(input.case_id) && isText(input.actor_id) && isText(input.first_request_id) && Number.isInteger(input.attempt) && input.attempt >= 1 && (input.ticket_id === null || isText(input.ticket_id)) && isText(input.title) && isText(input.category) && ['close','wait','handoff'].includes(input.action) && ['normal','high'].includes(input.priority) && hasOwn(input,'assignee_role') && (input.assignee_role === null || isText(input.assignee_role)) && isFacts(input.context) && typeof input.answer === 'string' && Array.isArray(input.sources) && input.sources.every(isSource) && hasOwn(input,'close_status') && (input.close_status === null || ['closed_guidance','closed_rejected'].includes(input.close_status)) && isText(input.transition_key);\nif (!valid) return [{json:respond({request_id:input.request_id,ticket_id:input.ticket_id??null,case_version:null,state_saved:false,state_ref:null,recovery:{version:1,mode:'manual_required',action:'inspect_only',args:null,reference:null,reason:'티켓 요청 계약 오류'},effects:effects(),error_code:'invalid_tool_request'},400)}];\nreturn [{json:{route:'prepare',op:'prepare',state_ref:input.state_ref,args:{current_step:'H05'},request:input}}];"
       },
       "position": [
         260,
@@ -187,7 +187,7 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "parameters": {
-        "jsCode": "const E = () => ({status:'none'});\nconst mkEffects = () => ({created_or_reused:E(),context_saved:E(),closed:E(),assigned:E(),alert:E()});\nconst maskText = (s) => String(s ?? '').replace(/\\b0\\d{1,2}[-. ]?\\d{3,4}[-. ]?\\d{4}\\b/g,'***-****-****').replace(/[\\w.+-]+@[\\w-]+\\.[\\w.-]+/g,'***@***');\nconst original = $('H02 요청 계약 검사').item.json.request;\nconst st = $json;\nconst effects = mkEffects();\nconst okRef = st.ok === true && st.skipped !== true && st.state_ref && typeof st.state_ref === 'object';\nif (!okRef) return [{json:{route:'respond',http_status:200,body:{request_id:original.request_id,ticket_id:original.ticket_id??null,case_version:null,state_saved:false,state_ref:null,recovery:{version:1,mode:'manual_required',action:'create',args:null,reference:null,reason:'Jira 실행 전 상태 저장 실패'},effects,error_code:'state_error'}}}];\nreturn [{json:{route:'jira',ctx:{request:original,state_ref:st.state_ref,ticket:null,effects,error_code:null,recovery:null}}}];"
+        "jsCode": "const E = () => ({status:'none'});\nconst mkEffects = () => ({created_or_reused:E(),context_saved:E(),closed:E(),assigned:E(),alert:E()});\nconst maskText = (s) => String(s ?? '').replace(/\\b0\\d{1,2}[-. ]?\\d{3,4}[-. ]?\\d{4}\\b/g,'***-****-****').replace(/[\\w.+-]+@[\\w-]+\\.[\\w.-]+/g,'***@***');\nconst original = $('H02 요청 계약 검사').item.json.request;\nconst st = $json;\nconst effects = mkEffects();\nconst okRef = st.ok === true && st.skipped !== true && st.state_ref && typeof st.state_ref === 'object';\nif (!okRef) return [{json:{route:'respond',http_status:200,body:{request_id:original.request_id,ticket_id:original.ticket_id??null,case_version:null,state_saved:false,state_ref:null,recovery:{version:1,mode:'manual_required',action:'create',args:null,reference:null,reason:'Jira 실행 전 상태 저장 실패'},effects,error_code:'state_error'}}}];\nlet authors=[];try{authors=JSON.parse('__JIRA_CONTEXT_AUTHORS_JSON__');}catch{}\nif(!Array.isArray(authors)||!authors.length||!authors.every(a=>typeof a==='string'&&a.length>0))return [{json:{route:'respond',http_status:503,body:{request_id:original.request_id,ticket_id:original.ticket_id??null,case_version:null,state_saved:true,state_ref:st.state_ref,recovery:{version:1,mode:'manual_required',action:'inspect_only',args:null,reference:null,reason:'context_author_unconfigured'},effects,error_code:'tickets_down'}}}];\nreturn [{json:{route:'jira',ctx:{request:original,deadline_at:original.deadline_at??new Date(Date.now()+15000).toISOString(),state_ref:st.state_ref,ticket:null,effects,error_code:null,recovery:null}}}];"
       },
       "position": [
         780,
@@ -678,7 +678,7 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "parameters": {
-        "jsCode": "const E = () => ({status:'none'});\nconst mkEffects = () => ({created_or_reused:E(),context_saved:E(),closed:E(),assigned:E(),alert:E()});\nconst maskText = (s) => String(s ?? '').replace(/\\b0\\d{1,2}[-. ]?\\d{3,4}[-. ]?\\d{4}\\b/g,'***-****-****').replace(/[\\w.+-]+@[\\w-]+\\.[\\w.-]+/g,'***@***');\nconst ctx = $('H37 담당 후보 조회 준비').item.json.ctx;\nconst r = ctx.request;\nconst sc = Number($json.statusCode ?? 0);\nconst refCap = (action, reason) => ({version:1, mode:'jira_ref', action, args:null, reference:{jira_issue_id:ctx.ticket.id, case_id:r.case_id, owner_id:ctx.state_ref.owner_id}, reason});\nconst stop = (status, code, reason) => { ctx.effects.assigned = {status, id:ctx.ticket.key, error_code:code}; ctx.error_code = 'partial_effect'; ctx.recovery = refCap('assign', reason); return [{json:{route:'done', ctx}}]; };\n// 역할별 담당 계정은 가져올 때 환경 값으로 치환한다. 매핑이 없거나 후보가 아니면 배정하지 않고 실패로 둔다.\nlet MAP = {};\ntry { const parsed = JSON.parse('__ASSIGNEE_MAP_JSON__'); if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) MAP = parsed; } catch { MAP = {}; }\nconst accountId = typeof MAP[r.assignee_role] === 'string' && MAP[r.assignee_role] !== '' ? MAP[r.assignee_role] : null;\nif (!accountId) return stop('failed', 'assignee_unmapped', '역할별 담당 매핑이 없음');\nconst users = sc === 200 && Array.isArray($json.body) ? $json.body.filter((u) => u.active && u.accountType === 'atlassian') : null;\nif (!users) return stop(sc >= 400 && sc < 500 ? 'failed' : 'unknown', 'assignee_lookup_failed', '배정 후보 조회 실패');\nif (!users.some((u) => u.accountId === accountId)) return stop('failed', 'assignee_not_assignable', '매핑된 담당자가 배정 가능 후보가 아님');\nconst attemptedLabel = 'dubakwi-alert-attempted-' + r.assignee_role;\nconst sentLabel = 'dubakwi-alert-sent-' + r.assignee_role;\nconst contextLabel = /^([a-f0-9]{64})$/.test(String(ctx.state_ref.input_hash || '')) ? 'dubakwi-context-' + ctx.state_ref.input_hash.slice(0, 40) : null;\nconst labels = Array.isArray(ctx.ticket.labels) ? ctx.ticket.labels : [];\nif (ctx.ticket.reused && ctx.ticket.assignee_id === accountId && labels.includes(sentLabel)) {\n  ctx.effects.assigned = {status:'confirmed', id:ctx.ticket.key};\n  ctx.effects.alert = {status:'confirmed', id:ctx.ticket.key};\n  if (contextLabel && labels.includes(contextLabel)) {\n    ctx.effects.context_saved = {status:'confirmed', id:ctx.ticket.key};\n    return [{json:{route:'done', ctx}}];\n  }\n  ctx.context_label = contextLabel;\n  return [{json:{route:'context', ctx}}];\n}\nif (ctx.ticket.reused && labels.includes(attemptedLabel)) {\n  ctx.effects.assigned = {status:ctx.ticket.assignee_id === accountId ? 'confirmed' : 'unknown', id:ctx.ticket.key};\n  ctx.effects.alert = {status:'unknown', id:ctx.ticket.key, error_code:'alert_result_unknown'};\n  ctx.error_code = 'partial_effect';\n  ctx.recovery = refCap('alert_marker', '이전 알림 시도 결과를 확인해야 함');\n  if (contextLabel && labels.includes(contextLabel)) {\n    ctx.effects.context_saved = {status:'confirmed', id:ctx.ticket.key};\n    return [{json:{route:'done', ctx}}];\n  }\n  // 이번 요청의 문맥은 아직 Jira에 없다. 저장 전에는 confirmed로 표시하지 않고 문맥 저장 경로(H48~H47)로 보낸다. 알림은 다시 보내지 않는다.\n  ctx.context_label = contextLabel;\n  return [{json:{route:'context', ctx}}];\n}\nconst comment = ['[두바퀴 담당자 이관]', '역할: ' + r.assignee_role, '우선순위: ' + r.priority, '요약: ' + maskText((r.context || {}).summary), '확인한 사실: ' + (((r.context || {}).confirmed) || []).map((f) => f.key).join(', '), '부족한 정보: ' + (((r.context || {}).missing) || []).join(', '), '보완 횟수: ' + r.attempt].join('\\n');\nconst labelAdds = [{add:attemptedLabel}];\nif (contextLabel) labelAdds.push({add:contextLabel});\nreturn [{json:{route:'assign', ctx, req:{method:'PUT', path:'/rest/api/2/issue/' + encodeURIComponent(ctx.ticket.key), body:{fields:{assignee:{accountId}}, update:{labels:labelAdds,comment:[{add:{body:comment}}]}}}}}];"
+        "jsCode": "const E = () => ({status:'none'});\nconst mkEffects = () => ({created_or_reused:E(),context_saved:E(),closed:E(),assigned:E(),alert:E()});\nconst maskText = (s) => String(s ?? '').replace(/\\b0\\d{1,2}[-. ]?\\d{3,4}[-. ]?\\d{4}\\b/g,'***-****-****').replace(/[\\w.+-]+@[\\w-]+\\.[\\w.-]+/g,'***@***');\nconst ctx = $('H37 담당 후보 조회 준비').item.json.ctx;\nconst r = ctx.request;\nconst sc = Number($json.statusCode ?? 0);\nconst refCap = (action, reason) => ({version:1, mode:'jira_ref', action, args:null, reference:{jira_issue_id:ctx.ticket.id, case_id:r.case_id, owner_id:ctx.state_ref.owner_id}, reason});\nconst stop = (status, code, reason) => { ctx.effects.assigned = {status, id:ctx.ticket.key, error_code:code}; ctx.error_code = 'partial_effect'; ctx.recovery = refCap('assign', reason); return [{json:{route:'done', ctx}}]; };\n// 역할별 담당 계정은 가져올 때 환경 값으로 치환한다. 매핑이 없거나 후보가 아니면 배정하지 않고 실패로 둔다.\nlet MAP = {};\ntry { const parsed = JSON.parse('__ASSIGNEE_MAP_JSON__'); if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) MAP = parsed; } catch { MAP = {}; }\nconst accountId = typeof MAP[r.assignee_role] === 'string' && MAP[r.assignee_role] !== '' ? MAP[r.assignee_role] : null;\nif (!accountId) return stop('failed', 'assignee_unmapped', '역할별 담당 매핑이 없음');\nconst users = sc === 200 && Array.isArray($json.body) ? $json.body.filter((u) => u.active && u.accountType === 'atlassian') : null;\nif (!users) return stop(sc >= 400 && sc < 500 ? 'failed' : 'unknown', 'assignee_lookup_failed', '배정 후보 조회 실패');\nif (!users.some((u) => u.accountId === accountId)) return stop('failed', 'assignee_not_assignable', '매핑된 담당자가 배정 가능 후보가 아님');\nif(ctx.previous_snapshot?.support.status==='handed_off' && (ctx.ticket.assignee_id!==accountId || !['dubakwi-alert-sent-','dubakwi-alert-attempted-'].some(prefix=>(ctx.ticket.labels??[]).includes(prefix+r.assignee_role)))) return stop('unknown','prior_handoff_effect_unverified','기존 담당/알림 결과를 확인해야 함');\nconst attemptedLabel = 'dubakwi-alert-attempted-' + r.assignee_role;\nconst sentLabel = 'dubakwi-alert-sent-' + r.assignee_role;\nconst contextLabel = /^([a-f0-9]{64})$/.test(String(ctx.state_ref.input_hash || '')) ? 'dubakwi-context-' + ctx.state_ref.input_hash.slice(0, 40) : null;\nconst labels = Array.isArray(ctx.ticket.labels) ? ctx.ticket.labels : [];\nif (ctx.ticket.reused && ctx.ticket.assignee_id === accountId && labels.includes(sentLabel)) {\n  ctx.effects.assigned = {status:'confirmed', id:ctx.ticket.key};\n  ctx.effects.alert = {status:'confirmed', id:ctx.ticket.key};\n  if (contextLabel && labels.includes(contextLabel)) {\n    ctx.effects.context_saved = {status:'confirmed', id:ctx.ticket.key};\n    return [{json:{route:'done', ctx}}];\n  }\n  ctx.context_label = contextLabel;\n  return [{json:{route:'context', ctx}}];\n}\nif (ctx.ticket.reused && labels.includes(attemptedLabel)) {\n  ctx.effects.assigned = {status:ctx.ticket.assignee_id === accountId ? 'confirmed' : 'unknown', id:ctx.ticket.key};\n  ctx.effects.alert = {status:'unknown', id:ctx.ticket.key, error_code:'alert_result_unknown'};\n  ctx.error_code = 'partial_effect';\n  ctx.recovery = refCap('alert_marker', '이전 알림 시도 결과를 확인해야 함');\n  if (contextLabel && labels.includes(contextLabel)) {\n    ctx.effects.context_saved = {status:'confirmed', id:ctx.ticket.key};\n    return [{json:{route:'done', ctx}}];\n  }\n  // 이번 요청의 문맥은 아직 Jira에 없다. 저장 전에는 confirmed로 표시하지 않고 문맥 저장 경로(H48~H47)로 보낸다. 알림은 다시 보내지 않는다.\n  ctx.context_label = contextLabel;\n  return [{json:{route:'context', ctx}}];\n}\nconst comment = ['[두바퀴 담당자 이관]', '역할: ' + r.assignee_role, '우선순위: ' + r.priority, '요약: ' + maskText((r.context || {}).summary), '확인한 사실: ' + (((r.context || {}).confirmed) || []).map((f) => f.key).join(', '), '부족한 정보: ' + (((r.context || {}).missing) || []).join(', '), '보완 횟수: ' + r.attempt].join('\\n');\nconst labelAdds = [{add:attemptedLabel}];\nif (contextLabel) labelAdds.push({add:contextLabel});\nreturn [{json:{route:'assign', ctx, req:{method:'PUT', path:'/rest/api/2/issue/' + encodeURIComponent(ctx.ticket.key), body:{fields:{assignee:{accountId}}, update:{labels:labelAdds,comment:[{add:{body:comment}}]}}}}}];"
       },
       "position": [
         4940,
@@ -982,7 +982,7 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "parameters": {
-        "jsCode": "const E = () => ({status:'none'});\nconst mkEffects = () => ({created_or_reused:E(),context_saved:E(),closed:E(),assigned:E(),alert:E()});\nconst maskText = (s) => String(s ?? '').replace(/\\b0\\d{1,2}[-. ]?\\d{3,4}[-. ]?\\d{4}\\b/g,'***-****-****').replace(/[\\w.+-]+@[\\w-]+\\.[\\w.-]+/g,'***@***');\nconst ctx = $json.ctx;\nconst r = ctx.request;\nconst e = ctx.effects;\nconst ok = (x) => x.status === 'confirmed';\nconst success = ctx.error_code === null && ok(e.created_or_reused) && (r.action === 'wait' ? true : r.action === 'close' ? ok(e.context_saved) && ok(e.closed) : ok(e.context_saved) && ok(e.assigned) && ok(e.alert));\nlet error_code = success ? null : (ctx.error_code ?? (ctx.ticket ? 'partial_effect' : 'tickets_down'));\nconst recovery = success ? {version:1, mode:'manual_required', action:'inspect_only', args:null, reference:null, reason:null} : (ctx.recovery ?? {version:1, mode:'manual_required', action:'inspect_only', args:null, reference:null, reason:'효과 미확인'});\nreturn [{json:{route:'respond', http_status:200, body:{request_id:r.request_id, ticket_id:ctx.ticket ? ctx.ticket.key : (r.ticket_id ?? null), case_version:null, state_saved:error_code !== 'state_error' && !!ctx.state_ref, state_ref:ctx.state_ref ?? null, recovery, effects:e, error_code}}}];"
+        "jsCode": "const E = () => ({status:'none'});\nconst mkEffects = () => ({created_or_reused:E(),context_saved:E(),closed:E(),assigned:E(),alert:E()});\nconst maskText = (s) => String(s ?? '').replace(/\\b0\\d{1,2}[-. ]?\\d{3,4}[-. ]?\\d{4}\\b/g,'***-****-****').replace(/[\\w.+-]+@[\\w-]+\\.[\\w.-]+/g,'***@***');\nconst ctx = $json.ctx;\nconst r = ctx.request;\nconst e = ctx.effects;\nconst ok = (x) => x.status === 'confirmed';\nconst success = ctx.error_code === null && ok(e.created_or_reused) && (r.action === 'wait' ? ok(e.context_saved) : r.action === 'close' ? ok(e.context_saved) && ok(e.closed) : ok(e.context_saved) && ok(e.assigned) && ok(e.alert));\nlet error_code = success ? null : (ctx.error_code ?? (ctx.ticket ? 'partial_effect' : 'tickets_down'));\nconst recovery = success ? {version:1, mode:'manual_required', action:'inspect_only', args:null, reference:null, reason:null} : (ctx.recovery ?? {version:1, mode:'manual_required', action:'inspect_only', args:null, reference:null, reason:'효과 미확인'});\nreturn [{json:{route:'respond', http_status:200, body:{request_id:r.request_id, ticket_id:ctx.ticket ? ctx.ticket.key : (r.ticket_id ?? null), case_version:null, state_saved:error_code !== 'state_error' && !!ctx.state_ref, state_ref:ctx.state_ref ?? null, recovery, effects:e, error_code}}}];"
       },
       "position": [
         8580,
@@ -1077,6 +1077,555 @@
       "position": [
         5200,
         600
+      ]
+    },
+    {
+      "name": "H52 검증 문맥 조회 준비",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "parameters": {
+        "jsCode": "// BEGIN shared case-context library\n// Canonical n8n Code library. build_case_context_nodes.py embeds this function\n// into exported workflows; no runtime filesystem/require permission is needed.\nfunction caseContextLibrary() {\n  const MARKER = '[dubakwi-case-context:v1]';\n  const object = v => !!v && typeof v === 'object' && !Array.isArray(v);\n  const text = v => typeof v === 'string' && v.length > 0;\n  const fail = code => { throw new Error(code); };\n  const sorted = v => Array.isArray(v) ? v.map(sorted) : object(v)\n    ? Object.fromEntries(Object.keys(v).sort().map(k => [k, sorted(v[k])])) : v;\n  const canonical = v => JSON.stringify(sorted(v));\n  // SHA256 is embedded below by the source generator, with Unicode parity tests.\n  const sha256hex = (text) => {\n  const rr = (v, a) => (v >>> a) | (v << (32 - a));\n  const maxWord = Math.pow(2, 32);\n  const bytes = encodeURIComponent(String(text)).replace(/%([0-9A-F]{2})/g, (_, h) => String.fromCharCode(parseInt(h, 16)));\n  const bitLength = bytes.length * 8;\n  let hash = [];\n  const k = [];\n  let primes = 0;\n  const composite = {};\n  for (let c = 2; primes < 64; c++) {\n    if (!composite[c]) {\n      for (let i = 0; i < 313; i += c) composite[i] = c;\n      hash[primes] = (Math.pow(c, 0.5) * maxWord) | 0;\n      k[primes++] = (Math.pow(c, 1 / 3) * maxWord) | 0;\n    }\n  }\n  let s = bytes + '\\x80';\n  while (s.length % 64 - 56) s += '\\x00';\n  const words = [];\n  for (let i = 0; i < s.length; i++) words[i >> 2] |= s.charCodeAt(i) << ((3 - i) % 4) * 8;\n  words[words.length] = (bitLength / maxWord) | 0;\n  words[words.length] = bitLength;\n  for (let j = 0; j < words.length;) {\n    const w = words.slice(j, j += 16);\n    const old = hash;\n    hash = hash.slice(0, 8);\n    for (let i = 0; i < 64; i++) {\n      const w15 = w[i - 15];\n      const w2 = w[i - 2];\n      const a = hash[0];\n      const e = hash[4];\n      const t1 = hash[7] + (rr(e, 6) ^ rr(e, 11) ^ rr(e, 25)) + ((e & hash[5]) ^ (~e & hash[6])) + k[i] + (w[i] = (i < 16) ? w[i] : (w[i - 16] + (rr(w15, 7) ^ rr(w15, 18) ^ (w15 >>> 3)) + w[i - 7] + (rr(w2, 17) ^ rr(w2, 19) ^ (w2 >>> 10))) | 0);\n      const t2 = (rr(a, 2) ^ rr(a, 13) ^ rr(a, 22)) + ((a & hash[1]) ^ (a & hash[2]) ^ (hash[1] & hash[2]));\n      hash = [(t1 + t2) | 0].concat(hash);\n      hash[4] = (hash[4] + t1) | 0;\n    }\n    for (let i = 0; i < 8; i++) hash[i] = (hash[i] + old[i]) | 0;\n  }\n  let out = '';\n  for (let i = 0; i < 8; i++) for (let j = 3; j + 1; j--) { const b = (hash[i] >> (j * 8)) & 255; out += (b < 16 ? '0' : '') + b.toString(16); }\n  return out;\n};\n\n  const digest = value => sha256hex(JSON.stringify(value));\n  const caseLabel = b => 'dubakwi-' + digest([b.scope, b.owner_id, b.first_request_id]).slice(0, 40);\n  const eventId = s => digest([s.scope, s.case_id, s.request_id, s.phase]);\n  function jiraText(value) {\n    if (typeof value === 'string') return value;\n    if (!object(value)) return fail('context_invalid');\n    if (value.type === 'text') return typeof value.text === 'string' ? value.text : fail('context_invalid');\n    if (value.type === 'hardBreak') return '\\n';\n    if (!['doc', 'paragraph', 'codeBlock', 'bulletList', 'orderedList', 'listItem'].includes(value.type)\n        || !Array.isArray(value.content ?? [])) return fail('context_invalid');\n    return (value.content ?? []).map(jiraText).join(['doc', 'bulletList', 'orderedList', 'listItem'].includes(value.type) ? '\\n' : '');\n  }\n  function validateFacts(f) {\n    if (!object(f) || typeof f.summary !== 'string') return fail('context_invalid');\n    for (const k of ['reported', 'confirmed']) {\n      if (!Array.isArray(f[k])) return fail('context_invalid');\n      for (const x of f[k]) {\n        if (!object(x) || !text(x.key) || typeof x.value !== 'string'\n            || !['user', 'document', 'api'].includes(x.origin)\n            || ('reference' in x && typeof x.reference !== 'string')\n            || (k === 'confirmed' && x.origin === 'user')) return fail('context_invalid');\n      }\n    }\n    for (const k of ['attempted_actions', 'missing', 'uncertainties']) {\n      if (!Array.isArray(f[k]) || !f[k].every(x => typeof x === 'string')) return fail('context_invalid');\n    }\n    if (!Array.isArray(f.evidence_refs) || !f.evidence_refs.every(x => object(x) && text(x.doc)\n        && text(x.section) && typeof x.score === 'number' && Number.isFinite(x.score)\n        )) return fail('context_invalid');\n    if (/\\b0\\d{1,2}[-. ]?\\d{3,4}[-. ]?\\d{4}\\b|[\\w.+-]+@[\\w-]+\\.[\\w.-]+/.test(JSON.stringify(f))) return fail('context_unmasked');\n  }\n  function validateSnapshot(s, b) {\n    if (!object(s) || s.schema_version !== 1) return fail('context_invalid');\n    for (const k of ['scope', 'case_id', 'owner_id', 'first_request_id', 'ticket_key']) {\n      if (!text(b[k]) || s[k] !== b[k]) return fail('context_not_linked');\n    }\n    if (!Number.isInteger(s.revision) || s.revision < 1 || !text(s.request_id) || s.request_id.length > 64\n        || !['wait', 'handoff', 'close', 'followup', 'save'].includes(s.phase) || s.event_id !== eventId(s)) return fail('context_invalid');\n    const p = s.support;\n    if (!object(p) || p.version !== null) return fail('context_invalid');\n    for (const k of ['case_id', 'owner_id', 'first_request_id']) if (p[k] !== b[k]) return fail('context_not_linked');\n    if (p.ticket_id !== b.ticket_key || !Number.isInteger(p.attempt) || p.attempt < 1\n        || !['received', 'waiting_info', 'handed_off', 'closed_guidance', 'closed_rejected'].includes(p.status)\n        || ![null, 'support', 'security'].includes(p.assignee_role ?? null)\n        || ![null, 'normal', 'high'].includes(p.priority ?? null)\n        || (p.status === 'handed_off' && (!p.assignee_role || !p.priority))) return fail('context_invalid');\n    validateFacts(s.facts);\n    if (encodeURIComponent(JSON.stringify(s)).replace(/%[A-F0-9]{2}|./g, 'x').length > 16000) return fail('context_too_large');\n    return s;\n  }\n  function validateIssue(issue, b) {\n    const f = issue?.fields ?? {};\n    const lines = jiraText(f.description ?? '').split(/\\r?\\n/);\n    if (!/^JBYS-[0-9]+$/.test(issue?.key ?? '') || issue.key !== b.ticket_key\n        || !Array.isArray(f.labels) || !f.labels.includes(caseLabel(b))\n        || !lines.includes('case_id: ' + b.case_id)\n        || !lines.includes('first_request_id: ' + b.first_request_id)) return fail('context_not_linked');\n  }\n  function selectSnapshot(comments, b, authors, requestId = null) {\n    if (!Array.isArray(authors) || !authors.length) return fail('context_author_unconfigured');\n    const events = new Map(), revisions = new Map(), candidates = [];\n    for (const c of comments) {\n      const body = jiraText(c.body ?? '');\n      if (!body.startsWith(MARKER + '\\n')) continue;\n      if (!authors.includes(c.author?.accountId)) return fail('context_author_denied');\n      let s;\n      try { s = JSON.parse(body.slice(MARKER.length + 1)); } catch { return fail('context_invalid'); }\n      validateSnapshot(s, b);\n      const value = canonical(s);\n      for (const [key, map] of [[s.event_id, events], [s.revision, revisions]]) {\n        if (map.has(key) && map.get(key) !== value) return fail('context_conflict');\n        map.set(key, value);\n      }\n      if (requestId === null || s.request_id === requestId) candidates.push(s);\n    }\n    if (!candidates.length) return fail('context_missing');\n    return candidates.reduce((a, b) => a.revision >= b.revision ? a : b);\n  }\n  function buildSnapshot(b, requestId, phase, revision, support, facts) {\n    const s = {schema_version: 1, ...b, request_id: requestId, phase, revision, support, facts};\n    s.event_id = eventId(s);\n    return validateSnapshot(s, b);\n  }\n  function readPages(pages) {\n    const comments = [];\n    let expected = 0, total = null;\n    for (const page of pages) {\n      if (!object(page) || !Number.isInteger(page.total) || !Number.isInteger(page.startAt)\n          || !Array.isArray(page.comments) || page.startAt !== expected\n          || (total !== null && total !== page.total) || page.total < 0) return fail('context_incomplete');\n      total = page.total;\n      comments.push(...page.comments);\n      expected += page.comments.length;\n    }\n    if (total === null || expected !== total) return fail('context_incomplete');\n    return comments;\n  }\n  return {MARKER, canonical, digest, caseLabel, eventId, jiraText, validateFacts,\n    validateSnapshot, validateIssue, selectSnapshot, buildSnapshot, readPages};\n}\n\nconst CC = caseContextLibrary();\n// END shared case-context library\n\nconst authors = (() => { try { return JSON.parse('__JIRA_CONTEXT_AUTHORS_JSON__'); } catch { return []; } })();\nconst remaining = deadline => Date.parse(deadline) - Date.now();\nconst bindingFor = (r, key) => ({scope:r.state_ref.scope, owner_id:r.state_ref.owner_id,\n  case_id:r.case_id, first_request_id:r.first_request_id, ticket_key:key});\nconst pages = () => CC.readPages($input.all().map(x => {\n  if (x.json.statusCode !== 200) throw new Error('context_read_failed');\n  return x.json.body;\n}));\nconst select = (comments,b,requestId=null) => CC.selectSnapshot(comments,b,authors,requestId);\nconst mask = v => typeof v === 'string' ? v.replace(/\\b0\\d{1,2}[-. ]?\\d{3,4}[-. ]?\\d{4}\\b/g,'***-****-****').replace(/[\\w.+-]+@[\\w-]+\\.[\\w.-]+/g,'***@***')\n  : Array.isArray(v) ? v.map(mask) : v && typeof v === 'object' ? Object.fromEntries(Object.entries(v).map(([k,x])=>[k,mask(x)])) : v;\nconst commentPath = key => '/rest/api/2/issue/'+encodeURIComponent(key)+'/comment';\n\nconst ctx=$json.ctx, r=ctx.request;\nconst deadline=r.deadline_at ?? ctx.deadline_at ?? new Date(Date.now()+15000).toISOString();\nif (ctx.error_code || remaining(deadline)<1000) { ctx.error_code=ctx.error_code??'partial_effect'; return [{json:{route:'done',ctx}}]; }\nreturn [{json:{ctx,deadline_at:deadline,req:{path:'/rest/api/2/issue/'+encodeURIComponent(ctx.ticket.key)+'?fields=status,labels,description,assignee'}}}];\n"
+      },
+      "position": [
+        200,
+        900
+      ]
+    },
+    {
+      "name": "H63 문맥 읽기 허용",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "parameters": {
+        "conditions": {
+          "options": {
+            "version": 2,
+            "caseSensitive": true,
+            "leftValue": ""
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "h63",
+              "leftValue": "={{ !!$json.req }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "position": [
+        760,
+        1120
+      ]
+    },
+    {
+      "name": "H53 Jira 문맥 연결 조회",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "onError": "continueRegularOutput",
+      "parameters": {
+        "method": "GET",
+        "url": "={{ '__JIRA_BASE_URL__' + $json.req.path }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "jiraSoftwareCloudApi",
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true,
+              "neverError": true
+            }
+          },
+          "timeout": "={{ Math.max(1, Math.min(2000, Date.parse($json.deadline_at) - Date.now() - 500)) }}"
+        }
+      },
+      "credentials": {
+        "jiraSoftwareCloudApi": {
+          "name": "dubakwi-Jira SW Cloud account"
+        }
+      },
+      "position": [
+        480,
+        900
+      ]
+    },
+    {
+      "name": "H54 문맥 댓글 조회 준비",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "parameters": {
+        "jsCode": "// BEGIN shared case-context library\n// Canonical n8n Code library. build_case_context_nodes.py embeds this function\n// into exported workflows; no runtime filesystem/require permission is needed.\nfunction caseContextLibrary() {\n  const MARKER = '[dubakwi-case-context:v1]';\n  const object = v => !!v && typeof v === 'object' && !Array.isArray(v);\n  const text = v => typeof v === 'string' && v.length > 0;\n  const fail = code => { throw new Error(code); };\n  const sorted = v => Array.isArray(v) ? v.map(sorted) : object(v)\n    ? Object.fromEntries(Object.keys(v).sort().map(k => [k, sorted(v[k])])) : v;\n  const canonical = v => JSON.stringify(sorted(v));\n  // SHA256 is embedded below by the source generator, with Unicode parity tests.\n  const sha256hex = (text) => {\n  const rr = (v, a) => (v >>> a) | (v << (32 - a));\n  const maxWord = Math.pow(2, 32);\n  const bytes = encodeURIComponent(String(text)).replace(/%([0-9A-F]{2})/g, (_, h) => String.fromCharCode(parseInt(h, 16)));\n  const bitLength = bytes.length * 8;\n  let hash = [];\n  const k = [];\n  let primes = 0;\n  const composite = {};\n  for (let c = 2; primes < 64; c++) {\n    if (!composite[c]) {\n      for (let i = 0; i < 313; i += c) composite[i] = c;\n      hash[primes] = (Math.pow(c, 0.5) * maxWord) | 0;\n      k[primes++] = (Math.pow(c, 1 / 3) * maxWord) | 0;\n    }\n  }\n  let s = bytes + '\\x80';\n  while (s.length % 64 - 56) s += '\\x00';\n  const words = [];\n  for (let i = 0; i < s.length; i++) words[i >> 2] |= s.charCodeAt(i) << ((3 - i) % 4) * 8;\n  words[words.length] = (bitLength / maxWord) | 0;\n  words[words.length] = bitLength;\n  for (let j = 0; j < words.length;) {\n    const w = words.slice(j, j += 16);\n    const old = hash;\n    hash = hash.slice(0, 8);\n    for (let i = 0; i < 64; i++) {\n      const w15 = w[i - 15];\n      const w2 = w[i - 2];\n      const a = hash[0];\n      const e = hash[4];\n      const t1 = hash[7] + (rr(e, 6) ^ rr(e, 11) ^ rr(e, 25)) + ((e & hash[5]) ^ (~e & hash[6])) + k[i] + (w[i] = (i < 16) ? w[i] : (w[i - 16] + (rr(w15, 7) ^ rr(w15, 18) ^ (w15 >>> 3)) + w[i - 7] + (rr(w2, 17) ^ rr(w2, 19) ^ (w2 >>> 10))) | 0);\n      const t2 = (rr(a, 2) ^ rr(a, 13) ^ rr(a, 22)) + ((a & hash[1]) ^ (a & hash[2]) ^ (hash[1] & hash[2]));\n      hash = [(t1 + t2) | 0].concat(hash);\n      hash[4] = (hash[4] + t1) | 0;\n    }\n    for (let i = 0; i < 8; i++) hash[i] = (hash[i] + old[i]) | 0;\n  }\n  let out = '';\n  for (let i = 0; i < 8; i++) for (let j = 3; j + 1; j--) { const b = (hash[i] >> (j * 8)) & 255; out += (b < 16 ? '0' : '') + b.toString(16); }\n  return out;\n};\n\n  const digest = value => sha256hex(JSON.stringify(value));\n  const caseLabel = b => 'dubakwi-' + digest([b.scope, b.owner_id, b.first_request_id]).slice(0, 40);\n  const eventId = s => digest([s.scope, s.case_id, s.request_id, s.phase]);\n  function jiraText(value) {\n    if (typeof value === 'string') return value;\n    if (!object(value)) return fail('context_invalid');\n    if (value.type === 'text') return typeof value.text === 'string' ? value.text : fail('context_invalid');\n    if (value.type === 'hardBreak') return '\\n';\n    if (!['doc', 'paragraph', 'codeBlock', 'bulletList', 'orderedList', 'listItem'].includes(value.type)\n        || !Array.isArray(value.content ?? [])) return fail('context_invalid');\n    return (value.content ?? []).map(jiraText).join(['doc', 'bulletList', 'orderedList', 'listItem'].includes(value.type) ? '\\n' : '');\n  }\n  function validateFacts(f) {\n    if (!object(f) || typeof f.summary !== 'string') return fail('context_invalid');\n    for (const k of ['reported', 'confirmed']) {\n      if (!Array.isArray(f[k])) return fail('context_invalid');\n      for (const x of f[k]) {\n        if (!object(x) || !text(x.key) || typeof x.value !== 'string'\n            || !['user', 'document', 'api'].includes(x.origin)\n            || ('reference' in x && typeof x.reference !== 'string')\n            || (k === 'confirmed' && x.origin === 'user')) return fail('context_invalid');\n      }\n    }\n    for (const k of ['attempted_actions', 'missing', 'uncertainties']) {\n      if (!Array.isArray(f[k]) || !f[k].every(x => typeof x === 'string')) return fail('context_invalid');\n    }\n    if (!Array.isArray(f.evidence_refs) || !f.evidence_refs.every(x => object(x) && text(x.doc)\n        && text(x.section) && typeof x.score === 'number' && Number.isFinite(x.score)\n        )) return fail('context_invalid');\n    if (/\\b0\\d{1,2}[-. ]?\\d{3,4}[-. ]?\\d{4}\\b|[\\w.+-]+@[\\w-]+\\.[\\w.-]+/.test(JSON.stringify(f))) return fail('context_unmasked');\n  }\n  function validateSnapshot(s, b) {\n    if (!object(s) || s.schema_version !== 1) return fail('context_invalid');\n    for (const k of ['scope', 'case_id', 'owner_id', 'first_request_id', 'ticket_key']) {\n      if (!text(b[k]) || s[k] !== b[k]) return fail('context_not_linked');\n    }\n    if (!Number.isInteger(s.revision) || s.revision < 1 || !text(s.request_id) || s.request_id.length > 64\n        || !['wait', 'handoff', 'close', 'followup', 'save'].includes(s.phase) || s.event_id !== eventId(s)) return fail('context_invalid');\n    const p = s.support;\n    if (!object(p) || p.version !== null) return fail('context_invalid');\n    for (const k of ['case_id', 'owner_id', 'first_request_id']) if (p[k] !== b[k]) return fail('context_not_linked');\n    if (p.ticket_id !== b.ticket_key || !Number.isInteger(p.attempt) || p.attempt < 1\n        || !['received', 'waiting_info', 'handed_off', 'closed_guidance', 'closed_rejected'].includes(p.status)\n        || ![null, 'support', 'security'].includes(p.assignee_role ?? null)\n        || ![null, 'normal', 'high'].includes(p.priority ?? null)\n        || (p.status === 'handed_off' && (!p.assignee_role || !p.priority))) return fail('context_invalid');\n    validateFacts(s.facts);\n    if (encodeURIComponent(JSON.stringify(s)).replace(/%[A-F0-9]{2}|./g, 'x').length > 16000) return fail('context_too_large');\n    return s;\n  }\n  function validateIssue(issue, b) {\n    const f = issue?.fields ?? {};\n    const lines = jiraText(f.description ?? '').split(/\\r?\\n/);\n    if (!/^JBYS-[0-9]+$/.test(issue?.key ?? '') || issue.key !== b.ticket_key\n        || !Array.isArray(f.labels) || !f.labels.includes(caseLabel(b))\n        || !lines.includes('case_id: ' + b.case_id)\n        || !lines.includes('first_request_id: ' + b.first_request_id)) return fail('context_not_linked');\n  }\n  function selectSnapshot(comments, b, authors, requestId = null) {\n    if (!Array.isArray(authors) || !authors.length) return fail('context_author_unconfigured');\n    const events = new Map(), revisions = new Map(), candidates = [];\n    for (const c of comments) {\n      const body = jiraText(c.body ?? '');\n      if (!body.startsWith(MARKER + '\\n')) continue;\n      if (!authors.includes(c.author?.accountId)) return fail('context_author_denied');\n      let s;\n      try { s = JSON.parse(body.slice(MARKER.length + 1)); } catch { return fail('context_invalid'); }\n      validateSnapshot(s, b);\n      const value = canonical(s);\n      for (const [key, map] of [[s.event_id, events], [s.revision, revisions]]) {\n        if (map.has(key) && map.get(key) !== value) return fail('context_conflict');\n        map.set(key, value);\n      }\n      if (requestId === null || s.request_id === requestId) candidates.push(s);\n    }\n    if (!candidates.length) return fail('context_missing');\n    return candidates.reduce((a, b) => a.revision >= b.revision ? a : b);\n  }\n  function buildSnapshot(b, requestId, phase, revision, support, facts) {\n    const s = {schema_version: 1, ...b, request_id: requestId, phase, revision, support, facts};\n    s.event_id = eventId(s);\n    return validateSnapshot(s, b);\n  }\n  function readPages(pages) {\n    const comments = [];\n    let expected = 0, total = null;\n    for (const page of pages) {\n      if (!object(page) || !Number.isInteger(page.total) || !Number.isInteger(page.startAt)\n          || !Array.isArray(page.comments) || page.startAt !== expected\n          || (total !== null && total !== page.total) || page.total < 0) return fail('context_incomplete');\n      total = page.total;\n      comments.push(...page.comments);\n      expected += page.comments.length;\n    }\n    if (total === null || expected !== total) return fail('context_incomplete');\n    return comments;\n  }\n  return {MARKER, canonical, digest, caseLabel, eventId, jiraText, validateFacts,\n    validateSnapshot, validateIssue, selectSnapshot, buildSnapshot, readPages};\n}\n\nconst CC = caseContextLibrary();\n// END shared case-context library\n\nconst authors = (() => { try { return JSON.parse('__JIRA_CONTEXT_AUTHORS_JSON__'); } catch { return []; } })();\nconst remaining = deadline => Date.parse(deadline) - Date.now();\nconst bindingFor = (r, key) => ({scope:r.state_ref.scope, owner_id:r.state_ref.owner_id,\n  case_id:r.case_id, first_request_id:r.first_request_id, ticket_key:key});\nconst pages = () => CC.readPages($input.all().map(x => {\n  if (x.json.statusCode !== 200) throw new Error('context_read_failed');\n  return x.json.body;\n}));\nconst select = (comments,b,requestId=null) => CC.selectSnapshot(comments,b,authors,requestId);\nconst mask = v => typeof v === 'string' ? v.replace(/\\b0\\d{1,2}[-. ]?\\d{3,4}[-. ]?\\d{4}\\b/g,'***-****-****').replace(/[\\w.+-]+@[\\w-]+\\.[\\w.-]+/g,'***@***')\n  : Array.isArray(v) ? v.map(mask) : v && typeof v === 'object' ? Object.fromEntries(Object.entries(v).map(([k,x])=>[k,mask(x)])) : v;\nconst commentPath = key => '/rest/api/2/issue/'+encodeURIComponent(key)+'/comment';\n\nconst previous=$('H52 검증 문맥 조회 준비').first().json;\nreturn [{json:{...previous,issue:$json,req:{path:commentPath(previous.ctx.ticket.key)+'?maxResults=100'}}}];\n"
+      },
+      "position": [
+        760,
+        900
+      ]
+    },
+    {
+      "name": "H55 Jira 전체 문맥 댓글 조회",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "onError": "continueRegularOutput",
+      "parameters": {
+        "method": "GET",
+        "url": "={{ '__JIRA_BASE_URL__' + $json.req.path }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "jiraSoftwareCloudApi",
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true,
+              "neverError": true
+            }
+          },
+          "timeout": "={{ Math.max(1, Math.min(2000, Date.parse($json.deadline_at) - Date.now() - 500)) }}",
+          "pagination": {
+            "pagination": {
+              "paginationMode": "updateAParameterInEachRequest",
+              "parameters": {
+                "parameters": [
+                  {
+                    "type": "qs",
+                    "name": "startAt",
+                    "value": "={{ $pageCount === 0 ? 0 : $response.body.startAt + $response.body.comments.length }}"
+                  }
+                ]
+              },
+              "paginationCompleteWhen": "other",
+              "completeExpression": "={{ Date.now() + 500 >= Date.parse($json.deadline_at) || !$response.body || !Array.isArray($response.body.comments) || $response.body.startAt + $response.body.comments.length >= $response.body.total || $response.body.comments.length === 0 }}",
+              "limitPagesFetched": true,
+              "maxRequests": 10,
+              "requestInterval": 0
+            }
+          }
+        }
+      },
+      "credentials": {
+        "jiraSoftwareCloudApi": {
+          "name": "dubakwi-Jira SW Cloud account"
+        }
+      },
+      "position": [
+        1040,
+        900
+      ]
+    },
+    {
+      "name": "H56 문맥 검증과 조건부 기록 계획",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "parameters": {
+        "jsCode": "// BEGIN shared case-context library\n// Canonical n8n Code library. build_case_context_nodes.py embeds this function\n// into exported workflows; no runtime filesystem/require permission is needed.\nfunction caseContextLibrary() {\n  const MARKER = '[dubakwi-case-context:v1]';\n  const object = v => !!v && typeof v === 'object' && !Array.isArray(v);\n  const text = v => typeof v === 'string' && v.length > 0;\n  const fail = code => { throw new Error(code); };\n  const sorted = v => Array.isArray(v) ? v.map(sorted) : object(v)\n    ? Object.fromEntries(Object.keys(v).sort().map(k => [k, sorted(v[k])])) : v;\n  const canonical = v => JSON.stringify(sorted(v));\n  // SHA256 is embedded below by the source generator, with Unicode parity tests.\n  const sha256hex = (text) => {\n  const rr = (v, a) => (v >>> a) | (v << (32 - a));\n  const maxWord = Math.pow(2, 32);\n  const bytes = encodeURIComponent(String(text)).replace(/%([0-9A-F]{2})/g, (_, h) => String.fromCharCode(parseInt(h, 16)));\n  const bitLength = bytes.length * 8;\n  let hash = [];\n  const k = [];\n  let primes = 0;\n  const composite = {};\n  for (let c = 2; primes < 64; c++) {\n    if (!composite[c]) {\n      for (let i = 0; i < 313; i += c) composite[i] = c;\n      hash[primes] = (Math.pow(c, 0.5) * maxWord) | 0;\n      k[primes++] = (Math.pow(c, 1 / 3) * maxWord) | 0;\n    }\n  }\n  let s = bytes + '\\x80';\n  while (s.length % 64 - 56) s += '\\x00';\n  const words = [];\n  for (let i = 0; i < s.length; i++) words[i >> 2] |= s.charCodeAt(i) << ((3 - i) % 4) * 8;\n  words[words.length] = (bitLength / maxWord) | 0;\n  words[words.length] = bitLength;\n  for (let j = 0; j < words.length;) {\n    const w = words.slice(j, j += 16);\n    const old = hash;\n    hash = hash.slice(0, 8);\n    for (let i = 0; i < 64; i++) {\n      const w15 = w[i - 15];\n      const w2 = w[i - 2];\n      const a = hash[0];\n      const e = hash[4];\n      const t1 = hash[7] + (rr(e, 6) ^ rr(e, 11) ^ rr(e, 25)) + ((e & hash[5]) ^ (~e & hash[6])) + k[i] + (w[i] = (i < 16) ? w[i] : (w[i - 16] + (rr(w15, 7) ^ rr(w15, 18) ^ (w15 >>> 3)) + w[i - 7] + (rr(w2, 17) ^ rr(w2, 19) ^ (w2 >>> 10))) | 0);\n      const t2 = (rr(a, 2) ^ rr(a, 13) ^ rr(a, 22)) + ((a & hash[1]) ^ (a & hash[2]) ^ (hash[1] & hash[2]));\n      hash = [(t1 + t2) | 0].concat(hash);\n      hash[4] = (hash[4] + t1) | 0;\n    }\n    for (let i = 0; i < 8; i++) hash[i] = (hash[i] + old[i]) | 0;\n  }\n  let out = '';\n  for (let i = 0; i < 8; i++) for (let j = 3; j + 1; j--) { const b = (hash[i] >> (j * 8)) & 255; out += (b < 16 ? '0' : '') + b.toString(16); }\n  return out;\n};\n\n  const digest = value => sha256hex(JSON.stringify(value));\n  const caseLabel = b => 'dubakwi-' + digest([b.scope, b.owner_id, b.first_request_id]).slice(0, 40);\n  const eventId = s => digest([s.scope, s.case_id, s.request_id, s.phase]);\n  function jiraText(value) {\n    if (typeof value === 'string') return value;\n    if (!object(value)) return fail('context_invalid');\n    if (value.type === 'text') return typeof value.text === 'string' ? value.text : fail('context_invalid');\n    if (value.type === 'hardBreak') return '\\n';\n    if (!['doc', 'paragraph', 'codeBlock', 'bulletList', 'orderedList', 'listItem'].includes(value.type)\n        || !Array.isArray(value.content ?? [])) return fail('context_invalid');\n    return (value.content ?? []).map(jiraText).join(['doc', 'bulletList', 'orderedList', 'listItem'].includes(value.type) ? '\\n' : '');\n  }\n  function validateFacts(f) {\n    if (!object(f) || typeof f.summary !== 'string') return fail('context_invalid');\n    for (const k of ['reported', 'confirmed']) {\n      if (!Array.isArray(f[k])) return fail('context_invalid');\n      for (const x of f[k]) {\n        if (!object(x) || !text(x.key) || typeof x.value !== 'string'\n            || !['user', 'document', 'api'].includes(x.origin)\n            || ('reference' in x && typeof x.reference !== 'string')\n            || (k === 'confirmed' && x.origin === 'user')) return fail('context_invalid');\n      }\n    }\n    for (const k of ['attempted_actions', 'missing', 'uncertainties']) {\n      if (!Array.isArray(f[k]) || !f[k].every(x => typeof x === 'string')) return fail('context_invalid');\n    }\n    if (!Array.isArray(f.evidence_refs) || !f.evidence_refs.every(x => object(x) && text(x.doc)\n        && text(x.section) && typeof x.score === 'number' && Number.isFinite(x.score)\n        )) return fail('context_invalid');\n    if (/\\b0\\d{1,2}[-. ]?\\d{3,4}[-. ]?\\d{4}\\b|[\\w.+-]+@[\\w-]+\\.[\\w.-]+/.test(JSON.stringify(f))) return fail('context_unmasked');\n  }\n  function validateSnapshot(s, b) {\n    if (!object(s) || s.schema_version !== 1) return fail('context_invalid');\n    for (const k of ['scope', 'case_id', 'owner_id', 'first_request_id', 'ticket_key']) {\n      if (!text(b[k]) || s[k] !== b[k]) return fail('context_not_linked');\n    }\n    if (!Number.isInteger(s.revision) || s.revision < 1 || !text(s.request_id) || s.request_id.length > 64\n        || !['wait', 'handoff', 'close', 'followup', 'save'].includes(s.phase) || s.event_id !== eventId(s)) return fail('context_invalid');\n    const p = s.support;\n    if (!object(p) || p.version !== null) return fail('context_invalid');\n    for (const k of ['case_id', 'owner_id', 'first_request_id']) if (p[k] !== b[k]) return fail('context_not_linked');\n    if (p.ticket_id !== b.ticket_key || !Number.isInteger(p.attempt) || p.attempt < 1\n        || !['received', 'waiting_info', 'handed_off', 'closed_guidance', 'closed_rejected'].includes(p.status)\n        || ![null, 'support', 'security'].includes(p.assignee_role ?? null)\n        || ![null, 'normal', 'high'].includes(p.priority ?? null)\n        || (p.status === 'handed_off' && (!p.assignee_role || !p.priority))) return fail('context_invalid');\n    validateFacts(s.facts);\n    if (encodeURIComponent(JSON.stringify(s)).replace(/%[A-F0-9]{2}|./g, 'x').length > 16000) return fail('context_too_large');\n    return s;\n  }\n  function validateIssue(issue, b) {\n    const f = issue?.fields ?? {};\n    const lines = jiraText(f.description ?? '').split(/\\r?\\n/);\n    if (!/^JBYS-[0-9]+$/.test(issue?.key ?? '') || issue.key !== b.ticket_key\n        || !Array.isArray(f.labels) || !f.labels.includes(caseLabel(b))\n        || !lines.includes('case_id: ' + b.case_id)\n        || !lines.includes('first_request_id: ' + b.first_request_id)) return fail('context_not_linked');\n  }\n  function selectSnapshot(comments, b, authors, requestId = null) {\n    if (!Array.isArray(authors) || !authors.length) return fail('context_author_unconfigured');\n    const events = new Map(), revisions = new Map(), candidates = [];\n    for (const c of comments) {\n      const body = jiraText(c.body ?? '');\n      if (!body.startsWith(MARKER + '\\n')) continue;\n      if (!authors.includes(c.author?.accountId)) return fail('context_author_denied');\n      let s;\n      try { s = JSON.parse(body.slice(MARKER.length + 1)); } catch { return fail('context_invalid'); }\n      validateSnapshot(s, b);\n      const value = canonical(s);\n      for (const [key, map] of [[s.event_id, events], [s.revision, revisions]]) {\n        if (map.has(key) && map.get(key) !== value) return fail('context_conflict');\n        map.set(key, value);\n      }\n      if (requestId === null || s.request_id === requestId) candidates.push(s);\n    }\n    if (!candidates.length) return fail('context_missing');\n    return candidates.reduce((a, b) => a.revision >= b.revision ? a : b);\n  }\n  function buildSnapshot(b, requestId, phase, revision, support, facts) {\n    const s = {schema_version: 1, ...b, request_id: requestId, phase, revision, support, facts};\n    s.event_id = eventId(s);\n    return validateSnapshot(s, b);\n  }\n  function readPages(pages) {\n    const comments = [];\n    let expected = 0, total = null;\n    for (const page of pages) {\n      if (!object(page) || !Number.isInteger(page.total) || !Number.isInteger(page.startAt)\n          || !Array.isArray(page.comments) || page.startAt !== expected\n          || (total !== null && total !== page.total) || page.total < 0) return fail('context_incomplete');\n      total = page.total;\n      comments.push(...page.comments);\n      expected += page.comments.length;\n    }\n    if (total === null || expected !== total) return fail('context_incomplete');\n    return comments;\n  }\n  return {MARKER, canonical, digest, caseLabel, eventId, jiraText, validateFacts,\n    validateSnapshot, validateIssue, selectSnapshot, buildSnapshot, readPages};\n}\n\nconst CC = caseContextLibrary();\n// END shared case-context library\n\nconst authors = (() => { try { return JSON.parse('__JIRA_CONTEXT_AUTHORS_JSON__'); } catch { return []; } })();\nconst remaining = deadline => Date.parse(deadline) - Date.now();\nconst bindingFor = (r, key) => ({scope:r.state_ref.scope, owner_id:r.state_ref.owner_id,\n  case_id:r.case_id, first_request_id:r.first_request_id, ticket_key:key});\nconst pages = () => CC.readPages($input.all().map(x => {\n  if (x.json.statusCode !== 200) throw new Error('context_read_failed');\n  return x.json.body;\n}));\nconst select = (comments,b,requestId=null) => CC.selectSnapshot(comments,b,authors,requestId);\nconst mask = v => typeof v === 'string' ? v.replace(/\\b0\\d{1,2}[-. ]?\\d{3,4}[-. ]?\\d{4}\\b/g,'***-****-****').replace(/[\\w.+-]+@[\\w-]+\\.[\\w.-]+/g,'***@***')\n  : Array.isArray(v) ? v.map(mask) : v && typeof v === 'object' ? Object.fromEntries(Object.entries(v).map(([k,x])=>[k,mask(x)])) : v;\nconst commentPath = key => '/rest/api/2/issue/'+encodeURIComponent(key)+'/comment';\n\nconst prev=$('H54 문맥 댓글 조회 준비').first().json, ctx=prev.ctx, r=ctx.request;\n\nconst fail = reason => {ctx.error_code='partial_effect'; ctx.effects.context_saved={status:'unknown',id:ctx.ticket.key,error_code:reason};\nctx.recovery={version:1,mode:'jira_ref',action:'context_update',args:null,reference:{jira_issue_id:ctx.ticket.id,case_id:ctx.request.case_id,owner_id:ctx.state_ref.owner_id},reason};\nreturn [{json:{route:'done',ctx}}];};\n\ntry {\n if(remaining(prev.deadline_at)<500 || prev.issue.statusCode!==200) return fail('context_read_failed');\n const b=bindingFor(r,ctx.ticket.key); CC.validateIssue(prev.issue.body,b);\n const comments=pages();\n let old=null;\n if(comments.some(c=>CC.jiraText(c.body??'').startsWith(CC.MARKER+'\\n'))) old=select(comments,b);\n else if(ctx.ticket.reused) return fail('context_missing');\n if(old?.support.status==='handed_off' && (r.action!=='handoff'||r.assignee_role!==old.support.assignee_role||r.priority!==old.support.priority||r.attempt!==old.support.attempt)) return fail('context_handoff_conflict');\n const support={case_id:r.case_id,owner_id:b.owner_id,ticket_id:b.ticket_key,first_request_id:r.first_request_id,\n attempt:r.attempt,version:null,status:r.action==='wait'?'waiting_info':r.action==='handoff'?'handed_off':r.close_status,\n assignee_role:r.action==='handoff'?r.assignee_role:null,priority:r.priority};\n const phase=r.ticket_id?'followup':r.action;\n let snapshot=CC.buildSnapshot(b,r.request_id,phase,(old?.revision??0)+1,support,mask(r.context));\n const matching=comments.map(c=>({c,t:CC.jiraText(c.body??'')})).filter(x=>x.t.startsWith(CC.MARKER+'\\n')).map(x=>JSON.parse(x.t.slice(CC.MARKER.length+1))).find(x=>x.event_id===snapshot.event_id);\n if(matching){ snapshot.revision=matching.revision; if(CC.canonical(snapshot)!==CC.canonical(matching)) return fail('context_conflict');\n ctx.snapshot=matching;ctx.previous_snapshot=old;ctx.effects.context_saved={status:'confirmed',id:b.ticket_key};return [{json:{route:r.action,ctx}}]; }\n if(remaining(prev.deadline_at)<4000) return fail('deadline_exceeded');\n ctx.previous_snapshot=old;\n return [{json:{route:'write',ctx,snapshot,deadline_at:prev.deadline_at,req:{path:commentPath(b.ticket_key),body:{body:CC.MARKER+'\\n'+JSON.stringify(snapshot)}}}}];\n} catch(e) {return fail(e.message);}\n"
+      },
+      "position": [
+        1320,
+        900
+      ]
+    },
+    {
+      "name": "H57 새 문맥 기록 필요",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "parameters": {
+        "conditions": {
+          "options": {
+            "version": 2,
+            "caseSensitive": true,
+            "leftValue": ""
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "h57",
+              "leftValue": "={{ $json.route === 'write' }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "position": [
+        1600,
+        900
+      ]
+    },
+    {
+      "name": "H58 Jira 가린 문맥 저장",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "onError": "continueRegularOutput",
+      "parameters": {
+        "method": "POST",
+        "url": "={{ '__JIRA_BASE_URL__' + $json.req.path }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "jiraSoftwareCloudApi",
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true,
+              "neverError": true
+            }
+          },
+          "timeout": "={{ Math.max(1, Math.min(3500, Date.parse($json.deadline_at) - Date.now() - 500)) }}"
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ $json.req.body }}"
+      },
+      "credentials": {
+        "jiraSoftwareCloudApi": {
+          "name": "dubakwi-Jira SW Cloud account"
+        }
+      },
+      "position": [
+        1880,
+        900
+      ]
+    },
+    {
+      "name": "H59 저장 문맥 재조회 준비",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "parameters": {
+        "jsCode": "// BEGIN shared case-context library\n// Canonical n8n Code library. build_case_context_nodes.py embeds this function\n// into exported workflows; no runtime filesystem/require permission is needed.\nfunction caseContextLibrary() {\n  const MARKER = '[dubakwi-case-context:v1]';\n  const object = v => !!v && typeof v === 'object' && !Array.isArray(v);\n  const text = v => typeof v === 'string' && v.length > 0;\n  const fail = code => { throw new Error(code); };\n  const sorted = v => Array.isArray(v) ? v.map(sorted) : object(v)\n    ? Object.fromEntries(Object.keys(v).sort().map(k => [k, sorted(v[k])])) : v;\n  const canonical = v => JSON.stringify(sorted(v));\n  // SHA256 is embedded below by the source generator, with Unicode parity tests.\n  const sha256hex = (text) => {\n  const rr = (v, a) => (v >>> a) | (v << (32 - a));\n  const maxWord = Math.pow(2, 32);\n  const bytes = encodeURIComponent(String(text)).replace(/%([0-9A-F]{2})/g, (_, h) => String.fromCharCode(parseInt(h, 16)));\n  const bitLength = bytes.length * 8;\n  let hash = [];\n  const k = [];\n  let primes = 0;\n  const composite = {};\n  for (let c = 2; primes < 64; c++) {\n    if (!composite[c]) {\n      for (let i = 0; i < 313; i += c) composite[i] = c;\n      hash[primes] = (Math.pow(c, 0.5) * maxWord) | 0;\n      k[primes++] = (Math.pow(c, 1 / 3) * maxWord) | 0;\n    }\n  }\n  let s = bytes + '\\x80';\n  while (s.length % 64 - 56) s += '\\x00';\n  const words = [];\n  for (let i = 0; i < s.length; i++) words[i >> 2] |= s.charCodeAt(i) << ((3 - i) % 4) * 8;\n  words[words.length] = (bitLength / maxWord) | 0;\n  words[words.length] = bitLength;\n  for (let j = 0; j < words.length;) {\n    const w = words.slice(j, j += 16);\n    const old = hash;\n    hash = hash.slice(0, 8);\n    for (let i = 0; i < 64; i++) {\n      const w15 = w[i - 15];\n      const w2 = w[i - 2];\n      const a = hash[0];\n      const e = hash[4];\n      const t1 = hash[7] + (rr(e, 6) ^ rr(e, 11) ^ rr(e, 25)) + ((e & hash[5]) ^ (~e & hash[6])) + k[i] + (w[i] = (i < 16) ? w[i] : (w[i - 16] + (rr(w15, 7) ^ rr(w15, 18) ^ (w15 >>> 3)) + w[i - 7] + (rr(w2, 17) ^ rr(w2, 19) ^ (w2 >>> 10))) | 0);\n      const t2 = (rr(a, 2) ^ rr(a, 13) ^ rr(a, 22)) + ((a & hash[1]) ^ (a & hash[2]) ^ (hash[1] & hash[2]));\n      hash = [(t1 + t2) | 0].concat(hash);\n      hash[4] = (hash[4] + t1) | 0;\n    }\n    for (let i = 0; i < 8; i++) hash[i] = (hash[i] + old[i]) | 0;\n  }\n  let out = '';\n  for (let i = 0; i < 8; i++) for (let j = 3; j + 1; j--) { const b = (hash[i] >> (j * 8)) & 255; out += (b < 16 ? '0' : '') + b.toString(16); }\n  return out;\n};\n\n  const digest = value => sha256hex(JSON.stringify(value));\n  const caseLabel = b => 'dubakwi-' + digest([b.scope, b.owner_id, b.first_request_id]).slice(0, 40);\n  const eventId = s => digest([s.scope, s.case_id, s.request_id, s.phase]);\n  function jiraText(value) {\n    if (typeof value === 'string') return value;\n    if (!object(value)) return fail('context_invalid');\n    if (value.type === 'text') return typeof value.text === 'string' ? value.text : fail('context_invalid');\n    if (value.type === 'hardBreak') return '\\n';\n    if (!['doc', 'paragraph', 'codeBlock', 'bulletList', 'orderedList', 'listItem'].includes(value.type)\n        || !Array.isArray(value.content ?? [])) return fail('context_invalid');\n    return (value.content ?? []).map(jiraText).join(['doc', 'bulletList', 'orderedList', 'listItem'].includes(value.type) ? '\\n' : '');\n  }\n  function validateFacts(f) {\n    if (!object(f) || typeof f.summary !== 'string') return fail('context_invalid');\n    for (const k of ['reported', 'confirmed']) {\n      if (!Array.isArray(f[k])) return fail('context_invalid');\n      for (const x of f[k]) {\n        if (!object(x) || !text(x.key) || typeof x.value !== 'string'\n            || !['user', 'document', 'api'].includes(x.origin)\n            || ('reference' in x && typeof x.reference !== 'string')\n            || (k === 'confirmed' && x.origin === 'user')) return fail('context_invalid');\n      }\n    }\n    for (const k of ['attempted_actions', 'missing', 'uncertainties']) {\n      if (!Array.isArray(f[k]) || !f[k].every(x => typeof x === 'string')) return fail('context_invalid');\n    }\n    if (!Array.isArray(f.evidence_refs) || !f.evidence_refs.every(x => object(x) && text(x.doc)\n        && text(x.section) && typeof x.score === 'number' && Number.isFinite(x.score)\n        )) return fail('context_invalid');\n    if (/\\b0\\d{1,2}[-. ]?\\d{3,4}[-. ]?\\d{4}\\b|[\\w.+-]+@[\\w-]+\\.[\\w.-]+/.test(JSON.stringify(f))) return fail('context_unmasked');\n  }\n  function validateSnapshot(s, b) {\n    if (!object(s) || s.schema_version !== 1) return fail('context_invalid');\n    for (const k of ['scope', 'case_id', 'owner_id', 'first_request_id', 'ticket_key']) {\n      if (!text(b[k]) || s[k] !== b[k]) return fail('context_not_linked');\n    }\n    if (!Number.isInteger(s.revision) || s.revision < 1 || !text(s.request_id) || s.request_id.length > 64\n        || !['wait', 'handoff', 'close', 'followup', 'save'].includes(s.phase) || s.event_id !== eventId(s)) return fail('context_invalid');\n    const p = s.support;\n    if (!object(p) || p.version !== null) return fail('context_invalid');\n    for (const k of ['case_id', 'owner_id', 'first_request_id']) if (p[k] !== b[k]) return fail('context_not_linked');\n    if (p.ticket_id !== b.ticket_key || !Number.isInteger(p.attempt) || p.attempt < 1\n        || !['received', 'waiting_info', 'handed_off', 'closed_guidance', 'closed_rejected'].includes(p.status)\n        || ![null, 'support', 'security'].includes(p.assignee_role ?? null)\n        || ![null, 'normal', 'high'].includes(p.priority ?? null)\n        || (p.status === 'handed_off' && (!p.assignee_role || !p.priority))) return fail('context_invalid');\n    validateFacts(s.facts);\n    if (encodeURIComponent(JSON.stringify(s)).replace(/%[A-F0-9]{2}|./g, 'x').length > 16000) return fail('context_too_large');\n    return s;\n  }\n  function validateIssue(issue, b) {\n    const f = issue?.fields ?? {};\n    const lines = jiraText(f.description ?? '').split(/\\r?\\n/);\n    if (!/^JBYS-[0-9]+$/.test(issue?.key ?? '') || issue.key !== b.ticket_key\n        || !Array.isArray(f.labels) || !f.labels.includes(caseLabel(b))\n        || !lines.includes('case_id: ' + b.case_id)\n        || !lines.includes('first_request_id: ' + b.first_request_id)) return fail('context_not_linked');\n  }\n  function selectSnapshot(comments, b, authors, requestId = null) {\n    if (!Array.isArray(authors) || !authors.length) return fail('context_author_unconfigured');\n    const events = new Map(), revisions = new Map(), candidates = [];\n    for (const c of comments) {\n      const body = jiraText(c.body ?? '');\n      if (!body.startsWith(MARKER + '\\n')) continue;\n      if (!authors.includes(c.author?.accountId)) return fail('context_author_denied');\n      let s;\n      try { s = JSON.parse(body.slice(MARKER.length + 1)); } catch { return fail('context_invalid'); }\n      validateSnapshot(s, b);\n      const value = canonical(s);\n      for (const [key, map] of [[s.event_id, events], [s.revision, revisions]]) {\n        if (map.has(key) && map.get(key) !== value) return fail('context_conflict');\n        map.set(key, value);\n      }\n      if (requestId === null || s.request_id === requestId) candidates.push(s);\n    }\n    if (!candidates.length) return fail('context_missing');\n    return candidates.reduce((a, b) => a.revision >= b.revision ? a : b);\n  }\n  function buildSnapshot(b, requestId, phase, revision, support, facts) {\n    const s = {schema_version: 1, ...b, request_id: requestId, phase, revision, support, facts};\n    s.event_id = eventId(s);\n    return validateSnapshot(s, b);\n  }\n  function readPages(pages) {\n    const comments = [];\n    let expected = 0, total = null;\n    for (const page of pages) {\n      if (!object(page) || !Number.isInteger(page.total) || !Number.isInteger(page.startAt)\n          || !Array.isArray(page.comments) || page.startAt !== expected\n          || (total !== null && total !== page.total) || page.total < 0) return fail('context_incomplete');\n      total = page.total;\n      comments.push(...page.comments);\n      expected += page.comments.length;\n    }\n    if (total === null || expected !== total) return fail('context_incomplete');\n    return comments;\n  }\n  return {MARKER, canonical, digest, caseLabel, eventId, jiraText, validateFacts,\n    validateSnapshot, validateIssue, selectSnapshot, buildSnapshot, readPages};\n}\n\nconst CC = caseContextLibrary();\n// END shared case-context library\n\nconst authors = (() => { try { return JSON.parse('__JIRA_CONTEXT_AUTHORS_JSON__'); } catch { return []; } })();\nconst remaining = deadline => Date.parse(deadline) - Date.now();\nconst bindingFor = (r, key) => ({scope:r.state_ref.scope, owner_id:r.state_ref.owner_id,\n  case_id:r.case_id, first_request_id:r.first_request_id, ticket_key:key});\nconst pages = () => CC.readPages($input.all().map(x => {\n  if (x.json.statusCode !== 200) throw new Error('context_read_failed');\n  return x.json.body;\n}));\nconst select = (comments,b,requestId=null) => CC.selectSnapshot(comments,b,authors,requestId);\nconst mask = v => typeof v === 'string' ? v.replace(/\\b0\\d{1,2}[-. ]?\\d{3,4}[-. ]?\\d{4}\\b/g,'***-****-****').replace(/[\\w.+-]+@[\\w-]+\\.[\\w.-]+/g,'***@***')\n  : Array.isArray(v) ? v.map(mask) : v && typeof v === 'object' ? Object.fromEntries(Object.entries(v).map(([k,x])=>[k,mask(x)])) : v;\nconst commentPath = key => '/rest/api/2/issue/'+encodeURIComponent(key)+'/comment';\n\nconst p=$('H56 문맥 검증과 조건부 기록 계획').first().json;\nreturn [{json:{...p,write_status:$json.statusCode??0,req:{path:commentPath(p.ctx.ticket.key)+'?maxResults=100'}}}];\n"
+      },
+      "position": [
+        2160,
+        900
+      ]
+    },
+    {
+      "name": "H60 Jira 저장 문맥 재조회",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "onError": "continueRegularOutput",
+      "parameters": {
+        "method": "GET",
+        "url": "={{ '__JIRA_BASE_URL__' + $json.req.path }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "jiraSoftwareCloudApi",
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true,
+              "neverError": true
+            }
+          },
+          "timeout": "={{ Math.max(1, Math.min(2000, Date.parse($json.deadline_at) - Date.now() - 500)) }}",
+          "pagination": {
+            "pagination": {
+              "paginationMode": "updateAParameterInEachRequest",
+              "parameters": {
+                "parameters": [
+                  {
+                    "type": "qs",
+                    "name": "startAt",
+                    "value": "={{ $pageCount === 0 ? 0 : $response.body.startAt + $response.body.comments.length }}"
+                  }
+                ]
+              },
+              "paginationCompleteWhen": "other",
+              "completeExpression": "={{ Date.now() + 500 >= Date.parse($json.deadline_at) || !$response.body || !Array.isArray($response.body.comments) || $response.body.startAt + $response.body.comments.length >= $response.body.total || $response.body.comments.length === 0 }}",
+              "limitPagesFetched": true,
+              "maxRequests": 10,
+              "requestInterval": 0
+            }
+          }
+        }
+      },
+      "credentials": {
+        "jiraSoftwareCloudApi": {
+          "name": "dubakwi-Jira SW Cloud account"
+        }
+      },
+      "position": [
+        200,
+        1120
+      ]
+    },
+    {
+      "name": "H61 문맥 저장 재조회 판정",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "parameters": {
+        "jsCode": "// BEGIN shared case-context library\n// Canonical n8n Code library. build_case_context_nodes.py embeds this function\n// into exported workflows; no runtime filesystem/require permission is needed.\nfunction caseContextLibrary() {\n  const MARKER = '[dubakwi-case-context:v1]';\n  const object = v => !!v && typeof v === 'object' && !Array.isArray(v);\n  const text = v => typeof v === 'string' && v.length > 0;\n  const fail = code => { throw new Error(code); };\n  const sorted = v => Array.isArray(v) ? v.map(sorted) : object(v)\n    ? Object.fromEntries(Object.keys(v).sort().map(k => [k, sorted(v[k])])) : v;\n  const canonical = v => JSON.stringify(sorted(v));\n  // SHA256 is embedded below by the source generator, with Unicode parity tests.\n  const sha256hex = (text) => {\n  const rr = (v, a) => (v >>> a) | (v << (32 - a));\n  const maxWord = Math.pow(2, 32);\n  const bytes = encodeURIComponent(String(text)).replace(/%([0-9A-F]{2})/g, (_, h) => String.fromCharCode(parseInt(h, 16)));\n  const bitLength = bytes.length * 8;\n  let hash = [];\n  const k = [];\n  let primes = 0;\n  const composite = {};\n  for (let c = 2; primes < 64; c++) {\n    if (!composite[c]) {\n      for (let i = 0; i < 313; i += c) composite[i] = c;\n      hash[primes] = (Math.pow(c, 0.5) * maxWord) | 0;\n      k[primes++] = (Math.pow(c, 1 / 3) * maxWord) | 0;\n    }\n  }\n  let s = bytes + '\\x80';\n  while (s.length % 64 - 56) s += '\\x00';\n  const words = [];\n  for (let i = 0; i < s.length; i++) words[i >> 2] |= s.charCodeAt(i) << ((3 - i) % 4) * 8;\n  words[words.length] = (bitLength / maxWord) | 0;\n  words[words.length] = bitLength;\n  for (let j = 0; j < words.length;) {\n    const w = words.slice(j, j += 16);\n    const old = hash;\n    hash = hash.slice(0, 8);\n    for (let i = 0; i < 64; i++) {\n      const w15 = w[i - 15];\n      const w2 = w[i - 2];\n      const a = hash[0];\n      const e = hash[4];\n      const t1 = hash[7] + (rr(e, 6) ^ rr(e, 11) ^ rr(e, 25)) + ((e & hash[5]) ^ (~e & hash[6])) + k[i] + (w[i] = (i < 16) ? w[i] : (w[i - 16] + (rr(w15, 7) ^ rr(w15, 18) ^ (w15 >>> 3)) + w[i - 7] + (rr(w2, 17) ^ rr(w2, 19) ^ (w2 >>> 10))) | 0);\n      const t2 = (rr(a, 2) ^ rr(a, 13) ^ rr(a, 22)) + ((a & hash[1]) ^ (a & hash[2]) ^ (hash[1] & hash[2]));\n      hash = [(t1 + t2) | 0].concat(hash);\n      hash[4] = (hash[4] + t1) | 0;\n    }\n    for (let i = 0; i < 8; i++) hash[i] = (hash[i] + old[i]) | 0;\n  }\n  let out = '';\n  for (let i = 0; i < 8; i++) for (let j = 3; j + 1; j--) { const b = (hash[i] >> (j * 8)) & 255; out += (b < 16 ? '0' : '') + b.toString(16); }\n  return out;\n};\n\n  const digest = value => sha256hex(JSON.stringify(value));\n  const caseLabel = b => 'dubakwi-' + digest([b.scope, b.owner_id, b.first_request_id]).slice(0, 40);\n  const eventId = s => digest([s.scope, s.case_id, s.request_id, s.phase]);\n  function jiraText(value) {\n    if (typeof value === 'string') return value;\n    if (!object(value)) return fail('context_invalid');\n    if (value.type === 'text') return typeof value.text === 'string' ? value.text : fail('context_invalid');\n    if (value.type === 'hardBreak') return '\\n';\n    if (!['doc', 'paragraph', 'codeBlock', 'bulletList', 'orderedList', 'listItem'].includes(value.type)\n        || !Array.isArray(value.content ?? [])) return fail('context_invalid');\n    return (value.content ?? []).map(jiraText).join(['doc', 'bulletList', 'orderedList', 'listItem'].includes(value.type) ? '\\n' : '');\n  }\n  function validateFacts(f) {\n    if (!object(f) || typeof f.summary !== 'string') return fail('context_invalid');\n    for (const k of ['reported', 'confirmed']) {\n      if (!Array.isArray(f[k])) return fail('context_invalid');\n      for (const x of f[k]) {\n        if (!object(x) || !text(x.key) || typeof x.value !== 'string'\n            || !['user', 'document', 'api'].includes(x.origin)\n            || ('reference' in x && typeof x.reference !== 'string')\n            || (k === 'confirmed' && x.origin === 'user')) return fail('context_invalid');\n      }\n    }\n    for (const k of ['attempted_actions', 'missing', 'uncertainties']) {\n      if (!Array.isArray(f[k]) || !f[k].every(x => typeof x === 'string')) return fail('context_invalid');\n    }\n    if (!Array.isArray(f.evidence_refs) || !f.evidence_refs.every(x => object(x) && text(x.doc)\n        && text(x.section) && typeof x.score === 'number' && Number.isFinite(x.score)\n        )) return fail('context_invalid');\n    if (/\\b0\\d{1,2}[-. ]?\\d{3,4}[-. ]?\\d{4}\\b|[\\w.+-]+@[\\w-]+\\.[\\w.-]+/.test(JSON.stringify(f))) return fail('context_unmasked');\n  }\n  function validateSnapshot(s, b) {\n    if (!object(s) || s.schema_version !== 1) return fail('context_invalid');\n    for (const k of ['scope', 'case_id', 'owner_id', 'first_request_id', 'ticket_key']) {\n      if (!text(b[k]) || s[k] !== b[k]) return fail('context_not_linked');\n    }\n    if (!Number.isInteger(s.revision) || s.revision < 1 || !text(s.request_id) || s.request_id.length > 64\n        || !['wait', 'handoff', 'close', 'followup', 'save'].includes(s.phase) || s.event_id !== eventId(s)) return fail('context_invalid');\n    const p = s.support;\n    if (!object(p) || p.version !== null) return fail('context_invalid');\n    for (const k of ['case_id', 'owner_id', 'first_request_id']) if (p[k] !== b[k]) return fail('context_not_linked');\n    if (p.ticket_id !== b.ticket_key || !Number.isInteger(p.attempt) || p.attempt < 1\n        || !['received', 'waiting_info', 'handed_off', 'closed_guidance', 'closed_rejected'].includes(p.status)\n        || ![null, 'support', 'security'].includes(p.assignee_role ?? null)\n        || ![null, 'normal', 'high'].includes(p.priority ?? null)\n        || (p.status === 'handed_off' && (!p.assignee_role || !p.priority))) return fail('context_invalid');\n    validateFacts(s.facts);\n    if (encodeURIComponent(JSON.stringify(s)).replace(/%[A-F0-9]{2}|./g, 'x').length > 16000) return fail('context_too_large');\n    return s;\n  }\n  function validateIssue(issue, b) {\n    const f = issue?.fields ?? {};\n    const lines = jiraText(f.description ?? '').split(/\\r?\\n/);\n    if (!/^JBYS-[0-9]+$/.test(issue?.key ?? '') || issue.key !== b.ticket_key\n        || !Array.isArray(f.labels) || !f.labels.includes(caseLabel(b))\n        || !lines.includes('case_id: ' + b.case_id)\n        || !lines.includes('first_request_id: ' + b.first_request_id)) return fail('context_not_linked');\n  }\n  function selectSnapshot(comments, b, authors, requestId = null) {\n    if (!Array.isArray(authors) || !authors.length) return fail('context_author_unconfigured');\n    const events = new Map(), revisions = new Map(), candidates = [];\n    for (const c of comments) {\n      const body = jiraText(c.body ?? '');\n      if (!body.startsWith(MARKER + '\\n')) continue;\n      if (!authors.includes(c.author?.accountId)) return fail('context_author_denied');\n      let s;\n      try { s = JSON.parse(body.slice(MARKER.length + 1)); } catch { return fail('context_invalid'); }\n      validateSnapshot(s, b);\n      const value = canonical(s);\n      for (const [key, map] of [[s.event_id, events], [s.revision, revisions]]) {\n        if (map.has(key) && map.get(key) !== value) return fail('context_conflict');\n        map.set(key, value);\n      }\n      if (requestId === null || s.request_id === requestId) candidates.push(s);\n    }\n    if (!candidates.length) return fail('context_missing');\n    return candidates.reduce((a, b) => a.revision >= b.revision ? a : b);\n  }\n  function buildSnapshot(b, requestId, phase, revision, support, facts) {\n    const s = {schema_version: 1, ...b, request_id: requestId, phase, revision, support, facts};\n    s.event_id = eventId(s);\n    return validateSnapshot(s, b);\n  }\n  function readPages(pages) {\n    const comments = [];\n    let expected = 0, total = null;\n    for (const page of pages) {\n      if (!object(page) || !Number.isInteger(page.total) || !Number.isInteger(page.startAt)\n          || !Array.isArray(page.comments) || page.startAt !== expected\n          || (total !== null && total !== page.total) || page.total < 0) return fail('context_incomplete');\n      total = page.total;\n      comments.push(...page.comments);\n      expected += page.comments.length;\n    }\n    if (total === null || expected !== total) return fail('context_incomplete');\n    return comments;\n  }\n  return {MARKER, canonical, digest, caseLabel, eventId, jiraText, validateFacts,\n    validateSnapshot, validateIssue, selectSnapshot, buildSnapshot, readPages};\n}\n\nconst CC = caseContextLibrary();\n// END shared case-context library\n\nconst authors = (() => { try { return JSON.parse('__JIRA_CONTEXT_AUTHORS_JSON__'); } catch { return []; } })();\nconst remaining = deadline => Date.parse(deadline) - Date.now();\nconst bindingFor = (r, key) => ({scope:r.state_ref.scope, owner_id:r.state_ref.owner_id,\n  case_id:r.case_id, first_request_id:r.first_request_id, ticket_key:key});\nconst pages = () => CC.readPages($input.all().map(x => {\n  if (x.json.statusCode !== 200) throw new Error('context_read_failed');\n  return x.json.body;\n}));\nconst select = (comments,b,requestId=null) => CC.selectSnapshot(comments,b,authors,requestId);\nconst mask = v => typeof v === 'string' ? v.replace(/\\b0\\d{1,2}[-. ]?\\d{3,4}[-. ]?\\d{4}\\b/g,'***-****-****').replace(/[\\w.+-]+@[\\w-]+\\.[\\w.-]+/g,'***@***')\n  : Array.isArray(v) ? v.map(mask) : v && typeof v === 'object' ? Object.fromEntries(Object.entries(v).map(([k,x])=>[k,mask(x)])) : v;\nconst commentPath = key => '/rest/api/2/issue/'+encodeURIComponent(key)+'/comment';\n\nconst p=$('H59 저장 문맥 재조회 준비').first().json,ctx=p.ctx;\n\nconst fail = reason => {ctx.error_code='partial_effect'; ctx.effects.context_saved={status:'unknown',id:ctx.ticket.key,error_code:reason};\nctx.recovery={version:1,mode:'jira_ref',action:'context_update',args:null,reference:{jira_issue_id:ctx.ticket.id,case_id:ctx.request.case_id,owner_id:ctx.state_ref.owner_id},reason};\nreturn [{json:{route:'done',ctx}}];};\n\ntry {if(remaining(p.deadline_at)<500)return fail('deadline_exceeded');\nconst actual=select(pages(),bindingFor(ctx.request,ctx.ticket.key),ctx.request.request_id);\nif(CC.canonical(actual)!==CC.canonical(p.snapshot))return fail('context_not_saved');\nctx.snapshot=actual;ctx.effects.context_saved={status:'confirmed',id:ctx.ticket.key};return [{json:{route:ctx.request.action,ctx}}];\n}catch(e){return fail(e.message);}\n"
+      },
+      "position": [
+        480,
+        1120
+      ]
+    },
+    {
+      "name": "H70 외부 쓰기 마감 검사 H05",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "parameters": {
+        "jsCode": "// BEGIN shared case-context library\n// Canonical n8n Code library. build_case_context_nodes.py embeds this function\n// into exported workflows; no runtime filesystem/require permission is needed.\nfunction caseContextLibrary() {\n  const MARKER = '[dubakwi-case-context:v1]';\n  const object = v => !!v && typeof v === 'object' && !Array.isArray(v);\n  const text = v => typeof v === 'string' && v.length > 0;\n  const fail = code => { throw new Error(code); };\n  const sorted = v => Array.isArray(v) ? v.map(sorted) : object(v)\n    ? Object.fromEntries(Object.keys(v).sort().map(k => [k, sorted(v[k])])) : v;\n  const canonical = v => JSON.stringify(sorted(v));\n  // SHA256 is embedded below by the source generator, with Unicode parity tests.\n  const sha256hex = (text) => {\n  const rr = (v, a) => (v >>> a) | (v << (32 - a));\n  const maxWord = Math.pow(2, 32);\n  const bytes = encodeURIComponent(String(text)).replace(/%([0-9A-F]{2})/g, (_, h) => String.fromCharCode(parseInt(h, 16)));\n  const bitLength = bytes.length * 8;\n  let hash = [];\n  const k = [];\n  let primes = 0;\n  const composite = {};\n  for (let c = 2; primes < 64; c++) {\n    if (!composite[c]) {\n      for (let i = 0; i < 313; i += c) composite[i] = c;\n      hash[primes] = (Math.pow(c, 0.5) * maxWord) | 0;\n      k[primes++] = (Math.pow(c, 1 / 3) * maxWord) | 0;\n    }\n  }\n  let s = bytes + '\\x80';\n  while (s.length % 64 - 56) s += '\\x00';\n  const words = [];\n  for (let i = 0; i < s.length; i++) words[i >> 2] |= s.charCodeAt(i) << ((3 - i) % 4) * 8;\n  words[words.length] = (bitLength / maxWord) | 0;\n  words[words.length] = bitLength;\n  for (let j = 0; j < words.length;) {\n    const w = words.slice(j, j += 16);\n    const old = hash;\n    hash = hash.slice(0, 8);\n    for (let i = 0; i < 64; i++) {\n      const w15 = w[i - 15];\n      const w2 = w[i - 2];\n      const a = hash[0];\n      const e = hash[4];\n      const t1 = hash[7] + (rr(e, 6) ^ rr(e, 11) ^ rr(e, 25)) + ((e & hash[5]) ^ (~e & hash[6])) + k[i] + (w[i] = (i < 16) ? w[i] : (w[i - 16] + (rr(w15, 7) ^ rr(w15, 18) ^ (w15 >>> 3)) + w[i - 7] + (rr(w2, 17) ^ rr(w2, 19) ^ (w2 >>> 10))) | 0);\n      const t2 = (rr(a, 2) ^ rr(a, 13) ^ rr(a, 22)) + ((a & hash[1]) ^ (a & hash[2]) ^ (hash[1] & hash[2]));\n      hash = [(t1 + t2) | 0].concat(hash);\n      hash[4] = (hash[4] + t1) | 0;\n    }\n    for (let i = 0; i < 8; i++) hash[i] = (hash[i] + old[i]) | 0;\n  }\n  let out = '';\n  for (let i = 0; i < 8; i++) for (let j = 3; j + 1; j--) { const b = (hash[i] >> (j * 8)) & 255; out += (b < 16 ? '0' : '') + b.toString(16); }\n  return out;\n};\n\n  const digest = value => sha256hex(JSON.stringify(value));\n  const caseLabel = b => 'dubakwi-' + digest([b.scope, b.owner_id, b.first_request_id]).slice(0, 40);\n  const eventId = s => digest([s.scope, s.case_id, s.request_id, s.phase]);\n  function jiraText(value) {\n    if (typeof value === 'string') return value;\n    if (!object(value)) return fail('context_invalid');\n    if (value.type === 'text') return typeof value.text === 'string' ? value.text : fail('context_invalid');\n    if (value.type === 'hardBreak') return '\\n';\n    if (!['doc', 'paragraph', 'codeBlock', 'bulletList', 'orderedList', 'listItem'].includes(value.type)\n        || !Array.isArray(value.content ?? [])) return fail('context_invalid');\n    return (value.content ?? []).map(jiraText).join(['doc', 'bulletList', 'orderedList', 'listItem'].includes(value.type) ? '\\n' : '');\n  }\n  function validateFacts(f) {\n    if (!object(f) || typeof f.summary !== 'string') return fail('context_invalid');\n    for (const k of ['reported', 'confirmed']) {\n      if (!Array.isArray(f[k])) return fail('context_invalid');\n      for (const x of f[k]) {\n        if (!object(x) || !text(x.key) || typeof x.value !== 'string'\n            || !['user', 'document', 'api'].includes(x.origin)\n            || ('reference' in x && typeof x.reference !== 'string')\n            || (k === 'confirmed' && x.origin === 'user')) return fail('context_invalid');\n      }\n    }\n    for (const k of ['attempted_actions', 'missing', 'uncertainties']) {\n      if (!Array.isArray(f[k]) || !f[k].every(x => typeof x === 'string')) return fail('context_invalid');\n    }\n    if (!Array.isArray(f.evidence_refs) || !f.evidence_refs.every(x => object(x) && text(x.doc)\n        && text(x.section) && typeof x.score === 'number' && Number.isFinite(x.score)\n        )) return fail('context_invalid');\n    if (/\\b0\\d{1,2}[-. ]?\\d{3,4}[-. ]?\\d{4}\\b|[\\w.+-]+@[\\w-]+\\.[\\w.-]+/.test(JSON.stringify(f))) return fail('context_unmasked');\n  }\n  function validateSnapshot(s, b) {\n    if (!object(s) || s.schema_version !== 1) return fail('context_invalid');\n    for (const k of ['scope', 'case_id', 'owner_id', 'first_request_id', 'ticket_key']) {\n      if (!text(b[k]) || s[k] !== b[k]) return fail('context_not_linked');\n    }\n    if (!Number.isInteger(s.revision) || s.revision < 1 || !text(s.request_id) || s.request_id.length > 64\n        || !['wait', 'handoff', 'close', 'followup', 'save'].includes(s.phase) || s.event_id !== eventId(s)) return fail('context_invalid');\n    const p = s.support;\n    if (!object(p) || p.version !== null) return fail('context_invalid');\n    for (const k of ['case_id', 'owner_id', 'first_request_id']) if (p[k] !== b[k]) return fail('context_not_linked');\n    if (p.ticket_id !== b.ticket_key || !Number.isInteger(p.attempt) || p.attempt < 1\n        || !['received', 'waiting_info', 'handed_off', 'closed_guidance', 'closed_rejected'].includes(p.status)\n        || ![null, 'support', 'security'].includes(p.assignee_role ?? null)\n        || ![null, 'normal', 'high'].includes(p.priority ?? null)\n        || (p.status === 'handed_off' && (!p.assignee_role || !p.priority))) return fail('context_invalid');\n    validateFacts(s.facts);\n    if (encodeURIComponent(JSON.stringify(s)).replace(/%[A-F0-9]{2}|./g, 'x').length > 16000) return fail('context_too_large');\n    return s;\n  }\n  function validateIssue(issue, b) {\n    const f = issue?.fields ?? {};\n    const lines = jiraText(f.description ?? '').split(/\\r?\\n/);\n    if (!/^JBYS-[0-9]+$/.test(issue?.key ?? '') || issue.key !== b.ticket_key\n        || !Array.isArray(f.labels) || !f.labels.includes(caseLabel(b))\n        || !lines.includes('case_id: ' + b.case_id)\n        || !lines.includes('first_request_id: ' + b.first_request_id)) return fail('context_not_linked');\n  }\n  function selectSnapshot(comments, b, authors, requestId = null) {\n    if (!Array.isArray(authors) || !authors.length) return fail('context_author_unconfigured');\n    const events = new Map(), revisions = new Map(), candidates = [];\n    for (const c of comments) {\n      const body = jiraText(c.body ?? '');\n      if (!body.startsWith(MARKER + '\\n')) continue;\n      if (!authors.includes(c.author?.accountId)) return fail('context_author_denied');\n      let s;\n      try { s = JSON.parse(body.slice(MARKER.length + 1)); } catch { return fail('context_invalid'); }\n      validateSnapshot(s, b);\n      const value = canonical(s);\n      for (const [key, map] of [[s.event_id, events], [s.revision, revisions]]) {\n        if (map.has(key) && map.get(key) !== value) return fail('context_conflict');\n        map.set(key, value);\n      }\n      if (requestId === null || s.request_id === requestId) candidates.push(s);\n    }\n    if (!candidates.length) return fail('context_missing');\n    return candidates.reduce((a, b) => a.revision >= b.revision ? a : b);\n  }\n  function buildSnapshot(b, requestId, phase, revision, support, facts) {\n    const s = {schema_version: 1, ...b, request_id: requestId, phase, revision, support, facts};\n    s.event_id = eventId(s);\n    return validateSnapshot(s, b);\n  }\n  function readPages(pages) {\n    const comments = [];\n    let expected = 0, total = null;\n    for (const page of pages) {\n      if (!object(page) || !Number.isInteger(page.total) || !Number.isInteger(page.startAt)\n          || !Array.isArray(page.comments) || page.startAt !== expected\n          || (total !== null && total !== page.total) || page.total < 0) return fail('context_incomplete');\n      total = page.total;\n      comments.push(...page.comments);\n      expected += page.comments.length;\n    }\n    if (total === null || expected !== total) return fail('context_incomplete');\n    return comments;\n  }\n  return {MARKER, canonical, digest, caseLabel, eventId, jiraText, validateFacts,\n    validateSnapshot, validateIssue, selectSnapshot, buildSnapshot, readPages};\n}\n\nconst CC = caseContextLibrary();\n// END shared case-context library\n\nconst authors = (() => { try { return JSON.parse('__JIRA_CONTEXT_AUTHORS_JSON__'); } catch { return []; } })();\nconst remaining = deadline => Date.parse(deadline) - Date.now();\nconst bindingFor = (r, key) => ({scope:r.state_ref.scope, owner_id:r.state_ref.owner_id,\n  case_id:r.case_id, first_request_id:r.first_request_id, ticket_key:key});\nconst pages = () => CC.readPages($input.all().map(x => {\n  if (x.json.statusCode !== 200) throw new Error('context_read_failed');\n  return x.json.body;\n}));\nconst select = (comments,b,requestId=null) => CC.selectSnapshot(comments,b,authors,requestId);\nconst mask = v => typeof v === 'string' ? v.replace(/\\b0\\d{1,2}[-. ]?\\d{3,4}[-. ]?\\d{4}\\b/g,'***-****-****').replace(/[\\w.+-]+@[\\w-]+\\.[\\w.-]+/g,'***@***')\n  : Array.isArray(v) ? v.map(mask) : v && typeof v === 'object' ? Object.fromEntries(Object.entries(v).map(([k,x])=>[k,mask(x)])) : v;\nconst commentPath = key => '/rest/api/2/issue/'+encodeURIComponent(key)+'/comment';\nconst ctx=$json.ctx;const deadline=ctx.request.deadline_at??ctx.deadline_at;if(deadline && remaining(deadline)<4000){ctx.error_code=ctx.ticket?'partial_effect':'tickets_down';if(!ctx.ticket)ctx.effects.created_or_reused={status:'failed',error_code:'deadline_exceeded'};ctx.recovery={version:1,mode:'manual_required',action:'inspect_only',args:null,reference:null,reason:'deadline_exceeded'};return [{json:{route:'done',ctx}}];}return [{json:{...$json,route:'allowed'}}];"
+      },
+      "position": [
+        1040,
+        1120
+      ]
+    },
+    {
+      "name": "H71 외부 쓰기 허용 H05",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "parameters": {
+        "conditions": {
+          "options": {
+            "version": 2,
+            "caseSensitive": true,
+            "leftValue": ""
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "h71",
+              "leftValue": "={{ $json.route === 'allowed' }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "position": [
+        1320,
+        1120
+      ]
+    },
+    {
+      "name": "H72 외부 쓰기 마감 검사 H08",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "parameters": {
+        "jsCode": "// BEGIN shared case-context library\n// Canonical n8n Code library. build_case_context_nodes.py embeds this function\n// into exported workflows; no runtime filesystem/require permission is needed.\nfunction caseContextLibrary() {\n  const MARKER = '[dubakwi-case-context:v1]';\n  const object = v => !!v && typeof v === 'object' && !Array.isArray(v);\n  const text = v => typeof v === 'string' && v.length > 0;\n  const fail = code => { throw new Error(code); };\n  const sorted = v => Array.isArray(v) ? v.map(sorted) : object(v)\n    ? Object.fromEntries(Object.keys(v).sort().map(k => [k, sorted(v[k])])) : v;\n  const canonical = v => JSON.stringify(sorted(v));\n  // SHA256 is embedded below by the source generator, with Unicode parity tests.\n  const sha256hex = (text) => {\n  const rr = (v, a) => (v >>> a) | (v << (32 - a));\n  const maxWord = Math.pow(2, 32);\n  const bytes = encodeURIComponent(String(text)).replace(/%([0-9A-F]{2})/g, (_, h) => String.fromCharCode(parseInt(h, 16)));\n  const bitLength = bytes.length * 8;\n  let hash = [];\n  const k = [];\n  let primes = 0;\n  const composite = {};\n  for (let c = 2; primes < 64; c++) {\n    if (!composite[c]) {\n      for (let i = 0; i < 313; i += c) composite[i] = c;\n      hash[primes] = (Math.pow(c, 0.5) * maxWord) | 0;\n      k[primes++] = (Math.pow(c, 1 / 3) * maxWord) | 0;\n    }\n  }\n  let s = bytes + '\\x80';\n  while (s.length % 64 - 56) s += '\\x00';\n  const words = [];\n  for (let i = 0; i < s.length; i++) words[i >> 2] |= s.charCodeAt(i) << ((3 - i) % 4) * 8;\n  words[words.length] = (bitLength / maxWord) | 0;\n  words[words.length] = bitLength;\n  for (let j = 0; j < words.length;) {\n    const w = words.slice(j, j += 16);\n    const old = hash;\n    hash = hash.slice(0, 8);\n    for (let i = 0; i < 64; i++) {\n      const w15 = w[i - 15];\n      const w2 = w[i - 2];\n      const a = hash[0];\n      const e = hash[4];\n      const t1 = hash[7] + (rr(e, 6) ^ rr(e, 11) ^ rr(e, 25)) + ((e & hash[5]) ^ (~e & hash[6])) + k[i] + (w[i] = (i < 16) ? w[i] : (w[i - 16] + (rr(w15, 7) ^ rr(w15, 18) ^ (w15 >>> 3)) + w[i - 7] + (rr(w2, 17) ^ rr(w2, 19) ^ (w2 >>> 10))) | 0);\n      const t2 = (rr(a, 2) ^ rr(a, 13) ^ rr(a, 22)) + ((a & hash[1]) ^ (a & hash[2]) ^ (hash[1] & hash[2]));\n      hash = [(t1 + t2) | 0].concat(hash);\n      hash[4] = (hash[4] + t1) | 0;\n    }\n    for (let i = 0; i < 8; i++) hash[i] = (hash[i] + old[i]) | 0;\n  }\n  let out = '';\n  for (let i = 0; i < 8; i++) for (let j = 3; j + 1; j--) { const b = (hash[i] >> (j * 8)) & 255; out += (b < 16 ? '0' : '') + b.toString(16); }\n  return out;\n};\n\n  const digest = value => sha256hex(JSON.stringify(value));\n  const caseLabel = b => 'dubakwi-' + digest([b.scope, b.owner_id, b.first_request_id]).slice(0, 40);\n  const eventId = s => digest([s.scope, s.case_id, s.request_id, s.phase]);\n  function jiraText(value) {\n    if (typeof value === 'string') return value;\n    if (!object(value)) return fail('context_invalid');\n    if (value.type === 'text') return typeof value.text === 'string' ? value.text : fail('context_invalid');\n    if (value.type === 'hardBreak') return '\\n';\n    if (!['doc', 'paragraph', 'codeBlock', 'bulletList', 'orderedList', 'listItem'].includes(value.type)\n        || !Array.isArray(value.content ?? [])) return fail('context_invalid');\n    return (value.content ?? []).map(jiraText).join(['doc', 'bulletList', 'orderedList', 'listItem'].includes(value.type) ? '\\n' : '');\n  }\n  function validateFacts(f) {\n    if (!object(f) || typeof f.summary !== 'string') return fail('context_invalid');\n    for (const k of ['reported', 'confirmed']) {\n      if (!Array.isArray(f[k])) return fail('context_invalid');\n      for (const x of f[k]) {\n        if (!object(x) || !text(x.key) || typeof x.value !== 'string'\n            || !['user', 'document', 'api'].includes(x.origin)\n            || ('reference' in x && typeof x.reference !== 'string')\n            || (k === 'confirmed' && x.origin === 'user')) return fail('context_invalid');\n      }\n    }\n    for (const k of ['attempted_actions', 'missing', 'uncertainties']) {\n      if (!Array.isArray(f[k]) || !f[k].every(x => typeof x === 'string')) return fail('context_invalid');\n    }\n    if (!Array.isArray(f.evidence_refs) || !f.evidence_refs.every(x => object(x) && text(x.doc)\n        && text(x.section) && typeof x.score === 'number' && Number.isFinite(x.score)\n        )) return fail('context_invalid');\n    if (/\\b0\\d{1,2}[-. ]?\\d{3,4}[-. ]?\\d{4}\\b|[\\w.+-]+@[\\w-]+\\.[\\w.-]+/.test(JSON.stringify(f))) return fail('context_unmasked');\n  }\n  function validateSnapshot(s, b) {\n    if (!object(s) || s.schema_version !== 1) return fail('context_invalid');\n    for (const k of ['scope', 'case_id', 'owner_id', 'first_request_id', 'ticket_key']) {\n      if (!text(b[k]) || s[k] !== b[k]) return fail('context_not_linked');\n    }\n    if (!Number.isInteger(s.revision) || s.revision < 1 || !text(s.request_id) || s.request_id.length > 64\n        || !['wait', 'handoff', 'close', 'followup', 'save'].includes(s.phase) || s.event_id !== eventId(s)) return fail('context_invalid');\n    const p = s.support;\n    if (!object(p) || p.version !== null) return fail('context_invalid');\n    for (const k of ['case_id', 'owner_id', 'first_request_id']) if (p[k] !== b[k]) return fail('context_not_linked');\n    if (p.ticket_id !== b.ticket_key || !Number.isInteger(p.attempt) || p.attempt < 1\n        || !['received', 'waiting_info', 'handed_off', 'closed_guidance', 'closed_rejected'].includes(p.status)\n        || ![null, 'support', 'security'].includes(p.assignee_role ?? null)\n        || ![null, 'normal', 'high'].includes(p.priority ?? null)\n        || (p.status === 'handed_off' && (!p.assignee_role || !p.priority))) return fail('context_invalid');\n    validateFacts(s.facts);\n    if (encodeURIComponent(JSON.stringify(s)).replace(/%[A-F0-9]{2}|./g, 'x').length > 16000) return fail('context_too_large');\n    return s;\n  }\n  function validateIssue(issue, b) {\n    const f = issue?.fields ?? {};\n    const lines = jiraText(f.description ?? '').split(/\\r?\\n/);\n    if (!/^JBYS-[0-9]+$/.test(issue?.key ?? '') || issue.key !== b.ticket_key\n        || !Array.isArray(f.labels) || !f.labels.includes(caseLabel(b))\n        || !lines.includes('case_id: ' + b.case_id)\n        || !lines.includes('first_request_id: ' + b.first_request_id)) return fail('context_not_linked');\n  }\n  function selectSnapshot(comments, b, authors, requestId = null) {\n    if (!Array.isArray(authors) || !authors.length) return fail('context_author_unconfigured');\n    const events = new Map(), revisions = new Map(), candidates = [];\n    for (const c of comments) {\n      const body = jiraText(c.body ?? '');\n      if (!body.startsWith(MARKER + '\\n')) continue;\n      if (!authors.includes(c.author?.accountId)) return fail('context_author_denied');\n      let s;\n      try { s = JSON.parse(body.slice(MARKER.length + 1)); } catch { return fail('context_invalid'); }\n      validateSnapshot(s, b);\n      const value = canonical(s);\n      for (const [key, map] of [[s.event_id, events], [s.revision, revisions]]) {\n        if (map.has(key) && map.get(key) !== value) return fail('context_conflict');\n        map.set(key, value);\n      }\n      if (requestId === null || s.request_id === requestId) candidates.push(s);\n    }\n    if (!candidates.length) return fail('context_missing');\n    return candidates.reduce((a, b) => a.revision >= b.revision ? a : b);\n  }\n  function buildSnapshot(b, requestId, phase, revision, support, facts) {\n    const s = {schema_version: 1, ...b, request_id: requestId, phase, revision, support, facts};\n    s.event_id = eventId(s);\n    return validateSnapshot(s, b);\n  }\n  function readPages(pages) {\n    const comments = [];\n    let expected = 0, total = null;\n    for (const page of pages) {\n      if (!object(page) || !Number.isInteger(page.total) || !Number.isInteger(page.startAt)\n          || !Array.isArray(page.comments) || page.startAt !== expected\n          || (total !== null && total !== page.total) || page.total < 0) return fail('context_incomplete');\n      total = page.total;\n      comments.push(...page.comments);\n      expected += page.comments.length;\n    }\n    if (total === null || expected !== total) return fail('context_incomplete');\n    return comments;\n  }\n  return {MARKER, canonical, digest, caseLabel, eventId, jiraText, validateFacts,\n    validateSnapshot, validateIssue, selectSnapshot, buildSnapshot, readPages};\n}\n\nconst CC = caseContextLibrary();\n// END shared case-context library\n\nconst authors = (() => { try { return JSON.parse('__JIRA_CONTEXT_AUTHORS_JSON__'); } catch { return []; } })();\nconst remaining = deadline => Date.parse(deadline) - Date.now();\nconst bindingFor = (r, key) => ({scope:r.state_ref.scope, owner_id:r.state_ref.owner_id,\n  case_id:r.case_id, first_request_id:r.first_request_id, ticket_key:key});\nconst pages = () => CC.readPages($input.all().map(x => {\n  if (x.json.statusCode !== 200) throw new Error('context_read_failed');\n  return x.json.body;\n}));\nconst select = (comments,b,requestId=null) => CC.selectSnapshot(comments,b,authors,requestId);\nconst mask = v => typeof v === 'string' ? v.replace(/\\b0\\d{1,2}[-. ]?\\d{3,4}[-. ]?\\d{4}\\b/g,'***-****-****').replace(/[\\w.+-]+@[\\w-]+\\.[\\w.-]+/g,'***@***')\n  : Array.isArray(v) ? v.map(mask) : v && typeof v === 'object' ? Object.fromEntries(Object.entries(v).map(([k,x])=>[k,mask(x)])) : v;\nconst commentPath = key => '/rest/api/2/issue/'+encodeURIComponent(key)+'/comment';\nconst ctx=$json.ctx;const deadline=ctx.request.deadline_at??ctx.deadline_at;if(deadline && remaining(deadline)<4000){ctx.error_code=ctx.ticket?'partial_effect':'tickets_down';if(!ctx.ticket)ctx.effects.created_or_reused={status:'failed',error_code:'deadline_exceeded'};ctx.recovery={version:1,mode:'manual_required',action:'inspect_only',args:null,reference:null,reason:'deadline_exceeded'};return [{json:{route:'done',ctx}}];}return [{json:{...$json,route:'allowed'}}];"
+      },
+      "position": [
+        1600,
+        1120
+      ]
+    },
+    {
+      "name": "H73 외부 쓰기 허용 H08",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "parameters": {
+        "conditions": {
+          "options": {
+            "version": 2,
+            "caseSensitive": true,
+            "leftValue": ""
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "h73",
+              "leftValue": "={{ $json.route === 'allowed' }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "position": [
+        1880,
+        1120
+      ]
+    },
+    {
+      "name": "H74 외부 쓰기 마감 검사 H09",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "parameters": {
+        "jsCode": "// BEGIN shared case-context library\n// Canonical n8n Code library. build_case_context_nodes.py embeds this function\n// into exported workflows; no runtime filesystem/require permission is needed.\nfunction caseContextLibrary() {\n  const MARKER = '[dubakwi-case-context:v1]';\n  const object = v => !!v && typeof v === 'object' && !Array.isArray(v);\n  const text = v => typeof v === 'string' && v.length > 0;\n  const fail = code => { throw new Error(code); };\n  const sorted = v => Array.isArray(v) ? v.map(sorted) : object(v)\n    ? Object.fromEntries(Object.keys(v).sort().map(k => [k, sorted(v[k])])) : v;\n  const canonical = v => JSON.stringify(sorted(v));\n  // SHA256 is embedded below by the source generator, with Unicode parity tests.\n  const sha256hex = (text) => {\n  const rr = (v, a) => (v >>> a) | (v << (32 - a));\n  const maxWord = Math.pow(2, 32);\n  const bytes = encodeURIComponent(String(text)).replace(/%([0-9A-F]{2})/g, (_, h) => String.fromCharCode(parseInt(h, 16)));\n  const bitLength = bytes.length * 8;\n  let hash = [];\n  const k = [];\n  let primes = 0;\n  const composite = {};\n  for (let c = 2; primes < 64; c++) {\n    if (!composite[c]) {\n      for (let i = 0; i < 313; i += c) composite[i] = c;\n      hash[primes] = (Math.pow(c, 0.5) * maxWord) | 0;\n      k[primes++] = (Math.pow(c, 1 / 3) * maxWord) | 0;\n    }\n  }\n  let s = bytes + '\\x80';\n  while (s.length % 64 - 56) s += '\\x00';\n  const words = [];\n  for (let i = 0; i < s.length; i++) words[i >> 2] |= s.charCodeAt(i) << ((3 - i) % 4) * 8;\n  words[words.length] = (bitLength / maxWord) | 0;\n  words[words.length] = bitLength;\n  for (let j = 0; j < words.length;) {\n    const w = words.slice(j, j += 16);\n    const old = hash;\n    hash = hash.slice(0, 8);\n    for (let i = 0; i < 64; i++) {\n      const w15 = w[i - 15];\n      const w2 = w[i - 2];\n      const a = hash[0];\n      const e = hash[4];\n      const t1 = hash[7] + (rr(e, 6) ^ rr(e, 11) ^ rr(e, 25)) + ((e & hash[5]) ^ (~e & hash[6])) + k[i] + (w[i] = (i < 16) ? w[i] : (w[i - 16] + (rr(w15, 7) ^ rr(w15, 18) ^ (w15 >>> 3)) + w[i - 7] + (rr(w2, 17) ^ rr(w2, 19) ^ (w2 >>> 10))) | 0);\n      const t2 = (rr(a, 2) ^ rr(a, 13) ^ rr(a, 22)) + ((a & hash[1]) ^ (a & hash[2]) ^ (hash[1] & hash[2]));\n      hash = [(t1 + t2) | 0].concat(hash);\n      hash[4] = (hash[4] + t1) | 0;\n    }\n    for (let i = 0; i < 8; i++) hash[i] = (hash[i] + old[i]) | 0;\n  }\n  let out = '';\n  for (let i = 0; i < 8; i++) for (let j = 3; j + 1; j--) { const b = (hash[i] >> (j * 8)) & 255; out += (b < 16 ? '0' : '') + b.toString(16); }\n  return out;\n};\n\n  const digest = value => sha256hex(JSON.stringify(value));\n  const caseLabel = b => 'dubakwi-' + digest([b.scope, b.owner_id, b.first_request_id]).slice(0, 40);\n  const eventId = s => digest([s.scope, s.case_id, s.request_id, s.phase]);\n  function jiraText(value) {\n    if (typeof value === 'string') return value;\n    if (!object(value)) return fail('context_invalid');\n    if (value.type === 'text') return typeof value.text === 'string' ? value.text : fail('context_invalid');\n    if (value.type === 'hardBreak') return '\\n';\n    if (!['doc', 'paragraph', 'codeBlock', 'bulletList', 'orderedList', 'listItem'].includes(value.type)\n        || !Array.isArray(value.content ?? [])) return fail('context_invalid');\n    return (value.content ?? []).map(jiraText).join(['doc', 'bulletList', 'orderedList', 'listItem'].includes(value.type) ? '\\n' : '');\n  }\n  function validateFacts(f) {\n    if (!object(f) || typeof f.summary !== 'string') return fail('context_invalid');\n    for (const k of ['reported', 'confirmed']) {\n      if (!Array.isArray(f[k])) return fail('context_invalid');\n      for (const x of f[k]) {\n        if (!object(x) || !text(x.key) || typeof x.value !== 'string'\n            || !['user', 'document', 'api'].includes(x.origin)\n            || ('reference' in x && typeof x.reference !== 'string')\n            || (k === 'confirmed' && x.origin === 'user')) return fail('context_invalid');\n      }\n    }\n    for (const k of ['attempted_actions', 'missing', 'uncertainties']) {\n      if (!Array.isArray(f[k]) || !f[k].every(x => typeof x === 'string')) return fail('context_invalid');\n    }\n    if (!Array.isArray(f.evidence_refs) || !f.evidence_refs.every(x => object(x) && text(x.doc)\n        && text(x.section) && typeof x.score === 'number' && Number.isFinite(x.score)\n        )) return fail('context_invalid');\n    if (/\\b0\\d{1,2}[-. ]?\\d{3,4}[-. ]?\\d{4}\\b|[\\w.+-]+@[\\w-]+\\.[\\w.-]+/.test(JSON.stringify(f))) return fail('context_unmasked');\n  }\n  function validateSnapshot(s, b) {\n    if (!object(s) || s.schema_version !== 1) return fail('context_invalid');\n    for (const k of ['scope', 'case_id', 'owner_id', 'first_request_id', 'ticket_key']) {\n      if (!text(b[k]) || s[k] !== b[k]) return fail('context_not_linked');\n    }\n    if (!Number.isInteger(s.revision) || s.revision < 1 || !text(s.request_id) || s.request_id.length > 64\n        || !['wait', 'handoff', 'close', 'followup', 'save'].includes(s.phase) || s.event_id !== eventId(s)) return fail('context_invalid');\n    const p = s.support;\n    if (!object(p) || p.version !== null) return fail('context_invalid');\n    for (const k of ['case_id', 'owner_id', 'first_request_id']) if (p[k] !== b[k]) return fail('context_not_linked');\n    if (p.ticket_id !== b.ticket_key || !Number.isInteger(p.attempt) || p.attempt < 1\n        || !['received', 'waiting_info', 'handed_off', 'closed_guidance', 'closed_rejected'].includes(p.status)\n        || ![null, 'support', 'security'].includes(p.assignee_role ?? null)\n        || ![null, 'normal', 'high'].includes(p.priority ?? null)\n        || (p.status === 'handed_off' && (!p.assignee_role || !p.priority))) return fail('context_invalid');\n    validateFacts(s.facts);\n    if (encodeURIComponent(JSON.stringify(s)).replace(/%[A-F0-9]{2}|./g, 'x').length > 16000) return fail('context_too_large');\n    return s;\n  }\n  function validateIssue(issue, b) {\n    const f = issue?.fields ?? {};\n    const lines = jiraText(f.description ?? '').split(/\\r?\\n/);\n    if (!/^JBYS-[0-9]+$/.test(issue?.key ?? '') || issue.key !== b.ticket_key\n        || !Array.isArray(f.labels) || !f.labels.includes(caseLabel(b))\n        || !lines.includes('case_id: ' + b.case_id)\n        || !lines.includes('first_request_id: ' + b.first_request_id)) return fail('context_not_linked');\n  }\n  function selectSnapshot(comments, b, authors, requestId = null) {\n    if (!Array.isArray(authors) || !authors.length) return fail('context_author_unconfigured');\n    const events = new Map(), revisions = new Map(), candidates = [];\n    for (const c of comments) {\n      const body = jiraText(c.body ?? '');\n      if (!body.startsWith(MARKER + '\\n')) continue;\n      if (!authors.includes(c.author?.accountId)) return fail('context_author_denied');\n      let s;\n      try { s = JSON.parse(body.slice(MARKER.length + 1)); } catch { return fail('context_invalid'); }\n      validateSnapshot(s, b);\n      const value = canonical(s);\n      for (const [key, map] of [[s.event_id, events], [s.revision, revisions]]) {\n        if (map.has(key) && map.get(key) !== value) return fail('context_conflict');\n        map.set(key, value);\n      }\n      if (requestId === null || s.request_id === requestId) candidates.push(s);\n    }\n    if (!candidates.length) return fail('context_missing');\n    return candidates.reduce((a, b) => a.revision >= b.revision ? a : b);\n  }\n  function buildSnapshot(b, requestId, phase, revision, support, facts) {\n    const s = {schema_version: 1, ...b, request_id: requestId, phase, revision, support, facts};\n    s.event_id = eventId(s);\n    return validateSnapshot(s, b);\n  }\n  function readPages(pages) {\n    const comments = [];\n    let expected = 0, total = null;\n    for (const page of pages) {\n      if (!object(page) || !Number.isInteger(page.total) || !Number.isInteger(page.startAt)\n          || !Array.isArray(page.comments) || page.startAt !== expected\n          || (total !== null && total !== page.total) || page.total < 0) return fail('context_incomplete');\n      total = page.total;\n      comments.push(...page.comments);\n      expected += page.comments.length;\n    }\n    if (total === null || expected !== total) return fail('context_incomplete');\n    return comments;\n  }\n  return {MARKER, canonical, digest, caseLabel, eventId, jiraText, validateFacts,\n    validateSnapshot, validateIssue, selectSnapshot, buildSnapshot, readPages};\n}\n\nconst CC = caseContextLibrary();\n// END shared case-context library\n\nconst authors = (() => { try { return JSON.parse('__JIRA_CONTEXT_AUTHORS_JSON__'); } catch { return []; } })();\nconst remaining = deadline => Date.parse(deadline) - Date.now();\nconst bindingFor = (r, key) => ({scope:r.state_ref.scope, owner_id:r.state_ref.owner_id,\n  case_id:r.case_id, first_request_id:r.first_request_id, ticket_key:key});\nconst pages = () => CC.readPages($input.all().map(x => {\n  if (x.json.statusCode !== 200) throw new Error('context_read_failed');\n  return x.json.body;\n}));\nconst select = (comments,b,requestId=null) => CC.selectSnapshot(comments,b,authors,requestId);\nconst mask = v => typeof v === 'string' ? v.replace(/\\b0\\d{1,2}[-. ]?\\d{3,4}[-. ]?\\d{4}\\b/g,'***-****-****').replace(/[\\w.+-]+@[\\w-]+\\.[\\w.-]+/g,'***@***')\n  : Array.isArray(v) ? v.map(mask) : v && typeof v === 'object' ? Object.fromEntries(Object.entries(v).map(([k,x])=>[k,mask(x)])) : v;\nconst commentPath = key => '/rest/api/2/issue/'+encodeURIComponent(key)+'/comment';\nconst ctx=$json.ctx;const deadline=ctx.request.deadline_at??ctx.deadline_at;if(deadline && remaining(deadline)<4000){ctx.error_code=ctx.ticket?'partial_effect':'tickets_down';if(!ctx.ticket)ctx.effects.created_or_reused={status:'failed',error_code:'deadline_exceeded'};ctx.recovery={version:1,mode:'manual_required',action:'inspect_only',args:null,reference:null,reason:'deadline_exceeded'};return [{json:{route:'done',ctx}}];}return [{json:{...$json,route:'allowed'}}];"
+      },
+      "position": [
+        2160,
+        1120
+      ]
+    },
+    {
+      "name": "H75 외부 쓰기 허용 H09",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "parameters": {
+        "conditions": {
+          "options": {
+            "version": 2,
+            "caseSensitive": true,
+            "leftValue": ""
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "h75",
+              "leftValue": "={{ $json.route === 'allowed' }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "position": [
+        200,
+        1340
+      ]
+    },
+    {
+      "name": "H76 외부 쓰기 마감 검사 H11",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "parameters": {
+        "jsCode": "// BEGIN shared case-context library\n// Canonical n8n Code library. build_case_context_nodes.py embeds this function\n// into exported workflows; no runtime filesystem/require permission is needed.\nfunction caseContextLibrary() {\n  const MARKER = '[dubakwi-case-context:v1]';\n  const object = v => !!v && typeof v === 'object' && !Array.isArray(v);\n  const text = v => typeof v === 'string' && v.length > 0;\n  const fail = code => { throw new Error(code); };\n  const sorted = v => Array.isArray(v) ? v.map(sorted) : object(v)\n    ? Object.fromEntries(Object.keys(v).sort().map(k => [k, sorted(v[k])])) : v;\n  const canonical = v => JSON.stringify(sorted(v));\n  // SHA256 is embedded below by the source generator, with Unicode parity tests.\n  const sha256hex = (text) => {\n  const rr = (v, a) => (v >>> a) | (v << (32 - a));\n  const maxWord = Math.pow(2, 32);\n  const bytes = encodeURIComponent(String(text)).replace(/%([0-9A-F]{2})/g, (_, h) => String.fromCharCode(parseInt(h, 16)));\n  const bitLength = bytes.length * 8;\n  let hash = [];\n  const k = [];\n  let primes = 0;\n  const composite = {};\n  for (let c = 2; primes < 64; c++) {\n    if (!composite[c]) {\n      for (let i = 0; i < 313; i += c) composite[i] = c;\n      hash[primes] = (Math.pow(c, 0.5) * maxWord) | 0;\n      k[primes++] = (Math.pow(c, 1 / 3) * maxWord) | 0;\n    }\n  }\n  let s = bytes + '\\x80';\n  while (s.length % 64 - 56) s += '\\x00';\n  const words = [];\n  for (let i = 0; i < s.length; i++) words[i >> 2] |= s.charCodeAt(i) << ((3 - i) % 4) * 8;\n  words[words.length] = (bitLength / maxWord) | 0;\n  words[words.length] = bitLength;\n  for (let j = 0; j < words.length;) {\n    const w = words.slice(j, j += 16);\n    const old = hash;\n    hash = hash.slice(0, 8);\n    for (let i = 0; i < 64; i++) {\n      const w15 = w[i - 15];\n      const w2 = w[i - 2];\n      const a = hash[0];\n      const e = hash[4];\n      const t1 = hash[7] + (rr(e, 6) ^ rr(e, 11) ^ rr(e, 25)) + ((e & hash[5]) ^ (~e & hash[6])) + k[i] + (w[i] = (i < 16) ? w[i] : (w[i - 16] + (rr(w15, 7) ^ rr(w15, 18) ^ (w15 >>> 3)) + w[i - 7] + (rr(w2, 17) ^ rr(w2, 19) ^ (w2 >>> 10))) | 0);\n      const t2 = (rr(a, 2) ^ rr(a, 13) ^ rr(a, 22)) + ((a & hash[1]) ^ (a & hash[2]) ^ (hash[1] & hash[2]));\n      hash = [(t1 + t2) | 0].concat(hash);\n      hash[4] = (hash[4] + t1) | 0;\n    }\n    for (let i = 0; i < 8; i++) hash[i] = (hash[i] + old[i]) | 0;\n  }\n  let out = '';\n  for (let i = 0; i < 8; i++) for (let j = 3; j + 1; j--) { const b = (hash[i] >> (j * 8)) & 255; out += (b < 16 ? '0' : '') + b.toString(16); }\n  return out;\n};\n\n  const digest = value => sha256hex(JSON.stringify(value));\n  const caseLabel = b => 'dubakwi-' + digest([b.scope, b.owner_id, b.first_request_id]).slice(0, 40);\n  const eventId = s => digest([s.scope, s.case_id, s.request_id, s.phase]);\n  function jiraText(value) {\n    if (typeof value === 'string') return value;\n    if (!object(value)) return fail('context_invalid');\n    if (value.type === 'text') return typeof value.text === 'string' ? value.text : fail('context_invalid');\n    if (value.type === 'hardBreak') return '\\n';\n    if (!['doc', 'paragraph', 'codeBlock', 'bulletList', 'orderedList', 'listItem'].includes(value.type)\n        || !Array.isArray(value.content ?? [])) return fail('context_invalid');\n    return (value.content ?? []).map(jiraText).join(['doc', 'bulletList', 'orderedList', 'listItem'].includes(value.type) ? '\\n' : '');\n  }\n  function validateFacts(f) {\n    if (!object(f) || typeof f.summary !== 'string') return fail('context_invalid');\n    for (const k of ['reported', 'confirmed']) {\n      if (!Array.isArray(f[k])) return fail('context_invalid');\n      for (const x of f[k]) {\n        if (!object(x) || !text(x.key) || typeof x.value !== 'string'\n            || !['user', 'document', 'api'].includes(x.origin)\n            || ('reference' in x && typeof x.reference !== 'string')\n            || (k === 'confirmed' && x.origin === 'user')) return fail('context_invalid');\n      }\n    }\n    for (const k of ['attempted_actions', 'missing', 'uncertainties']) {\n      if (!Array.isArray(f[k]) || !f[k].every(x => typeof x === 'string')) return fail('context_invalid');\n    }\n    if (!Array.isArray(f.evidence_refs) || !f.evidence_refs.every(x => object(x) && text(x.doc)\n        && text(x.section) && typeof x.score === 'number' && Number.isFinite(x.score)\n        )) return fail('context_invalid');\n    if (/\\b0\\d{1,2}[-. ]?\\d{3,4}[-. ]?\\d{4}\\b|[\\w.+-]+@[\\w-]+\\.[\\w.-]+/.test(JSON.stringify(f))) return fail('context_unmasked');\n  }\n  function validateSnapshot(s, b) {\n    if (!object(s) || s.schema_version !== 1) return fail('context_invalid');\n    for (const k of ['scope', 'case_id', 'owner_id', 'first_request_id', 'ticket_key']) {\n      if (!text(b[k]) || s[k] !== b[k]) return fail('context_not_linked');\n    }\n    if (!Number.isInteger(s.revision) || s.revision < 1 || !text(s.request_id) || s.request_id.length > 64\n        || !['wait', 'handoff', 'close', 'followup', 'save'].includes(s.phase) || s.event_id !== eventId(s)) return fail('context_invalid');\n    const p = s.support;\n    if (!object(p) || p.version !== null) return fail('context_invalid');\n    for (const k of ['case_id', 'owner_id', 'first_request_id']) if (p[k] !== b[k]) return fail('context_not_linked');\n    if (p.ticket_id !== b.ticket_key || !Number.isInteger(p.attempt) || p.attempt < 1\n        || !['received', 'waiting_info', 'handed_off', 'closed_guidance', 'closed_rejected'].includes(p.status)\n        || ![null, 'support', 'security'].includes(p.assignee_role ?? null)\n        || ![null, 'normal', 'high'].includes(p.priority ?? null)\n        || (p.status === 'handed_off' && (!p.assignee_role || !p.priority))) return fail('context_invalid');\n    validateFacts(s.facts);\n    if (encodeURIComponent(JSON.stringify(s)).replace(/%[A-F0-9]{2}|./g, 'x').length > 16000) return fail('context_too_large');\n    return s;\n  }\n  function validateIssue(issue, b) {\n    const f = issue?.fields ?? {};\n    const lines = jiraText(f.description ?? '').split(/\\r?\\n/);\n    if (!/^JBYS-[0-9]+$/.test(issue?.key ?? '') || issue.key !== b.ticket_key\n        || !Array.isArray(f.labels) || !f.labels.includes(caseLabel(b))\n        || !lines.includes('case_id: ' + b.case_id)\n        || !lines.includes('first_request_id: ' + b.first_request_id)) return fail('context_not_linked');\n  }\n  function selectSnapshot(comments, b, authors, requestId = null) {\n    if (!Array.isArray(authors) || !authors.length) return fail('context_author_unconfigured');\n    const events = new Map(), revisions = new Map(), candidates = [];\n    for (const c of comments) {\n      const body = jiraText(c.body ?? '');\n      if (!body.startsWith(MARKER + '\\n')) continue;\n      if (!authors.includes(c.author?.accountId)) return fail('context_author_denied');\n      let s;\n      try { s = JSON.parse(body.slice(MARKER.length + 1)); } catch { return fail('context_invalid'); }\n      validateSnapshot(s, b);\n      const value = canonical(s);\n      for (const [key, map] of [[s.event_id, events], [s.revision, revisions]]) {\n        if (map.has(key) && map.get(key) !== value) return fail('context_conflict');\n        map.set(key, value);\n      }\n      if (requestId === null || s.request_id === requestId) candidates.push(s);\n    }\n    if (!candidates.length) return fail('context_missing');\n    return candidates.reduce((a, b) => a.revision >= b.revision ? a : b);\n  }\n  function buildSnapshot(b, requestId, phase, revision, support, facts) {\n    const s = {schema_version: 1, ...b, request_id: requestId, phase, revision, support, facts};\n    s.event_id = eventId(s);\n    return validateSnapshot(s, b);\n  }\n  function readPages(pages) {\n    const comments = [];\n    let expected = 0, total = null;\n    for (const page of pages) {\n      if (!object(page) || !Number.isInteger(page.total) || !Number.isInteger(page.startAt)\n          || !Array.isArray(page.comments) || page.startAt !== expected\n          || (total !== null && total !== page.total) || page.total < 0) return fail('context_incomplete');\n      total = page.total;\n      comments.push(...page.comments);\n      expected += page.comments.length;\n    }\n    if (total === null || expected !== total) return fail('context_incomplete');\n    return comments;\n  }\n  return {MARKER, canonical, digest, caseLabel, eventId, jiraText, validateFacts,\n    validateSnapshot, validateIssue, selectSnapshot, buildSnapshot, readPages};\n}\n\nconst CC = caseContextLibrary();\n// END shared case-context library\n\nconst authors = (() => { try { return JSON.parse('__JIRA_CONTEXT_AUTHORS_JSON__'); } catch { return []; } })();\nconst remaining = deadline => Date.parse(deadline) - Date.now();\nconst bindingFor = (r, key) => ({scope:r.state_ref.scope, owner_id:r.state_ref.owner_id,\n  case_id:r.case_id, first_request_id:r.first_request_id, ticket_key:key});\nconst pages = () => CC.readPages($input.all().map(x => {\n  if (x.json.statusCode !== 200) throw new Error('context_read_failed');\n  return x.json.body;\n}));\nconst select = (comments,b,requestId=null) => CC.selectSnapshot(comments,b,authors,requestId);\nconst mask = v => typeof v === 'string' ? v.replace(/\\b0\\d{1,2}[-. ]?\\d{3,4}[-. ]?\\d{4}\\b/g,'***-****-****').replace(/[\\w.+-]+@[\\w-]+\\.[\\w.-]+/g,'***@***')\n  : Array.isArray(v) ? v.map(mask) : v && typeof v === 'object' ? Object.fromEntries(Object.entries(v).map(([k,x])=>[k,mask(x)])) : v;\nconst commentPath = key => '/rest/api/2/issue/'+encodeURIComponent(key)+'/comment';\nconst ctx=$json.ctx;const deadline=ctx.request.deadline_at??ctx.deadline_at;if(deadline && remaining(deadline)<4000){ctx.error_code=ctx.ticket?'partial_effect':'tickets_down';if(!ctx.ticket)ctx.effects.created_or_reused={status:'failed',error_code:'deadline_exceeded'};ctx.recovery={version:1,mode:'manual_required',action:'inspect_only',args:null,reference:null,reason:'deadline_exceeded'};return [{json:{route:'done',ctx}}];}return [{json:{...$json,route:'allowed'}}];"
+      },
+      "position": [
+        480,
+        1340
+      ]
+    },
+    {
+      "name": "H77 외부 쓰기 허용 H11",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "parameters": {
+        "conditions": {
+          "options": {
+            "version": 2,
+            "caseSensitive": true,
+            "leftValue": ""
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "h77",
+              "leftValue": "={{ $json.route === 'allowed' }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "position": [
+        760,
+        1340
+      ]
+    },
+    {
+      "name": "H78 외부 쓰기 마감 검사 H46",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "parameters": {
+        "jsCode": "// BEGIN shared case-context library\n// Canonical n8n Code library. build_case_context_nodes.py embeds this function\n// into exported workflows; no runtime filesystem/require permission is needed.\nfunction caseContextLibrary() {\n  const MARKER = '[dubakwi-case-context:v1]';\n  const object = v => !!v && typeof v === 'object' && !Array.isArray(v);\n  const text = v => typeof v === 'string' && v.length > 0;\n  const fail = code => { throw new Error(code); };\n  const sorted = v => Array.isArray(v) ? v.map(sorted) : object(v)\n    ? Object.fromEntries(Object.keys(v).sort().map(k => [k, sorted(v[k])])) : v;\n  const canonical = v => JSON.stringify(sorted(v));\n  // SHA256 is embedded below by the source generator, with Unicode parity tests.\n  const sha256hex = (text) => {\n  const rr = (v, a) => (v >>> a) | (v << (32 - a));\n  const maxWord = Math.pow(2, 32);\n  const bytes = encodeURIComponent(String(text)).replace(/%([0-9A-F]{2})/g, (_, h) => String.fromCharCode(parseInt(h, 16)));\n  const bitLength = bytes.length * 8;\n  let hash = [];\n  const k = [];\n  let primes = 0;\n  const composite = {};\n  for (let c = 2; primes < 64; c++) {\n    if (!composite[c]) {\n      for (let i = 0; i < 313; i += c) composite[i] = c;\n      hash[primes] = (Math.pow(c, 0.5) * maxWord) | 0;\n      k[primes++] = (Math.pow(c, 1 / 3) * maxWord) | 0;\n    }\n  }\n  let s = bytes + '\\x80';\n  while (s.length % 64 - 56) s += '\\x00';\n  const words = [];\n  for (let i = 0; i < s.length; i++) words[i >> 2] |= s.charCodeAt(i) << ((3 - i) % 4) * 8;\n  words[words.length] = (bitLength / maxWord) | 0;\n  words[words.length] = bitLength;\n  for (let j = 0; j < words.length;) {\n    const w = words.slice(j, j += 16);\n    const old = hash;\n    hash = hash.slice(0, 8);\n    for (let i = 0; i < 64; i++) {\n      const w15 = w[i - 15];\n      const w2 = w[i - 2];\n      const a = hash[0];\n      const e = hash[4];\n      const t1 = hash[7] + (rr(e, 6) ^ rr(e, 11) ^ rr(e, 25)) + ((e & hash[5]) ^ (~e & hash[6])) + k[i] + (w[i] = (i < 16) ? w[i] : (w[i - 16] + (rr(w15, 7) ^ rr(w15, 18) ^ (w15 >>> 3)) + w[i - 7] + (rr(w2, 17) ^ rr(w2, 19) ^ (w2 >>> 10))) | 0);\n      const t2 = (rr(a, 2) ^ rr(a, 13) ^ rr(a, 22)) + ((a & hash[1]) ^ (a & hash[2]) ^ (hash[1] & hash[2]));\n      hash = [(t1 + t2) | 0].concat(hash);\n      hash[4] = (hash[4] + t1) | 0;\n    }\n    for (let i = 0; i < 8; i++) hash[i] = (hash[i] + old[i]) | 0;\n  }\n  let out = '';\n  for (let i = 0; i < 8; i++) for (let j = 3; j + 1; j--) { const b = (hash[i] >> (j * 8)) & 255; out += (b < 16 ? '0' : '') + b.toString(16); }\n  return out;\n};\n\n  const digest = value => sha256hex(JSON.stringify(value));\n  const caseLabel = b => 'dubakwi-' + digest([b.scope, b.owner_id, b.first_request_id]).slice(0, 40);\n  const eventId = s => digest([s.scope, s.case_id, s.request_id, s.phase]);\n  function jiraText(value) {\n    if (typeof value === 'string') return value;\n    if (!object(value)) return fail('context_invalid');\n    if (value.type === 'text') return typeof value.text === 'string' ? value.text : fail('context_invalid');\n    if (value.type === 'hardBreak') return '\\n';\n    if (!['doc', 'paragraph', 'codeBlock', 'bulletList', 'orderedList', 'listItem'].includes(value.type)\n        || !Array.isArray(value.content ?? [])) return fail('context_invalid');\n    return (value.content ?? []).map(jiraText).join(['doc', 'bulletList', 'orderedList', 'listItem'].includes(value.type) ? '\\n' : '');\n  }\n  function validateFacts(f) {\n    if (!object(f) || typeof f.summary !== 'string') return fail('context_invalid');\n    for (const k of ['reported', 'confirmed']) {\n      if (!Array.isArray(f[k])) return fail('context_invalid');\n      for (const x of f[k]) {\n        if (!object(x) || !text(x.key) || typeof x.value !== 'string'\n            || !['user', 'document', 'api'].includes(x.origin)\n            || ('reference' in x && typeof x.reference !== 'string')\n            || (k === 'confirmed' && x.origin === 'user')) return fail('context_invalid');\n      }\n    }\n    for (const k of ['attempted_actions', 'missing', 'uncertainties']) {\n      if (!Array.isArray(f[k]) || !f[k].every(x => typeof x === 'string')) return fail('context_invalid');\n    }\n    if (!Array.isArray(f.evidence_refs) || !f.evidence_refs.every(x => object(x) && text(x.doc)\n        && text(x.section) && typeof x.score === 'number' && Number.isFinite(x.score)\n        )) return fail('context_invalid');\n    if (/\\b0\\d{1,2}[-. ]?\\d{3,4}[-. ]?\\d{4}\\b|[\\w.+-]+@[\\w-]+\\.[\\w.-]+/.test(JSON.stringify(f))) return fail('context_unmasked');\n  }\n  function validateSnapshot(s, b) {\n    if (!object(s) || s.schema_version !== 1) return fail('context_invalid');\n    for (const k of ['scope', 'case_id', 'owner_id', 'first_request_id', 'ticket_key']) {\n      if (!text(b[k]) || s[k] !== b[k]) return fail('context_not_linked');\n    }\n    if (!Number.isInteger(s.revision) || s.revision < 1 || !text(s.request_id) || s.request_id.length > 64\n        || !['wait', 'handoff', 'close', 'followup', 'save'].includes(s.phase) || s.event_id !== eventId(s)) return fail('context_invalid');\n    const p = s.support;\n    if (!object(p) || p.version !== null) return fail('context_invalid');\n    for (const k of ['case_id', 'owner_id', 'first_request_id']) if (p[k] !== b[k]) return fail('context_not_linked');\n    if (p.ticket_id !== b.ticket_key || !Number.isInteger(p.attempt) || p.attempt < 1\n        || !['received', 'waiting_info', 'handed_off', 'closed_guidance', 'closed_rejected'].includes(p.status)\n        || ![null, 'support', 'security'].includes(p.assignee_role ?? null)\n        || ![null, 'normal', 'high'].includes(p.priority ?? null)\n        || (p.status === 'handed_off' && (!p.assignee_role || !p.priority))) return fail('context_invalid');\n    validateFacts(s.facts);\n    if (encodeURIComponent(JSON.stringify(s)).replace(/%[A-F0-9]{2}|./g, 'x').length > 16000) return fail('context_too_large');\n    return s;\n  }\n  function validateIssue(issue, b) {\n    const f = issue?.fields ?? {};\n    const lines = jiraText(f.description ?? '').split(/\\r?\\n/);\n    if (!/^JBYS-[0-9]+$/.test(issue?.key ?? '') || issue.key !== b.ticket_key\n        || !Array.isArray(f.labels) || !f.labels.includes(caseLabel(b))\n        || !lines.includes('case_id: ' + b.case_id)\n        || !lines.includes('first_request_id: ' + b.first_request_id)) return fail('context_not_linked');\n  }\n  function selectSnapshot(comments, b, authors, requestId = null) {\n    if (!Array.isArray(authors) || !authors.length) return fail('context_author_unconfigured');\n    const events = new Map(), revisions = new Map(), candidates = [];\n    for (const c of comments) {\n      const body = jiraText(c.body ?? '');\n      if (!body.startsWith(MARKER + '\\n')) continue;\n      if (!authors.includes(c.author?.accountId)) return fail('context_author_denied');\n      let s;\n      try { s = JSON.parse(body.slice(MARKER.length + 1)); } catch { return fail('context_invalid'); }\n      validateSnapshot(s, b);\n      const value = canonical(s);\n      for (const [key, map] of [[s.event_id, events], [s.revision, revisions]]) {\n        if (map.has(key) && map.get(key) !== value) return fail('context_conflict');\n        map.set(key, value);\n      }\n      if (requestId === null || s.request_id === requestId) candidates.push(s);\n    }\n    if (!candidates.length) return fail('context_missing');\n    return candidates.reduce((a, b) => a.revision >= b.revision ? a : b);\n  }\n  function buildSnapshot(b, requestId, phase, revision, support, facts) {\n    const s = {schema_version: 1, ...b, request_id: requestId, phase, revision, support, facts};\n    s.event_id = eventId(s);\n    return validateSnapshot(s, b);\n  }\n  function readPages(pages) {\n    const comments = [];\n    let expected = 0, total = null;\n    for (const page of pages) {\n      if (!object(page) || !Number.isInteger(page.total) || !Number.isInteger(page.startAt)\n          || !Array.isArray(page.comments) || page.startAt !== expected\n          || (total !== null && total !== page.total) || page.total < 0) return fail('context_incomplete');\n      total = page.total;\n      comments.push(...page.comments);\n      expected += page.comments.length;\n    }\n    if (total === null || expected !== total) return fail('context_incomplete');\n    return comments;\n  }\n  return {MARKER, canonical, digest, caseLabel, eventId, jiraText, validateFacts,\n    validateSnapshot, validateIssue, selectSnapshot, buildSnapshot, readPages};\n}\n\nconst CC = caseContextLibrary();\n// END shared case-context library\n\nconst authors = (() => { try { return JSON.parse('__JIRA_CONTEXT_AUTHORS_JSON__'); } catch { return []; } })();\nconst remaining = deadline => Date.parse(deadline) - Date.now();\nconst bindingFor = (r, key) => ({scope:r.state_ref.scope, owner_id:r.state_ref.owner_id,\n  case_id:r.case_id, first_request_id:r.first_request_id, ticket_key:key});\nconst pages = () => CC.readPages($input.all().map(x => {\n  if (x.json.statusCode !== 200) throw new Error('context_read_failed');\n  return x.json.body;\n}));\nconst select = (comments,b,requestId=null) => CC.selectSnapshot(comments,b,authors,requestId);\nconst mask = v => typeof v === 'string' ? v.replace(/\\b0\\d{1,2}[-. ]?\\d{3,4}[-. ]?\\d{4}\\b/g,'***-****-****').replace(/[\\w.+-]+@[\\w-]+\\.[\\w.-]+/g,'***@***')\n  : Array.isArray(v) ? v.map(mask) : v && typeof v === 'object' ? Object.fromEntries(Object.entries(v).map(([k,x])=>[k,mask(x)])) : v;\nconst commentPath = key => '/rest/api/2/issue/'+encodeURIComponent(key)+'/comment';\nconst ctx=$json.ctx;const deadline=ctx.request.deadline_at??ctx.deadline_at;if(deadline && remaining(deadline)<4000){ctx.error_code=ctx.ticket?'partial_effect':'tickets_down';if(!ctx.ticket)ctx.effects.created_or_reused={status:'failed',error_code:'deadline_exceeded'};ctx.recovery={version:1,mode:'manual_required',action:'inspect_only',args:null,reference:null,reason:'deadline_exceeded'};return [{json:{route:'done',ctx}}];}return [{json:{...$json,route:'allowed'}}];"
+      },
+      "position": [
+        1040,
+        1340
+      ]
+    },
+    {
+      "name": "H79 외부 쓰기 허용 H46",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "parameters": {
+        "conditions": {
+          "options": {
+            "version": 2,
+            "caseSensitive": true,
+            "leftValue": ""
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "h79",
+              "leftValue": "={{ $json.route === 'allowed' }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "position": [
+        1320,
+        1340
+      ]
+    },
+    {
+      "name": "H80 외부 쓰기 마감 검사 H50",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "parameters": {
+        "jsCode": "// BEGIN shared case-context library\n// Canonical n8n Code library. build_case_context_nodes.py embeds this function\n// into exported workflows; no runtime filesystem/require permission is needed.\nfunction caseContextLibrary() {\n  const MARKER = '[dubakwi-case-context:v1]';\n  const object = v => !!v && typeof v === 'object' && !Array.isArray(v);\n  const text = v => typeof v === 'string' && v.length > 0;\n  const fail = code => { throw new Error(code); };\n  const sorted = v => Array.isArray(v) ? v.map(sorted) : object(v)\n    ? Object.fromEntries(Object.keys(v).sort().map(k => [k, sorted(v[k])])) : v;\n  const canonical = v => JSON.stringify(sorted(v));\n  // SHA256 is embedded below by the source generator, with Unicode parity tests.\n  const sha256hex = (text) => {\n  const rr = (v, a) => (v >>> a) | (v << (32 - a));\n  const maxWord = Math.pow(2, 32);\n  const bytes = encodeURIComponent(String(text)).replace(/%([0-9A-F]{2})/g, (_, h) => String.fromCharCode(parseInt(h, 16)));\n  const bitLength = bytes.length * 8;\n  let hash = [];\n  const k = [];\n  let primes = 0;\n  const composite = {};\n  for (let c = 2; primes < 64; c++) {\n    if (!composite[c]) {\n      for (let i = 0; i < 313; i += c) composite[i] = c;\n      hash[primes] = (Math.pow(c, 0.5) * maxWord) | 0;\n      k[primes++] = (Math.pow(c, 1 / 3) * maxWord) | 0;\n    }\n  }\n  let s = bytes + '\\x80';\n  while (s.length % 64 - 56) s += '\\x00';\n  const words = [];\n  for (let i = 0; i < s.length; i++) words[i >> 2] |= s.charCodeAt(i) << ((3 - i) % 4) * 8;\n  words[words.length] = (bitLength / maxWord) | 0;\n  words[words.length] = bitLength;\n  for (let j = 0; j < words.length;) {\n    const w = words.slice(j, j += 16);\n    const old = hash;\n    hash = hash.slice(0, 8);\n    for (let i = 0; i < 64; i++) {\n      const w15 = w[i - 15];\n      const w2 = w[i - 2];\n      const a = hash[0];\n      const e = hash[4];\n      const t1 = hash[7] + (rr(e, 6) ^ rr(e, 11) ^ rr(e, 25)) + ((e & hash[5]) ^ (~e & hash[6])) + k[i] + (w[i] = (i < 16) ? w[i] : (w[i - 16] + (rr(w15, 7) ^ rr(w15, 18) ^ (w15 >>> 3)) + w[i - 7] + (rr(w2, 17) ^ rr(w2, 19) ^ (w2 >>> 10))) | 0);\n      const t2 = (rr(a, 2) ^ rr(a, 13) ^ rr(a, 22)) + ((a & hash[1]) ^ (a & hash[2]) ^ (hash[1] & hash[2]));\n      hash = [(t1 + t2) | 0].concat(hash);\n      hash[4] = (hash[4] + t1) | 0;\n    }\n    for (let i = 0; i < 8; i++) hash[i] = (hash[i] + old[i]) | 0;\n  }\n  let out = '';\n  for (let i = 0; i < 8; i++) for (let j = 3; j + 1; j--) { const b = (hash[i] >> (j * 8)) & 255; out += (b < 16 ? '0' : '') + b.toString(16); }\n  return out;\n};\n\n  const digest = value => sha256hex(JSON.stringify(value));\n  const caseLabel = b => 'dubakwi-' + digest([b.scope, b.owner_id, b.first_request_id]).slice(0, 40);\n  const eventId = s => digest([s.scope, s.case_id, s.request_id, s.phase]);\n  function jiraText(value) {\n    if (typeof value === 'string') return value;\n    if (!object(value)) return fail('context_invalid');\n    if (value.type === 'text') return typeof value.text === 'string' ? value.text : fail('context_invalid');\n    if (value.type === 'hardBreak') return '\\n';\n    if (!['doc', 'paragraph', 'codeBlock', 'bulletList', 'orderedList', 'listItem'].includes(value.type)\n        || !Array.isArray(value.content ?? [])) return fail('context_invalid');\n    return (value.content ?? []).map(jiraText).join(['doc', 'bulletList', 'orderedList', 'listItem'].includes(value.type) ? '\\n' : '');\n  }\n  function validateFacts(f) {\n    if (!object(f) || typeof f.summary !== 'string') return fail('context_invalid');\n    for (const k of ['reported', 'confirmed']) {\n      if (!Array.isArray(f[k])) return fail('context_invalid');\n      for (const x of f[k]) {\n        if (!object(x) || !text(x.key) || typeof x.value !== 'string'\n            || !['user', 'document', 'api'].includes(x.origin)\n            || ('reference' in x && typeof x.reference !== 'string')\n            || (k === 'confirmed' && x.origin === 'user')) return fail('context_invalid');\n      }\n    }\n    for (const k of ['attempted_actions', 'missing', 'uncertainties']) {\n      if (!Array.isArray(f[k]) || !f[k].every(x => typeof x === 'string')) return fail('context_invalid');\n    }\n    if (!Array.isArray(f.evidence_refs) || !f.evidence_refs.every(x => object(x) && text(x.doc)\n        && text(x.section) && typeof x.score === 'number' && Number.isFinite(x.score)\n        )) return fail('context_invalid');\n    if (/\\b0\\d{1,2}[-. ]?\\d{3,4}[-. ]?\\d{4}\\b|[\\w.+-]+@[\\w-]+\\.[\\w.-]+/.test(JSON.stringify(f))) return fail('context_unmasked');\n  }\n  function validateSnapshot(s, b) {\n    if (!object(s) || s.schema_version !== 1) return fail('context_invalid');\n    for (const k of ['scope', 'case_id', 'owner_id', 'first_request_id', 'ticket_key']) {\n      if (!text(b[k]) || s[k] !== b[k]) return fail('context_not_linked');\n    }\n    if (!Number.isInteger(s.revision) || s.revision < 1 || !text(s.request_id) || s.request_id.length > 64\n        || !['wait', 'handoff', 'close', 'followup', 'save'].includes(s.phase) || s.event_id !== eventId(s)) return fail('context_invalid');\n    const p = s.support;\n    if (!object(p) || p.version !== null) return fail('context_invalid');\n    for (const k of ['case_id', 'owner_id', 'first_request_id']) if (p[k] !== b[k]) return fail('context_not_linked');\n    if (p.ticket_id !== b.ticket_key || !Number.isInteger(p.attempt) || p.attempt < 1\n        || !['received', 'waiting_info', 'handed_off', 'closed_guidance', 'closed_rejected'].includes(p.status)\n        || ![null, 'support', 'security'].includes(p.assignee_role ?? null)\n        || ![null, 'normal', 'high'].includes(p.priority ?? null)\n        || (p.status === 'handed_off' && (!p.assignee_role || !p.priority))) return fail('context_invalid');\n    validateFacts(s.facts);\n    if (encodeURIComponent(JSON.stringify(s)).replace(/%[A-F0-9]{2}|./g, 'x').length > 16000) return fail('context_too_large');\n    return s;\n  }\n  function validateIssue(issue, b) {\n    const f = issue?.fields ?? {};\n    const lines = jiraText(f.description ?? '').split(/\\r?\\n/);\n    if (!/^JBYS-[0-9]+$/.test(issue?.key ?? '') || issue.key !== b.ticket_key\n        || !Array.isArray(f.labels) || !f.labels.includes(caseLabel(b))\n        || !lines.includes('case_id: ' + b.case_id)\n        || !lines.includes('first_request_id: ' + b.first_request_id)) return fail('context_not_linked');\n  }\n  function selectSnapshot(comments, b, authors, requestId = null) {\n    if (!Array.isArray(authors) || !authors.length) return fail('context_author_unconfigured');\n    const events = new Map(), revisions = new Map(), candidates = [];\n    for (const c of comments) {\n      const body = jiraText(c.body ?? '');\n      if (!body.startsWith(MARKER + '\\n')) continue;\n      if (!authors.includes(c.author?.accountId)) return fail('context_author_denied');\n      let s;\n      try { s = JSON.parse(body.slice(MARKER.length + 1)); } catch { return fail('context_invalid'); }\n      validateSnapshot(s, b);\n      const value = canonical(s);\n      for (const [key, map] of [[s.event_id, events], [s.revision, revisions]]) {\n        if (map.has(key) && map.get(key) !== value) return fail('context_conflict');\n        map.set(key, value);\n      }\n      if (requestId === null || s.request_id === requestId) candidates.push(s);\n    }\n    if (!candidates.length) return fail('context_missing');\n    return candidates.reduce((a, b) => a.revision >= b.revision ? a : b);\n  }\n  function buildSnapshot(b, requestId, phase, revision, support, facts) {\n    const s = {schema_version: 1, ...b, request_id: requestId, phase, revision, support, facts};\n    s.event_id = eventId(s);\n    return validateSnapshot(s, b);\n  }\n  function readPages(pages) {\n    const comments = [];\n    let expected = 0, total = null;\n    for (const page of pages) {\n      if (!object(page) || !Number.isInteger(page.total) || !Number.isInteger(page.startAt)\n          || !Array.isArray(page.comments) || page.startAt !== expected\n          || (total !== null && total !== page.total) || page.total < 0) return fail('context_incomplete');\n      total = page.total;\n      comments.push(...page.comments);\n      expected += page.comments.length;\n    }\n    if (total === null || expected !== total) return fail('context_incomplete');\n    return comments;\n  }\n  return {MARKER, canonical, digest, caseLabel, eventId, jiraText, validateFacts,\n    validateSnapshot, validateIssue, selectSnapshot, buildSnapshot, readPages};\n}\n\nconst CC = caseContextLibrary();\n// END shared case-context library\n\nconst authors = (() => { try { return JSON.parse('__JIRA_CONTEXT_AUTHORS_JSON__'); } catch { return []; } })();\nconst remaining = deadline => Date.parse(deadline) - Date.now();\nconst bindingFor = (r, key) => ({scope:r.state_ref.scope, owner_id:r.state_ref.owner_id,\n  case_id:r.case_id, first_request_id:r.first_request_id, ticket_key:key});\nconst pages = () => CC.readPages($input.all().map(x => {\n  if (x.json.statusCode !== 200) throw new Error('context_read_failed');\n  return x.json.body;\n}));\nconst select = (comments,b,requestId=null) => CC.selectSnapshot(comments,b,authors,requestId);\nconst mask = v => typeof v === 'string' ? v.replace(/\\b0\\d{1,2}[-. ]?\\d{3,4}[-. ]?\\d{4}\\b/g,'***-****-****').replace(/[\\w.+-]+@[\\w-]+\\.[\\w.-]+/g,'***@***')\n  : Array.isArray(v) ? v.map(mask) : v && typeof v === 'object' ? Object.fromEntries(Object.entries(v).map(([k,x])=>[k,mask(x)])) : v;\nconst commentPath = key => '/rest/api/2/issue/'+encodeURIComponent(key)+'/comment';\nconst ctx=$json.ctx;const deadline=ctx.request.deadline_at??ctx.deadline_at;if(deadline && remaining(deadline)<4000){ctx.error_code=ctx.ticket?'partial_effect':'tickets_down';if(!ctx.ticket)ctx.effects.created_or_reused={status:'failed',error_code:'deadline_exceeded'};ctx.recovery={version:1,mode:'manual_required',action:'inspect_only',args:null,reference:null,reason:'deadline_exceeded'};return [{json:{route:'done',ctx}}];}return [{json:{...$json,route:'allowed'}}];"
+      },
+      "position": [
+        1600,
+        1340
+      ]
+    },
+    {
+      "name": "H81 외부 쓰기 허용 H50",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "parameters": {
+        "conditions": {
+          "options": {
+            "version": 2,
+            "caseSensitive": true,
+            "leftValue": ""
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "h81",
+              "leftValue": "={{ $json.route === 'allowed' }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "position": [
+        1880,
+        1340
       ]
     }
   ],
@@ -1238,7 +1787,7 @@
       "main": [
         [
           {
-            "node": "H05 Jira 티켓 생성",
+            "node": "H70 외부 쓰기 마감 검사 H05",
             "type": "main",
             "index": 0
           }
@@ -1318,7 +1867,7 @@
       "main": [
         [
           {
-            "node": "H07 종료 분기",
+            "node": "H52 검증 문맥 조회 준비",
             "type": "main",
             "index": 0
           }
@@ -1398,7 +1947,7 @@
       "main": [
         [
           {
-            "node": "H08 Jira 안내 종료",
+            "node": "H72 외부 쓰기 마감 검사 H08",
             "type": "main",
             "index": 0
           }
@@ -1471,7 +2020,7 @@
       "main": [
         [
           {
-            "node": "H09 Jira 맥락 저장·배정",
+            "node": "H74 외부 쓰기 마감 검사 H09",
             "type": "main",
             "index": 0
           }
@@ -1551,7 +2100,7 @@
       "main": [
         [
           {
-            "node": "H11 담당 알림",
+            "node": "H76 외부 쓰기 마감 검사 H11",
             "type": "main",
             "index": 0
           }
@@ -1591,7 +2140,7 @@
       "main": [
         [
           {
-            "node": "H50 Jira 알림 성공 표식",
+            "node": "H80 외부 쓰기 마감 검사 H50",
             "type": "main",
             "index": 0
           }
@@ -1660,7 +2209,7 @@
       "main": [
         [
           {
-            "node": "H46 Jira 보완 횟수 저장",
+            "node": "H78 외부 쓰기 마감 검사 H46",
             "type": "main",
             "index": 0
           }
@@ -1680,6 +2229,315 @@
     },
     "H47 보완 횟수 판정": {
       "main": [
+        [
+          {
+            "node": "H12 티켓 결과 구성",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "H52 검증 문맥 조회 준비": {
+      "main": [
+        [
+          {
+            "node": "H63 문맥 읽기 허용",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "H63 문맥 읽기 허용": {
+      "main": [
+        [
+          {
+            "node": "H53 Jira 문맥 연결 조회",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "H12 티켓 결과 구성",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "H53 Jira 문맥 연결 조회": {
+      "main": [
+        [
+          {
+            "node": "H54 문맥 댓글 조회 준비",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "H54 문맥 댓글 조회 준비": {
+      "main": [
+        [
+          {
+            "node": "H55 Jira 전체 문맥 댓글 조회",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "H55 Jira 전체 문맥 댓글 조회": {
+      "main": [
+        [
+          {
+            "node": "H56 문맥 검증과 조건부 기록 계획",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "H56 문맥 검증과 조건부 기록 계획": {
+      "main": [
+        [
+          {
+            "node": "H57 새 문맥 기록 필요",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "H57 새 문맥 기록 필요": {
+      "main": [
+        [
+          {
+            "node": "H58 Jira 가린 문맥 저장",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "H07 종료 분기",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "H58 Jira 가린 문맥 저장": {
+      "main": [
+        [
+          {
+            "node": "H59 저장 문맥 재조회 준비",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "H59 저장 문맥 재조회 준비": {
+      "main": [
+        [
+          {
+            "node": "H60 Jira 저장 문맥 재조회",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "H60 Jira 저장 문맥 재조회": {
+      "main": [
+        [
+          {
+            "node": "H61 문맥 저장 재조회 판정",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "H61 문맥 저장 재조회 판정": {
+      "main": [
+        [
+          {
+            "node": "H07 종료 분기",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "H70 외부 쓰기 마감 검사 H05": {
+      "main": [
+        [
+          {
+            "node": "H71 외부 쓰기 허용 H05",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "H71 외부 쓰기 허용 H05": {
+      "main": [
+        [
+          {
+            "node": "H05 Jira 티켓 생성",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "H12 티켓 결과 구성",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "H72 외부 쓰기 마감 검사 H08": {
+      "main": [
+        [
+          {
+            "node": "H73 외부 쓰기 허용 H08",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "H73 외부 쓰기 허용 H08": {
+      "main": [
+        [
+          {
+            "node": "H08 Jira 안내 종료",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "H12 티켓 결과 구성",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "H74 외부 쓰기 마감 검사 H09": {
+      "main": [
+        [
+          {
+            "node": "H75 외부 쓰기 허용 H09",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "H75 외부 쓰기 허용 H09": {
+      "main": [
+        [
+          {
+            "node": "H09 Jira 맥락 저장·배정",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "H12 티켓 결과 구성",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "H76 외부 쓰기 마감 검사 H11": {
+      "main": [
+        [
+          {
+            "node": "H77 외부 쓰기 허용 H11",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "H77 외부 쓰기 허용 H11": {
+      "main": [
+        [
+          {
+            "node": "H11 담당 알림",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "H12 티켓 결과 구성",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "H78 외부 쓰기 마감 검사 H46": {
+      "main": [
+        [
+          {
+            "node": "H79 외부 쓰기 허용 H46",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "H79 외부 쓰기 허용 H46": {
+      "main": [
+        [
+          {
+            "node": "H46 Jira 보완 횟수 저장",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "H12 티켓 결과 구성",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "H80 외부 쓰기 마감 검사 H50": {
+      "main": [
+        [
+          {
+            "node": "H81 외부 쓰기 허용 H50",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "H81 외부 쓰기 허용 H50": {
+      "main": [
+        [
+          {
+            "node": "H50 Jira 알림 성공 표식",
+            "type": "main",
+            "index": 0
+          }
+        ],
         [
           {
             "node": "H12 티켓 결과 구성",

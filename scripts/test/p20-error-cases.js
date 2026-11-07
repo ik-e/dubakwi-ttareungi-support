@@ -129,7 +129,7 @@ if (!stateConnections.some((edge) => edge.node === "E06 DLQ 요청 구성")) {
 const safeEndCode = nodes.get("E08 오류 경로 안전 종료")?.parameters.jsCode;
 if (typeof safeEndCode !== "string") throw new Error("safe error-path terminator is missing");
 const safeEnd = new Function("$", "$json", safeEndCode);
-const bothFailed = safeEnd(() => ({item: {json: result}}), {
+const bothFailed = safeEnd(() => ({item: {json: result},first:()=>({json:result})}), {
   error: "DLQ postgres://private-host super-secret",
 })[0].json;
 if (bothFailed.error_code !== "error_storage_failed" || bothFailed.execution_id !== "execution-1") {
@@ -139,7 +139,7 @@ if (JSON.stringify(bothFailed).includes("private-host") || JSON.stringify(bothFa
   throw new Error("DLQ failure detail leaked from the safe terminator");
 }
 const dlqConnections = workflow.connections["E04 오류 보관"]?.main?.[0] ?? [];
-if (!dlqConnections.some((edge) => edge.node === "E08 오류 경로 안전 종료")) {
+if (!dlqConnections.some((edge) => edge.node === "E09 운영 실패 알림")) {
   throw new Error("DLQ failure is not connected to the safe terminator");
 }
 
@@ -159,4 +159,12 @@ if (imported.storage_ready !== true || imported.scope !== "dubakwi-dev") throw n
 const globalReplaced = codeNode.parameters.jsCode.split("__DUBAKWI_SCOPE__").join("dubakwi-dev");
 const blockedByGlobal = new Function("$json", "$env", globalReplaced)(sample, blockedEnv)[0].json;
 if (blockedByGlobal.storage_ready !== false) throw new Error("global replacement must keep storage blocked");
-console.log("P20 state/DLQ double-failure and redaction: 16/16 passed");
+const alertNode=nodes.get("E09 운영 실패 알림");
+if(alertNode.retryOnFail || alertNode.onError!=="continueRegularOutput" || alertNode.parameters.url!=="http://data-api:8800/alerts")throw new Error("operational alert must use the existing bounded backend without automatic retry");
+for(const statusCode of [200,400,500,0]){
+ const end=safeEnd(name=>({first:()=>({json:name.startsWith("E02")?result:{ok:true,dlq_id:"synthetic-dlq"}})}),{statusCode,error:"super-secret"})[0].json;
+ const expected=statusCode===200?'confirmed':statusCode===400?'failed':'unknown';
+ if(end.operational_alert.status!==expected||end.dlq_id!=="synthetic-dlq"||JSON.stringify(end).includes('super-secret'))throw new Error('operational alert result not safely distinguished');
+}
+if(workflow.settings?.errorWorkflow===workflow.id)throw new Error('recursive error workflow');
+console.log("P20 state/DLQ safety 16 cases plus operational-alert acknowledgement checks passed");

@@ -4,6 +4,7 @@
 !/services/**
 !/.gitignore
 !/.gitattributes
+!/.dockerignore
 !/.python-version
 !/pyproject.toml
 !/uv.lock

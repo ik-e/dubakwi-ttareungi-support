@@ -1,0 +1,137 @@
+{
+  "run_id": "20261105-161433-vm-storage-user-api",
+  "executed_at_kst": "2026-11-05T16:14:33.198139+09:00",
+  "environment": "team VM via existing Edge web SSH and user-authenticated sudo",
+  "code_version": {
+    "postgres_main": "0a6f19d899d945d77d7f1eb228cefefe9c566c03",
+    "api_main": "895c2bb71c41d0a0a7eed1957e00b828b154463f",
+    "state_dlq_fix": "365c419",
+    "handoff_candidate": "e273daa7f5609fa1a42d109b84a379c59a91b261",
+    "errors_candidate": "ff1917860e8a43379301a59a0b751be7cd613083"
+  },
+  "configuration_version": "postgres-deployment v0.2; source Compose with VM private env bindings; inactive review copies only",
+  "postgres_image": "postgres:16.15-bookworm@sha256:e8a07d2c7579b038938cdba6c539e580e5001caf9ea203d397b5cc83e76bd938",
+  "api_image": "built from original Dockerfile; image ID and resolved Python base reference recorded in restricted VM manifest",
+  "cases": [
+    {
+      "case_id": "VM-PG-01",
+      "name": "fresh service and separate verification DB migrations001-004",
+      "status": "passed"
+    },
+    {
+      "case_id": "VM-PG-02",
+      "name": "constraint/function/runtime role scripts",
+      "status": "passed"
+    },
+    {
+      "case_id": "VM-PG-03",
+      "name": "runtime denied operations on test DB",
+      "status": "passed",
+      "checks": 9
+    },
+    {
+      "case_id": "VM-PG-04",
+      "name": "owner/app TCP from n8n network and wrong password rejection",
+      "status": "passed"
+    },
+    {
+      "case_id": "VM-PG-05",
+      "name": "fixture DB dump/restore,002/004 grants,owner/full row/snapshot comparison",
+      "status": "passed",
+      "restored_denials": 5
+    },
+    {
+      "case_id": "VM-PG-06",
+      "name": "PostgreSQL-only restart and snapshot/TCP persistence",
+      "status": "passed"
+    },
+    {
+      "case_id": "VM-API-01",
+      "name": "health/no key/wrong key/citizen/support/unknown/own masked/other denied",
+      "status": "passed",
+      "checks": 8
+    },
+    {
+      "case_id": "VM-API-02",
+      "name": "existing internal Header Auth matches server key",
+      "status": "passed",
+      "http_status": 200
+    },
+    {
+      "case_id": "VM-N8N-01",
+      "name": "new Postgres credential registered; existing five credential rows preserved",
+      "status": "passed"
+    },
+    {
+      "case_id": "VM-N8N-02",
+      "name": "four inactive copies with environment IDs/credentials; JS/query/connections unchanged",
+      "status": "passed",
+      "copies": 4
+    },
+    {
+      "case_id": "VM-N8N-03",
+      "name": "pre-existing eleven workflow rows unchanged; no review webhook registration",
+      "status": "passed"
+    },
+    {
+      "case_id": "VM-N8N-04",
+      "name": "final n8n health",
+      "status": "passed",
+      "http_status": 200
+    }
+  ],
+  "first_failures": [
+    {
+      "stage": "native SSH",
+      "result": "connection timeout; resolved by explicit existing web SSH path"
+    },
+    {
+      "stage": "Docker access",
+      "result": "permission denied until user authenticated sudo; no account/group changes"
+    },
+    {
+      "stage": "initial preflight command",
+      "result": "terminal typing removed source newlines; corrected escaped Python execution before writes"
+    },
+    {
+      "stage": "PG TCP test harness",
+      "result": "module resolution from symlink package path failed; realpath retry passed"
+    },
+    {
+      "stage": "API image metadata",
+      "result": "base existed in BuildKit cache but not local tagged store; functional8 tests already passed; recorded build provenance and retry passed"
+    }
+  ],
+  "preservation": {
+    "n8n_restarted": false,
+    "public_p11_p19_changed": false,
+    "existing_credential_hashes_preserved": true,
+    "existing_workflow_hashes_preserved": true,
+    "postgres_public_ports": 0,
+    "api_public_ports": 0,
+    "api_read_only": true,
+    "plaintext_import_temp_file_removed": true
+  },
+  "not_completed": [
+    "DUBAKWI_SCOPE injection and errors execution: inactive copy only; no global n8n env/security change.",
+    "Live n8n Postgres-node execution and R05 official verdict; TCP tests used n8n installed pg client.",
+    "Jira project/issue type/required fields/transition/assignee permission discovery and actual Jira CRUD.",
+    "Jira bind/context/save success, case_ref, records lookup integration.",
+    "n8n whole-volume restoration, host restart, operational retention and RPO/RTO.",
+    "TLS certificates: reviewed initial same-VM bridge without TLS, synthetic fixtures only; no public DB port."
+  ],
+  "details_reference": "report.md",
+  "private_evidence": "VM restricted backup/deployment manifests and local Git-ignored runs/20261105-161433-vm-storage-user-api/r04-handoff.md",
+  "documentation_checks": {
+    "files": 20,
+    "local_links": 451,
+    "anchors": 50,
+    "errors": 0
+  },
+  "public_candidate_checks": {
+    "files": 171,
+    "links": 537,
+    "errors": 0
+  },
+  "secret_scan_limit": "tscan/Gitleaks unavailable in earlier checks; public-candidate audit is a partial substitute"
+}

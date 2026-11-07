@@ -1,0 +1,34 @@
+{
+  "label": "pr31-knowledge-vs-support",
+  "executed_at_kst": "2026-11-06",
+  "base_commit": "2bbe5e6",
+  "environment": "local n8n 2.42.6, course data-api 사본, gpt-4.1-mini, main eb747df(PR #31 병합) 검색·색인(44 chunk, 본문 '챗봇' 2개, QR 절 문구 정리됨), mock state·handoff·dlq",
+  "scope": "R03 요청: 지식 수정(PR #31)과 support 생성 규칙 수정(R02 3aea855)의 효과 구분. 같은 PR #31 색인에 VM 현재 support(3e8547a, 소스 SHA-256 86a15d5badd9)와 main support(3aea855, b445ad5d2923)를 함께 게시해 대표 질문 15회씩. 답변 원문 제외. VM·공식 판정 아님.",
+  "results": {
+    "support_3e8547a": {
+      "n": 15,
+      "tally": {
+        "자동 답변/None": 15
+      },
+      "auto": 15,
+      "provenance_phrase": 0,
+      "has_5digit": 15,
+      "qr_section_cited": 15
+    },
+    "support_main_3aea855": {
+      "n": 15,
+      "tally": {
+        "자동 답변/None": 15
+      },
+      "auto": 15,
+      "provenance_phrase": 0,
+      "has_5digit": 15,
+      "qr_section_cited": 15
+    }
+  },
+  "previous": {
+    "run": "runs/public/20261106-173834-local-n8n-p19-provenance-tc12/summary.json",
+    "main_ac772ae_index": "support 수정 전 '제공된 챗봇' 14/14 → 수정 후 0/14"
+  },
+  "conclusion": "대표 질문의 F-S1-03은 PR #31 지식만으로도 해소(옛 support 0/15). R02 규칙은 남은 '챗봇' chunk 2개와 이후 지식에 대한 방어선. TC12는 검색을 거치지 않아 지식과 무관하고 support 수정으로만 바뀜."
+}

@@ -1,0 +1,143 @@
+{
+  "run_id": "20261105-150648-local-r01-integration",
+  "executed_at_kst": "2026-11-05T15:06:48.847157+09:00",
+  "environment": "local Windows CLI; no VM mutations",
+  "code_version": "95479d52b1056d4313adface3d433f1ae3c6e06b",
+  "configuration_version": "infra/team-integration.md v0.1; actual VM deployment pending",
+  "candidate_versions": {
+    "pr25": "1110a7f",
+    "pr26": "44a41f8",
+    "pr27": "e273daa",
+    "pr28": "ff19178",
+    "pr16": "dc6eb8e",
+    "pr13": "61dd421",
+    "pr24": "dfcaff2"
+  },
+  "checks": [
+    {
+      "case_id": "P09-current-common-regression",
+      "passed": 46,
+      "skipped": 7,
+      "failed": 0,
+      "total": 53,
+      "candidate": "44a41f8"
+    },
+    {
+      "case_id": "P09-current-ruff",
+      "status": "passed",
+      "formatted_files": 45
+    },
+    {
+      "case_id": "P09-compose-canonical",
+      "status": "passed",
+      "services": 1,
+      "published_ports": 0,
+      "read_only": true
+    },
+    {
+      "case_id": "P09-compose-required-values",
+      "status": "passed",
+      "details": [
+        {
+          "field": "DUBAKWI_N8N_NETWORK",
+          "blocked": true
+        },
+        {
+          "field": "DUBAKWI_INTERNAL_KEY_FILE",
+          "blocked": true
+        }
+      ]
+    },
+    {
+      "case_id": "configured-ssh",
+      "status": "connection_timeout"
+    },
+    {
+      "case_id": "observed-internal-ssh",
+      "status": "connection_timeout"
+    },
+    {
+      "case_id": "configured-ssh-after-user-reconnect",
+      "status": "connection_timeout"
+    },
+    {
+      "case_id": "browser-ui-observation",
+      "status": "stopped_url_policy_validation_failed"
+    },
+    {
+      "case_id": "P09-original-image-build",
+      "status": "failed_registry_dns",
+      "base_image": "python:3.12.12-slim-bookworm",
+      "image_built": false
+    },
+    {
+      "case_id": "initial-public-links",
+      "status": "failed_one_unmerged_evidence_link"
+    },
+    {
+      "case_id": "public-links-after-fix",
+      "status": "passed"
+    }
+  ],
+  "review_requests": {
+    "13": [
+      "R02",
+      "R04"
+    ],
+    "16": [
+      "R04",
+      "R05"
+    ],
+    "24": [
+      "R04",
+      "R05"
+    ],
+    "25": [
+      "R04 (existing request retained)"
+    ],
+    "26": [
+      "R02",
+      "R03",
+      "R05"
+    ],
+    "27": [
+      "R02",
+      "R05"
+    ],
+    "28": [
+      "R02",
+      "R05"
+    ]
+  },
+  "review_verdict": "No role reviews/approvals present on PR24-28 at final read. Requests are not approvals.",
+  "mutations": {
+    "github_review_requests": "added; no review comments posted",
+    "local_documents": "R01 integration handoff, DAY80, presentation brief and references",
+    "pr_merges": 0,
+    "vm_deployments": 0,
+    "db_migrations": 0,
+    "credential_changes": 0,
+    "jira_calls": 0,
+    "os_network_changes": 0
+  },
+  "limits": [
+    "Original image cannot be accepted as built; no substitute tag used.",
+    "VM access/actual network/TLS/secrets ownership/Credential/Jira remain unverified.",
+    "Source/API tests are local, not live n8n or RAG authorization acceptance.",
+    "tscan/Gitleaks unavailable; public candidate audit is a partial substitute."
+  ],
+  "details_reference": "report.md",
+  "raw_reference": "Git-ignored runs/20261105-150648-local-r01-integration/compose-result.json",
+  "documentation_checks": {
+    "files": 20,
+    "local_links": 436,
+    "anchors": 50,
+    "errors": 0
+  },
+  "public_candidate_checks": {
+    "files": 145,
+    "local_links": 517,
+    "errors": 0
+  },
+  "diff_check": "passed"
+}

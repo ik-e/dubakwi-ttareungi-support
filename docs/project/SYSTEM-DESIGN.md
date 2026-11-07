@@ -1,5 +1,7 @@
 # 두바퀴 따릉이 시민 문의 지원 시스템 설계서
 
+현행 로컬 통합 후보: v0.13 / 2026-11-07. 아래 이전 버전·실행 기록은 당시 이력이다. 상세 현재 후보는 워크플로우 v0.19·저장소 v0.5·RAG v0.11 및 끝의 통합 후보 절을 따른다.
+
 - 작성일: 2026-11-03 KST
 - 버전·상태: v0.12 / PostgreSQL 독립 배포 준비 경로·미적용 경계 반영 초안
 - 책임: R01 통합, R02 흐름, R03 RAG, R04 연동·저장, R05 검증 공동 검토
@@ -327,3 +329,15 @@ Python 실행/의존성·린트·포맷은 [Python 개발 기준](../PYTHON-DEVE
 [산출물 목록과 원본 관계](README.md) · [주제](TOPIC.md) · [팀 헌장](TEAM-CHARTER.md)
 
 - 2026-11-05 기준 참조 갱신: PR #10의 RAG v0.9 교육용 로컬 구현을 연결한다. 시스템 구성·공개 계약 변경과 서비스 검증 완료를 뜻하지 않는다.
+
+
+## 11 PR36 로컬 통합 후보의 현재 경계
+
+2026-11-07 / v0.13 로컬 통합 대조. 이전 날짜의 실행 이력은 보존한다. 상세 계약의 현재 로컬 추가분은 WORKFLOW-DESIGN의 통합 후보 절, STORAGE-DESIGN의 통합 후보 정정, RAG-ARCHITECTURE의 시점별 인계를 함께 따른다.
+
+- 기존 user-api 서비스에 실제 DB 소유권과 Jira GET을 사용하는 records provider를 넣었다. 새로운 서버나 상담 이력 DB를 추가하지 않았다. 모의 data/records.json은 실환경 대체 원본이 아니다.
+- Jira 문맥 파서는 services/user_api/case_context.py와 case_context.js가 원본이다. n8n Code 내 사본은 scripts/dev/build_case_context_nodes.py로 생성·동일성 검사한다. 서버/워크플로우가 같은 문의 바인딩·작성자·완료 요청 문맥을 검증한다.
+- DB001~007을 보존한008/009 후보는 latest_completed 선택·검증된 문맥 복원·읽기 권한을 제공한다. 공개 version은 null, DB revision은 내부 조건부 갱신 값이다.
+- handoff의 문맥 저장·재조회와 state의 최종 save→finish가 성공해야 해당 처리를 완료로 답한다. 보완 대기도 문맥 저장 확인이 필요하다. 실패/미확인은 known ID와 수동 확인을 보존한다.
+- 인증 후 실행 데이터 생성 전 헤더 제거를 위한 고정 n8n 이미지 후보가 있다. 격리 로컬 검증이며 VM에 배포하거나 현재 팀/내부 키를 교체한 상태가 아니다.
+- [로컬 검증 후보](../../infra/pr36-local-candidate.md)와 [파일·설계 수용 대조](../../infra/pr36-local-acceptance.md)를 함께 본다. 실제 서비스 전체 PASS, 자동 재개, 직원 UI, 실제 환불/현장 집행은 추가로 선언하지 않는다.

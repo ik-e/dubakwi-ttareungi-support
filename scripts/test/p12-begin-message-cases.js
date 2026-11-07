@@ -5,7 +5,7 @@ const path = require("path");
 const root = path.resolve(__dirname, "../..");
 const workflow = JSON.parse(fs.readFileSync(path.join(root, "workflows", "dubakwi-state.json"), "utf8"));
 const code = workflow.nodes.find((node) => node.name.startsWith("S05")).parameters.jsCode;
-const run = (op, result) => new Function("$json", "$", code)({result: JSON.stringify(result)}, () => ({item: {json: {op, request: {request_id: "req-1"}}}}))[0].json;
+const run = (op, result) => new Function("$json", "$", code)({result: JSON.stringify(result)}, () => ({first: () => ({json: {op, request: {request_id: "req-1"}}})}))[0].json;
 const pending = (codeName, error) => ({request_id: "req-1", mode: "pending", state_ref: null, support: null, facts: null, response: {error, codes: [codeName]}, http_status: 409, error_code: codeName});
 const expectText = (actual, expected, label) => {
   if (actual.response.error !== expected || actual.http_status !== 409 || actual.error_code !== actual.response.codes[0]) throw new Error(`${label}: ${JSON.stringify(actual)}`);

@@ -1,0 +1,39 @@
+{
+  "run_id": "20261105-141845-local-rag-permission-fixture-review",
+  "recorded_at_kst": "2026-11-05T14:18:45+09:00",
+  "scope": "Static fixture comparison only; no data-api request, B05 or RAG execution.",
+  "source_commit": "b96da1928eb0c9ce12a5d7eeb4c5093c6445ea61",
+  "fixture_sha256": "2ee6985502dd6a74e11ace70bafc15880eb0507a2d2aaa8a82a296b131d281e2",
+  "checks": [
+    {
+      "id": "citizen-a",
+      "passed": true
+    },
+    {
+      "id": "citizen-b",
+      "passed": true
+    },
+    {
+      "id": "citizen-c",
+      "passed": true
+    },
+    {
+      "id": "support-demo",
+      "passed": true
+    },
+    {
+      "id": "security-demo",
+      "passed": true
+    },
+    {
+      "id": "unregistered-zz_absent",
+      "passed": true
+    }
+  ],
+  "all_passed": true,
+  "limits": [
+    "Team fixture supply on VM and integration have not been verified by this check.",
+    "No staff public-only fixture or fault injection provided by this fixture.",
+    "Not an R05 official test."
+  ]
+}

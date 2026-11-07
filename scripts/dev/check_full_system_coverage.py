@@ -94,7 +94,12 @@ def validate(plan, rows, fixture):
             errors.append(f"unexpected exemption: {key}")
     f = fixture
     support = f["support"]
-    if f["schema_version"] != 1 or f["revision"] != support["version"]:
+    if (
+        f["schema_version"] != 1
+        or type(f["revision"]) is not int
+        or f["revision"] < 1
+        or support["version"] is not None
+    ):
         errors.append("context schema/revision mismatch")
     for field in ["case_id", "owner_id", "first_request_id"]:
         if f[field] != support[field]:
@@ -108,7 +113,7 @@ def validate(plan, rows, fixture):
     )
     if f["event_id"] != hashlib.sha256(event.encode("utf-8")).hexdigest():
         errors.append("context event hash mismatch")
-    if f["phase"] not in ["wait", "handoff", "followup", "close"]:
+    if f["phase"] not in ["wait", "handoff", "followup", "close", "save"]:
         errors.append("context phase invalid")
     if support["status"] == "handed_off" and (
         support["assignee_role"] not in ["support", "security"]

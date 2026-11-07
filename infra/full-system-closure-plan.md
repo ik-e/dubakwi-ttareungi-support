@@ -1,6 +1,6 @@
 # 전체 설계 차이 수정·검증 계획
 
-- 버전: v1.0 / 2026-11-06 KST / R01 / P09~P31 중 대조표의 잔여 작업
+- 버전: v1.1 / 2026-11-06 KST / R01 / P09~P31 중 대조표의 잔여 작업
 - 기준: [64개 설계·구현 대조표](design-implementation-mapping.md), [J01~J03 공통 기준](parallel-integration-contract-v1.md), [팀 헌장](../docs/project/TEAM-CHARTER.md).
 - 범위: **기존 대조표 64개 모두를 작업·완료 시험·증거에 연결한다. 전체 설계의 모든 문장을 완전 증명하거나 기능 구현·실연동을 완료한 문서는 아니다.** 이후 발견한 요구·결함도 같은 원장에 추가한다.
 - 상태: R01 수정 기준안 작성. 생산·소비 역할·R05의 영향 검토는 대기다. 승인받은 것으로 간주하지 않으며 업무 JSON·VM·기존 데이터는 변경하지 않는다.
@@ -40,12 +40,12 @@ R01 조회 provider와 R04 state/handoff가 같은 문맥을 읽도록 **기존 
 | 항목 | 고정 규칙 |
 | --- | --- |
 | 텍스트 형식 | 첫 줄 `[dubakwi-case-context:v1]`, 다음 줄에 JSON 객체 한 개. JSON 내부 개행은 escape한다. Jira API v2 문자열 댓글의 body를 기준으로 하며 ADF 사용 시 소유자가 동일 텍스트 추출을 제공한다 |
-| 필드 | schema_version=1, scope, case_id, owner_id, first_request_id, ticket_key, request_id, event_id, revision, phase, support, facts. support는 공통 SupportCase이며 version=revision |
-| phase | wait/handoff/followup/close. 같은 요청의 초동 이관 후 보충 문맥은 별도 followup 이벤트로 구분 |
+| 필드 | schema_version=1, scope, case_id, owner_id, first_request_id, ticket_key, request_id, event_id, revision, phase, support, facts. support는 공통 SupportCase이며 version=null. revision은 내부 context_revision으로만 사용 |
+| phase | wait/handoff/followup/close/save. 같은 요청의 초동 이관 후 보충 문맥은 별도 followup 이벤트로 구분 |
 | 이벤트 ID | UTF-8 `JSON.stringify([scope, case_id, request_id, phase])`의 SHA-256 소문자 hex. 첫 요청 ID·actor·key는 별도로 연결 검증 |
 | 작성 주체 | 비공개 설정의 서비스 Jira accountId 허용목록과 댓글 author.accountId 대조. 시민 문자열이나 댓글 본문의 author 주장은 신뢰하지 않음 |
 | 연결 | 현재 DB의 scope/case/owner/first_request/known Jira key와 기존 label·이슈 연결을 모두 대조. 요청자가 넣은 소유권이나 key만으로 읽기 성공하지 않음 |
-| 최신 선택 | 모든 댓글 페이지를 읽고 검증된 동일 case의 revision 최대값 선택. 같은 revision/event의 동일 payload 재전송은 한 번으로 보며 다른 payload·버전·상충 revision은 읽기 실패. 댓글 시간만으로 최신 선택하지 않음 |
+| 최신 선택 | 모든 댓글 페이지를 절대 마감 안에서 읽고 DB latest_completed_request_id에 해당하는 유효 문맥의 revision 최대값으로 복원한다. 최종 save는 현재 요청의 유효 문맥을 별도로 확인한다. 같은 revision/event의 동일 payload 재전송은 한 번으로 보며 다른 payload·버전·상충 revision은 읽기 실패. 댓글 시간만으로 최신 선택하지 않음 |
 | 쓰기 | 기존 case 단독 처리권 아래 직전 검증 revision+1. prepare/bind 이후 쓰며 성공 응답과 재조회 일치 후 context_saved 확인. 응답 유실 시 event_id로 먼저 조회하고 맹목적 추가 댓글/업무 재호출0 |
 | 저장 의미 | 스냅샷의 handed_off는 업무 문맥이며 배정·알림 성공의 단독 증거가 아님. 현재 담당·시도/성공 표식·실제 Jira 상태를 별도로 확인한 뒤 save/finish |
 | 가림 | facts만 최소 저장. 전체 대화·전화/메일 원문·Credential·실제 Discord ID는 저장0. confirmed는 허용 원본 증거가 있는 사실만 |

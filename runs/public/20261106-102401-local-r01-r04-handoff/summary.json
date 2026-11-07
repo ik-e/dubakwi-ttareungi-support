@@ -1,0 +1,40 @@
+{
+  "executed_date": "2026-11-06 KST",
+  "environment": "local Windows; Node.js and Python; no VM writes",
+  "versions": {
+    "p27": "9d7eaf282ef326974308242059a26d7e3af983c8",
+    "p28": "8c53cf7550c0374c3700693ca12130c3fa02d8e8",
+    "main": "6c68cdd1dd46deabe855d0ad227ad848961cae79"
+  },
+  "results": {
+    "p27_unittest": {
+      "total": 84,
+      "passed": 77,
+      "skipped": 7
+    },
+    "p28_unittest": {
+      "total": 76,
+      "passed": 69,
+      "skipped": 7
+    },
+    "ruff_and_docs_and_public": "passed both",
+    "cross_pr_scope_render": "valid JSON; assignment-only replacement; guard preserved; blocked env yields storage_ready=true"
+  },
+  "r01_findings": "Earlier label/reuse, sent/attempted fresh-context, marker contract, and scope-render code requests resolved in reviewed sources.",
+  "coordination": {
+    "r04_trial_clone_update": "authorized within named inactive DLQ clone after snapshot; coordinate Execute Workflow callers; preserve bindings",
+    "dedupe_contract": "same scope/case/failed_step/error_code; SQL007 required",
+    "merge": "R02/R05 current-version review outstanding; no merge performed",
+    "database": "R01 applies 005/006/007 from reviewed main after backup and current-version check, permission/function verification",
+    "assignee_map": "private test proposal exists; D06 support/security recipient confirmation and injection not complete"
+  },
+  "not_executed": [
+    "Latest VM workflows",
+    "Service SQL005-007",
+    "Assignment/notification with confirmed mapping",
+    "Full P19 S1 and R05 official verdict"
+  ],
+  "source": "User relayed R04 in this chat on 2026-11-06; original Discord timestamp/link not provided; latest PR heads independently queried.",
+  "secret_scan_limit": "tscan/Gitleaks not available in prior checks; current public candidate checks do not guarantee secret/PII absence."
+}
+

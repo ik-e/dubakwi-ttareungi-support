@@ -1,0 +1,101 @@
+{
+  "run_id": "20261105-164023-vm-p13-citizens",
+  "executed_at": "2026-11-05T16:40:23+09:00",
+  "verified_at": "2026-11-05T16:41:09+09:00",
+  "environment": "team VM; Edge web SSH; r05tester authenticated sudo",
+  "task": "R01 P09/P13 course data-api citizen compatibility supply",
+  "repository_basis": "9086cff",
+  "contract": "merged PR17 STORAGE-DESIGN 2.1",
+  "workflow_version": "existing P11 retained; recorded source 0e44fdb; no republish",
+  "configuration_version": "20261105-164023-vm-p13-citizens",
+  "first_attempts": [
+    {
+      "step": "sudo python invocation",
+      "result": "authentication required; no script execution or data change"
+    },
+    {
+      "step": "verification bundle lookup",
+      "result": "mistyped timestamp path; failed before HTTP; corrected after listing exact directory"
+    }
+  ],
+  "backup": {
+    "outside_git": true,
+    "checksum_matches_original": true,
+    "owner_only_directory": true,
+    "private_manifest_on_vm": true
+  },
+  "data": {
+    "original_employees": 6,
+    "total_employees": 9,
+    "citizens_added": [
+      "citizen-a",
+      "citizen-b",
+      "citizen-c"
+    ],
+    "existing_records_preserved": true,
+    "unregistered_user_added": false,
+    "runtime_deployment_copy_changed": true,
+    "server_python_unchanged": true,
+    "read_only_container_mount_retained": true
+  },
+  "n8n_internal_queries": [
+    {
+      "user": "citizen-a",
+      "status": 200,
+      "name_matches": true,
+      "dept": "시민"
+    },
+    {
+      "user": "citizen-b",
+      "status": 200,
+      "name_matches": true,
+      "dept": "시민"
+    },
+    {
+      "user": "citizen-c",
+      "status": 200,
+      "name_matches": true,
+      "dept": "시민"
+    },
+    {
+      "user": "unregistered-zz",
+      "status": 404
+    }
+  ],
+  "p11_smoke": {
+    "request_id": "20261105-164023-vm-p13-citizens-entry",
+    "http_status": 200,
+    "reason": "skeleton_mock",
+    "ticket_null": true,
+    "sources_count": 0,
+    "execution_id": 166,
+    "execution_status": "success",
+    "nodes_confirmed": [
+      "B04",
+      "B05",
+      "M01",
+      "B35",
+      "B36"
+    ],
+    "log_exists": true,
+    "log_route_status_matches": true,
+    "question_absent_from_log": true,
+    "meaning": "R01 smoke; no actual ticket creation or handoff"
+  },
+  "preservation": {
+    "workflow_rows_unchanged": true,
+    "credential_rows_unchanged": true,
+    "n8n_restart": false,
+    "data_api_restart": false,
+    "logs_reset": false,
+    "logs_before": 707,
+    "healthz": 200
+  },
+  "not_run": [
+    "R05 official P11-01",
+    "full common/team regression",
+    "actual Jira/state/DLQ/Discord business completion",
+    "team format user-api changes"
+  ],
+  "evidence_method": "Masked transcription of VM manifest and verification output plus read-only execution audit. Private paths, backups, identifiers and raw data remain on VM."
+}

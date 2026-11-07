@@ -8,6 +8,7 @@ const labelFor = (scope, owner, rid) => "dubakwi-" + crypto.createHash("sha256")
 const root = path.resolve(__dirname, "../..");
 const workflow = JSON.parse(fs.readFileSync(path.join(root, "workflows", "dubakwi-handoff.json"), "utf8"));
 const nodes = new Map(workflow.nodes.map((node) => [node.name, node]));
+const CC = require("../../services/user_api/case_context.js")();
 
 const linkFields = (over = {}) => ({
   labels: [labelFor("dubakwi-team", "citizen-a", "req-1")],
@@ -23,7 +24,7 @@ const baseRequest = (action) => ({
   kind: "process", request_id: "req-1", state_ref: stateRef(1), expected_case_version: null, case_id: "case-1", actor_id: "citizen-a",
   first_request_id: "req-1", attempt: 1, ticket_id: null, title: "QR 대여 문의 010-1234-5678", category: "rental", action,
   priority: action === "handoff" ? "high" : "normal", assignee_role: action === "handoff" ? "support" : null,
-  context: {summary: "연락처 010-1234-5678 로 문의", reported: [], confirmed: [{key: "bike", value: "x", origin: "user"}], attempted_actions: [], missing: [], uncertainties: [], evidence_refs: []},
+  context: {summary: "연락처 010-1234-5678 로 문의", reported: [], confirmed: [{key: "bike", value: "x", origin: "api", reference:"mock-api"}], attempted_actions: [], missing: [], uncertainties: [], evidence_refs: []},
   answer: "안내입니다. a@b.com", sources: [{doc: "rental-guide", section: "QR", score: 0.8}],
   close_status: action === "close" ? "closed_guidance" : null, transition_key: action,
 });
@@ -31,7 +32,8 @@ const baseRequest = (action) => ({
 function run(action, jira, opts = {}) {
   const outputs = new Map();
   const calls = [];
-  const lookup = (name) => ({item: {json: outputs.get(name)}});
+  const comments = [];
+  const lookup = (name) => ({item: {json: outputs.get(name)},first:()=>({json:outputs.get(name)})});
   let current = "H01 도구 요청";
   let json = {body: {...baseRequest(action), ...(opts.req ?? {})}};
   let guard = 0;
@@ -39,7 +41,7 @@ function run(action, jira, opts = {}) {
     const node = nodes.get(current);
     let results;
     if (node.type === "n8n-nodes-base.code") {
-      results = new Function("$json", "$", node.parameters.jsCode.replace("__ASSIGNEE_MAP_JSON__", opts.map ?? '{"support":"acct"}'))(json, lookup);
+      results = new Function("$json", "$", "$input", node.parameters.jsCode.replaceAll("__JIRA_CONTEXT_AUTHORS_JSON__", opts.authors ?? '["service-test"]').replace("__ASSIGNEE_MAP_JSON__", opts.map ?? '{"support":"acct"}'))(json, lookup, {all:()=>[{json}]});
       json = results[0].json;
     } else if (node.type === "n8n-nodes-base.if") {
       const expr = node.parameters.conditions.conditions[0].leftValue.replace(/^=\{\{\s*|\s*\}\}$/g, "");
@@ -50,7 +52,23 @@ function run(action, jira, opts = {}) {
       continue;
     } else if (node.type === "n8n-nodes-base.httpRequest") {
       calls.push({node: current, req: json.req});
-      json = jira(current, json.req) ?? {statusCode: 0};
+      if (current.startsWith('H53 ')) {
+        const c=outputs.get('H52 검증 문맥 조회 준비').ctx;
+        json={statusCode:200,body:{key:c.ticket.key,fields:linkFields({labels:[labelFor(c.request.state_ref.scope,c.request.actor_id,c.request.first_request_id)],description:'case_id: '+c.request.case_id+'\nfirst_request_id: '+c.request.first_request_id,status:{statusCategory:{key:c.ticket.done?'done':'indeterminate'}}})}};
+      } else if (current.startsWith('H55 ') || current.startsWith('H60 ')) {
+        const c=outputs.get('H52 검증 문맥 조회 준비').ctx;
+        if(c.ticket.reused && comments.length===0){
+          const r=c.request,b={scope:r.state_ref.scope,case_id:r.case_id,owner_id:r.actor_id,first_request_id:r.first_request_id,ticket_key:c.ticket.key};
+          const mask=x=>typeof x==='string'?x.replace(/\b0\d{1,2}[-. ]?\d{3,4}[-. ]?\d{4}\b/g,'***-****-****').replace(/[\w.+-]+@[\w-]+\.[\w.-]+/g,'***@***'):Array.isArray(x)?x.map(mask):x&&typeof x==='object'?Object.fromEntries(Object.entries(x).map(([k,v])=>[k,mask(v)])):x;
+          const support={case_id:r.case_id,owner_id:r.actor_id,ticket_id:c.ticket.key,first_request_id:r.first_request_id,attempt:r.attempt,version:null,status:r.action==='wait'?'waiting_info':r.action==='handoff'?'handed_off':r.close_status,assignee_role:r.action==='handoff'?r.assignee_role:null,priority:r.priority};
+          const snap=CC.buildSnapshot(b,r.request_id,r.ticket_id?'followup':r.action,1,support,mask(r.context));
+          comments.push({body:CC.MARKER+'\n'+JSON.stringify(snap),author:{accountId:'service-test'}});
+        }
+        json={statusCode:200,body:{startAt:0,total:comments.length,comments:[...comments]}};
+      } else if(current.startsWith('H58 ')) {
+        comments.push({body:json.req.body.body,author:{accountId:'service-test'}});
+        json={statusCode:201,body:{id:'comment-test'}};
+      } else json = jira(current, json.req) ?? {statusCode: 0};
     } else if (node.type === "n8n-nodes-base.executeWorkflow") {
       calls.push({node: current, op: json.op});
       json = opts.state ? opts.state(current, json) : {ok: true, skipped: false, error_code: null, state_ref: {...json.state_ref, state_revision: json.state_ref.state_revision + 1}};
@@ -116,6 +134,13 @@ r = run("close", withJira({"H05 Jira 티켓 생성": {statusCode: 400, body: {}}
 expect(r.body.error_code === "tickets_down" && r.calls.every((c) => c.op !== "bind"), "create 400", r.body);
 r = run("close", withJira({"H05 Jira 티켓 생성": {statusCode: 0}}));
 expect(r.body.error_code === "ticket_unknown" && r.body.effects.created_or_reused.status === "unknown" && r.body.recovery.action === "create", "create unknown", r.body);
+
+// External rejection/error contracts are mocks, never actual Jira fault injection.
+for (const statusCode of [401, 403, 429, 500, 503]) {
+  const observed = run("close", withJira({"H05 Jira 티켓 생성": {statusCode, body:{}}}));
+  expect(observed.body.error_code === (statusCode < 500 ? "tickets_down" : "ticket_unknown"), "create HTTP error classification", observed.body);
+  expect(observed.calls.filter(c=>c.node === "H05 Jira 티켓 생성").length === 1 && observed.calls.every(c=>c.op !== "bind"), "no blind create retry/bind after HTTP rejection", observed.calls);
+}
 
 // 7. Resolution 값이 없으면 종료 실패 → partial_effect, known ID 보존(JBYS-2 사례)
 const noResolution = {statusCode: 200, body: {transitions: [{id: "131", name: "Resolved", to: {name: "완료"}, fields: {resolution: {required: true, allowedValues: []}}}]}};
@@ -211,7 +236,7 @@ for (const [scope, owner, rid] of [
   ["other-scope", "citizen-a", "req.a"],
   ["dubakwi-team", "citizen-b", "req.a"],
 ]) {
-  r = run("close", happy, {req: {first_request_id: rid, state_ref: {...stateRef(1), scope, owner_id: owner}}});
+  r = run("close", happy, {req: {first_request_id: rid, actor_id:owner, state_ref: {...stateRef(1), scope, owner_id: owner}}});
   const made = r.calls.find((c) => c.node === "H05 Jira 티켓 생성").req.body.fields.labels[0];
   expect(made === labelFor(scope, owner, rid) && !seen.has(made), `label for ${scope}/${owner}/${rid} must be unique`, made);
   seen.add(made);
@@ -243,4 +268,8 @@ expect(r.body.error_code === "partial_effect" && r.body.effects.context_saved.st
 r = run("handoff", withJira({...attemptedOnly, "H46 Jira 보완 횟수 저장": {statusCode: 503, body: {}}}), {req: {ticket_id: "JBYS-2"}});
 expect(r.body.error_code === "partial_effect" && r.body.effects.context_saved.status === "unknown" && r.body.effects.context_saved.error_code === "attempt_update_failed" && r.body.recovery.action === "context_update" && noAlertWork(r.calls), "a failed context save must never look confirmed", r.body);
 
-console.log("P12 handoff Jira flow: 21 scenarios passed");
+r=run("close",happy,{req:{deadline_at:new Date(Date.now()+500).toISOString()}});
+expect(!r.calls.some(c=>["H05 Jira 티켓 생성","H08 Jira 안내 종료","H09 Jira 맥락 저장·배정","H11 담당 알림"].includes(c.node)),"insufficient deadline must prevent new external writes",r);
+r=run("close",happy,{authors:"[]"});
+expect(r.body.error_code==="tickets_down"&&r.calls.every(c=>!!c.op),"missing trusted-author configuration must not call Jira",r);
+console.log("P12 handoff Jira flow: 21 scenarios plus deadline/config gates passed");

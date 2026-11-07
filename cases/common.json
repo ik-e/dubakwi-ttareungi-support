@@ -19,6 +19,13 @@
       "가이드가 두 결과를 허용하는 사례는 하나를 골랐다(03 문서 4절). WF-05 권한 없음, WF-10 담당자 이관(fail-closed), WF-11 담당자 이관.",
       "WF-05 권한 없음 근거: 설계서 v0.14 4.4.1절(시민의 내부 자료 요청은 B11이 restricted_access로 검색 없이 거절). WF-10·WF-11 선택 근거는 R02 설계서에 아직 기록 필요"
     ],
+    "time_policy": {
+      "decided": "R05 2026-11-06, R02 요청(B27 15초 상향 후 전체 기준)",
+      "upper_bound": "모든 응답 25초 이하(요청 시한 20초+응답 여유 5초). 실행 도구 G06이 모든 사례에 자동 판정하며 넘으면 fail",
+      "normal_target": "WF-01 정상 자동 답변 목표 8초(target_seconds). 3회 반복 기록, 초과는 fail이 아니라 성능 결함 기록",
+      "deadline": "20초 시한 안에 끝내지 못하는 경로는 deadline_exceeded로 이관하고 접수 완료를 약속하지 않는다. B27(handoff 15초)을 기다리기 전 남은 시간 확인은 R02·R04 구현",
+      "wf11": "WF-11 조회 지연은 가이드 값 max_seconds 6 유지"
+    },
     "notes": [
       "구현 전 기대 결과다. 실행·통과 증거가 아니다.",
       "모든 200 응답 사례에 status 200을 명시했다. WF-10의 'HTTP 500이 아님'을 놓치지 않기 위함.",
@@ -49,9 +56,10 @@
     {
       "name": "WF-01 정상 문의",
       "body": {"request_id": "wf01", "user": "citizen-a", "question": "QR이 안 읽혀요. 자전거번호로 대여하는 방법을 알려주세요.", "attempt": 1},
-      "expect": {"status": 200, "equals": {"route": "자동 답변", "ticket": null}, "contains": {"sources": ["rental-guide"]}, "max_seconds": 8},
+      "expect": {"status": 200, "equals": {"route": "자동 답변", "ticket": null}, "contains": {"sources": ["rental-guide"]}},
       "x_dubakwi": {
         "id": "WF01", "scenario": ["S1"], "functions": ["F03", "F04", "F05", "F07", "F08"], "producers": ["R02", "R03", "R04"],
+        "target_seconds": 8,
         "assert": [
           {"path": "sources[*].section", "op": "contains_any", "value": ["QR 인식 또는 잠금 해제가 어려운 경우"]},
           {"path": "answer", "op": "contains_any", "value": ["5자리", "자전거 번호", "자전거번호"]},
@@ -59,7 +67,7 @@
         ],
         "checks": ["티켓 1건 생성 후 closed_guidance 종료 확인", "요청 상태 completed·최종 저장"],
         "manual": ["답변이 근거 절 절차와 일치하고 근거 밖 내용 없음"],
-        "open_items": ["티켓 종료 API 지원(D01)", "max_seconds 8은 가이드 예시값"],
+        "open_items": ["티켓 종료 API 지원(D01)", "8초는 가이드 예시값이라 통과 기준(max_seconds)이 아니라 목표 시간(target_seconds)으로 둔다. 3회 반복 시간을 기록하고 초과는 성능 결함으로 남긴다(R05 결정 2026-11-06)"],
         "run_status": "not_run"
       }
     },
@@ -85,10 +93,11 @@
       "expect": {"status": 200, "equals": {"route": "담당자 이관"}},
       "x_dubakwi": {
         "id": "WF02b", "scenario": ["S2", "S3"], "functions": ["F03", "F07"], "producers": ["R02", "R04"],
-        "assert": [{"path": "ticket", "op": "not_null"}, {"path": "ticket.ticket_id", "op": "exists"}],
+        "assert": [{"path": "ticket", "op": "not_null"}, {"path": "ticket.ticket_id", "op": "exists"}, {"path": "reason", "op": "in", "value": ["attempt_limit"]}],
         "checks": ["티켓 handed_off, 보완 횟수 3, 담당 역할 지정", "담당 알림 1건"],
         "manual": ["보완 질문을 다시 하지 않음"],
-        "open_items": ["case_ref로 이어지는 1→2→3 왕복은 cases/team-extended.json TC01"],
+        "path_split": "이 사례는 요청의 attempt=3으로 한도에 닿는 경로다. attempt 없이 case_ref로만 이어 가며 서버가 Jira '보완 횟수: N'으로 세는 경로는 team-extended TC01b로 따로 판정한다(R02 요청 2026-11-06)",
+        "open_items": ["case_ref로 이어지는 1→2→3 왕복은 cases/team-extended.json TC01(attempt 보냄)·TC01b(attempt 없음)", "reason=attempt_limit은 R02 로컬 예행(vm-p19-real-test.md) 기준. 공식 응답 문자열 확인"],
         "run_status": "not_run"
       }
     },
@@ -112,7 +121,7 @@
       "body": {"request_id": "wf04", "user": "citizen-a", "question": "어제 이용권이 두 번 결제됐어요. 한 건 환불해 주세요.", "attempt": 1},
       "expect": {"status": 200, "equals": {"route": "담당자 이관", "ticket": null}},
       "x_dubakwi": {
-        "id": "WF04", "scenario": ["S8"], "functions": ["F07", "F09"], "producers": ["R04", "R02"],
+        "id": "WF04", "category": "failure_handling", "scenario": ["S8"], "functions": ["F07", "F09"], "producers": ["R04", "R02"],
         "assert": [{"path": "reason", "op": "exists"}],
         "checks": ["DLQ 정확히 1건(GET /dlq)", "알림 정확히 1건(GET /alerts)", "생성 티켓 0건(GET /tickets-created)"],
         "manual": ["접수 완료라고 답하지 않음"],
@@ -143,7 +152,7 @@
       "x_dubakwi": {
         "id": "WF06", "scenario": ["S4"], "functions": ["F01", "F06"], "producers": ["R04", "R02"],
         "assert": [],
-        "checks": ["조회 결과 denied·record=null", "T-DEMO-02 변경 0"],
+        "checks": ["조회 결과 denied·record=null·error_code=null(R04 H22 계약)", "403·404·소유자 불일치가 같은 denied로 나와 존재 여부가 드러나지 않음(없는 번호 대조는 team.json TC13)", "T-DEMO-02 변경 0"],
         "manual": ["T-DEMO-02 상태·담당·연락처를 노출하지 않음(한국어로 바꾼 상태 표현 포함)"],
         "open_items": ["비노출 문자열은 data/records.json T-DEMO-02(PR #17) 기준: 연락처 010-0000-0002·citizen-b@example.invalid, 요약 '가상 반납 처리 문의', 상태 handed_off"],
         "run_status": "not_run"
@@ -177,25 +186,27 @@
     },
     {
       "name": "WF-09 중복 요청 1/2",
-      "body": {"request_id": "wf09", "user": "citizen-a", "question": "지난주 정기권이 두 번 결제됐어요. 한 건 환불 요청합니다.", "attempt": 1},
+      "body": {"request_id": "wf09", "user": "citizen-a", "question": "11월 1일 오후에 30일 정기권을 따릉이 앱에서 카드로 결제했는데 같은 금액이 두 번 결제됐어요. 한 건 환불해 주세요.", "attempt": 1},
       "expect": {"status": 200, "equals": {"route": "담당자 이관"}},
       "x_dubakwi": {
-        "id": "WF09-1", "scenario": ["S7"], "functions": ["F02", "F07"], "producers": ["R04", "R02"],
+        "id": "WF09-1", "category": "failure_handling", "scenario": ["S7"], "functions": ["F02", "F07"], "producers": ["R04", "R02"],
         "assert": [{"path": "ticket.ticket_id", "op": "exists"}],
-        "checks": [], "manual": [], "open_items": [], "run_status": "not_run"
+        "checks": [], "manual": [],
+        "input_change": "2026-11-06 VM 20261106-174635·174807에서 이전 문장('지난주 정기권이 두 번 결제됐어요. 한 건 환불 요청합니다.')은 결제 정보가 없어 설계대로 '결제 내역' 보완 질문으로 갔다. 가이드 WF-09의 전제(이관이 필요한 같은 요청)를 채우지 못한 입력이라, 결제일·이용권·결제수단을 넣은 문장으로 바꿨다. 기대값은 그대로다. 최초 실패 기록은 보존한다",
+        "open_items": [], "run_status": "fail_input_20261106-174807"
       }
     },
     {
       "name": "WF-09 중복 요청 2/2",
-      "body": {"request_id": "wf09", "user": "citizen-a", "question": "지난주 정기권이 두 번 결제됐어요. 한 건 환불 요청합니다.", "attempt": 1},
+      "body": {"request_id": "wf09", "user": "citizen-a", "question": "11월 1일 오후에 30일 정기권을 따릉이 앱에서 카드로 결제했는데 같은 금액이 두 번 결제됐어요. 한 건 환불해 주세요.", "attempt": 1},
       "expect": {"status": 200, "equals": {"route": "담당자 이관", "ticket.duplicate": true}},
       "x_dubakwi": {
-        "id": "WF09-2", "scenario": ["S7"], "functions": ["F02", "F07"], "producers": ["R04", "R02"],
+        "id": "WF09-2", "category": "failure_handling", "scenario": ["S7"], "functions": ["F02", "F07"], "producers": ["R04", "R02"],
         "assert": [
           {"path": "ticket.ticket_id", "op": "same_as", "value": {"case": "WF-09 중복 요청 1/2", "path": "ticket.ticket_id"}},
           {"path": "ticket.priority", "op": "same_as", "value": {"case": "WF-09 중복 요청 1/2", "path": "ticket.priority"}}
         ],
-        "checks": ["first_request_id=wf09 티켓 정확히 1건(GET /tickets-created)", "2번째 요청에서 LLM·티켓 생성·보완 횟수 갱신 0", "알림 추가 0", "D02: 가이드·키트가 두 응답 ticket 전체 동등을 요구하는지 확인 전에는 WF-09 통과로 기록하지 않음"],
+        "checks": ["first_request_id=wf09 티켓 정확히 1건(GET /tickets-created)", "2번째 요청에서 LLM·티켓 생성·보완 횟수 갱신 0", "2번째 요청에서 Jira 재배정·재알림 0(저장 응답 재사용, R04 PR #27 알림 성공 표식)", "D02: 가이드·키트가 두 응답 ticket 전체 동등을 요구하는지 확인 전에는 WF-09 통과로 기록하지 않음"],
         "manual": [],
         "decision": "R02·R05 제안 판정(2026-11-05, PR #16 09b57fa 설계 기록): ① 두 응답 ticket_id·priority 같음 ② 2번째 ticket.duplicate=true ③ 티켓 1건. 설계상 2번째 응답에만 duplicate=true가 붙어 ticket 전체 비교는 항상 실패하므로 비교 대상을 좁힘",
         "open_items": ["D02에서 가이드·키트 flow.py의 WF-09 판정 방식 대조", "1/2 → 2/2 순서로 연속 실행"],
@@ -207,7 +218,7 @@
       "body": {"request_id": "wf10", "user": "citizen-a", "question": "QR이 안 읽혀요. 자전거번호로 대여하는 방법을 알려주세요.", "attempt": 1},
       "expect": {"status": 200, "equals": {"route": "담당자 이관"}},
       "x_dubakwi": {
-        "id": "WF10", "scenario": ["S8"], "functions": ["F05", "F09"], "producers": ["R02"],
+        "id": "WF10", "category": "failure_handling", "scenario": ["S8"], "functions": ["F05", "F09"], "producers": ["R02"],
         "manual_fault": {"before": "uv run tools/flow.py llm down", "after": "uv run tools/flow.py llm up"},
         "assert": [{"path": "reason", "op": "exists"}, {"path": "ticket", "op": "not_null"}],
         "checks": ["실행 기록 reason=llm_down"],
@@ -223,7 +234,7 @@
       "body": {"request_id": "wf11", "user": "citizen-a", "question": "제 문의 T-DEMO-01 처리 상태가 궁금해요.", "attempt": 1},
       "expect": {"status": 200, "equals": {"route": "담당자 이관"}, "max_seconds": 6},
       "x_dubakwi": {
-        "id": "WF11", "scenario": ["S8"], "functions": ["F06", "F09"], "producers": ["R04", "R02"],
+        "id": "WF11", "category": "failure_handling", "scenario": ["S8"], "functions": ["F06", "F09"], "producers": ["R04", "R02"],
         "assert": [{"path": "reason", "op": "exists"}],
         "checks": [],
         "manual": ["조회되지 않은 상태를 추측해 안내하지 않음"],

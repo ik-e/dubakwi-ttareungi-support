@@ -1,4 +1,4 @@
-# J01~J03 병렬 작업 공통 기준 v1.2
+# J01~J03 병렬 작업 공통 기준 v1.3
 
 - 결정일: 2026-11-06 KST / R01 / 사용자 지시의 공통 결정·실행 분담
 - 목표: 실제 접수 조회(J01), 이관 후 후속 요청(J02), 기존 사실 복원(J03)을 서로의 구현 완료를 기다리지 않고 개발·검사한다.
@@ -52,7 +52,7 @@
 | ticket_id | 기존 Jira key. 본인·문의 연결 검증 후 반환 |
 | status | received/waiting_info/handed_off/closed_guidance/closed_rejected/needs_review. 기존 요청 처리 후 새 후속의 현재 Jira가 done이면 case_closed |
 | attempt | 실제 Jira의 저장값. R02가2절에 따라 이번 유효 값을 계산 |
-| version | 검증된 Jira 문의 버전 또는null. StateRef.state_revision과 혼용하지 않음 |
+| version | null 고정. 댓글 revision은 내부 context_revision이며 Jira 낙관적 잠금 버전이 아니다. StateRef.state_revision과 혼용하지 않음 |
 | assignee_role (선택 보완) | 신규/보완은null 허용, handed_off는 최초 이관 support/security 필수 |
 | priority (선택 보완) | 신규/보완은null 허용, handed_off는 저장된 normal/high 필수 |
 
@@ -178,3 +178,16 @@ R02는 확정 예제의 handed_off/기존facts를 사용해 본체를 먼저 완
 - v1.0: 공통 기준·모의 예제 22개 작성. 구조 검사이며 구현 통과 증거는 아니었다.
 - v1.1: [로컬 Code 노드 대조](../runs/public/20261106-233303-local-parallel-contract-validation/report.md)에서 검사 10개 중 부합 6개·구현 차이 4개를 확인했다. 완료 재전송 우선순위·상충 사실·목적별 효과 횟수·혼합 배포 금지를 보완하고 예제 3개를 추가했다. Jira 문맥 공통 읽기 형식과 새 위험 예외의 미합의를 명시했다. 업무 JSON·VM·Jira·DB는 변경하지 않았다.
 - v1.2: 범위를 전체 64개 수정·검증 매핑으로 연결하고 D01 공통 문맥 fixture, D02 추가 위험 응답, D03~07 시간/고장/수동복구/보존/복원 기준안을 작성했다. 영향 역할 검토·구현·실제 시험 완료를 뜻하지 않는다. 기존 v1.1 관측 결과는 덮어쓰지 않는다.
+
+## 12. R01 통합 후보 계약 정정 — 2026-11-07
+
+사용자 지시에 따라 R01이 생산·소비·시험 경계를 함께 편집한다. 역할별 검토는 최종 후보에서 취합하며 완료 회신을 임의로 기록하지 않는다. 이번 결정은 로컬 통합 후보 기준이며 VM 반영을 뜻하지 않는다.
+
+- 공개 SupportCase.version·TicketResult.case_version·expected_case_version은 null이다. Jira 댓글 revision은 내부 순번이며 Jira 자체 변경을 CAS로 보호한다고 주장하지 않는다.
+- 문맥 phase는 wait/handoff/close/followup/save다. event_id는 기존 scope/case/request/phase 해시 규칙을 사용한다. service author·연결·서명 없는 관리 경계 검증은 기존 D01을 유지한다.
+- 후속 복원은 DB가 확인한 latest_completed_request_id의 검증된 문맥을 기준으로 한다. 실패/미확인 요청의 더 높은 댓글 revision을 완료 사실로 채택하지 않는다. 같은 최신 revision의 상충 payload는 오류다.
+- save는 최종 SupportCase/facts와 현재 요청 문맥이 같으면 재사용한다. 다르면 같은 처리권 아래 phase=save 댓글 작성·재조회 후 finish한다. 저장 성공을 확인하기 전에 completed로 답하지 않는다.
+- 내부 SaveRequest.deadline_at은 본체의 절대 마감이다. 최소 저장/응답 여유를 예약하고 부족하면 새 Jira 쓰기를 시작하지 않는다. 전체20초·R05 관측상한25초·8초 목표는 유지한다.
+- /records는 DB 소유권과 실제 Jira 현재 상태를 읽고 403/404/503을 구분한다. 실환경에서 records.json fallback은 금지한다.
+
+이 정정의 상세 완료 기준은 [전체 수정 계획](full-system-closure-plan.md)과 [공통 fixture](contracts/jira-case-context-v1.example.json)에 연결한다. 기존 실행·결함·미구현 자동 재개는 보존한다.

@@ -1,0 +1,14 @@
+# Send only application build inputs; never send local handoffs, .git or runs.
+**
+!pyproject.toml
+!uv.lock
+!services/
+!services/**
+!data/
+!data/users.json
+!data/records.json
+**/__pycache__/**
+**/*.pyc
+**/.env*
+**/*.private*
+**/*.key
