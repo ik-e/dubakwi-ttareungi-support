@@ -146,7 +146,8 @@ for (const statusCode of [401, 403, 429, 500, 503]) {
 const noResolution = {statusCode: 200, body: {transitions: [{id: "131", name: "Resolved", to: {name: "완료"}, fields: {resolution: {required: true, allowedValues: []}}}]}};
 r = run("close", withJira({"H32 Jira 전환 조회": noResolution}));
 expect(r.body.error_code === "partial_effect" && r.body.ticket_id === "JBYS-10" && r.body.effects.created_or_reused.status === "confirmed" && r.body.effects.closed.status === "failed", "resolution missing", r.body);
-expect(r.body.recovery.mode === "jira_ref" && r.body.recovery.action === "close" && r.body.recovery.reference.jira_issue_id === "10010", "close recovery", r.body.recovery);
+expect(r.body.recovery.mode === "payload" && r.body.recovery.action === "close" && r.body.recovery.reference.jira_issue_id === "10010", "close recovery", r.body.recovery);
+expect(r.body.recovery.args.close_status === "closed_guidance" && typeof r.body.recovery.args.answer === "string", "close recovery capsule", r.body.recovery.args);
 expect(!r.calls.some((c) => c.node === "H08 Jira 안내 종료"), "must not close without resolution", r.calls);
 
 // 8. 전환 ID는 이름으로 찾는다(상태마다 달라짐)

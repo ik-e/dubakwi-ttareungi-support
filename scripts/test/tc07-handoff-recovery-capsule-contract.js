@@ -32,7 +32,7 @@ const contextCtx = {
   request: { case_id: 'case-c' }, state_ref: { owner_id: 'owner-c' }, ticket: { id: '300', key: 'JBYS-300' },
   effects: { context_saved: { status: 'none' } },
 };
-const contextPlan = { ctx: contextCtx, deadline_at: '2000-01-01T00:00:00Z',
+const contextPlan = { ctx: contextCtx, deadline_at: new Date(Date.now() + 60000).toISOString(),
   snapshot: { schema_version: 1, request_id: 'request-c', event_id: 'event-c', facts: { summary: 'masked' } } };
 const contextRun = new Function('$json', '$', '$input', code('H61 문맥 저장 재조회 판정'));
 const contextResult = contextRun({}, () => ({ first: () => ({ json: contextPlan }) }), { all: () => [] })[0].json;

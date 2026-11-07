@@ -781,11 +781,12 @@ class CaseFileTests(unittest.TestCase):
                     self.assertIn("fault_off", step)
         self.assertEqual(len({self.load(s["request"])["request_id"] for s in sent}), len(sent))
 
-    def test_recovery_is_marked_not_implemented_and_tc18_splits_three_outcomes(self):
+    def test_recovery_records_local_implementation_and_pending_live_work(self):
         data = self.load("cases/team-extended.json")
         by_id = {c["x_dubakwi"]["id"]: c["x_dubakwi"] for c in data["cases"]}
         self.assertEqual(by_id["TC07"]["category"], "recovery")
-        self.assertIn("미구현", by_id["TC07"]["not_implemented"])
+        self.assertIn("미실행", by_id["TC07"]["not_implemented"])
+        self.assertIn("TC-07 전체 pass로 세지 않는다", by_id["TC07"]["not_implemented"])
         steps = by_id["TC18"]["steps"]
         self.assertEqual(steps[0]["body"]["request_id"], steps[1]["body"]["request_id"])
         self.assertEqual(steps[1]["expect"]["contains"]["codes"], ["request_requires_review"])
