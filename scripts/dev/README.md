@@ -58,3 +58,7 @@ uv run --locked python scripts/dev/make_close_fault_copy.py --output runs/privat
 ## 전체 수정 계획 누락 검사
 
 `uv run --locked python scripts/dev/check_full_system_coverage.py`는 대조표와 계획의 64개 ID·원래 완료 조건·담당 작업·예정 시험·의존성 순환·S10 미구현 한계와 Jira 문맥 fixture를 검사한다. `--output <새 경로>`로 새 증거를 저장할 수 있다. 검사 통과는 계획 연결의 완전성이며 기능·VM 시험의 통과가 아니다. 정식 cases/runner 연결은 R05 후속 작업이다.
+
+## 인증 입구 실행 이력 보존 제한
+
+`protect_n8n_execution_data.py --source <렌더한사본> --output runs/private-render/<새파일>.json`은 Header Auth Webhook 사본의 성공/실패/수동/진행 저장만 해제한다. `uv run --locked python`으로 실행하며 출력 덮어쓰기를 거절한다. API나 VM은 변경하지 않고 업무 노드·연결·Credential을 보존한다. 이력 보존을 끄는 도구이며 실행 중/삭제 대기 DB 원문 미저장이나 과거 자료 삭제를 보장하지 않는다. 실제 적용·시험 관측은 [보안 기준](../../infra/execution-data-security.md)을 따른다.

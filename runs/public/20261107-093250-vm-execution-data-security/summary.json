@@ -1,0 +1,36 @@
+{
+  "date_kst": "2026-11-07",
+  "environment": "VM n8n UI and read-only SQLite comparison; local deployment overlay checks",
+  "task": "O04/E05 key-in-execution finding",
+  "current_key_matches_execution_849": true,
+  "key_value_printed": false,
+  "rotation_required": true,
+  "rotation_performed": false,
+  "active_team_ingress_guarded": 3,
+  "inactive_team_ingress_not_changed": 3,
+  "settings": {
+    "saveDataErrorExecution": "none",
+    "saveDataSuccessExecution": "none",
+    "saveManualExecutions": false,
+    "saveExecutionProgress": false
+  },
+  "business_nodes_and_credential_refs_unchanged": true,
+  "connections_match_prior_execution": true,
+  "input_rejection_probe_http_statuses": [400, 400, 400],
+  "tagged_b17_records_checked": 3,
+  "tagged_b17_soft_deleted": true,
+  "soft_deleted_raw_data_still_contains_key": true,
+  "zero_plaintext_at_rest_achieved": false,
+  "redaction_feature_available_in_current_ui": false,
+  "b17_unpublish_republish_count": 1,
+  "n8n_restart_count": 0,
+  "historical_records_deleted_by_agent": 0,
+  "local_overlay_checks_passed": 4,
+  "unverified": [
+    "engine failure/manual runtime storage tests",
+    "raw data after permanent pruning",
+    "zero-secret-before-engine input design",
+    "external disclosure and PDF contents",
+    "new key and all consumers rotation"
+  ]
+}
