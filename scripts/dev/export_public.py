@@ -29,6 +29,8 @@ FORBIDDEN = (
     ".git/",
     ".venv/",
 )
+# Exact paths only: a directly authored diagram with no screenshots or PII.
+REVIEWED_BINARIES = frozenset({"docs/project/assets/workflow-flow.gif"})
 TOKENS = {
     "private_key": r"-----BEGIN (?:RSA |OPENSSH |EC )?PRIVATE KEY-----",
     "github_token": r"\b(?:gh[pousr]_[A-Za-z0-9]{30,}|github_pat_[A-Za-z0-9_]{40,})\b",
@@ -196,6 +198,9 @@ def build(root, output):
     available = set(files) | set(generated)
     contents, changes = {}, []
     for name in files:
+        if name in REVIEWED_BINARIES:
+            contents[name] = (root / name).read_bytes()
+            continue
         body = (root / name).read_text(encoding="utf-8-sig")
         contents[name] = (
             rewrite_markdown(body, name, root, available, changes, generated)
@@ -205,6 +210,8 @@ def build(root, output):
     contents.update(generated)
     findings = []
     for name, body in contents.items():
+        if isinstance(body, bytes):
+            continue
         for rule, pattern in TOKENS.items():
             if re.search(pattern, body):
                 findings.append({"file": name, "rule": rule})
@@ -216,7 +223,7 @@ def build(root, output):
     for name, body in sorted(contents.items()):
         destination = output / name
         destination.parent.mkdir(parents=True, exist_ok=True)
-        data = body.replace("\r\n", "\n").encode("utf-8")
+        data = body if isinstance(body, bytes) else body.replace("\r\n", "\n").encode("utf-8")
         destination.write_bytes(data)
         snapshots.append({"file": name, "sha256": hashlib.sha256(data).hexdigest()})
     report = {

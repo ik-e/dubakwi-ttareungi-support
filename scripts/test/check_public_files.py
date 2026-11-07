@@ -65,6 +65,10 @@ def audit(root=ROOT):
         if path.stat().st_size > 5 * 1024 * 1024:
             errors.append({"file": name, "issue": "large candidate requires review"})
             continue
+        if name in POLICY.REVIEWED_BINARIES:
+            if not path.read_bytes().startswith((b"GIF87a", b"GIF89a")):
+                errors.append({"file": name, "issue": "reviewed binary is not a GIF"})
+            continue
         try:
             body = path.read_text(encoding="utf-8-sig")
         except UnicodeDecodeError:

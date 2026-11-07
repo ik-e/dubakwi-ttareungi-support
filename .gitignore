@@ -38,6 +38,9 @@
 !/docs/project/STORAGE-DESIGN.md
 !/docs/project/EXECUTION-RESULT.md
 !/docs/project/TEAM-READINESS-REVIEW.md
+!/docs/project/assets/
+/docs/project/assets/*
+!/docs/project/assets/workflow-flow.gif
 !/docs/project/daily/
 /docs/project/daily/*
 !/docs/project/daily/*.md

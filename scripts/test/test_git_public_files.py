@@ -46,6 +46,21 @@ class GitPublicFilesTests(unittest.TestCase):
         self.assertEqual(result["ignored_tracked_files"], 1)
         self.assertTrue(any("already tracked" in x["issue"] for x in result["errors"]))
 
+    def test_only_the_reviewed_gif_path_is_a_binary_candidate(self):
+        (self.root / ".gitignore").write_bytes((PROJECT_ROOT / ".gitignore").read_bytes())
+        assets = self.root / "docs/project/assets"
+        assets.mkdir(parents=True)
+        (assets / "workflow-flow.gif").write_bytes(b"GIF89a\xff\xfe")
+        (assets / "other.gif").write_bytes(b"GIF89a\xff\xfe")
+        result = audit(self.root)
+        self.assertFalse(result["errors"])
+        self.assertIn("docs/project/assets/workflow-flow.gif", result["files"])
+        self.assertNotIn("docs/project/assets/other.gif", result["files"])
+
+        (assets / "workflow-flow.gif").write_bytes(b"not a gif")
+        result = audit(self.root)
+        self.assertTrue(any(x["issue"] == "reviewed binary is not a GIF" for x in result["errors"]))
+
     def test_project_rules_share_masked_text_but_exclude_raw_artifacts(self):
         (self.root / ".gitignore").write_bytes((PROJECT_ROOT / ".gitignore").read_bytes())
         expected = {

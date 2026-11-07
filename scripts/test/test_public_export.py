@@ -43,6 +43,23 @@ class PublicExportTests(unittest.TestCase):
         self.assertEqual(private.read_text(), "unpublished original")
         self.assertEqual(report["rewritten_references"][0]["omitted_reference"], "data/original.md")
 
+    def test_reviewed_gif_is_copied_byte_for_byte_and_link_is_kept(self):
+        name = "docs/project/assets/workflow-flow.gif"
+        data = b"GIF89a\xff\xfe\r\n\x00"
+        (self.root / name).parent.mkdir()
+        (self.root / name).write_bytes(data)
+        self.topic.write_text("![flow](assets/workflow-flow.gif)\n", encoding="utf-8")
+        self.manifest.write_text(
+            json.dumps({"files": ["docs/project/TOPIC.md", name]}), encoding="utf-8"
+        )
+        report = EXPORT.build(self.root, self.output)
+        self.assertEqual((self.output / name).read_bytes(), data)
+        self.assertEqual(report["rewritten_references"], [])
+        self.assertIn(
+            "assets/workflow-flow.gif",
+            (self.output / "docs/project/TOPIC.md").read_text(encoding="utf-8"),
+        )
+
     def test_unknown_file_never_enters_export(self):
         (self.root / "unexpected.txt").write_text("do not publish", encoding="utf-8")
         EXPORT.build(self.root, self.output)
