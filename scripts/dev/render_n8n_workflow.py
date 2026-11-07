@@ -10,6 +10,8 @@
         --output runs/private-render/dubakwi-handoff.json
 
 assignee-map.json 예: {"support": "<계정 ID>", "security": "<계정 ID>"}
+대상 생성 유형을 바꿀 때만 --jira-issue-type-id <조회한 숫자 ID>를 지정한다.
+생략하면 원본 유형을 유지하며 다른 사이트의 유형 ID를 추정하지 않는다.
 """
 
 from __future__ import annotations
@@ -69,6 +71,7 @@ def render(
     assignee_map: str | None,
     scope: str | None = None,
     context_authors: str | None = None,
+    jira_issue_type_id: str | None = None,
 ) -> str:
     if jira_base is not None:
         text = text.replace(JIRA_PLACEHOLDER, validate_jira_base(jira_base))
@@ -99,6 +102,26 @@ def render(
             raise RenderError("문맥 작성자 목록에 비어 있거나 안전하지 않은 ID가 있다")
         escaped = json.dumps(json.dumps(authors, separators=(",", ":")))[1:-1]
         text = text.replace(AUTHORS_PLACEHOLDER, escaped)
+    if jira_issue_type_id is not None:
+        if not re.fullmatch(r"[1-9][0-9]{0,19}", jira_issue_type_id):
+            raise RenderError("Jira 작업 유형 ID는 양의 정수 문자열이어야 한다")
+        workflow = json.loads(text)
+        nodes = [
+            node
+            for node in workflow.get("nodes", [])
+            if node.get("name", "").startswith("H24 ") and node.get("type") == "n8n-nodes-base.code"
+        ]
+        if len(nodes) != 1:
+            raise RenderError("H24 생성 계획 Code 노드를 정확히 1곳 찾지 못했다")
+        code, count = re.subn(
+            r"(issuetype:\{id:')[1-9][0-9]*('\})",
+            lambda match: match.group(1) + jira_issue_type_id + match.group(2),
+            nodes[0]["parameters"].get("jsCode", ""),
+        )
+        if count != 1:
+            raise RenderError("H24의 Jira 작업 유형 ID를 정확히 1곳 찾지 못했다")
+        nodes[0]["parameters"]["jsCode"] = code
+        text = json.dumps(workflow, ensure_ascii=False, indent=2) + "\n"
     return text
 
 
@@ -119,6 +142,10 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--source", required=True, type=Path)
     parser.add_argument("--output", required=True, type=Path)
     parser.add_argument("--jira-base")
+    parser.add_argument(
+        "--jira-issue-type-id",
+        help="대상 Jira 프로젝트에서 조회한 생성 유형 ID; 생략하면 원본 유지",
+    )
     parser.add_argument("--assignee-map-file", type=Path)
     parser.add_argument("--context-authors-file", type=Path)
     parser.add_argument(
@@ -137,6 +164,7 @@ def main(argv: list[str] | None = None) -> int:
             assignee,
             args.scope,
             args.context_authors_file.read_text("utf-8") if args.context_authors_file else None,
+            args.jira_issue_type_id,
         )
         json.loads(rendered)  # 결과가 여전히 올바른 JSON인지 확인
     except (RenderError, OSError, json.JSONDecodeError) as error:

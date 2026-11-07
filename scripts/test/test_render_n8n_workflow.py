@@ -50,6 +50,36 @@ class RenderWorkflowTest(unittest.TestCase):
             with self.assertRaises(render_tool.RenderError, msg=raw):
                 render_tool.validate_assignee_map(raw)
 
+    def test_issue_type_override_only_changes_creation_node(self) -> None:
+        text = (ROOT / "workflows" / "dubakwi-handoff.json").read_text(encoding="utf-8")
+        self.assertEqual(render_tool.render(text, None, None), text)
+        original = json.loads(text)
+        rendered = json.loads(render_tool.render(text, None, None, jira_issue_type_id="10003"))
+        changed = [
+            (before, after)
+            for before, after in zip(original["nodes"], rendered["nodes"], strict=True)
+            if before != after
+        ]
+        self.assertEqual(len(changed), 1)
+        before, after = changed[0]
+        self.assertTrue(before["name"].startswith("H24 "))
+        self.assertIn("issuetype:{id:'10006'}", before["parameters"]["jsCode"])
+        self.assertIn("issuetype:{id:'10003'}", after["parameters"]["jsCode"])
+        after["parameters"]["jsCode"] = before["parameters"]["jsCode"]
+        self.assertEqual(rendered, original)
+
+    def test_issue_type_override_fails_closed_for_bad_ids_or_source(self) -> None:
+        text = (ROOT / "workflows" / "dubakwi-handoff.json").read_text(encoding="utf-8")
+        for value in ("", "0", "-1", "01", "10003';evil", "a", "1" * 21):
+            with self.subTest(value=value), self.assertRaises(render_tool.RenderError):
+                render_tool.render(text, None, None, jira_issue_type_id=value)
+        for source in (
+            '{"nodes":[]}',
+            text.replace("issuetype:{id:'10006'}", "issuetype:{name:'Task'}"),
+        ):
+            with self.assertRaises(render_tool.RenderError):
+                render_tool.render(source, None, None, jira_issue_type_id="10003")
+
     def test_output_must_be_under_ignored_runs_directory(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             with self.assertRaises(render_tool.RenderError):
