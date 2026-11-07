@@ -1,0 +1,29 @@
+{
+  "run_id": "20261107-225529-local-tc07-finish",
+  "run_date_kst": "2026-11-07 22:55:29",
+  "environment": "local disposable PostgreSQL + local Node contracts",
+  "code_ref": "6f9561b (dirty worktree; migration 010 and workflow B33 changes under test)",
+  "workflow_version": "local dubakwi-support.json B33 change",
+  "config_version": "PostgreSQL 16.15-bookworm; image sha256:e8a07d2c7579b038938cdba6c539e580e5001caf9ea203d397b5cc83e76bd938",
+  "case_ids": ["TC-07", "TC06-v1 finish recovery slice"],
+  "result": "partial_pass",
+  "checks": {
+    "migrations_001_to_010_disposable_db": "pass",
+    "controlled_recovery_sql_contract": "pass on rerun; first run exposed duplicate fixture request_id and was corrected",
+    "runtime_cannot_operator_execute": "pass (false)",
+    "recovery_operator_can_execute": "pass (true)",
+    "finish_capsule_node_contract": "pass 3/3",
+    "support_code_regression": "pass 157/157",
+    "recovery_action_parity": "pass 8/8",
+    "project_docs_links_anchors": "pass 720 links, 59 anchors",
+    "git_diff_check": "pass"
+  },
+  "limitations": [
+    "VM migration and separate operator login not deployed or verified",
+    "No live Jira/operator execution performed",
+    "Concurrent operator and interruption/restart recovery not tested",
+    "Recovery actions other than persisted finish response remain unsupported by this slice",
+    "This is not a TC-07 full pass"
+  ],
+  "detail": "report.md"
+}

@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "run_id": "20261107-201652-vm-p26-jira-lifecycle",
+  "executed_on": "2026-11-07 20:16 KST",
+  "environment": "Team VM via Edge Web SSH, Jira UI and core user API",
+  "authority": "R01 observed; synthetic test requests and read-only effect checks",
+  "source": {
+    "branch": "r01/p26-final-closure",
+    "head": "6f9561bae48ad5da44b726f95c18d29024ba0d0d",
+    "matches_origin_main": true
+  },
+  "support": {
+    "workflow": "R01 PR36 a657890 support",
+    "first_request": {"request_id": "p26-j02j03-20261107-2008-01", "http": 200, "route": "담당자 이관", "reason": "needs_human", "ticket_present": true, "case_ref_present": true},
+    "followup_request": {"request_id": "p26-j02j03-20261107-2008-02", "http": 200, "route": "담당자 이관", "reason": "needs_human", "same_ticket": true}
+  },
+  "jira": {
+    "ticket_key": "JBYS-***",
+    "status": "resolved",
+    "resolution": "완료",
+    "assignee_present": true,
+    "priority": "Medium (normal request)",
+    "assignment_transitions": 1,
+    "alert_attempted_markers": 1,
+    "alert_sent_markers": 1,
+    "context_snapshot_revisions": [1, 2],
+    "followup_facts_cumulative": true,
+    "human_receipt_confirmed": false,
+    "test_handler_transition_performed": true,
+    "assigned_employee_handling_confirmed": false,
+    "citizen_lookup_after_transition_http": 200,
+    "citizen_lookup_after_transition_status": "closed"
+  },
+  "lookup": {
+    "records_mode": "jira",
+    "owner_http": 200,
+    "owner_record_status_before_transition": "handed_off",
+    "owner_record_status_after_transition": "closed",
+    "other_user_http": 403,
+    "missing_ticket_http": 404
+  },
+  "storage": {
+    "request_rows_completed": 2,
+    "both_have_jira_key": true,
+    "matching_dlq_rows": 0,
+    "transaction": "read only; rolled back"
+  },
+  "execution_history": "No saved rows visible for selected core workflow; node-level effects and timings unavailable",
+  "status": "jira_followup_and_post_transition_citizen_lookup_passed_assigned_employee_handling_unconfirmed",
+  "details": "report.md"
+}

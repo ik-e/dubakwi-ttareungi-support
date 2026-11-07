@@ -1,10 +1,10 @@
 # 서비스 저장소 관리 설계서 · 두바퀴
 
-현행 적용 상태: v0.6 / 2026-11-07. main a657890과 SQL001~009를 VM에 적용했다. [실제 검증](../../runs/public/20261107-170503-vm-pr36-integration/report.md)은 readonly records 허용/거절, 실제 save/finish, known ID·DLQ 보존, 복원 DB의 저장 이중 실패와 함수만 해제한 뒤 재전송 차단을 포함한다. 기존 scope의 행 집계는 최초 복원본과 같고 행 직접 수정/삭제는 하지 않았다. 자동 재처리(TC07)는 미구현이며 fail/resolve를 원 요청 재개로 취급하지 않는다. 아래 준비본·연결 전 표기는 당시 이력이다.
+현행 적용 상태: v0.13 / 2026-11-08. main a657890과 SQL001~010이 VM에 적용된 것을 operator credential의 parameterized `recovery_finish(inspect)` 성공으로 확인했다. [기존 실제 검증](../../runs/public/20261107-170503-vm-pr36-integration/report.md)은 readonly records 허용/거절, 실제 save/finish, known ID·DLQ 보존, 복원 DB의 저장 이중 실패와 함수만 해제한 뒤 재전송 차단을 포함한다. [저장 경계 disposable 검증](../../runs/public/20261108-010000-local-tc07-complete-contract/report.md)은 migrations 001~016의 claim/resume/release/complete와 safe refusal을 확인했다. [최신 Handoff capsule 시험](../../runs/public/20261108-071500-local-tc07-handoff-capsules/report.md)은 종료·배정·검증된 문맥 재조회 실패의 masked replay inputs를 확인했다. 실제 Jira 단계 수행·확인은 운영자 수동 경계이며 live VM/Jira에서는 미검증이다. create/alert 및 불명확한 capsule은 여전히 안전하게 거절되거나 inspect-only로 남는다. 아래 준비본·연결 전 표기는 당시 이력이다.
 
 전체 구성과 요청·티켓·DLQ 상태의 관계는 [최상위 시스템 설계서](SYSTEM-DESIGN.md)를 참조한다. 저장 구조·계약·복구 상세의 원본은 이 문서다.
 
-- 작성: 2026-11-03 KST / 버전·상태: **v0.5 PostgreSQL 저장 계약·검증 준비본, VM 연결 전**.
+- 작성: 2026-11-03 KST / 최초 버전·상태: **v0.5 PostgreSQL 저장 계약·검증 준비본, VM 연결 전**.
 - 편집 책임: R04 연동·안정성. 인터페이스 검토 R02, 환경·보존 정책 R01, 확인 항목 검토 R05.
 - 팀 보조 설계서다. 공식 워크플로우·RAG·실행 결과서 템플릿을 대체하지 않는다.
 - 범위의 원본: [TOPIC](TOPIC.md). 전체 동작·공개 페이로드·오류 분기는 [워크플로우 설계서](WORKFLOW-DESIGN.md), 지식·벡터 저장은 [RAG 설계서](RAG-ARCHITECTURE.md), 작업 배정·진행은 [개발 계획](../DEVELOPMENT-PLAN.md).
@@ -15,11 +15,11 @@
 
 | 항목 | 현재 상태 |
 | --- | --- |
-| Jira 티켓 관리 | 사용자 채택. 실제 계정·프로젝트·필드·연결은 확인 전 |
-| 최소 처리 상태·실행 기록·DLQ | 사용자 채택. 상세 구조는 이 문서의 작업 기준 초안 |
-| 물리 저장 | PostgreSQL의 request_state/dead_letters 2테이블 + n8n 기본 실행 기록. 마이그레이션 준비본은 구현, VM 배포·채택 검증 전 |
+| Jira 티켓 관리 | VM에서 실제 생성·종료·조회·담당 배정을 통합 확인했다. 담당 알림 API 수락과 사람의 수신은 구분한다. |
+| 최소 처리 상태·실행 기록·DLQ | PostgreSQL state/save/fail/DLQ와 n8n 실행 기록을 VM 통합 경로에서 사용했다. unknown·known ID·DLQ 보존 및 재전송 차단을 확인했다. |
+| 물리 저장 | PostgreSQL의 request_state/dead_letters 2테이블과 n8n 기본 실행 기록을 사용한다. SQL001~009가 VM에 적용됐고 별도 DB 복원도 확인했다. 운영 RPO/RTO는 미확정/미측정이다. |
 | 이전 3테이블 제안 | 제외. support_cases와 integration_events를 별도 구축하지 않음 |
-| 실제 구현 | SQL·권한 마이그레이션,state/DLQ 저장 함수·검증 SQL 준비. DB 배포·n8n 실제 연결·재처리 실행은 미완료 |
+| 실제 구현 | PostgreSQL·n8n 실제 연결과 정상/장애 경계를 일부 VM 검증했다. TC-07의 finish Response 복원은 로컬 구현·검증했으나 VM 배포·운영자 호출·기타 action은 미완료다. 운영자 수동 확인·사람 알림·전체 복구 검증은 마감 계획에 남아 있다. |
 
 PostgreSQL 제안 이유는 요청 고유키·조건부 갱신·DLQ 중복 제한을 관리하기 위해서다. 다른 저장 기능으로 같은 계약을 충족하면 물리 기술을 변경할 수 있다. 단순 GET 후 SET만 제공하는 저장소가 동시 요청까지 보장한다고 가정하지 않는다. 제공 data-api의 메모리 캐시·DLQ는 공통 시험에 사용 가능하지만 재시작 복구가 구현된 것으로 보지 않는다.
 
@@ -164,6 +164,12 @@ DLQ 기록은 최소 상태 저장이 실패한 경우에도 시도할 수 있�
 4. 효과/복구 자료 확인 뒤 운영 드라이버가 원래 failed/unknown 레코드를 processing으로 조건부 재개하고 새 execution_id/state_ref를 발급한다. 확인 전 정상 begin으로 처리권을 재발급하지 않는다. 이 운영 갱신은 R04의 DLQ 재처리 기능에 한정한다. recovery의 mode/필수 인자·권한·기대 상태를 먼저 확인한다. payload 또는 유효 Jira 참조가 없으면 manual_required로 유지하고 사용자 재문의/새 평가를 요청한다. 실행 기록ID만으로 데이터가 복원된다고 가정하지 않는다. 복원 가능한 경우만 성공한 생성·종료·배정·알림을 제외하고 실패 단계만 처리한다. 새 실행ID와 시도수를 갱신한다. recovery payload의 예전 state_ref/revision/expected_case_version을 그대로 사용하지 않고 운영 재개에서 얻은 새 StateRef와 재조회한 Jira 상태를 적용한다. 답변을 새로 작성해야 한다면 같은 단계 replay가 아니라 새 평가·검증 절차다. n8n Retry 전체 실행이 안전한지는 먼저 확인한다.
 5. Jira 결과와 최소 상태/응답 저장을 확인한 뒤 resolved·resolution·resolved_at을 기록한다. 미확인 또는 실패가 남으면 pending으로 되돌린다.
 
+TC-07 finish slice는 migration 010 `recovery_finish(jsonb)`다. DLQ의 `payload/finish`에 가린 Response가 있고 Jira ID·문맥 효과·완료/배정/알림 효과가 허용된 상태일 때만, 별도 `dubakwi_recovery_operator` 권한으로 revision·원 execution CAS를 수행해 Response를 completed에 복원하고 DLQ를 resolved로 바꾼다. 이 명령은 Jira/Discord를 호출하지 않는다. 운영자는 먼저 원 실행 종료와 Jira의 실제 티켓·문맥·효과를 확인하고 `jira_effects_confirmed` 확인 값을 제출한다. 외부 효과가 unknown이면 거부한다.
+
+migration 011 `recovery_claim`은 owner/input hash, scope, request, Jira linkage, 원 execution, state/DLQ revision, supported action과 effect 상태를 대조하고 원 execution/operator를 capsule에 결합한 뒤 pending→reprocessing을 CAS 획득한다. 필요한 action 인자가 없는 capsule은 claim 전에 거절한다. Handoff H33/H36은 close_status와 masked answer를, H42는 실제 선택된 assignee account ID와 priority를, H61은 재조회 검증 실패의 masked snapshot/event ID를 payload로 보존한다. migration 013 `recovery_resume`은 request_state를 failed/unknown→processing으로 CAS 전이하고 새 StateRef를 발급한다. 중단/실패한 재개는 `recovery_release`가 확인 attestation과 CAS로 failed/pending에 복귀시키며 대상 effect 결과를 effects와 last_effect_check에 기록한다. unknown은 다음 claim을 Jira 재확인까지 거절하고, confirmed는 already_applied로 보존해 외부 action 재실행 없이 complete한다. bind는 effect가 없어 none을 기록한다. resume 전 claim 반납도 실행 종료·효과 재확인을 요구하며 DLQ last_execution_id를 원 execution으로 복원한다. migration 015 `recovery_complete`는 action effect와 비대상 effect, Jira linkage, Response shape 및 원 execution/operator claim을 재검증한 뒤 request_state completed와 DLQ resolved를 한 트랜잭션에서 저장한다. 이 complete 경계는 운영자가 Jira/Discord action을 실제 수행·확인했다는 attestation을 사용하며 외부 API를 직접 호출하지 않는다. migrations 014/016은 resume/complete를 dispatcher allowlist에 넣는다. runtime 역할에는 operator 권한이 없다. 저장 경계는 [2026-11-08 재검증](../../runs/public/20261108-073512-local-tc07-unknown-effect-release/report.md), Handoff producer는 [최신 capsule 시험](../../runs/public/20261108-071500-local-tc07-handoff-capsules/report.md)에서 확인했다.
+
+VM의 기존 010 `inspect`는 [2026-11-08 실행](../../runs/public/20261108-002000-vm-tc07-parameterized-inspect/report.md)에서 parameterized 호출로 확인했다. 대상에 실제 Jira가 없어 finish는 미실행이다. migrations 011~016은 [disposable contract](../../runs/public/20261108-010000-local-tc07-complete-contract/report.md)만 통과했으며 VM 미적용이다. Jira/Discord 실제 단계 수행 및 효과 조회, create/alert producer 자료와 stale claim 실운영 검증은 미완료다. Handoff 종료·배정·context_update 캡슐은 [local fixture](../../runs/public/20261108-071500-local-tc07-handoff-capsules/report.md)로만 검증했다. 상세 계약은 `infra/db/verification/controlled-recovery-contract.sql`과 `infra/db/verification/controlled-recovery-claim-release-contract.sql`이다.
+
 자동 재처리 엔진·메시지 브로커는 현재 범위에 추가하지 않는다. 재처리 명령·n8n 하위 흐름 호출 방식은 R04가 정하고 R02/R05와 실제 효과를 확인한다. 삭제나 단순 알림 수락을 해결 완료로 보지 않는다.
 
 ### 4.3. 재처리 자료의 최소 보존
@@ -262,7 +268,7 @@ SupportCase.version은 현재 구현에서 null이다. 내부 댓글 revision은
 가상 DLQ 복구 캡슐. 실제 Jira 연결·권한·최신 상태 확인 없이는 replay하지 않는다.
 
 ```json
-{"version":1,"mode":"jira_ref","action":"close","args":null,"reference":{"jira_issue_id":"10001","jira_issue_key":"JBYS-1","case_id":"case-01","owner_id":"citizen-a","read_fields":["masked_answer","sources","target_close_status"]},"reason":"종료 전환 실패,필수값은 생성 시 Jira에 저장됨"}
+{"version":1,"mode":"payload","action":"close","args":{"close_status":"closed_guidance","answer":"[전화/전자우편 가림 처리된 안내 답변]"},"reference":{"jira_issue_id":"10001","jira_issue_key":"JBYS-1","case_id":"case-01","owner_id":"citizen-a"},"reason":"종료 전환 실패"}
 ```
 
 RecoveryCapsule의 payload는 action별 허용 필드만 사용한다. create는 가린 TicketRequest,bind는Jira ID/key와원요청참조,next_step,finish는가린 SaveRequest/Response,close/context_update/assign/alert는대상과검증된가린변경값이다. alert_marker는 알림 재전송 지시가 아니라 Jira의 attempted/sent 표식과 알림 효과를 확인·보정하기 위한 jira_ref다. 같은 case·failed_step·error_code의 활성 항목만 중복 제거하고 단계나 오류가 달라지면 별도 확인 항목으로 남긴다. n8n execution_id만 있는 reference는jira_ref가 아니며manual_required다. 비밀·임의 endpoint·임의 코드·전체 대화는허용하지않는다.

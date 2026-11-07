@@ -1,11 +1,51 @@
 # 워크플로우 실행 결과서 · 두바퀴
 
-현행 보충 v0.9 / 2026-11-07, R01 통합 실행 관측: [PR36 실제 연결 검증](../../runs/public/20261107-170503-vm-pr36-integration/report.md)·[가린 집계](../../runs/public/20261107-170503-vm-pr36-integration/summary.json)를 추가했다. 정상 Discord 종단과 최종 Jira/DB 일치는 확인했고, 41개 정의 중 40개를 실행했다. 응답 기대 충족38·미충족2·미구현1은 공식 PASS 수가 아니며 R05 최종 확인 전이다. 아래 v0.8의 반복·PASS*·미실행·화면 부록과 최초 실패는 당시 기록으로 보존하고 새 성공으로 덮지 않는다.
+2026-11-08 TC-07 release unknown-effect safety: [실행 보고서](../../runs/public/20261108-073512-local-tc07-unknown-effect-release/report.md)·[가린 요약](../../runs/public/20261108-073512-local-tc07-unknown-effect-release/summary.json). 새 disposable PostgreSQL 16.15에서 migrations 001~016 및 finish, claim/release, unknown-effect 계약 3종을 통과했다. 재개 작업이 다시 실패할 때 release가 대상 효과를 unknown으로 보존하고 다음 claim을 Jira 재확인 전까지 차단하며, 이미 적용된 효과는 중복 실행 없이 adopt/complete하는 것을 확인했다. Operator 입력 25/25, finish capsule 3/3, Handoff recovery capsule 6/6, JSON 및 프로젝트 문서/공개 파일 정적 검사 통과. VM/Jira/Discord 외부 효과는 0건이며 TC-07 실연동/VM migration은 미검증이다.
+
+2026-11-08 TC-07 VM 복구 사전 점검(read-only): [실행 보고서](../../runs/public/20261108-072200-vm-tc07-recovery-preflight/report.md)·[가린 요약](../../runs/public/20261108-072200-vm-tc07-recovery-preflight/summary.json). 서비스 DB `dubakwi_service`에 `recovery_%` 함수가 없음을 확인해 migrations 010~016 미적용을 확인했다. SQL/role/workflow 변경 없이 읽기만 했으며 Jira/Discord/state/DLQ 쓰기 0건이다. 문서 링크 검사 22 files/0 errors, 공개 후보 562 files/0 errors. 배포 runbook에는 010~016 전체 순서와 restore DB rehearsal, operator/runtime 경계를 추가했다. reviewed default-branch revision이 준비되기 전에는 VM 반입하지 않는다.
+
+2026-11-08 TC-07 Handoff producer 후속: [실행 보고서](../../runs/public/20261108-071500-local-tc07-handoff-capsules/report.md)·[가린 요약](../../runs/public/20261108-071500-local-tc07-handoff-capsules/summary.json). H36 종료 실패 capsule에 close_status+masked answer, H42 배정 실패 capsule에 선택 account ID+priority, H61 검증용 snapshot이 있는 문맥 실패 capsule에 같은 event snapshot이 보존되는지 fixture 6/6 통과했다. operator workflow 19 checks·finish capsule 3/3, JSON/diff, 문서 링크 22 files/0 errors, 공개 후보 560 files/0 errors를 확인했다. Jira/Discord/DB/VM 호출은 0이며 001~016 저장 계약은 직전 [local audit](../../runs/public/20261108-010400-local-tc07-final-audit/report.md)에서 확인했고 이번 workflow 변경 뒤 재실행하지 않았다. create/alert producer replay와 VM/live 종단은 미완료다.
+
+2026-11-08 TC-07 complete contract 후속: [실행 보고서](../../runs/public/20261108-010000-local-tc07-complete-contract/report.md)·[요약](../../runs/public/20261108-010000-local-tc07-complete-contract/summary.json). 001~016 disposable migration 적용에서 args 없는 Jira-ref 안전 거절, CAS claim→resume 새 StateRef, 실패 뒤 pending 복귀, verified action Response 저장과 DLQ resolved, unknown effect/중복 완료 거절을 확인했다. operator workflow 19/19. 이는 저장 계약과 합성 effect이며 Jira/Discord 실제 action 수행·효과 확인이나 VM 적용을 입증하지 않는다.
+
+2026-11-08 TC-07 resume/release 저장 경계 추가 검증: [실행 보고서](../../runs/public/20261108-005000-local-tc07-resume-contract/report.md)·[요약](../../runs/public/20261108-005000-local-tc07-resume-contract/summary.json). disposable PostgreSQL 16.15에 migrations 001~014를 적용하고 finish, claim→fresh StateRef resume→실패 후 failed/pending release 계약 및 operator/runtime 권한 경계를 재검증했다. operator workflow의 수동 입력·resume 검사 18/18. Jira/Discord/VM 효과는 0이며 action driver·성공 complete/resolve·stale claim recovery와 실제 VM migration은 남아 TC-07 전체 완료가 아니다.
+
+2026-11-08 TC-07 operator storage boundary 후속: [최신 결과](../../runs/public/20261108-004000-local-tc07-postchecks/report.md)에서 disposable PostgreSQL에 migrations 001~012를 새로 적용하고 claim/release·finish 회귀 SQL과 runtime/operator 권한 분리를 통과했다. 입력 hash·owner·revision mismatch 거부, unknown non-target 효과 차단, operator workflow 14/14, capsule 3/3, recovery parity 8/8을 확인했다. 앞선 [동시 claim 시험](../../runs/public/20261108-003500-local-tc07-claim-release/report.md)은 2개 세션 중 1승만 확인했다. 이 결과는 저장계약 검증이며 action driver, request_state 재개/새 StateRef, 실패 단계 실행·완료·resolve, stale claim 복구, VM migration 및 Jira 실연동은 여전히 미완료다. VM/Jira/Discord 변경 0건이다.
+
+2026-11-08 TC-07 VM operator inspect 정정: [실행 보고서](../../runs/public/20261108-002000-vm-tc07-parameterized-inspect/report.md)·[요약](../../runs/public/20261108-002000-vm-tc07-parameterized-inspect/summary.json). `recovery_finish($1::jsonb)`가 operator credential로 `ok:true`를 반환했다. 이전 `recovery_not_found`는 fixture DLQ ID의 마지막 `1` 누락으로 확인됐다. inspect only이며 실제 Jira가 없는 대상이라 finish/resolve·외부 효과는 실행하지 않았다. TC-07 전체 판정은 부분 완료다.
+
+같은 날 TC-07 disposable 재검증: [실행 보고서](../../runs/public/20261108-002500-local-tc07-recheck/report.md)·[요약](../../runs/public/20261108-002500-local-tc07-recheck/summary.json). 로컬 ephemeral PostgreSQL 16.15에서 migration 001~010과 recovery contract를 통과했다. runtime role의 finish EXECUTE 거부/operator role 허용, capsule 3/3, operator workflow 8/8, recovery/DLQ parity 8/8을 확인했다. 초기 role 미준비 설정 실패와 보정 후 통과를 함께 보존했다. VM finish 및 Jira/Discord 효과 시험은 실행하지 않았다.
+
+현행 보충 v0.10 / 2026-11-07, R01 통합 실행 관측: [PR36 실제 연결 검증](../../runs/public/20261107-170503-vm-pr36-integration/report.md)·[가린 집계](../../runs/public/20261107-170503-vm-pr36-integration/summary.json)를 추가했다. 정상 Discord 종단과 최종 Jira/DB 일치는 확인했고, 41개 정의 중 40개를 실행했다. 응답 기대 충족38·미충족2·미구현1은 공식 PASS 수가 아니며 R05 최종 확인 전이다. 아래 v0.8의 반복·PASS*·미실행·화면 부록과 최초 실패는 당시 기록으로 보존하고 새 성공으로 덮지 않는다.
+
+시간 결과 해석: WF-11의 `max_seconds: 6`은 가이드 예시 assertion이다. 8.288초 결과는 그 assertion과 불일치하지만 설계의 20초 전체 deadline을 위반하지 않았고 안전 이관을 반환했다. 이를 운영 SLA 위반이나 구현 결함으로 집계하지 않는다. 과거 report/summary의 assertion 결과는 원본 기록으로 유지한다.
+
+2026-11-07 Edge 웹 VM 읽기 점검: [보고서](../../runs/public/20261107-194606-vm-pr36-readonly-recheck/report.md)·[요약](../../runs/public/20261107-194606-vm-pr36-readonly-recheck/summary.json). PR36 core와 UX/mock의 별도 게시 구조 및 컨테이너 tag를 확인했다. 이 점검은 read-only이며 신규 업무 요청·Jira 변경·워크플로우 실행은 하지 않았다. 따라서 TC15/WF11/J01~J03/RAG 종단을 통과로 추가하지 않고 기존 VM 실행 수치에도 합산하지 않는다.
+
+2026-11-07 승인된 synthetic Jira 생애주기 종단: [실행 보고서](../../runs/public/20261107-201652-vm-p26-jira-lifecycle/report.md)·[가린 요약](../../runs/public/20261107-201652-vm-p26-jira-lifecycle/summary.json). 첫 문의와 보완은 동일 Jira 티켓으로 이어졌고 문맥 스냅샷이 누적됐다. Jira owner/other/missing 경계는 각각 `200/403/404`, 요청 상태는 `completed/respond`, 해당 DLQ 0이었다. 사용자 승인 후 테스트 Jira 계정으로 티켓을 Resolved/완료 전환했고, 시민 본인 GET이 `200 closed`를 반환했다. 이는 배정된 직원의 직접 처리·알림 수신·환불 실행 증거가 아니다. core workflow 저장 실행 목록이 비어 노드별 호출·모델 시간은 미측정이다. 기존 실패·TC15/WF11/RAG 권한·인용 미실행 이력은 유지한다.
+
+2026-11-07 R01 로컬 마감 회귀: [실행 보고서](../../runs/public/20261107-192148-local-p26-closeout/report.md)·[가린 요약](../../runs/public/20261107-192148-local-p26-closeout/summary.json). Support Code 흐름 157/157, Python 시험 148개(141 통과·RAG HTTP 7개 키 미제공으로 생략), Ruff·문서 링크/앵커·공개 파일 검사는 통과했다. 로컬/mock 범위이며 VM/Jira/실제 Discord 결과나 공식 전체 PASS에 합산하지 않는다.
+
+2026-11-07 추가 RAG 표적 로컬 검증: [실행 보고서](../../runs/public/20261107-204523-local-rag-contract/report.md)·[요약](../../runs/public/20261107-204523-local-rag-contract/summary.json). RAG artifact 4개, 지식 청킹 경계 7개, 오프라인 role filter 2개, 실제 support/RAG Code 경로에 적용한 AUTH fixture 7개와 공유 producer/consumer fixture 3개가 통과했다. 실제 VM 검색·API 인증·근거 인용 종단은 실행하지 않았고 RAG HTTP 7개도 내부 key/OpenAI credit/webhook 필요로 미실행이다.
 
 - 작성: 2026-11-06 KST, R05 시험·품질
 - 버전·상태: **v0.8 초안**, 공동 검토 전. 원본 요구 4절 산출물 3과 5·6절, 과정 템플릿의 6개 절을 따른다.
 - 숫자는 `runs/public/` 보고서에서만 옮겼다. 칸마다 보고서를 적었다. 측정하지 않은 값은 "미측정", 실행하지 않은 시나리오는 "미실행"으로 적고 사유를 남겼다.
 - 사례 원본: [공통](../../cases/common.json)·[팀](../../cases/team.json)·[팀 확장](../../cases/team-extended.json). 시험 도구: `scripts/test/run_cases.py`(브랜치 `r05/p07-r04-contract-cases` 커밋 `f30dc33`). 실습 키트 `flow.py`가 아니며, 두 도구의 판정이 같은지는 확인하지 않았다.
+
+2026-11-07 Edge VM TC-15 승인 시험 사전 점검은 [보고서](../../runs/public/20261107-203213-vm-tc15-preflight/report.md)와 [요약](../../runs/public/20261107-203213-vm-tc15-preflight/summary.json)에 기록했다. 라이브 handoff workflow export 부재와 기존 후보의 로컬 source 불일치로 import/호출 전 중단했으며, Jira/DLQ/Discord 부작용은 발생하지 않았다. 이는 TC-15 통과가 아니다.
+
+이후 PR36 게시본을 Edge n8n UI에서 내보내 두 개의 비활성 시험 사본을 준비했다. [새 준비 결과](../../runs/public/20261107-203428-vm-tc15-prepared/report.md)에서 사용자 import/시험 승인은 확인됐지만, Edge 확장 로컬 파일 접근이 막혀 VM import와 synthetic 실행은 미실시다. Jira·Discord·state·DLQ 신규 효과는 0이며 TC-15 미실행을 유지한다.
+
+사용자가 Edge/n8n 접근은 가능하다고 알려 재확인한 [파일 선택 경계 결과](../../runs/public/20261107-204650-vm-edge-upload-gate/report.md)에서도 동일한 ChatGPT 확장 로컬 파일 접근 차단이 재현됐다. VM 로그인 권한은 정상이며 브라우저의 로컬 upload 경로가 별도 장애다. 설정 변경·import·workflow 요청은 없었다.
+
+이후 로컬 다운로드/업로드 없이 VM n8n UI에서 게시 PR36 support와 handoff를 직접 복제할 수 있음을 확인했다. [VM UI 복제 결과](../../runs/public/20261107-205221-vm-tc15-ui-duplication/report.md)에 기록한 두 게시본 사본은 미게시 상태이며 시험 요청은 아직 보내지 않았다. 최초에 미게시 초안에서 만든 support copy는 시험 대상에서 제외했다. 따라서 Edge 파일 선택 권한을 바꾸지 않아도 TC-15를 이어갈 수 있다.
+
+2026-11-07 TC-15 H11 고장 대체 구성: [결과](../../runs/public/20261107-210536-vm-tc15-h11-replacement/report.md). 게시 handoff 사본에서 H11 HTTP Request를 synthetic 503 Code 노드로 교체하고 앞뒤 연결을 확인했다. 현재 `Publish`가 비활성이라 두 synthetic 요청은 미실행이며 Jira/DB/DLQ/Discord 효과는 0이다. 전체 시험은 기존 게시 워크플로우와 사례 명세를 대상으로 진행하며 새 업무 기능 구현은 포함하지 않는다.
+
+2026-11-07 P18/P20 로컬 오류·DLQ 검사: [실행 보고서](../../runs/public/20261107-205400-local-error-dlq-contract/report.md)·[요약](../../runs/public/20261107-205400-local-error-dlq-contract/summary.json). alert_marker 검증/dedup 7/7, 복구·DLQ parity 8/8 action, state/DLQ 16개 사례와 운영 알림 acknowledgement fixture가 통과했다. 모두 로컬 계약/fixture이며 실제 VM 고장 주입·DLQ 효과·운영자 수신은 미검증이다.
+
+2026-11-07 전체 사례 실행기 재점검: [보고서](../../runs/public/20261107-211748-local-all-cases-mock/report.md)·[요약](../../runs/public/20261107-211748-local-all-cases-mock/summary.json). common/team/team-extended/search/p11-entry 60개 명세를 로드했으나 `/tickets-reset` 초기화가 로컬 data-api에 연결되지 않아 60개 모두 `blocked`; workflow 요청은 0건이다. mock 경로 라벨만으로 실행 통과를 뜻하지 않는다. VM 게시 실행이 아니며 Jira/Discord/DB/DLQ 변경은 없었다.
 
 ## 시험 환경
 
@@ -433,3 +473,35 @@ R02 c6b4644와 후속 계약/보안/records 수정은 이번 로컬 통합에 �
 ## 2026-11-07 로컬 파일·설계 수용 대조 후속
 
 [후속 로컬 검증](../../runs/public/20261107-135434-local-pr36-acceptance/report.md)은132건 중125통과·7환경 생략과 별도 Discord22건을 기록한다. Code157건은 공통 시험 내부 검사이므로 합산하지 않는다. AUTH7 모의 경계·DB 격리 복원·최신 조회 이미지 검증을 실제 VM/RAG/Jira/Discord 공식 판정에 섞지 않는다. 기존 정상1건·반복 실패·PASS*·미실행·TC07 미구현은 그대로 유지한다.
+
+## 2026-11-07 TC-15 게시 게이트 확인
+
+[VM n8n 게시 게이트 관측](../../runs/public/20261107-212335-vm-tc15-publish-gate/report.md): 시험용 handoff 사본의 `Publish`·`Unpublish`가 비활성이었고 Production Checklist가 인스턴스 MCP 접근 설정을 표시했다. 이를 켜는 권한 변경은 적용하지 않았다. 승인된 synthetic 요청 2건은 미전송이며 Jira·PR36 상태·DLQ·Discord 효과는 없다. 원인과 다음 단계는 보고서를 참조한다.
+
+## TC-15 격리 복제본 게시 후속 — 2026-11-07
+
+[VM 관측 보고서](../../runs/public/20261107-213400-vm-tc15-clone-publish/report.md)를 추가했다. dual State/DLQ 및 Support/Handoff 복제본 게시를 완료했지만 VM 웹 SSH가 로그인 프롬프트에서 중지되어 사례 요청을 보내지 못했다. Support B01과 Handoff H01 트리거는 비활성화했다. 본 실행은 요청 0건이며 Jira/DB/DLQ/Discord 효과가 없고 TC-15는 미판정이다. 이전 게이트 관측은 당시 사본에 대한 기록으로 보존한다.
+
+## PR36 마감 후속 로컬 회귀 — 2026-11-07
+
+[로컬 회귀 보고서](../../runs/public/20261107-213520-local-final-regression/report.md)에 Python 148 pass/7 skip, P18 7/7, P19 fixture, P20 16 사례, R04 parity 8/8을 기록했다. mock/fixture 범위이며 실제 VM 통과 수에 더하지 않는다. TC-15는 별도 VM 실행 미판정이다.
+
+### P12 워크플로우 Code 계약 추가 재실행 — 2026-11-07
+
+[후속 증거](../../runs/public/20261107-213650-local-p12-workflow-contracts/report.md): 6개 표적 스크립트(begin 안내, case_ref, handoff, Jira 21 시나리오, 반복 이관, 최종 저장)가 통과했다. Code 계약 범위에 한정하며 live 연동·업무효과 판정은 미완료다.
+
+### PR #44 head 계약 검사 후속 — 2026-11-07
+
+[별도 회귀 보고서](../../runs/public/20261107-214000-pr44-contract-review/report.md): PR head를 현재 support-skeleton 157개 사례로 검사한 결과 57/157 통과. 누락된 `deadline_at` 때문에 정상 저장 경로가 `invalid_state_request`로 실패하고, 보완 대기 effect 확인도 약화한다. 따라서 열린 PR을 그대로 합치지 않는 결정을 근거와 함께 기록했으며, 현행 main 시험 결과는 별도로 보존한다.
+
+### 열린 PR 분기 감사 — 2026-11-07
+
+[PR 상태·blob 비교](../../runs/public/20261107-214120-pr-branch-audit/report.md)를 기록했다. #43/#45의 시험 도구/인계 자료는 이미 main과 동일하며 PR의 일부 문서는 현재 원장을 후퇴시킨다. #44는 [현재 계약 회귀](../../runs/public/20261107-214000-pr44-contract-review/report.md)에서 실패했다. #36/#49/#50은 병합 상태다.
+
+2026-11-07 TC-15 재개 인증 사전점검: [보고서](../../runs/public/20261107-214634-vm-tc15-auth-check/report.md)·[요약](../../runs/public/20261107-214634-vm-tc15-auth-check/summary.json). Edge Web SSH 로그인 및 n8n 시험 사본 상태를 확인했지만 VM shell/관련 컨테이너에 dubakwi-team-key webhook 인증값이 제공되지 않았다. 인증 우회·비밀 추출 없이 POST 0건으로 중단했고 새 Jira/DB/DLQ/Discord 효과는 없다. TC-15는 미실행이다.
+
+2026-11-07 PR36 로컬 핵심 회귀 재실행: [실행 보고서](../../runs/public/20261107-214804-local-p26-regression/report.md)·[요약](../../runs/public/20261107-214804-local-p26-regression/summary.json). Python 148 pass/7 skip, Support 157/157, P12 6개 스크립트, P18 7/7, P19 fixture/AUTH-01..07, P20 16개, R04 8/8, verifier boundary 7/7. 모두 local Code/mock/fixture로 live VM 통과 수에 더하지 않았다. TC-15는 [인증 사전조건](../../runs/public/20261107-214634-vm-tc15-auth-check/report.md)에서 요청 0건으로 미실행이다.
+
+2026-11-07 사례 명세 41건의 요청 전 dry-run: [보고서](../../runs/public/20261107-214910-local-p26-case-matrix/report.md)·[요약](../../runs/public/20261107-214910-local-p26-case-matrix/summary.json). payload 구성 27, 준비 조건 차단 13, TC-07 미구현 1. 어떤 건도 서비스 실행 PASS로 집계하지 않았으며 외부 효과는 0이다.
+
+2026-11-07 전체 요구 구조 정적 감사: [보고서](../../runs/public/20261107-215556-local-p26-coverage/report.md)·[요약](../../runs/public/20261107-215556-local-p26-coverage/summary.json). 64개 요구/acceptance test와 12개 패키지의 구조 연결 오류 0, 런타임 실행 0이다. WF-11은 기존 VM 실행 8.288초로 가이드 예시 6초 assertion과 불일치했으나 20초 운영 deadline은 위반하지 않았다.

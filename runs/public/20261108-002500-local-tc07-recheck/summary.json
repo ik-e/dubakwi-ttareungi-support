@@ -1,0 +1,23 @@
+{
+  "run_id": "20261108-002500-local-tc07-recheck",
+  "date_kst": "2026-11-08",
+  "environment": "local disposable PostgreSQL 16.15-bookworm",
+  "migrations": "001-010 applied after synthetic roles provisioned",
+  "contract": "controlled-recovery-contract.sql",
+  "contract_result": "pass",
+  "runtime_execute_recovery_finish": false,
+  "operator_execute_recovery_finish": true,
+  "node_checks": {
+    "finish_capsule": "3/3 passed",
+    "operator_workflow": "8/8 passed",
+    "recovery_dlq_parity": "8/8 passed"
+  },
+  "external_effects": {
+    "vm": 0,
+    "jira": 0,
+    "discord": 0
+  },
+  "container_removed": true,
+  "result": "finish_slice_contract_pass_tc07_partial",
+  "detail": "report.md"
+}

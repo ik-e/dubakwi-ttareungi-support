@@ -1,0 +1,69 @@
+{
+  "schema_version": 1,
+  "run_id": "20261107-193015-local-p26-tc15-retest",
+  "executed_on": "2026-11-07 KST",
+  "environment": "local Windows; Python 3.12.10; Node.js v24.22.1",
+  "authority": "R01 local observations; no VM/third-party workflow execution",
+  "source": {
+    "branch": "r01/p26-final-closure",
+    "head": "6f9561bae48ad5da44b726f95c18d29024ba0d0d",
+    "case_file": "cases/team-extended.json",
+    "case_file_sha256": "d8ced89f01e6203e02fc627419401585411162a09602b54e9e7356e5afdda6c1",
+    "working_tree_dirty": true,
+    "workflow_or_service_code_modified": false
+  },
+  "decision": {
+    "case": "TC15",
+    "old_followup_expectation": "HTTP 200 route=담당자 이관 reason=partial_effect",
+    "revised_followup_expectation": "HTTP 409 codes=[case_busy] while the prior same-case request remains unknown/active",
+    "basis": [
+      "docs/project/STORAGE-DESIGN.md 3.2-3.3",
+      "docs/project/WORKFLOW-DESIGN.md 7.6"
+    ],
+    "scope": "The original VM mismatch is preserved. This updates the prospective case oracle to match the existing fail-closed contract; it does not change runtime behavior.",
+    "alert_marker_dedup": "separate module test; not executed by a follow-up blocked at begin"
+  },
+  "tests": {
+    "python_unittest": {
+      "total": 148,
+      "passed": 141,
+      "skipped": 7,
+      "failed": 0,
+      "skip_reason": "DUBAKWI_INTERNAL_KEY is required by local RAG HTTP tests",
+      "private_log": "runs/20261107-193015-local-p26-tc15-retest/python-unittest.log"
+    },
+    "p18_alert_marker": {
+      "passed": 7,
+      "total": 7
+    },
+    "p12_state_case_ref": "passed",
+    "p12_begin_409_messages": "passed",
+    "p12_handoff_jira": "21 scenarios plus deadline/config gates passed",
+    "p12_repeat_handoff": {
+      "passed": 7,
+      "total": 7
+    },
+    "r04_recovery_contract_parity": {
+      "covered_actions": 8,
+      "total": 8
+    },
+    "p20_state_dlq_safety": "16 cases plus operational-alert acknowledgement checks passed",
+    "team_extended_json_parse": "passed",
+    "run_cases_tc15_dry_run": {
+      "status": "blocked",
+      "reason": "The controlled alert-result-unknown fault setup is required; no request was sent."
+    }
+  },
+  "not_executed": [
+    "TC15 isolated live fault injection, Jira/DB/DLQ readback",
+    "existing core Discord alert/handoff and case_busy response end-to-end verification (R01 closeout)",
+    "new UX usability improvements (R02 scope)",
+    "current VM state/image recheck",
+    "J01-J03 live Jira/state end-to-end acceptance",
+    "WF-11 latency retest"
+  ],
+  "previous_run": "../20261107-192148-local-p26-closeout/summary.json",
+  "details": "report.md",
+  "status": "local_contract_regression_passed_live_fault_test_pending",
+  "ownership_clarification": "R02 owns only new UX presentation and interaction improvements. Existing business logic/integrations and all core end-to-end verification, including backend integrations in the UX copy, are R01 closeout."
+}

@@ -1,0 +1,14 @@
+{
+  "run_id": "20261107-214910-local-p26-case-matrix",
+  "date_kst": "2026-11-07",
+  "environment": "local Windows worktree; run_cases.py --dry-run",
+  "code_revision": "6f9561bae48ad5da44b726f95c18d29024ba0d0d",
+  "configuration_version": "cases/common.json, cases/team.json, cases/team-extended.json as present at run time",
+  "case_ids": ["WF01", "WF02", "WF02b", "WF03", "WF04", "WF05", "WF06", "WF07", "WF08", "WF09-1", "WF09-2", "WF10", "WF11", "WF12", "WF13a", "WF13b", "WF13c", "TC03a", "TC03b", "TC03c", "TC04", "TC09a", "TC09b", "TC09c", "TC11a", "TC11b", "TC12", "TC13", "TC01", "TC01b", "TC02", "TC05", "TC06", "TC07", "TC08", "TC10", "TC14", "TC15", "TC16", "TC17", "TC18"],
+  "counts": {"total": 41, "dry_run": 27, "blocked": 13, "not_implemented": 1},
+  "counts_by_category": {"normal": {"dry_run": 20, "blocked": 4}, "failure_handling": {"dry_run": 7, "blocked": 9}, "recovery": {"not_implemented": 1}},
+  "blocked_case_ids": ["WF10", "TC01", "TC01b", "TC02", "TC05", "TC06", "TC08", "TC10", "TC14", "TC15", "TC16", "TC17", "TC18"],
+  "not_implemented_case_ids": ["TC07"],
+  "side_effects": {"http_post": 0, "jira": 0, "state": 0, "dlq": 0, "discord": 0},
+  "limitations": ["No live workflow or third-party service execution", "Multi-step case_ref values cannot be resolved in dry-run", "27 dry_run entries are request-preparation results, not PASS"]
+}

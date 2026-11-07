@@ -4,6 +4,8 @@
 
 팀원은 [첫 실행/인계 안내](../TEAM-START.md)와 [공유 전 전체 점검](TEAM-READINESS-REVIEW.md)을 먼저 확인합니다.
 
+현재 실제 구현·통합 증거와 사용자 관점 완료 기준, 우선 마감 순서는 [구현 현황과 사용자 기준 마감 계획](implementation-status-and-closeout-plan.md)을 먼저 확인합니다. 이 문서는 R01의 통합 현황이며 타 역할 검증을 대신하지 않습니다.
+
 ## 산출물 목록
 
 검토 보고서와 증거의 시점별 목록은 [reviews 대문 — 공개본 제외 자료](../../docs/PUBLIC-SOURCES.md)을 참조합니다. 재사용 도구는 [scripts/test](../../scripts/test/README.md), 일회성 작업은 [tmp 안내 — 공개본 제외 자료](../../docs/PUBLIC-SOURCES.md)로 구분합니다.
@@ -13,8 +15,9 @@
 | 산출물·예정 위치 | 문서 상태 | 편집 책임 | 다음 작업 |
 | --- | --- | --- | --- |
 | [TOPIC.md](TOPIC.md) | 초안 v0.7 | ① 팀장·통합 | 문의 유형·구성 검토, 티켓 종료 계약 확인, 강사 확인 |
-| [TEAM-CHARTER.md](TEAM-CHARTER.md) | 초안 v0.13 | R01 팀장·통합 | 역할 ID·파일 소유권·협업 규칙 검토, GitHub 팀 권한·발표 ID 확인(dubakwi 확정) |
+| [TEAM-CHARTER.md](TEAM-CHARTER.md) | v0.17·R01 기존 핵심 로직 통합, R02 새 UX 개선 담당 | R01 팀장·통합 | 기존 문의 처리 로직·연동은 R01, 새 UX 화면·문구·상호작용 개선은 R02 |
 | [SYSTEM-DESIGN.md](SYSTEM-DESIGN.md) | 초안 v0.12·최상위 논리 설계 | R01 취합·R02~R05 공동 검토 | 구성·상태·기능 추적·디렉터리 용도·Docker Compose 기준 확인 후 상세로 이동 |
+| [구현 현황과 사용자 기준 마감 계획](implementation-status-and-closeout-plan.md) | v3.3·사용자 기준 종합 마감, R01 핵심 로직·R02 새 UX 개선 구분 | R01 통합·R02 UX 담당 | TC-07 claim/resume/failed release/verified complete 저장 경계를 disposable DB에서, operator 수동 명령 19/19 검사로 확인. Jira action은 운영자 수동 수행 방식이며 args-null 캡슐 보강, 실제 Jira/VM 적용, stale claim live 확인은 미완료다. RAG/Jira 종단·장애/DLQ 회귀 후 TC-15를 마지막 VM 시험으로 둔다. |
 | [Python 개발 기준](../PYTHON-DEVELOPMENT.md)·[공개 정책](../PUBLICATION.md) | 도구/설정 작성·서비스 구현 전 | R01·R05 품질/R04 공개 검토 | uv 잠금·Ruff·CI, 같은 폴더 .gitignore·Git 후보·공개 링크 검사 |
 | [작업 규칙](../../AGENTS.md)·[배포 안내](../../infra/README.md) | 기준 작성·실제 배포 전 | R01·R04/R05 검토 | Git/n8n/시험·동기화·Docker 실행/복구, 환경 확인 후 compose 작성 |
 | [VM 배포 전 점검](../../infra/vm-preflight.md)·[환경 예시](../../.env.example) | v0.11·GitLab79 data-api·P11 22/22·P19 검색/모델 부분 연결 | R01·R04 저장/R05 재현 검토 | 기존 n8n 유지·data-api/배포본 인계·백업/복원·Credential·입구 시험 |
@@ -29,7 +32,7 @@
 | `EXECUTION-RESULT.md` | 미작성 | ⑤ 시험·품질 | 기대/실제·실행 보고서·실패/수정·재시험·한계 |
 | [daily/DAY80.md](daily/DAY80.md)·[DAY81.md](daily/DAY81.md)·`DAY82.md` | DAY80 공식양식 사후초안·DAY81 11/06 10:48 중간초안·DAY82 미작성 | ① 취합·전원 참여 | 당일 작업 번호·증거·막힘·다음 목표 기록 |
 | `images/` | 폴더 준비·자료 없음 | ⑤ 시험·품질 | 개인정보를 가린 실행 증거 |
-| `presentation/` | 폴더 준비·자료 없음 | ① 편집·전원 제공 | [현행 발표 계획](../PRESENTATION-PLAN.md)에 따른 공용 파일·메모·리허설 기록. 계획 동기화와 실제 제작/연습 완료 구분 |
+| `presentation/` | Discord 첨부 원본 일부 보관·통합 발표 미작성 | ① 편집·전원 제공 | [현행 발표 계획](../PRESENTATION-PLAN.md)에 따른 원본 보존·공용 파일·메모·리허설 기록. 공개 진행 상태는 [개발 원장 P29](../DEVELOPMENT-PLAN.md#5-작업-원장)에 기록하며, 내부 첨부 원본 목록은 공개하지 않는다. 계획과 실제 제작/연습 완료를 구분 |
 
 ## 문서 참조와 정보의 원본
 

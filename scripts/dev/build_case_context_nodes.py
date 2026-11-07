@@ -212,7 +212,11 @@ return [{json:{...p,write_status:$json.statusCode??0,req:{path:commentPath(p.ctx
         r"""
 const p=$('H59 저장 문맥 재조회 준비').first().json,ctx=p.ctx;
 """
-        + HAND_FAILURE
+        + r"""
+const fail = reason => {ctx.error_code='partial_effect'; ctx.effects.context_saved={status:'unknown',id:ctx.ticket.key,error_code:reason};
+ctx.recovery={version:1,mode:'payload',action:'context_update',args:{snapshot:p.snapshot},reference:{jira_issue_id:ctx.ticket.id,case_id:ctx.request.case_id,owner_id:ctx.state_ref.owner_id},reason};
+return [{json:{route:'done',ctx}}];};
+"""
         + r"""
 try {if(remaining(p.deadline_at)<500)return fail('deadline_exceeded');
 const actual=select(pages(),bindingFor(ctx.request,ctx.ticket.key),ctx.request.request_id);

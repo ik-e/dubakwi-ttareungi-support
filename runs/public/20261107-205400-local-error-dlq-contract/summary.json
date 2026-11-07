@@ -1,0 +1,12 @@
+{
+  "run_id": "20261107-205400-local-error-dlq-contract",
+  "date_kst": "2026-11-07",
+  "environment": "local Node.js fixture/contract checks",
+  "checks": [
+    {"command":"node scripts/test/p18-dlq-marker-cases.js","result":"7/7 passed"},
+    {"command":"node scripts/test/r04-recovery-contract-parity.js","result":"8/8 actions covered"},
+    {"command":"node scripts/test/p20-error-cases.js","result":"16 state/DLQ cases and operational-alert acknowledgement checks passed"}
+  ],
+  "external_calls": 0,
+  "result": "local contracts pass; runtime failure injection and production DLQ effects remain unverified"
+}

@@ -1,0 +1,26 @@
+{
+  "run_id": "20261108-003500-local-tc07-claim-release",
+  "date_kst": "2026-11-08",
+  "environment": "local disposable PostgreSQL 16.15-bookworm",
+  "migrations": "001-012 applied",
+  "contracts": {
+    "claim_release": "pass",
+    "finish_recovery_regression": "pass",
+    "operator_input_checks": "12 passed",
+    "finish_capsule": "3/3 passed",
+    "recovery_dlq_parity": "8/8 passed"
+  },
+  "concurrent_claim": {
+    "attempts": 2,
+    "winner_count": 1,
+    "loser_error": "recovery_conflict"
+  },
+  "role_access": {
+    "runtime_claim_release_control": false,
+    "operator_claim_release_control": true
+  },
+  "external_effects": {"vm": 0, "jira": 0, "discord": 0},
+  "container_removed": true,
+  "result": "claim_release_pass_action_driver_pending",
+  "detail": "report.md"
+}

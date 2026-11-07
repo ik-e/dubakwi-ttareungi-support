@@ -1,0 +1,29 @@
+{
+  "run_id": "20261107-214634-vm-tc15-auth-check",
+  "date_kst": "2026-11-07",
+  "environment": "aio-t2 VM via Edge Web SSH and n8n UI",
+  "workflow_version": "published PR36 test copies; exact export hash not measured",
+  "configuration_version": "VM n8n configuration as observed; exact revision not measured",
+  "case_ids": [
+    "TC-15"
+  ],
+  "result": "blocked_before_request",
+  "requests_sent": 0,
+  "observations": {
+    "flow_webhook_key": "absent",
+    "dubakwi_webhook_token": "absent",
+    "support_trigger": "deactivated",
+    "handoff_trigger": "deactivated",
+    "test_copy_auth": "headerAuth credential reference dubakwi-team-key",
+    "webhook_path": "dubakwi-pr36-dual-support",
+    "test_webhook_auth": "Header Auth; credential reference dubakwi-team-key",
+    "n8n_test_listener": "disabled because B01 deactivated"
+  },
+  "effects_created": {
+    "jira": 0,
+    "shared_pr36_state": 0,
+    "dlq": 0,
+    "discord": 0
+  },
+  "limitation": "No credential extraction, auth bypass, or request was attempted."
+}

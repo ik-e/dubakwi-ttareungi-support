@@ -1,0 +1,179 @@
+{
+  "id": "dubakwiRecovery01",
+  "name": "dubakwi-recovery-operator",
+  "active": false,
+  "nodes": [
+    {
+      "name": "R01 수동 운영자 시작",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {}
+    },
+    {
+      "name": "R01a 복구 명령 입력",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        140,
+        0
+      ],
+      "parameters": {
+        "mode": "manual",
+        "duplicateItem": false,
+        "assignments": {
+          "assignments": [
+            {
+              "id": "recovery-payload",
+              "name": "payload",
+              "type": "string",
+              "value": "{}"
+            }
+          ]
+        },
+        "includeOtherFields": false,
+        "options": {}
+      },
+      "notes": "비활성 수동 workflow 전용. payload에 recovery_control이 허용하는 단일 JSON 명령을 입력한다. claim/resume 뒤 Jira/Discord 효과는 운영자가 직접 수행하고 확인한다. complete는 실제 변경 확인 뒤에만 제출한다."
+    },
+    {
+      "name": "R02 복구 입력 검증",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        260,
+        0
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "// 수동 입력 JSON만 허용한다. claim 전 원 실행 종료·Jira 효과를 운영자가 대조한다.\nlet payload = null;\ntry { payload = JSON.parse($json.payload); } catch {}\nconst obj = v => v !== null && typeof v === 'object' && !Array.isArray(v);\nconst text = v => typeof v === 'string' && v.trim().length > 0;\nconst common = ['op','scope','dlq_id','operator_id'];\nconst extras = {\n  inspect: [],\n  finish: ['expected_dlq_revision','expected_state_revision','original_execution_id','recovery_execution_id','verification'],\n  claim: ['owner_id','input_hash','expected_dlq_revision','expected_state_revision','original_execution_id','recovery_execution_id','verification'],\n  resume: ['owner_id','input_hash','expected_dlq_revision','expected_state_revision','original_execution_id','recovery_execution_id','verification'],\n  complete: ['owner_id','input_hash','expected_dlq_revision','expected_state_revision','original_execution_id','recovery_execution_id','jira_issue_id','jira_issue_key','response','effects','verification'],\n  release: ['owner_id','input_hash','expected_dlq_revision','expected_state_revision','original_execution_id','recovery_execution_id','reason','verification','target_effect_status'],\n};\nconst required = obj(payload) && extras[payload.op] ? [...common, ...extras[payload.op]] : [];\nconst allowed = new Set(required);\nconst validKeys = required.length > 0 && Object.keys(payload).length === allowed.size && Object.keys(payload).every(k => allowed.has(k));\nconst ids = text(payload?.original_execution_id) && text(payload?.recovery_execution_id) && payload.original_execution_id !== payload.recovery_execution_id;\nconst revisions = Number.isInteger(payload?.expected_dlq_revision) && payload.expected_dlq_revision >= 0 && Number.isInteger(payload?.expected_state_revision) && payload.expected_state_revision >= 0;\nconst valid = validKeys && text(payload.scope) && text(payload.dlq_id) && text(payload.operator_id)\n  && (payload.op === 'inspect' || (ids && revisions && (payload.op === 'finish'\n    ? payload.verification === 'jira_effects_confirmed'\n    : payload.op === 'claim'\n      ? text(payload.owner_id) && /^[0-9a-f]{64}$/.test(payload.input_hash) && ['recovery_conditions_confirmed','recovery_unknown_effect_checked_absent','recovery_unknown_effect_checked_present'].includes(payload.verification)\n      : payload.op === 'resume'\n        ? text(payload.owner_id) && /^[0-9a-f]{64}$/.test(payload.input_hash) && payload.verification === 'recovery_conditions_confirmed'\n        : payload.op === 'complete'\n          ? text(payload.owner_id) && /^[0-9a-f]{64}$/.test(payload.input_hash) && text(payload.jira_issue_id) && /^JBYS-[0-9]+$/.test(payload.jira_issue_key) && obj(payload.response) && obj(payload.effects) && payload.verification === 'recovery_action_effects_confirmed'\n          : text(payload.owner_id) && /^[0-9a-f]{64}$/.test(payload.input_hash) && text(payload.reason) && payload.reason.length <= 200 && payload.verification === 'recovery_execution_ended_and_effects_rechecked' && (payload.target_effect_status === 'none' || ['failed','unknown','confirmed'].includes(payload.target_effect_status)))));\nreturn { json: { valid, payload: valid ? payload : null, error_code: valid ? null : 'invalid_operator_recovery_request' } };"
+      }
+    },
+    {
+      "name": "R03 실행 허용",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        520,
+        0
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "leftValue": "={{ $json.valid }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      }
+    },
+    {
+      "name": "R04 제한 복구 함수 호출",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        780,
+        -100
+      ],
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT dubakwi_service.recovery_control($1::jsonb) AS result;",
+        "options": {
+          "queryReplacement": "={{ JSON.stringify($json.payload) }}",
+          "connectionTimeout": 1
+        }
+      },
+      "credentials": {
+        "postgres": {
+          "name": "dubakwi-recovery-operator"
+        }
+      },
+      "notes": "환경별 recovery operator credential 사용. inspect/finish/claim/resume/complete/release만 parameterized allowlist 라우팅한다. Jira/Discord 효과는 운영자가 직접 수행하고 확인한다."
+    },
+    {
+      "name": "R05 입력 거절",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        780,
+        100
+      ],
+      "parameters": {}
+    }
+  ],
+  "connections": {
+    "R01 수동 운영자 시작": {
+      "main": [
+        [
+          {
+            "node": "R01a 복구 명령 입력",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "R01a 복구 명령 입력": {
+      "main": [
+        [
+          {
+            "node": "R02 복구 입력 검증",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "R02 복구 입력 검증": {
+      "main": [
+        [
+          {
+            "node": "R03 실행 허용",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "R03 실행 허용": {
+      "main": [
+        [
+          {
+            "node": "R04 제한 복구 함수 호출",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "R05 입력 거절",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": []
+}

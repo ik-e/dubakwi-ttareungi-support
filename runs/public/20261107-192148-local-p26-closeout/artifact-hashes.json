@@ -1,0 +1,147 @@
+[
+  {
+    "path": "workflows/dubakwi-dlq.json",
+    "sha256": "0609dd031864173aa608f72487d59b83a370770dad08332b82ebbce3aea70635",
+    "bytes": 8369
+  },
+  {
+    "path": "workflows/dubakwi-errors.json",
+    "sha256": "e8f6e5df8d0025cf416190922859cd528033495304c6fc75ca0a819a3b56359a",
+    "bytes": 9668
+  },
+  {
+    "path": "workflows/dubakwi-handoff.json",
+    "sha256": "4039e3a1cad1058dd12b39c14a8c7c1331a1ec92d8c20045a93fdd4ab93a41ad",
+    "bytes": 205682
+  },
+  {
+    "path": "workflows/dubakwi-index.json",
+    "sha256": "a38a03a65b174d985543e5e3f6fd6128ded53d744fb65ead14aa95537e24e48e",
+    "bytes": 64673
+  },
+  {
+    "path": "workflows/dubakwi-search.json",
+    "sha256": "9a6c8da7d432c2d4c29a62a1610a27e5adcf3152377f52e3d887683b4f2e2175",
+    "bytes": 17762
+  },
+  {
+    "path": "workflows/dubakwi-state.json",
+    "sha256": "bf89d930cad680d08b8e839fe3d8dad2fb744a548c812222cc792b5e96b6ae39",
+    "bytes": 102892
+  },
+  {
+    "path": "workflows/dubakwi-support.json",
+    "sha256": "7919b9872656b01fa7c7bdccc6df657d391a6e2cb6f3689bb9d8e827bbba2f4b",
+    "bytes": 110769
+  },
+  {
+    "path": "infra/db/migrations/001-create-service-storage.sql",
+    "sha256": "0b609dc942508e988ac5434419bb4a1f2aece91ee9a85f51278e9d55ea312bb5",
+    "bytes": 4280
+  },
+  {
+    "path": "infra/db/migrations/002-grant-runtime-access.sql",
+    "sha256": "e6c5063009f6147656ce72aa9f08e3c56a2aaed166821f55c8a21409c900990e",
+    "bytes": 389
+  },
+  {
+    "path": "infra/db/migrations/003-create-storage-functions.sql",
+    "sha256": "1e55cea2338eae198ccf347c57d3529028c49a82cc10b6cb9dcfb6325b907038",
+    "bytes": 22249
+  },
+  {
+    "path": "infra/db/migrations/004-grant-storage-functions.sql",
+    "sha256": "2cc35994986b10d060efd6d79b865754c7d7f91518de81ab95dd2c1e29dc3635",
+    "bytes": 561
+  },
+  {
+    "path": "infra/db/migrations/005-create-case-functions.sql",
+    "sha256": "b3d82ddd781b3e3318616eea6be5fe788c3e5932aef26b015f9f20964fdf74bd",
+    "bytes": 8058
+  },
+  {
+    "path": "infra/db/migrations/006-grant-case-functions.sql",
+    "sha256": "01c09d544cefb4abb7013582f754dbbf4868f1c04ab3467b0622597f06e375d5",
+    "bytes": 329
+  },
+  {
+    "path": "infra/db/migrations/007-deduplicate-alert-marker-dlq.sql",
+    "sha256": "05ddc49a55c2d147f5487102d2da28cd2691681273764e209d7a30b095f796d5",
+    "bytes": 6620
+  },
+  {
+    "path": "infra/db/migrations/008-replace-case-context-functions.sql",
+    "sha256": "bbe3886655769518285e77eabfdc4a907e559410686df8efcd1c9d9343fa63d8",
+    "bytes": 12469
+  },
+  {
+    "path": "infra/db/migrations/009-grant-case-context-functions.sql",
+    "sha256": "a63714868581c938b9876f295b172bd16af700836997be7b702e8fc44487683a",
+    "bytes": 1311
+  },
+  {
+    "path": "knowledge/manifest.json",
+    "sha256": "5bf8a21ce2f36c2e33b25a3e8fd354ae38e083585cbe2cdcc3f6beb7dc294cfd",
+    "bytes": 4759
+  },
+  {
+    "path": "knowledge/public/breakdown-report.md",
+    "sha256": "80ed9df1d717427c5c476f60be8c1368f85d034625985dd2e82aee696e2b0749",
+    "bytes": 2566
+  },
+  {
+    "path": "knowledge/public/fees-refund-guide.md",
+    "sha256": "bb776efa09b6399428653fc7bed61f9a85f1990069b868f917067be92debbd2f",
+    "bytes": 4938
+  },
+  {
+    "path": "knowledge/public/privacy-security-guide.md",
+    "sha256": "b0f712bd27fce81075d26da2a8d4990e4539259728821c3a3164c47a09269140",
+    "bytes": 2658
+  },
+  {
+    "path": "knowledge/public/rental-guide.md",
+    "sha256": "ea23ee1426e7002fccc12c6f381d8a0ac383a466531f3336e362c46cd7f19177",
+    "bytes": 4465
+  },
+  {
+    "path": "knowledge/public/return-guide.md",
+    "sha256": "9c446981b91d9416671eef684ee9ff260af5a2cb2b9cf40c16e7041001b548d0",
+    "bytes": 1732
+  },
+  {
+    "path": "knowledge/public/support-followup.md",
+    "sha256": "d32b720b4fb20fa4badf8b3a6a5e463f90989693454a8ab446a684b0894aa92e",
+    "bytes": 1943
+  },
+  {
+    "path": "knowledge/restricted/handoff-policy.md",
+    "sha256": "ca85dc918f675d537df4955f075b1e98a70b66ebae332dd7549551a35cd4085e",
+    "bytes": 897
+  },
+  {
+    "path": "knowledge/restricted/ticket-lifecycle.md",
+    "sha256": "2d4ad0f5847b150cd72fde43abe3f67b2fb23d303fd8a0ef284d6a892bdfe52d",
+    "bytes": 911
+  },
+  {
+    "path": "pyproject.toml",
+    "sha256": "5c623463ac8c1b5d693e179f8753b563d320b27488a1081f0411a674623a863e",
+    "bytes": 644
+  },
+  {
+    "path": "uv.lock",
+    "sha256": "c537977b419949f30b2b240b5cd5194fcced8c247d45b90ed54e16e8ef7385e6",
+    "bytes": 48686
+  },
+  {
+    "path": "scripts/test/support-skeleton-cases.js",
+    "sha256": "de72aa26022d61ba8cfd208a59a37a7f8a35fecf2b9dccb263ca5045310c3b59",
+    "bytes": 74485
+  },
+  {
+    "path": "scripts/dev/render_n8n_workflow.py",
+    "sha256": "3a29aa897bd618973bff199b5b2202179979255ed9f39de28fb58355c707f70c",
+    "bytes": 10455
+  }
+]

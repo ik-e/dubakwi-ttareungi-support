@@ -1,0 +1,27 @@
+{
+  "run_id": "20261107-230136-local-tc07-operator",
+  "run_date_kst": "2026-11-07 23:01:36",
+  "environment": "local workflow JSON and Node contracts",
+  "code_ref": "6f9561b (dirty worktree)",
+  "workflow_version": "dubakwi-recovery-operator local inactive draft",
+  "config_version": "no VM credentials used",
+  "case_ids": ["TC-07"],
+  "result": "partial_pass",
+  "checks": {
+    "operator_workflow_contract": "pass 8/8",
+    "finish_capsule_contract": "pass 3/3",
+    "recovery_action_parity": "pass 8/8",
+    "workflow_json_parse": "pass",
+    "workflow_inactive_no_webhook": "pass",
+    "project_docs_links_anchors": "pass 724 links, 59 anchors",
+    "git_diff_check": "pass"
+  },
+  "limitations": [
+    "VM credential connection and execution not performed",
+    "Jira verification remains a required human read-only precondition",
+    "Only finish response recovery is implemented",
+    "Concurrency, restart interruption, and other actions remain unverified",
+    "Not a TC-07 full pass"
+  ],
+  "detail": "report.md"
+}

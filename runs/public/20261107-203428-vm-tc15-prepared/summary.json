@@ -1,0 +1,50 @@
+{
+  "run_id": "20261107-203428-vm-tc15-prepared",
+  "date": "2026-11-07",
+  "environment": "VM n8n through Edge web UI; local preparation",
+  "case_ids": ["TC-15"],
+  "status": "blocked_before_import",
+  "user_approval": {
+    "import_activate_two_copies": true,
+    "send_two_synthetic_requests": true,
+    "deactivate_copies_after_test": true
+  },
+  "source_workflows_exported_from_live_ui": true,
+  "inactive_test_copies_prepared": 2,
+  "static_copy_audit": {
+    "support_nodes_live_candidate": "54/54",
+    "support_changed_nodes": ["webhook receiver path", "B27 test handoff redirect"],
+    "handoff_nodes_live_candidate": "71/71",
+    "handoff_changed_nodes": ["webhook receiver path", "H11 synthetic 503 alert fault"],
+    "workflow_ids_and_webhook_paths_isolated": true,
+    "jira_node_configuration_preserved": true,
+    "pr36_state_dlq_references_preserved": true
+  },
+  "production_workflow_modified": false,
+  "candidate_embedded_secret_pattern_matches": 0,
+  "file_import": "blocked: Edge extension does not allow local file access",
+  "url_import": "not_attempted: no safe VM-reachable URL for local candidate",
+  "requests_sent": 0,
+  "jira_issues_created": 0,
+  "discord_messages_sent": 0,
+  "shared_state_rows_created": 0,
+  "dlq_rows_created": 0,
+  "tc15_passed": false,
+  "documentation_checks": {
+    "project_docs": {
+      "files": 22,
+      "local_links": 658,
+      "anchor_links": 57,
+      "errors": 0
+    },
+    "public_git_candidates": {
+      "files": 494,
+      "tracked_files": 476,
+      "ignored_tracked_files": 0,
+      "public_local_links": 1005,
+      "errors": 0
+    },
+    "git_diff_check": "passed"
+  },
+  "evidence": "report.md"
+}

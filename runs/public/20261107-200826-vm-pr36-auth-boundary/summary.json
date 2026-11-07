@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "run_id": "20261107-200826-vm-pr36-auth-boundary",
+  "executed_on": "2026-11-07 20:08 KST",
+  "environment": "Team VM through existing Edge Web SSH and n8n UI",
+  "authority": "R01 observed; unauthenticated boundary probe only",
+  "request": {
+    "workflow": "R01 PR36 a657890 support",
+    "method": "POST",
+    "path": "/webhook/dubakwi-support-pr36-a657890",
+    "authorization_header": false,
+    "body": {},
+    "http_status": 401,
+    "elapsed_seconds": 0.029859
+  },
+  "execution_history_ui": "No executions found; retention/visibility policy unknown",
+  "external_business_effects": "No ticket/message/personal data sent by this check; no effects inferred beyond HTTP rejection",
+  "changes_made": [],
+  "status": "unauthenticated_request_rejected",
+  "details": "report.md"
+}

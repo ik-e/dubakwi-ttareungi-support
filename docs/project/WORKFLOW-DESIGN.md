@@ -1,8 +1,10 @@
 # 노코드 워크플로우 설계서 · 두바퀴
 
+v0.22 · 2026-11-08: Handoff 종료·배정 실패는 운영자 수동 재개를 위해 action 필수 인자를 masked `payload/close`·`payload/assign`으로 보존한다. H61은 검증용 context snapshot이 존재할 때만 `payload/context_update`로 보존한다. Local fixture contract 6/6 통과; VM에 반입하거나 Jira에서 수행한 것은 아니다. create/alert 및 검증 snapshot 없는 context update는 inspect-only/안전 거절을 유지한다.
+
 v0.21 선택 UX 전송 환경 · 2026-11-07: 별도 시험 사본의 H11/X04/E09는 [UX API 알림 경계](../../infra/user-api-deployment.md#optional-isolated-ux-discord-egress)로 연결할 수 있다. Discord URL을 n8n 실행 항목에 넣지 않고 기존 API 프로세스가 비밀파일을 읽어 전송한다. HTTP 204는 메시지 ack, 424는 거절, 502/503/504는 효과 미확인으로 기존 정규화와 DLQ/재전송 차단을 유지한다. 1.5초·자동 재시도0이며 기존 H11의2초 상한·업무 Request/Response·prepare/bind/save/finish 의미를 바꾸지 않는다. 정상 환경은 기본 설정을 보존한다. 실제 배포·알림 수신 증거는 별도 실행 결과로 판정한다.
 
-현행 적용 상태: v0.20 / 2026-11-07. v0.19 통합본(main a657890)을 VM에 적용했다. [실제 연결 검증](../../runs/public/20261107-170503-vm-pr36-integration/report.md)에서 정상 종료·조회·배정·save·실패 보존과 B17 축소 예산의 write 실행을 확인했다. WF11의 6초 미충족과 TC15 원 기대/unknown 게이트 충돌은 남아 있으며 기대값을 변경해 통과시키지 않았다. 아래 v0.18 및 날짜별 수치는 원본 이력이다. 정상 결과와 R05 공식 최종 판정을 구분한다.
+현행 적용 상태: v0.20 / 2026-11-07. v0.19 통합본(main a657890)을 VM에 적용했다. [실제 연결 검증](../../runs/public/20261107-170503-vm-pr36-integration/report.md)에서 정상 종료·조회·배정·save·실패 보존과 B17 축소 예산의 write 실행을 확인했다. WF11의 6초는 가이드 사례 예시이며 SLA가 아니다. 8.288초 사례 assertion 불일치는 보존하지만 20초 운영 deadline 안에 안전 이관한 것으로 기록한다. TC15 원 기대/unknown 게이트 충돌은 별도 미해결이다. 아래 v0.18 및 날짜별 수치는 원본 이력이다. 정상 결과와 R05 공식 최종 판정을 구분한다.
 
 전체 구성·상태 관계·기능/시나리오 추적은 [최상위 시스템 설계서](SYSTEM-DESIGN.md)를 먼저 읽는다. 이 문서는 노드·엣지와 업무 계약의 상세 원본이다.
 
@@ -316,6 +318,7 @@ R03이 승인된 지식을 검색 가능한 상태로 준비한다. 색인·메�
 | workflows/dubakwi-index.json | 관리자 Manual Trigger | R03 | [RAG 설계서](RAG-ARCHITECTURE.md) 참조 |
 | workflows/dubakwi-state.json | Execute Sub-workflow,외부 Webhook 없음 | R04 | 저장소 공개 계약의 고정 명령,드라이버별 내부 노드 R04 상세화 |
 | workflows/dubakwi-dlq.json | Execute Sub-workflow,외부 Webhook 없음 | R04 | DLQ 쓰기/운영 재처리의 고정 계약,R04 드라이버 상세화 |
+| workflows/dubakwi-recovery-operator.json | Manual Trigger + JSON input,외부 Webhook 없음 | R01 통합 (P18) | 전용 recovery operator Credential로 inspect/finish/claim/resume/complete/release를 parameterized allowlist 실행. Jira/Discord 외부효과는 운영자가 직접 수행·검증하고 complete가 Response·state completed·DLQ resolved를 CAS 저장. replay 자료 없는 capsule은 claim 거절. 실제 VM 반입·Jira action은 미검증 |
 | workflows/dubakwi-errors.json | Error Trigger | R04 | 5 |
 
 실제 n8n 버전·포트·AI 연결·원시 출력은 D03 확인 전. 상세도에서 오류 엣지는 생략하고7절에서 붙인다. 단계도와 노드 상세도는 서로 다른 확대 수준이다.
@@ -489,8 +492,8 @@ B28은 먼저 error_code=null && state_saved=true && 최신 state_ref를 확인�
 | H05 티켓 생성·재사용 | HTTP Request | TicketRequest | Raw | H15 저장 확인 뒤 H23~H25가 문의 label `dubakwi-<SHA-256(scope,소유자,첫 요청 ID) 앞 40자>`(요청 ID 문자 변환 충돌 없음, scope·소유자 포함)로 기존 건을 먼저 찾는다. 결과가 1건이고 키(JBYS-숫자)·label·본문의 case_id·first_request_id 줄이 모두 일치할 때만 재사용하고, 여러 건이면 ticket_ambiguous, 일치하지 않으면 ticket_not_linked로 실패해 생성·재사용·쓰기를 하지 않는다. 기존 건이 없을 때만 POST /rest/api/2/issue(프로젝트 JBYS·유형 10006·가린 요약/설명). 주소는 자리표시자 __JIRA_BASE_URL__(가져올 때 환경 값으로 치환, 변수 기능은 라이선스 없음), 인증은 n8n Jira Credential. 중복 조회 실패면 생성하지 않는다. 쓰기 timeout 3.5초·재시도 없음 |
 | H06 티켓 식별 확인 | Code | Raw+H02.ToolCtx | ToolCtx | 생성/조회 결과를 created/failed/unknown으로 분리,알려진 Jira ID/key 보존·has_ticket 판정. state_ref는 H14의 현재 값 복원 |
 | H07 티켓 결과 분기 | Switch | ToolCtx.action | ToolCtx | H18 저장결과 검증 후 out0 close;out1 wait;out2 handoff;fallback failed. 다음 외부 동작 준비가 저장되지 않으면 fallback |
-| H08 안내·거절 종료 | HTTP Request | ticket_id,answer,facts,status,attempt | Raw | H17 bind(next_step=H08) 저장 뒤 H31~H33이 전환 목록을 읽어 이름(Resolved/완료)으로 전환을 고르고(전환 ID 고정 금지) 필요한 Resolution을 허용 값에서 고른다. 맥락 댓글과 종료를 한 번의 POST로 보낸다. Resolution 값이 없거나 전환이 없으면 호출 없이 closed=failed·partial_effect·recovery(close,jira_ref) |
-| H09 맥락 저장·담당 지정 | HTTP Request | ticket_id,CaseFacts,role,priority | Raw | H17 bind(next_step=H09) 뒤 H37~H39가 배정 가능한 활성 사용자 목록을 조회하고, 가져올 때 치환하는 자리표시자 __ASSIGNEE_MAP_JSON__의 역할→계정 매핑으로 담당을 정한다. 매핑이 없거나(미치환 포함) 그 계정이 배정 가능 후보가 아니면 첫 후보로 대신 배정하지 않고 PUT 없이 assigned=failed(assignee_unmapped/assignee_not_assignable)·partial_effect·recovery(assign)로 둔다. 배정되면 PUT /issue/<key>로 담당과 맥락 댓글을 한 번에 저장 |
+| H08 안내·거절 종료 | HTTP Request | ticket_id,answer,facts,status,attempt | Raw | H17 bind(next_step=H08) 저장 뒤 H31~H33이 전환 목록을 읽어 이름(Resolved/완료)으로 전환을 고르고(전환 ID 고정 금지) 필요한 Resolution을 허용 값에서 고른다. 맥락 댓글과 종료를 한 번의 POST로 보낸다. 전환 조회/실행 실패는 `partial_effect`와 `payload/close` recovery(close_status+masked answer)를 보존한다 |
+| H09 맥락 저장·담당 지정 | HTTP Request | ticket_id,CaseFacts,role,priority | Raw | H17 bind(next_step=H09) 뒤 H37~H39가 배정 가능한 활성 사용자 목록을 조회하고, 가져올 때 치환하는 자리표시자 __ASSIGNEE_MAP_JSON__의 역할→계정 매핑으로 담당을 정한다. 매핑이 없거나(미치환 포함) 그 계정이 배정 가능 후보가 아니면 첫 후보로 대신 배정하지 않고 PUT 없이 assigned=failed(assignee_unmapped/assignee_not_assignable)·partial_effect·manual_required로 둔다. 배정 PUT 실패는 선택된 account ID와 priority를 `payload/assign` recovery에 보존한다. |
 | H10 배정 확인 | If | H09 효과 | Raw | true=맥락·담당 확인→H19 알림 의도 저장;false=부분실패 H12. 전달 완료 알림 선행 금지 |
 | H11 담당 알림 | HTTP Request | ticket_id,role,priority,가린 요약 | Raw | H19 prepare(current_step=H11) 확인 뒤 POST http://data-api:8800/alerts. body 스키마는 과정 data-api 기준 미검증이며 실패 시 alert=failed/unknown·partial_effect. 알림 수락은 사람 인수 아님 |
 | H12 티켓·조회 결과 | Code | Raw/ToolCtx | TicketResult/LookupResult | H02 입력·H06 ID·최신 state_ref·각 Effect 합성. TicketResult.state_saved/error_code가 효과보다 우선,실패에 recovery 캡슐 포함. lookup은 owner·가림·반환 봉투1개 |
@@ -1151,7 +1154,7 @@ SaveRequest는 내부 필수 deadline_at(ISO8601 절대 시각)을 전달한다.
 
 | 노드 | 연결·내부 페이로드 | 성공 의미·실패 처리 |
 | --- | --- | --- |
-| H52~H56 | bind 후 ctx + 절대 deadline + 서버 binding → 이슈 GET → 모든 댓글 페이지 → 검증 snapshot | 이전 snapshot 검증·역할/우선순위/횟수 유지. legacy/author/연결 불명은 쓰기 전 차단 |
+| H52~H61 | bind 후 ctx + 절대 deadline + 서버 binding → 이슈 GET → 모든 댓글 페이지 → 검증 snapshot → 조건부 기록·재조회 | 이전 snapshot 검증·역할/우선순위/횟수 유지. legacy/author/연결 불명은 쓰기 전 차단. H61 검증 실패에서 snapshot이 이미 만들어진 경우 그 event_id가 든 가림 snapshot을 `payload/context_update`로 보존해 같은 idempotent 이벤트를 operator가 확인 후 재개 |
 | H57~H61 | 동일 event 재사용 또는 최소 가린 snapshot POST → 모든 페이지 재조회 | 이번 요청의 문맥 일치 후 context_saved=confirmed. 응답 유실도 맹목 POST 재시도0 |
 | H63·H70~H81 | 읽기/각 외부 쓰기 직전 잔여 마감·req·ctx | 부족하면 새 외부 쓰기0. known ID·partial_effect/복구 자료 보존 |
 | S21~S22·S17 | DB latest_completed_request_id + binding → Jira GET/모든 댓글 → verified_case | 최신 완료 요청만 복원. 실제 done은 case_closed, 그 외 오류를 빈 facts 성공으로 바꾸지 않음 |
@@ -1174,3 +1177,9 @@ B21에는 근거에 없는 숫자+단위·재설치/원격조치와 확정 완�
 ## PR36 과정 재사용의 현재 로컬 대조
 
 기존8절의 미채택/미실행 표시는 당시 상태다. 현재 로컬 후보에서는 errors E09가 기존 data-api /alerts를 운영 실패 알림 API로 호출하며 Jira 담당 알림과 구분한다. 실제 수신은 미검증이다. 과정 flow.py check는 search/errors만 통과했고 support/state/handoff는 과정 Credential allowlist 제약으로 실패했다. Credential을 위장하거나 팀 runner와 과정 도구 전체가 동등하다고 처리하지 않았다. 생성 API의401/403/429는 재시도0 안전 실패,5xx/응답 유실은 효과 미확인이다. 일반 가이드의 재시도 권고를 Jira 쓰기 무조건 재시도로 적용하지 않는다.
+
+## WF-11 조회 지연 시간 기대 해석 보충 — 2026-11-07
+
+현재 VM 기준 실행은 조회 장애 뒤 안전 이관을 8.288초에 반환했다([실행 결과](../../runs/public/20261107-170503-vm-pr36-integration/report.md)). `cases/common.json`의 `max_seconds: 6`은 가이드 예시값이며 운영 SLA가 아니다. 현 support의 `TIME_BUDGET.ticket_min_ms=5000`, `tail_ms=3500`는 합계 8.5초지만 이는 예약 예산이지 실제 처리시간 보장은 아니다. 8.288초는 예시 assertion 불일치이며 시스템의 20초 deadline 위반으로 보지 않는다.
+
+과거 6초 assertion 결과와 실패 이력은 덮어쓰지 않는다. 전체 요청은 설계의 20초 deadline과 25초 관측 실패 상한을 기준으로 판정하며, 8.288초는 단일 표본이라 성능 보장을 뜻하지 않는다. 필요하면 반복/단계 계측으로 lookup→안전 이관→티켓·상태 저장 경로를 특성화한다. workflow timeout, 응답 의미, Jira 생성, prepare/bind/finish 저장 gate는 변경하지 않았다. TC-15 VM 검증은 다른 마감 항목 다음 최후순위다.
