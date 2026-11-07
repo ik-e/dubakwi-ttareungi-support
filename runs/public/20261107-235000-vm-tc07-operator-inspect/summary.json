@@ -1,0 +1,27 @@
+{
+  "run_id": "20261107-235000-vm-tc07-operator-inspect",
+  "run_date_kst": "2026-11-07 23:45-23:50",
+  "environment": "aio-t2 VM n8n + pr36_dual_storage_a657890 PostgreSQL",
+  "code_ref": "VM n8n test workflow b4cc6f8be2d9492f8a508a545b85f2dc; no repository runtime changes",
+  "workflow_version": "R01 TC07 operator E2E 20261107 temporary manual workflow; inactive and unpublished",
+  "config_version": "n8n Postgres credential dubakwi-recovery-operator; DB pr36_dual_storage_a657890; role dubakwi_recovery_login",
+  "case_ids": ["TC-07", "controlled finish inspect and guard"],
+  "result": "partial_pass_with_blocker",
+  "checks": {
+    "saved_credential_name_and_connection_test": "pass",
+    "n8n_database_and_role_connection": "pass; endpoint 172.18.0.8:5432",
+    "literal_recovery_finish_inspect": "pass; ok true; synthetic DLQ/state returned",
+    "parameterized_recovery_finish_inspect": "fail; recovery_not_found; discrepancy unresolved",
+    "parameter_binding_probe": "pass; $1::text contained expected JSON and jsonb_typeof was object",
+    "finish_without_jira_verification_attestation": "pass; safely rejected invalid_recovery_request",
+    "post_guard_state": "pass; DLQ pending revision 0 and request failed revision 3 unchanged",
+    "workflow_state": "pass; inactive, unpublished, returned to inspect-only query"
+  },
+  "limitations": [
+    "No actual Jira ticket/effect was associated with this synthetic fixture; finish success was not invoked",
+    "No Discord effect was invoked",
+    "Parameterized function-call discrepancy remains unresolved",
+    "TC-07 end-to-end recovery is not a full pass"
+  ],
+  "detail": "report.md"
+}

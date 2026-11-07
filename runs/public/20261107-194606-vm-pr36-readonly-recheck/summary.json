@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "run_id": "20261107-194606-vm-pr36-readonly-recheck",
+  "executed_on": "2026-11-07 19:46 KST",
+  "environment": "Team VM via existing Edge Web SSH, n8n UI and Jira UI; read-only",
+  "authority": "R01 observed; no workflow execution or external state change",
+  "source": {
+    "branch": "r01/p26-final-closure",
+    "head": "6f9561bae48ad5da44b726f95c18d29024ba0d0d",
+    "matches_origin_main": true,
+    "working_tree_dirty": true
+  },
+  "vm": {
+    "n8n_version_family": "2.42.6",
+    "containers": {
+      "n8n": {"image_tag": "pr36-a657890", "status": "running"},
+      "discord_bot": {"image_tag": "pr36-1328c63", "status": "running"},
+      "core_user_api": {"image_tag": "pr36-a657890", "status": "healthy"},
+      "ux_user_api": {"image_tag": "ux-6f9561b", "status": "healthy"},
+      "postgres": {"image": "postgres:16.15-bookworm", "status": "healthy"}
+    },
+    "bot_support_path": "/webhook/dubakwi-support-pr36-a657890",
+    "n8n_workflow_inventory_total": 102,
+    "core_support_published": true,
+    "core_child_workflows_published": ["search", "handoff", "state", "dlq", "errors"],
+    "ux_copy_workflows_published": 5,
+    "mock_support_also_published": true,
+    "core_support_saved_execution_rows_visible": 0,
+    "instance_metrics": {"production_executions": 789, "failed": 4, "failure_rate_percent": 0.5, "average_run_time_seconds": 2.7, "scope": "all workflows; not a core-workflow metric"},
+    "jira_board_visible_status_counts": {"to_do": 1, "in_progress": 0, "in_review": 0, "done": 2}
+  },
+  "changes_made": [],
+  "not_executed": [
+    "TC15 fault injection and Jira/DB/DLQ readback",
+    "WF11 live latency retest",
+    "J01-J03 live lifecycle acceptance",
+    "RAG permission and citation end-to-end tests",
+    "human notification receipt and post-handoff citizen lookup",
+    "full workflow/credential/SQL/index/image/config manifest"
+  ],
+  "status": "read_only_topology_rechecked_core_acceptance_pending",
+  "details": "report.md"
+}

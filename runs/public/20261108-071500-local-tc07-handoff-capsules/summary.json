@@ -1,0 +1,32 @@
+{
+  "run_id": "20261108-071500-local-tc07-handoff-capsules",
+  "date_kst": "2026-11-08",
+  "environment": "local synthetic Node.js 24.22.1",
+  "target": "workflows/dubakwi-handoff.json",
+  "scenario": "TC-07 Handoff recovery capsule producer contract",
+  "result": "pass",
+  "checks": {
+    "close_capsule": "pass",
+    "assign_capsule": "pass",
+    "context_update_capsule": "pass",
+    "focused_contract_checks": 6,
+    "operator_workflow_checks": 19,
+    "finish_capsule_checks": 3,
+    "json_parse": "pass",
+    "git_diff_check": "pass",
+    "docs_links": {"files": 22, "local_links": 759, "anchors": 58, "errors": 0},
+    "public_candidate_check": {"files": 560, "errors": 0}
+  },
+  "external_effects": {
+    "jira": 0,
+    "discord": 0,
+    "database": 0,
+    "vm": 0
+  },
+  "limitations": [
+    "No Jira or VM action was executed",
+    "PostgreSQL migrations 001-016 are covered by the linked preceding local audit, not rerun after this workflow-only change",
+    "create/alert recovery payloads and live TC-07 remain incomplete"
+  ],
+  "detail": "report.md"
+}

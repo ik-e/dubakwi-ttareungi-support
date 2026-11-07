@@ -8,6 +8,12 @@
 - 방법: 저장소 원본 정적 대조와 기존 실행 증거 검토. 이번에 VM/Jira/DB 변경·새 문의 실행은 하지 않았다. 현재 VM 배포본 전체를 새로 내보내 대조한 것은 아니다.
 - 책임의 원본: [팀 헌장](../docs/project/TEAM-CHARTER.md). 요구의 원본: [워크플로우](../docs/project/WORKFLOW-DESIGN.md), [저장소](../docs/project/STORAGE-DESIGN.md), [시스템](../docs/project/SYSTEM-DESIGN.md).
 
+> **시점 주의:** 아래 코드는 main `eb747df` 기준 2026-11-06 정적 검토 기록이다. 이후 현행 `main` `6f9561b` 소스에는 Jira read-only records provider와 Jira 문맥 snapshot 경로(SQL 008~009·state/handoff)가 포함되고 PR #36 통합 VM 시험도 별도 보고서로 작성됐다. J01~J03의 당시 결함 후보를 현행 확정 결함으로 복사하지 않는다. 현재 수용 기준과 남은 검증은 [현행 마감 계획의 J01~J03 종단](../docs/project/implementation-status-and-closeout-plan.md#우선순위와-범위-경계) 및 [P26 로컬 회귀](../runs/public/20261107-192148-local-p26-closeout/report.md)에서 추적한다. 이 과거 검토의 기존 결과·날짜별 판단은 보존한다.
+
+### 2026-11-07 R01 live addendum
+
+[Edge VM Jira 생애주기 보고서](../runs/public/20261107-201652-vm-p26-jira-lifecycle/report.md)는 두 synthetic 요청의 동일 Jira key 재사용·facts 누적, owner `200`/other `403`/missing `404`, DB `completed/respond`·해당 DLQ 0을 확인했다. 사용자 승인을 받아 synthetic issue를 Jira UI에서 Resolved/완료로 전환한 뒤 owner 조회는 `200 closed`를 반환했다. 계정 전환은 테스트 운영 액션이며 배정 직원의 직접 처리, Discord 사람 수신, 금전 환불을 입증하지 않는다. 따라서 생애주기 상태 반영 경로는 단일 표본 확인, 담당 직원 처리 완료는 미확인으로 구분한다. 기존 2026-11-06 조사 기록은 변경하지 않는다.
+
 ## 1. 항목별 판정
 
 | 설계 항목 | 현재 구현·증거 | 판정 |

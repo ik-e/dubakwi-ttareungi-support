@@ -1,0 +1,25 @@
+{
+  "run_id": "20261107-215556-local-p26-coverage",
+  "date_kst": "2026-11-07",
+  "environment": "local structure audit; zero network/service calls",
+  "code_revision": "6f9561bae48ad5da44b726f95c18d29024ba0d0d",
+  "configuration_version": "full-system-coverage plan v1.0; mapping baseline 14bdd5a",
+  "case_ids": ["full-system-coverage-64", "WF11"],
+  "results": {
+    "requirements_mapped": 64,
+    "acceptance_tests_mapped": 64,
+    "packages": 12,
+    "structural_errors": 0,
+    "runtime_tests_executed": 0,
+    "known_limitations": ["S10/TC07 automatic replay not implemented", "VM and external effects not tested"]
+  },
+  "wf11": {
+    "original_max_seconds": 6,
+    "observed_vm_seconds": 8.288,
+    "current_minimum_ticket_reservation_seconds": 5,
+    "current_tail_reservation_seconds": 3.5,
+    "combined_reservations_seconds": 8.5,
+    "status": "target unmet; budget/contract design unresolved"
+  },
+  "effects": {"http": 0, "jira": 0, "state": 0, "dlq": 0, "discord": 0}
+}

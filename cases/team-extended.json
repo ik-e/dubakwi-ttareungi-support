@@ -129,17 +129,17 @@
       "name": "TC07 DLQ 수동 재처리",
       "x_dubakwi": {
         "id": "TC07", "category": "recovery", "scenario": ["S8"], "functions": ["F09"], "producers": ["R04"],
-        "not_implemented": "원 요청 재개(재처리) 기능 미구현: state_apply에 조건부 재개 op가 없고 R04 재개 드라이버가 인계되지 않음(R01 errors-recovery-handoff 3절, 2026-11-06). fail로 세지 않고 복구 미구현으로 기록한다",
+        "not_implemented": "TC-07 저장·운영자 복구 slice는 로컬 구현 및 disposable PostgreSQL 001~016 계약 검증 완료. 실제 Jira action 대조/수행, VM 011~016 반입·operator workflow 연결 및 실연동 사례는 미실행이므로 TC-07 전체 pass로 세지 않는다",
         "requires": "운영자 단계: TC05 또는 TC06 뒤 고장 해제, R04가 STORAGE-DESIGN 4.2 절차로 재처리. R05는 전후 상태만 기록",
-        "implemented_part": "운영자 확인 상태 전환(R01 state.fail → failed/unknown, DLQ claim/resolve)은 TC18 4단계 뒤 운영자 절차로 기록하되 재실행 성공으로 세지 않는다",
+        "implemented_part": "migrations 010~016의 별도 operator 경계가 finish 복원과 action별 payload의 claim→fresh StateRef resume→release/complete를 CAS로 처리한다. close/assign/검증 snapshot context_update 복구 인자는 Handoff에서 보존한다. unknown 외부 효과는 운영자 확인 없이 claim할 수 없고 재개 실패 시 release가 failed/unknown/confirmed 판정을 저장해 다음 실행의 중복 효과를 막는다. 2026-11-08 disposable PostgreSQL contracts 통과. Jira 외부 action은 운영자가 수행·대조하며 VM 반입/실연동은 미검증이다",
         "steps": [],
-        "checks": ["재처리 전후 티켓 수 변화 0(TC05는 기존 건 바인딩)", "요청 failed/unknown→processing→completed·새 execution_id·revision 증가", "DLQ pending→reprocessing→resolved·resolution·resolved_at", "미전송 담당 알림만 1건·성공 단계 재호출 0"],
+        "checks": ["재처리 전후 티켓 수 변화 0(TC05는 기존 건 바인딩)", "요청 failed/unknown→processing→completed·새 execution_id·revision 증가", "DLQ pending→reprocessing→resolved·resolution·resolved_at", "재개 실패 release 시 대상 효과 판정과 last_effect_check 기록", "unknown은 Jira 재확인 전 재claim 거절, confirmed는 외부 효과 재실행 없이 완료", "미전송 담당 알림만 1건·성공 단계 재호출 0"],
         "manual": ["재처리 후 같은 request_id 재전송이 replay"],
         "variants": [
           {"id": "TC07-v1", "change": "고장 해제 전 재처리", "expect": "pending 복귀·사유 기록"},
           {"id": "TC07-v2", "change": "두 운영자 동시 재처리", "expect": "한쪽만 처리권 획득"}
         ],
-        "open_items": ["재처리 명령·호출 방식(R04 P18)", "Jira 연결 식별자로 기존 건 찾는 방법"],
+        "open_items": ["Jira 외부 action 실제 대조·수행과 담당자 확인", "migrations 011~016 및 비활성 operator workflow의 VM 반입·연결", "실제 DLQ 항목 end-to-end 복구 사례"],
         "run_status": "not_run"
       }
     },
@@ -202,11 +202,11 @@
       }
     },
     {
-      "name": "TC15 알림 결과 미확인은 partial_effect 유지와 같은 DLQ 갱신",
+      "name": "TC15 알림 결과 미확인 유지와 같은 문의 후속 차단",
       "x_dubakwi": {
         "id": "TC15", "category": "failure_handling", "scenario": ["S8"], "functions": ["F07", "F09"], "producers": ["R04"],
-        "requires": "R04 시험용 설정: 담당 알림을 시도한 뒤 결과를 확인하지 못하게(알림 시도 표식만 남고 성공 표식 없음)",
-        "boundary": "자동 재알림 0, partial_effect와 수동 확인 복구 자료 유지, 같은 case 재요청은 같은 alert_marker DLQ 항목 갱신(R04 first-connection 7번, migration 007)",
+        "requires": "R04 격리 시험 설정: 담당 알림을 시도한 뒤 결과를 확인하지 못하게(알림 시도 표식만 남고 성공 표식 없음)",
+        "boundary": "최초 효과 미확인은 unknown/partial_effect와 수동 확인 자료로 보존한다. 미확인 요청이 활성인 동안 같은 case의 후속은 저장 계약대로 409 case_busy이며 Jira/LLM/알림 재실행은 0이다. alert_marker DLQ 중복 제거는 scripts/test/p18-dlq-marker-cases.js의 별도 모듈 시험으로 판정한다.",
         "steps": [
           {"step": 1,
            "body": {"request_id": "tc15-1", "user": "citizen-a", "question": "11월 2일 오후에 1시간권을 결제했는데 대여가 안 됐어요. 환불해 주세요. 따릉이 앱에서 카드로 결제했어요.", "attempt": 1},
@@ -214,12 +214,13 @@
            "assert": [{"path": "ticket.ticket_id", "op": "exists"}, {"path": "case_ref", "op": "exists"}]},
           {"step": 2,
            "body": {"request_id": "tc15-2", "user": "citizen-a", "question": "결제 영수증 시각은 오후 3시 10분이었어요.", "case_ref": "{step1.case_ref}", "attempt": 2},
-           "expect": {"status": 200, "equals": {"route": "담당자 이관", "reason": "partial_effect"}},
-           "assert": [{"path": "ticket.ticket_id", "op": "same_as", "value": {"step": 1, "path": "ticket.ticket_id"}}]}
+           "expect": {"status": 409, "contains": {"codes": ["case_busy"]}, "not_contains": {"error": ["접수 완료", "처리 완료", "담당자에게 전달 완료", "자동 복구"]}},
+           "assert": []}
         ],
-        "checks": ["step1 DLQ recovery.action=alert 1건", "step2 DLQ recovery.action=alert_marker, 같은 case·failed_step·error_code면 같은 dlq_id·deduplicated=true·최신 request_id로 갱신", "case당 DLQ는 alert 1건과 alert_marker 1건 이하", "자동 재알림 0(알림 호출 총 1회)", "처리 상태 unknown 유지, 접수 완료로 저장하지 않음"],
-        "manual": ["두 응답 모두 '담당자에게 전달 완료'라고 단정하지 않음"],
-        "open_items": ["알림 결과 미확인 고장 주입 방법(R04)", "DLQ 행·dlq_id 확인 방법(R04/R01, runtime 계정은 조회만)"],
+        "checks": ["step1은 외부 효과 unknown/partial_effect, known Jira ID 보존, alert 복구항목 1건, 자동 재알림 0", "step2는 case_busy 409, 같은 case 처리권·상태 변경 0", "step2의 LLM/Jira/Discord 호출 0, 동일 문의 재실행 0", "step1 결과를 접수 완료·담당자 수신 완료로 저장/표시하지 않음", "alert_marker 동일 case dedup은 scripts/test/p18-dlq-marker-cases.js에서 별도 판정"],
+        "manual": ["step1 응답이 외부 효과 미확인을 감추거나 접수 완료를 약속하지 않음", "step2 안내가 이전 처리 완료·담당자 수신·자동 복구를 약속하지 않음"],
+        "decision": "R01 2026-11-07: 기존 step2 200/partial_effect 기대는 STORAGE-DESIGN 3.2·3.3 및 WORKFLOW-DESIGN 7.6의 unknown 요청 case_busy 409 안전 계약과 충돌한다. 최초 실패·기대 불일치는 기존 VM 결과서에 보존하고, 본 사례는 후속 차단 기대를 명시한다. alert_marker dedup은 후속 begin이 차단되므로 별도 모듈 시험으로 분리한다.",
+        "open_items": ["알림 결과 미확인 고장 주입 방법(R04)", "DLQ 행·dlq_id 읽기 확인 방법(R04/R01, runtime 계정 조회만)", "case_busy 시민 안내가 진행 상태를 정확히 설명하는지 UX 확인(R02)"],
         "run_status": "not_run"
       }
     },

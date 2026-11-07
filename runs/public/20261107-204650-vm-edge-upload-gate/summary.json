@@ -1,0 +1,22 @@
+{
+  "run_id": "20261107-204650-vm-edge-upload-gate",
+  "date": "2026-11-07",
+  "environment": "Edge n8n UI through computer-use file chooser",
+  "case_ids": ["TC-15-preimport"],
+  "status": "blocked_at_local_file_selection",
+  "user_observation": "user reports Edge/VM access appears available",
+  "observed_result": "ChatGPT Edge extension still requires Allow access to file URLs for local candidate upload",
+  "workflow_imported": false,
+  "workflow_activated": false,
+  "jira_requests_sent": 0,
+  "discord_messages_sent": 0,
+  "state_or_dlq_changes": 0,
+  "extension_permission_changed": false,
+  "tc15_passed": false,
+  "documentation_checks_after_sync": {
+    "project_docs": {"files": 22, "local_links": 667, "anchor_links": 57, "errors": 0},
+    "public_git_candidates": {"files": 498, "tracked_files": 476, "ignored_tracked_files": 0, "public_local_links": 1014, "errors": 0},
+    "git_diff_check": "passed"
+  },
+  "evidence": "report.md"
+}

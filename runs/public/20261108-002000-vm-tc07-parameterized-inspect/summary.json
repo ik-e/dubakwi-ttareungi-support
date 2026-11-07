@@ -1,0 +1,31 @@
+{
+  "run_id": "20261108-002000-vm-tc07-parameterized-inspect",
+  "date_kst": "2026-11-08",
+  "environment": "aio-t2 VM via Edge n8n UI",
+  "workflow_id": "b4cc6f8be2d9492f8a508a545b85f2dc",
+  "workflow_active": false,
+  "database_role": "dubakwi-recovery-operator",
+  "scenario": "TC-07 parameterized inspect with corrected DLQ ID",
+  "result": "inspect_pass_recovery_not_run",
+  "observed": {
+    "parameterized_query": true,
+    "database_result_ok": true,
+    "dlq_id": "dlq-1fc0aa308982d11ff908eac554a791c1",
+    "prior_failure_cause": "fixture DLQ ID omitted final 1",
+    "fixture_has_real_jira": false
+  },
+  "side_effects": {
+    "jira": 0,
+    "discord": 0,
+    "state_mutations": 0,
+    "dlq_mutations": 0
+  },
+  "remaining": [
+    "verified Jira-backed finish",
+    "action-specific recovery",
+    "conditional release to pending",
+    "concurrent operator claim test",
+    "interruption/restart recovery"
+  ],
+  "detail": "report.md"
+}

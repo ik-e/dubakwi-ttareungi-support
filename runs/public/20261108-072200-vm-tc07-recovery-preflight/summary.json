@@ -1,0 +1,28 @@
+{
+  "run_id": "20261108-072200-vm-tc07-recovery-preflight",
+  "date_kst": "2026-11-08",
+  "environment": "existing VM web SSH; PostgreSQL 16.15",
+  "database": "dubakwi_service",
+  "scope": "read-only catalog and service inspection",
+  "result": "recovery_migrations_not_applied",
+  "observations": {
+    "postgres_container_running": true,
+    "service_database_present": true,
+    "recovery_dispatcher_present": false,
+    "recovery_functions_query_rows": 0
+  },
+  "writes": 0,
+  "jira_effects": 0,
+  "discord_effects": 0,
+  "state_or_dlq_changes": 0,
+  "postcheck": {
+    "docs": {"files": 22, "local_links": 761, "anchors": 58, "errors": 0},
+    "public_candidates": {"files": 562, "errors": 0}
+  },
+  "blockers": [
+    "Recovery migrations 010-016 and operator workflow are unreviewed, unmerged local worktree content",
+    "Deployment runbook requires reviewed default-branch revision and restore rehearsal before live apply",
+    "Live action-time authorization is required before applying the operator-only capability"
+  ],
+  "detail": "report.md"
+}

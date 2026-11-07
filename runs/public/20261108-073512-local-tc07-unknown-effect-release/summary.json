@@ -1,0 +1,23 @@
+{
+  "run_id": "20261108-073512-local-tc07-unknown-effect-release",
+  "run_at_kst": "2026-11-08T07:35:12+09:00/07:38:11+09:00",
+  "environment": "disposable PostgreSQL 16.15-bookworm; removed after run",
+  "base_revision": "6f9561b",
+  "scope": ["migrations 001-016", "controlled-recovery-contract", "controlled-recovery-claim-release-contract", "controlled-recovery-unknown-effect-contract", "operator workflow contract", "Handoff capsule contracts"],
+  "result": "local_storage_contracts_passed_live_integration_unverified",
+  "checks": {
+    "migrations_001_016": "passed",
+    "controlled_recovery_finish": "passed",
+    "controlled_recovery_claim_release": "passed",
+    "controlled_recovery_unknown_effect": "passed",
+    "operator_workflow_contract": "passed; 25 assertions",
+    "finish_capsule": "passed; 3/3",
+    "handoff_recovery_capsule": "passed; 6/6",
+    "workflow_and_case_json": "passed",
+    "git_diff_check": "passed",
+    "project_docs_check": "passed; 22 files, 762 local links, 58 anchors, 0 errors",
+    "public_files_check": "passed; 565 candidate files, 1123 public local links, 0 errors"
+  },
+  "external_effects": {"vm": 0, "jira": 0, "discord": 0},
+  "limitations": ["VM migration and credential binding not performed", "Jira/Discord action execution not performed", "TC-07 live end-to-end remains unverified"]
+}

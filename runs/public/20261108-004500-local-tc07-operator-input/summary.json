@@ -1,0 +1,24 @@
+{
+  "run_id": "20261108-004500-local-tc07-operator-input",
+  "executed_at_kst": "2026-11-08T00:45:00+09:00",
+  "environment": "local-node-static-workflow-contract",
+  "workflow": "workflows/dubakwi-recovery-operator.json",
+  "result": "pass",
+  "checks": {
+    "operator_workflow_contract": "17/17 passed"
+  },
+  "external_effects": {
+    "database": 0,
+    "vm": 0,
+    "jira": 0,
+    "discord": 0
+  },
+  "limitations": [
+    "No n8n import or execution",
+    "No action-specific Jira or Discord recovery driver",
+    "No request_state resume with new StateRef",
+    "No final response completion or DLQ resolve through claim path",
+    "No stale reprocessing crash recovery"
+  ],
+  "details": "report.md"
+}

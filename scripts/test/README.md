@@ -28,6 +28,8 @@ VM P19 연결 시험 사본과 전용 mock은 `make_vm_p19_bundle.py`로 만든�
 
 `fake_jira.py`는 로컬 예행 전용 가짜 Jira다. 실제 Jira 통과 증거로 쓰지 않는다. 실제 state·DLQ·handoff 연결 사본은 `make_vm_p19_real_bundle.py`로 만든다. 대응표와 S1 통과 기준은 [VM P19 실제 연결 시험](vm-p19-real-test.md)을 따른다.
 
+TC-07의 복구 저장 계약은 disposable PostgreSQL에 migrations 001~016을 적용해 확인한다. 운영자 입력·finish capsule 계약은 `node scripts/test/tc07-operator-workflow-contract.js` 및 `node scripts/test/tc07-finish-capsule-contract.js`로, handoff가 종료·배정·검증 snapshot이 생성된 문맥 갱신 실패 인자를 가린 recovery capsule에 보존하는지는 `node scripts/test/tc07-handoff-recovery-capsule-contract.js`로 확인한다. 이는 외부 Jira/Discord 조작이나 VM migration 적용을 대신하지 않는다.
+
 `build_knowledge_search_mock.py`는 승인 전 지식으로 답하는 시험용 search를 만든다. 산출물은 커밋하지 않고 실제 검색 평가에 쓰지 않는다.
 
 게시된 n8n의 Webhook 호출은 `SUPPORT_TEAM_KEY=<시험 키> uv run --locked python scripts/test/support_skeleton_live.py --url <Webhook URL> [--output runs/public/<실행묶음ID>/summary.json]`로 확인한다. 키는 결과에 남기지 않는다. n8n 게시 직후 결과가 이전 버전으로 나올 수 있어 실패하면 잠시 뒤 다시 확인하고 최초 결과를 보존한다. VM·공식 판정을 대신하지 않는다.
@@ -99,6 +101,15 @@ uv run --locked python scripts/test/run_cases.py --base-url <n8n 주소> --env v
 `make_boundary_fault_copy.py --source <실제 연결 사본> --mode <모드> --output runs/<새 사본>.json`은 create/bind/context/close/assign/alert/save/state_fail/dlq/unexpected 한 경계만 바꾼 비활성 사본을 만든다. 원본/공용 Credential을 변경하거나 실행하지 않는다. state_fail+dlq 이중 실패는 같은 scope의 별도 두 사본을 묶은 뒤 사용한다. LLM/시간 사본은 PR43의 `make_llm_time_fault.py`, 검증기 사본은 `make_verifier_fault.py`를 유지한다.
 
 R05 runner의 `--ready TC17 TC18`은 단계별 원 실행 종료/고장 해제 확인 후 진행한다. 해제 실패는 halted이며 다음 사례를 보내지 않는다. `--no-hooks`로 필요한 고장/해제를 우회하지 않는다. TC07은 recovery/not_implemented이며 새 정상 문의를 기존 실패의 복구로 세지 않는다. 원본41개 정의와 반복·최초 실패를 보존한다.
+
+TC-07 operator 저장 경계는 `node scripts/test/tc07-operator-workflow-contract.js`,
+`node scripts/test/tc07-finish-capsule-contract.js`, PostgreSQL 16.15 disposable DB의
+`infra/db/verification/controlled-recovery-contract.sql`과
+`controlled-recovery-claim-release-contract.sql`,
+`controlled-recovery-unknown-effect-contract.sql`로 검사한다. migrations 001~016 적용,
+runtime/operator 권한 경계, claim/resume의 fresh StateRef, release 후 unknown 효과 보존과
+재확인 강제, confirmed 효과의 중복 실행 없는 adopt/complete를 확인한다.
+이 계약은 저장 경계만 검증하며 Jira/Discord action 실행, VM 적용, TC-07 실연동 통과를 대신하지 않는다.
 
 Jira mock와 실제 PostgreSQL의 로컬 결과는 VM/Jira/Discord 공식 판정과 분리한다. provider 시험은 `test_records_provider.py`, 공통 문맥 fixture는 `test_case_context.py`, 최종 save amendment는 `p12-save-cases.js`가 다룬다.
 

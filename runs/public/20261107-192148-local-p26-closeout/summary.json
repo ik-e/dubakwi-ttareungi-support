@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "run_id": "20261107-192148-local-p26-closeout",
+  "executed_on": "2026-11-07 KST",
+  "environment": "local Windows; Python 3.12.10; Node.js v24.22.1",
+  "authority": "R01 local observations; not official whole-system PASS",
+  "source": {
+    "branch": "r01/p26-final-closure",
+    "head": "6f9561bae48ad5da44b726f95c18d29024ba0d0d",
+    "working_tree_dirty": true,
+    "application_source_modified": false,
+    "manifest": "baseline-manifest.json",
+    "artifact_sha256": "artifact-hashes.json"
+  },
+  "results": {
+    "support_code_cases": {"total": 157, "passed": 157, "failed": 0, "evidence": "support-skeleton.json", "scope": "local Code node flow with substituted dependencies"},
+    "python_unittest": {"total": 148, "passed": 141, "skipped": 7, "failed": 0, "skip_reason": "DUBAKWI_INTERNAL_KEY is required by local RAG HTTP tests", "private_log": "runs/20261107-192148-local-p26-closeout/python-unittest.log"},
+    "ruff_check": "passed",
+    "ruff_format_check": {"status": "passed", "files_checked": 151},
+    "project_docs_links": {"status": "passed", "files": 22, "local_links": 633, "anchors": 57, "errors": 0},
+    "public_files_links": {"status": "passed", "candidate_files": 482, "public_local_links": 965, "errors": 0},
+    "git_diff_check": "passed"
+  },
+  "not_executed": [
+    "current VM state/image digest recheck",
+    "VM deployed workflow execution",
+    "RAG live HTTP tests requiring internal credential",
+    "Jira live ticket lifecycle and assignee operation",
+    "Discord UX alert live send (R02-owned UX scope)",
+    "WF-11 live latency retest",
+    "TC-15 live safety/response reconciliation",
+    "live fault injection and operational DLQ/recovery"
+  ],
+  "prior_vm_evidence": "../20261107-170503-vm-pr36-integration/summary.json",
+  "details": "report.md",
+  "status": "local_regression_passed_live_closeout_pending"
+}

@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "captured_at_kst": "2026-11-07T19:24:20+09:00",
+  "run_id": "20261107-192148-local-p26-closeout",
+  "source": {
+    "branch": "r01/p26-final-closure",
+    "head": "6f9561bae48ad5da44b726f95c18d29024ba0d0d",
+    "working_tree_dirty": true,
+    "application_files_modified": false,
+    "application_change_scope": "No source workflow, Python service, SQL migration, or knowledge content modified in this run; documentation/work evidence are uncommitted."
+  },
+  "artifacts": {
+    "digest_manifest": "artifact-hashes.json",
+    "workflow_files": 7,
+    "sql_migrations": 9,
+    "knowledge_manifest": "knowledge/manifest.json",
+    "knowledge_files_hashed": 9,
+    "python_lock_files": [
+      "pyproject.toml",
+      "uv.lock"
+    ]
+  },
+  "local_runtime": {
+    "python": "3.12.10",
+    "node": "v24.22.1",
+    "os": "Windows",
+    "command_runner": "PowerShell"
+  },
+  "last_known_vm_evidence": {
+    "report": "../../runs/public/20261107-170503-vm-pr36-integration/report.md",
+    "tested_business_commit": "a65789086a5c1151ff8c431759bab8b79877456e",
+    "bot_fix_commit": "1328c63fffae69236ece37c8f554ba4669c93dea",
+    "runner_fix_commit": "07ab2d3e5df9beb12cdc3943a7b4087e7c749358",
+    "n8n_version_reported": "2.42.6",
+    "report_time_kst": "2026-11-07",
+    "current_vm_rechecked": false,
+    "current_image_digest_or_id": "not recorded in this public summary",
+    "ux_pr49_pr50_deployed_or_live_tested": false
+  },
+  "test_scope": "local code regression and tooling only; this manifest does not assert current VM state or external service connectivity"
+}

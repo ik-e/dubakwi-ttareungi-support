@@ -1,0 +1,22 @@
+{
+  "run_id": "20261107-203213-vm-tc15-preflight",
+  "date_kst": "2026-11-07",
+  "environment": "VM n8n PR36 via Edge web console; read-only preflight, no test request sent",
+  "case_id": "TC-15",
+  "status": "blocked_preflight_not_executed",
+  "result": "NOT_RUN",
+  "approval": "User approved synthetic fault injection and expected unknown/DLQ plus 409 case_busy followup.",
+  "observations": [
+    "The published PR36 support workflow was exported through the n8n UI and is active in the VM.",
+    "Its B27 Jira handoff endpoint targets the PR36 live handoff webhook; the live state/DLQ child IDs are PR36-specific.",
+    "The already generated private fault bundle hashes to the tracked local support workflow rather than the exported live workflow, so it is not a valid live copy.",
+    "A live handoff workflow export was not obtained. The candidate copies were not imported or activated."
+  ],
+  "side_effects": {
+    "jira_issue_created": false,
+    "discord_sent": false,
+    "vm_workflow_changed": false,
+    "request_or_dlq_written": false
+  },
+  "required_next": "Export the currently published PR36 handoff workflow through n8n UI, compare its contract/credential references, regenerate the inactive support and handoff fault copies with unique webhook paths and preserved PR36 state/DLQ scope, verify inactive before import, then execute the two approved synthetic steps and deactivate both copies."
+}

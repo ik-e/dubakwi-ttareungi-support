@@ -15,6 +15,49 @@ timeout500ms and lock timeout250ms for fresh sessions. Renew the affected pool
 in the maintenance window and verify with SHOW. PG-node connection timeout is1s.
 These are candidate limits, not a measured full-path20s guarantee.
 
+Migration 010 adds the effect-free TC-07 `finish` restore: after the operator
+confirms Jira effects, it CAS-restores the persisted response and resolves the
+DLQ in one transaction. It creates `dubakwi_recovery_operator` as NOLOGIN and
+grants the `recovery_finish(jsonb)` function at that stage. The function does
+not call Jira or notifications.
+
+Migration 011 adds operator-only `recovery_claim(jsonb)` and
+`recovery_release(jsonb)`. Claim checks DLQ/state revisions, owner, input hash,
+original execution, ticket linkage, supported action, and effect certainty
+before setting `reprocessing`. Release requires the claim execution/revision
+and unchanged failed state, records a bounded operator reason, and returns the
+DLQ to `pending`. Neither function runs Jira/Discord work. It rejects unknown
+non-target effects and actions without a confirmed failed target effect.
+Migration 012 exposes `recovery_control(jsonb)` as the single parameterized
+entry point for `inspect`, `finish`, `claim`, and `release`. These functions are
+not granted to the runtime role.
+
+Migration 013 adds `recovery_resume(jsonb)`, which CAS-transitions the claimed
+failed/unknown request to `processing` under the claimed execution ID and
+returns a fresh StateRef. It also replaces release to safely return a resumed
+request to `failed` plus DLQ `pending`, but only after the operator attests that
+the recovery execution ended and Jira effects were rechecked. Migration 014
+adds `resume` to the operator allowlist. This is still only the storage gate:
+action-specific Jira/Discord drivers and successful action completion are not
+implemented by these migrations.
+Migration 015 adds operator-only `recovery_complete(jsonb)`: it CAS-checks the
+claimed processing state, Jira linkage, action-specific effect confirmation,
+masked Response shape, and unchanged non-target effects, then stores the
+Response and resolves the DLQ atomically. Migration 016 adds `complete` to the
+allowlisted dispatcher. This function trusts an explicit human verification
+attestation; it does not itself query or mutate Jira/Discord.
+
+Apply 010 through 016 after 009 in filename order. Provision a separate
+environment login as a member of the recovery operator role only after
+reviewing the new capability; never grant it to the normal n8n runtime login.
+The operator workflow accepts a manual JSON payload and validates the
+allowlisted commands. The operator checks the Jira effect in the UI, performs
+only the failed action with the capsule data, then submits its actual result to
+`complete`; the database stores the Response and resolves the DLQ only after
+all CAS and effect checks pass. It does not automate Jira/Discord writes. A
+stale or incomplete capsule remains pending/manual review. Do not resolve the
+item directly in the database to simulate completion.
+
 In a disposable DB, run constraint/function/role contracts and the new
 `verification/case-context-contract.sql`. The legacy `case-contract.sql` verifies
 005 before upgrading. Local PostgreSQL16.15 upgrade, permission denial,
@@ -66,11 +109,35 @@ psql "$DUBAKWI_DATABASE_URL" -v ON_ERROR_STOP=1 \
 psql "$DUBAKWI_DATABASE_URL" -v ON_ERROR_STOP=1   -f infra/db/migrations/005-create-case-functions.sql
 
 psql "$DUBAKWI_DATABASE_URL" -v ON_ERROR_STOP=1   -v runtime_role=dubakwi_runtime   -f infra/db/migrations/006-grant-case-functions.sql
+
+# P18 TC-07 recovery migrations. 009 이후 적용하며 runtime_role은 부여하지 않는다.
+psql "$DUBAKWI_DATABASE_URL" -v ON_ERROR_STOP=1 \
+  -f infra/db/migrations/010-controlled-finish-recovery.sql
+psql "$DUBAKWI_DATABASE_URL" -v ON_ERROR_STOP=1 \
+  -f infra/db/migrations/011-operator-recovery-claim-release.sql
+psql "$DUBAKWI_DATABASE_URL" -v ON_ERROR_STOP=1 \
+  -f infra/db/migrations/012-operator-recovery-dispatch.sql
+psql "$DUBAKWI_DATABASE_URL" -v ON_ERROR_STOP=1 \
+  -f infra/db/migrations/013-operator-recovery-resume.sql
+psql "$DUBAKWI_DATABASE_URL" -v ON_ERROR_STOP=1 \
+  -f infra/db/migrations/014-operator-recovery-resume-dispatch.sql
+psql "$DUBAKWI_DATABASE_URL" -v ON_ERROR_STOP=1 \
+  -f infra/db/migrations/015-operator-recovery-complete.sql
+psql "$DUBAKWI_DATABASE_URL" -v ON_ERROR_STOP=1 \
+  -f infra/db/migrations/016-operator-recovery-complete-dispatch.sql
 ```
 
-Record the applied commit and migration filenames in the private deployment
-record. Do not echo the connection URL or attach command output containing
-server details to a public report.
+The deployment runbook requires a reviewed default-branch revision. Before a
+live apply, verify a fresh private backup and rehearse migrations 010~016 plus
+all three controlled-recovery contracts in a separate restore database. Apply in
+filename order with ingress unaffected; these DDL files do not change runtime
+grants. Do not provision or grant a recovery login to `dubakwi_runtime`. Import
+`workflows/dubakwi-recovery-operator.json` inactive, bind the environment's
+dedicated recovery credential, and verify an operator-only read-only inspect
+before enabling manual operations. Keep the workflow inactive until role and
+credential checks pass. Record the applied commit and migration filenames in
+the private deployment record. Do not echo the connection URL or attach
+command output containing server details to a public report.
 
 ## Required application behavior
 
@@ -127,6 +194,19 @@ server details to a public report.
    role. The login must not be superuser and must not have `CREATEROLE`,
    `CREATEDB`, or `BYPASSRLS`; it must inherit the reviewed runtime role.
 8. Restart PostgreSQL and confirm the two tables and inserted test rows remain.
+9. After migration 010, run `verification/controlled-recovery-contract.sql`.
+   It checks finish-response restore, replay, one-shot CAS and rejection when
+   an external alert effect is unknown.
+10. In a disposable restore database, apply migrations 010~016 and run
+    `verification/controlled-recovery-claim-release-contract.sql` and
+    `verification/controlled-recovery-unknown-effect-contract.sql`. They check
+    owner/input/execution/revision CAS, duplicate/stale claim and release,
+    fresh StateRef resume, failed release-to-pending, verified completion and
+    DLQ resolution, unknown-effect/duplicate-complete denial, and
+    runtime/operator function privileges, persistence of unknown effects after a failed retry, mandatory external reconciliation before another claim, and safe adoption of already-applied effects without replay. Also run
+    `verification/controlled-recovery-contract.sql` for finish response
+    restoration. Exercise two concurrent claim transactions and confirm one
+    winner before enabling an operator workflow.
 
 The constraint script uses synthetic values inside a transaction and rolls the
 transaction back. Run it only against an empty disposable test database, not the

@@ -1,0 +1,23 @@
+{
+  "run_id": "20261107-204523-local-rag-contract",
+  "date": "2026-11-07",
+  "environment": "local Windows; uv locked Python and Node.js",
+  "case_ids": ["RAG-ARTIFACT", "RAG-CHUNK-BOUNDARY", "RAG-OFFLINE-ROLE", "AUTH-01..07"],
+  "status": "local_contract_pass_not_vm_integration",
+  "results": {
+    "n8n_rag_artifacts": {"passed": 4, "failed": 0},
+    "prepare_rag_chunks": {"passed": 7, "failed": 0},
+    "rag_local_evaluation": {"passed": 2, "failed": 0},
+    "p19_shared_contract_fixtures": {"passed": 10, "failed": 0}
+  },
+  "external_openai_calls": 0,
+  "vm_requests": 0,
+  "rag_http_integration_tests": "not run: require internal key, running webhook, and OpenAI API credits",
+  "runtime_rag_permission_e2e": "not verified",
+  "documentation_checks_after_sync": {
+    "project_docs": {"files": 22, "local_links": 665, "anchor_links": 57, "errors": 0},
+    "public_git_candidates": {"files": 496, "tracked_files": 476, "ignored_tracked_files": 0, "public_local_links": 1012, "errors": 0},
+    "git_diff_check": "passed"
+  },
+  "evidence": "report.md"
+}

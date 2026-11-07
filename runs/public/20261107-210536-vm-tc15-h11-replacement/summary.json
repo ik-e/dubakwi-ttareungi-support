@@ -1,0 +1,14 @@
+{
+  "run_id": "20261107-210536-vm-tc15-h11-replacement",
+  "date_kst": "2026-11-07 21:05",
+  "environment": "VM n8n via Edge UI",
+  "workflow": "R01 TC15 fault handoff copy",
+  "workflow_id": "aZRRsFc49PZrhMI6",
+  "h11_replaced_with_synthetic_503": true,
+  "replacement_code": "return [{json:{statusCode:503,body:{error:'synthetic_fault'}}}];",
+  "publish_button_enabled": false,
+  "tc15_requests_sent": 0,
+  "jira_db_dlq_discord_effects": 0,
+  "result": "CONFIGURED_NOT_PUBLISHED_OR_EXECUTED",
+  "evidence": "report.md"
+}

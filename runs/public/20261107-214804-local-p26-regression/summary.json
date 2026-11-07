@@ -1,0 +1,22 @@
+{
+  "run_id": "20261107-214804-local-p26-regression",
+  "date_kst": "2026-11-07",
+  "environment": "local Windows worktree; uv Python 3.12 and Node.js",
+  "code_revision": "6f9561bae48ad5da44b726f95c18d29024ba0d0d",
+  "configuration_version": "uv.lock and current test fixtures; VM config not in scope",
+  "case_ids": ["support-skeleton-157", "P12", "P18", "P19", "P20", "R04", "support-verifier-boundary"],
+  "results": {
+    "python_unittest": {"passed": 148, "skipped": 7},
+    "support_skeleton": "157/157",
+    "p12_scripts": "6 scripts passed; Jira flow 21 scenarios; repeat handoff 7/7",
+    "p18_dlq_marker": "7/7",
+    "p19_contract": "3 producer-consumer fixtures + AUTH-01..07 passed (mock fixtures)",
+    "p20_error": "16 scenarios and operational alert ack checks passed",
+    "r04_recovery": "8/8",
+    "support_verifier_boundary": "7/7 mocked Code cases",
+    "project_docs": {"files": 22, "local_links": 700, "anchors": 57, "errors": 0},
+    "public_files": {"candidates": 516, "tracked": 476, "ignored_tracked": 0, "public_links": 1050, "errors": 0},
+    "git_diff_check": "passed; CRLF warnings only"
+  },
+  "limitations": ["No VM workflow request", "No live RAG/Jira/DB/DLQ/Discord effects", "7 environment-dependent Python tests skipped", "mock/fixture checks do not prove live end-to-end behavior"]
+}

@@ -1,0 +1,30 @@
+{
+  "run_id": "20261107-205221-vm-tc15-ui-duplication",
+  "date_kst": "2026-11-07 20:52",
+  "environment": "Edge browser to VM n8n UI",
+  "purpose": "Confirm VM-only workflow duplication path for TC-15",
+  "workflow_copies_created": [
+    {
+      "name": "R01 TC15 fault support live copy",
+      "source": "R01 PR36 a657890 support",
+      "workflow_id": "HSOugh9SHFGNwp0D",
+      "published": false,
+      "webhook_path": "2851abfd-1bbb-41f3-9ef5-c25676cf4178"
+    },
+    {
+      "name": "R01 TC15 fault handoff copy",
+      "source": "R01 PR36 a657890 handoff",
+      "published": false
+    },
+    {
+      "name": "R01 TC15 fault support copy",
+      "source": "R01 PR36 dual storage Support (unpublished draft; excluded from TC-15)",
+      "published": false,
+      "excluded_from_test": true
+    }
+  ],
+  "tests_run": false,
+  "jira_or_discord_effects": 0,
+  "db_or_dlq_effects": 0,
+  "result": "VM UI duplication works; TC-15 remains not run; copies need isolation edits and controlled activation"
+}
