@@ -1,6 +1,6 @@
 # Docker Compose 배포와 운영
 
-팀 키의 실행 기록 노출과 2026-11-07 현행 보존 제한은 [실행 데이터 보안](execution-data-security.md)을 따른다. 활성 팀 키 입구3개 저장 해제와 DB 임시/삭제 대기 원문 잔존을 구분하며 현재 키 교체가 필요하다.
+PR36의 [실제 VM 적용·검증](../runs/public/20261107-170503-vm-pr36-integration/report.md)과 [실행 데이터 보안](execution-data-security.md)을 함께 따른다. 팀/내부 키 교체와 인증 후 저장 전 가림을 적용했다. 과거 폐기 키 원문·백업의 잔존, 새 키 비저장, 전체 로그 비저장은 서로 다른 주장이다. 정상 한 건과 전체 회귀·역할 확인 완료를 구분한다.
 
 전체 잔여 작업은 [64개 수정·검증 계획](full-system-closure-plan.md)·[항목별 예정 시험](contracts/full-system-coverage.json)을 따른다. J01~J03 병렬 개발의 상태·조회·문맥·효과·편집 인계·시험 기준은 [공통 기준 v1.2](parallel-integration-contract-v1.md)과 [모의 예제25개](contracts/parallel-contract-v1.examples.json)를 따른다. 기준안 작성과 역할 검토·실제 구현·배포 완료를 구분한다.
 
