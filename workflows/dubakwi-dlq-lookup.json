@@ -1,0 +1,151 @@
+{
+  "id": "dubakwiDlqLookup01",
+  "name": "dubakwi-dlq-lookup",
+  "active": false,
+  "nodes": [
+    {
+      "name": "D01 수동 조회 시작",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {}
+    },
+    {
+      "name": "D02 DLQ 조회 입력",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [180, 0],
+      "parameters": {
+        "mode": "manual",
+        "duplicateItem": false,
+        "assignments": {
+          "assignments": [
+            {"id": "lookup-payload", "name": "payload", "type": "string", "value": "{}"}
+          ]
+        },
+        "includeOtherFields": false,
+        "options": {}
+      },
+      "notes": "읽기 전용 조회 입력. 목록은 op=list, scope, limit(선택 1~50), offset(선택 0~10000), 상세는 op=inspect, scope, dlq_id, operator_id를 입력한다. 상태 변경·claim·재처리는 지원하지 않는다."
+    },
+    {
+      "name": "D03 입력 검증",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [380, 0],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "let payload=null;try{payload=JSON.parse($json.payload)}catch{};const obj=v=>v!==null&&typeof v==='object'&&!Array.isArray(v);const text=v=>typeof v==='string'&&v.trim().length>0;let valid=false;if(obj(payload)&&payload.op==='inspect'){const keys=['op','scope','dlq_id','operator_id'];valid=Object.keys(payload).length===keys.length&&keys.every(k=>Object.hasOwn(payload,k))&&text(payload.scope)&&text(payload.dlq_id)&&text(payload.operator_id)}else if(obj(payload)&&payload.op==='list'){const allowed=['op','scope','limit','offset'];valid=Object.keys(payload).every(k=>allowed.includes(k))&&Object.keys(payload).includes('op')&&Object.keys(payload).includes('scope')&&text(payload.scope)&&(payload.limit===undefined||(Number.isInteger(payload.limit)&&payload.limit>=1&&payload.limit<=50))&&(payload.offset===undefined||(Number.isInteger(payload.offset)&&payload.offset>=0&&payload.offset<=10000))};return {json:{valid,payload:valid?payload:null,error_code:valid?null:'invalid_dlq_lookup_request'}};"
+      }
+    },
+    {
+      "name": "D04 요청 유효",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [590, 0],
+      "parameters": {
+        "conditions": {
+          "options": {"caseSensitive": true, "leftValue": "", "typeValidation": "strict", "version": 2},
+          "conditions": [{"leftValue": "={{ $json.valid }}", "rightValue": "", "operator": {"type": "boolean", "operation": "true", "singleValue": true}}],
+          "combinator": "and"
+        },
+        "options": {}
+      }
+    },
+    {
+      "name": "D05 읽기 전용 DLQ 조회",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [820, -100],
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT dubakwi_service.recovery_lookup($1::jsonb) AS result;",
+        "options": {"queryReplacement": "={{ JSON.stringify($json.payload) }}", "connectionTimeout": 1500}
+      },
+      "credentials": {"postgres": {"name": "dubakwi-dlq-reader"}},
+      "notes": "Parameterized list/inspect-only dispatcher. Uses a dedicated read-only login; no recovery-operator credential, direct table access, or mutation command."
+    },
+    {
+      "name": "D06 inspect 결과 정리",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1040, -100],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "let raw=$json.result;if(typeof raw==='string'){try{raw=JSON.parse(raw)}catch{raw=null}};const obj=v=>v!==null&&typeof v==='object'&&!Array.isArray(v);const op=$('D03 입력 검증').item.json.payload.op;if(op==='list'){const ok=raw?.ok===true&&Array.isArray(raw.items);const safeItems=ok?raw.items.map(d=>({dlq_id:d.dlq_id,request_id:d.request_id,case_id:d.case_id,jira_issue_id:d.jira_issue_id,jira_issue_key:typeof d.jira_issue_key==='string'&&/^JBYS-[0-9]+$/.test(d.jira_issue_key)?d.jira_issue_key:null,failed_step:d.failed_step,error_code:d.error_code,replay_status:d.replay_status,last_execution_id:d.last_execution_id,revision:d.revision,updated_at:d.updated_at})):[];return {json:{ok,operation:'list',scope:raw?.scope??null,limit:raw?.limit??null,offset:raw?.offset??null,has_more:raw?.has_more===true,items:safeItems,error_code:ok?null:(raw?.error_code||'dlq_list_failed')}}};const d=obj(raw)&&obj(raw.dlq)?raw.dlq:null;const s=obj(raw)&&obj(raw.state)?raw.state:null;const ok=raw?.ok===true&&d&&s;const key=ok&&typeof d.jira_issue_key==='string'&&/^JBYS-[0-9]+$/.test(d.jira_issue_key)?d.jira_issue_key:null;return {json:{ok:Boolean(ok),operation:'inspect',error_code:ok?null:(raw?.error_code||'dlq_inspect_failed'),dlq:ok?{dlq_id:d.dlq_id,case_id:d.case_id,failed_step:d.failed_step,error_code:d.error_code,replay_status:d.replay_status,revision:d.revision,last_execution_id:d.last_execution_id,jira_issue_id:d.jira_issue_id,jira_issue_key:key,request_status:s.processing_status,state_revision:s.revision}:null,jira_lookup:{status:key?'pending':(ok?'not_linked':'not_attempted'),issue_key:key}}};"
+      }
+    },
+    {
+      "name": "D07 Jira 티켓 연결 있음",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [1260, -100],
+      "parameters": {
+        "conditions": {
+          "options": {"caseSensitive": true, "leftValue": "", "typeValidation": "strict", "version": 2},
+          "conditions": [{"leftValue": "={{ $json.ok && $json.operation === 'inspect' && $json.dlq.jira_issue_key !== null }}", "rightValue": "", "operator": {"type": "boolean", "operation": "true", "singleValue": true}}],
+          "combinator": "and"
+        },
+        "options": {}
+      }
+    },
+    {
+      "name": "D08 Jira 현재 상태 조회",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1480, -200],
+      "parameters": {
+        "method": "GET",
+        "url": "={{ '__JIRA_BASE_URL__' + '/rest/api/2/issue/' + encodeURIComponent($json.dlq.jira_issue_key) + '?fields=status,assignee' }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "jiraSoftwareCloudApi",
+        "options": {"response": {"response": {"fullResponse": true, "neverError": true}}, "timeout": 3500}
+      },
+      "credentials": {"jiraSoftwareCloudApi": {"name": "dubakwi-Jira SW Cloud account"}},
+      "notes": "Jira API GET only; reads status and assignee display name. No issue update, transition, comment, or assignment request."
+    },
+    {
+      "name": "D09 Jira 조회 결과 정리",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1700, -200],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const prior=$('D06 inspect 결과 정리').item.json;const code=Number($json.statusCode||0);const issue=$json.body;const fields=issue?.fields;const valid=code===200&&issue?.key===prior.dlq?.jira_issue_key&&fields&&typeof fields==='object';const status=valid&&fields.status?{id:fields.status.id??null,name:fields.status.name??null}:null;const assignee=valid&&fields.assignee?{display_name:fields.assignee.displayName??null}:null;return {json:{...prior,jira_lookup:valid?{status:'found',issue_key:issue.key,issue_status:status,assignee}: {status:code===404?'not_found':'error',issue_key:prior.dlq?.jira_issue_key??null,error_code:code===404?'jira_issue_not_found':'jira_lookup_failed'}}};"
+      }
+    },
+    {
+      "name": "D10 Jira 연결 없음·최종 결과",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1480, 0],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "return {json:$json};"
+      }
+    },
+    {
+      "name": "D11 입력 거절",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [820, 120],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "return {json:{ok:false,error_code:$json.error_code||'invalid_dlq_lookup_request'}};"
+      }
+    }
+  ],
+  "connections": {
+    "D01 수동 조회 시작": {"main": [[{"node": "D02 DLQ 조회 입력", "type": "main", "index": 0}]]},
+    "D02 DLQ 조회 입력": {"main": [[{"node": "D03 입력 검증", "type": "main", "index": 0}]]},
+    "D03 입력 검증": {"main": [[{"node": "D04 요청 유효", "type": "main", "index": 0}]]},
+    "D04 요청 유효": {"main": [[{"node": "D05 읽기 전용 DLQ 조회", "type": "main", "index": 0}], [{"node": "D11 입력 거절", "type": "main", "index": 0}]]},
+    "D05 읽기 전용 DLQ 조회": {"main": [[{"node": "D06 inspect 결과 정리", "type": "main", "index": 0}]]},
+    "D06 inspect 결과 정리": {"main": [[{"node": "D07 Jira 티켓 연결 있음", "type": "main", "index": 0}]]},
+    "D07 Jira 티켓 연결 있음": {"main": [[{"node": "D08 Jira 현재 상태 조회", "type": "main", "index": 0}], [{"node": "D10 Jira 연결 없음·최종 결과", "type": "main", "index": 0}]]},
+    "D08 Jira 현재 상태 조회": {"main": [[{"node": "D09 Jira 조회 결과 정리", "type": "main", "index": 0}]]}
+  },
+  "settings": {"executionOrder": "v1"},
+  "active": false,
+  "versionId": "dubakwi-dlq-lookup-v1"
+}

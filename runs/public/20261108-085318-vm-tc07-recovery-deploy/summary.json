@@ -1,0 +1,56 @@
+{
+  "run_id": "20261108-085318-vm-tc07-recovery-deploy",
+  "date_kst": "2026-11-08",
+  "environment": "aio-t2 via Edge web SSH; PostgreSQL 16.15",
+  "source": {
+    "reviewed_pr": 51,
+    "source_commit": "b323a26",
+    "current_main_commit": "b705be3",
+    "migrations": [
+      "010-controlled-finish-recovery.sql",
+      "011-operator-recovery-claim-release.sql",
+      "012-operator-recovery-dispatch.sql",
+      "013-operator-recovery-resume.sql",
+      "014-operator-recovery-resume-dispatch.sql",
+      "015-operator-recovery-complete.sql",
+      "016-operator-recovery-complete-dispatch.sql"
+    ],
+    "migration_hashes_match_reviewed_source": true
+  },
+  "restore_rehearsal": {
+    "contracts_010_016": "passed",
+    "concurrent_claim": {
+      "winner_count": 1,
+      "conflict_count": 1,
+      "result": "passed"
+    },
+    "claim_release_cleanup": "passed",
+    "synthetic_external_effects": 0
+  },
+  "live_service_db": {
+    "migration_010_016": "applied_in_order",
+    "operator_role": {
+      "login": false,
+      "superuser": false,
+      "createdb": false,
+      "createrole": false,
+      "inherit": false,
+      "dispatcher_execute": true
+    },
+    "runtime_dispatcher_execute": false,
+    "operator_role_read_only_inspect": "passed",
+    "state_or_dlq_recovery_writes": 0,
+    "jira_effects": 0,
+    "discord_effects": 0,
+    "canonical_workflow_import_or_activation": 0,
+    "outdated_operator_test_workflow_deactivated": 1,
+    "credential_changes": 0
+  },
+  "result": "storage_migrations_applied; operator_credential_and_workflow_pending",
+  "pending": [
+    "Verify the existing n8n credential maps to a dedicated operator LOGIN with least privilege",
+    "Import canonical operator workflow inactive and verify credential-backed inspect-only",
+    "Verify action-specific Jira/Discord recovery and completion against approved synthetic cases",
+    "Continue P26 scenarios, including TC-15, RAG VM role/citation, and direct assignee handling"
+  ]
+}

@@ -1,6 +1,6 @@
 # 기존 VM 배포 전 점검과 인계
 
-- 작성: 2026-11-04 KST / v0.11 / P19 VM Credential·검색·모델 부분 연결 시험 반영
+- 작성: 2026-11-04 KST / v0.13 / P18 TC-07 복구 migration VM 적용과 조회 전용 후속 후보 반영
 - 책임: [팀 헌장](../docs/project/TEAM-CHARTER.md). 원장: [P04/P13](../docs/DEVELOPMENT-PLAN.md#5-작업-원장). 운영 기준: [infra 안내](README.md).
 
 ## 0 현재 인계 상태 (2026-11-05 KST)
@@ -179,10 +179,20 @@ VM Compose의 소스/데이터는 읽기전용 마운트이며 기존 n8n 네트
 
 종료 후 시험 사본unpublish·경로404, P19전체비활성, 기존support/index/search 내용·게시버전과Credential전체행 동일·n8nhealth200을 확인했다. n8n재시작은없었다. 이번10.228초는부분연결1건이며WF-11 6초통과가아니다. B15/B27은Credential참조확인뿐이며실제handoff미실행, R04사용자/상태/DLQ/Jira·Error Workflow와P19전체VM/R05시험은후속이다. [신규요약](../runs/public/20261105-121200-vm-p19-connection/summary.json)·[연결시험보고서](../runs/public/20261105-121200-vm-p19-connection/report.md).
 
-## 13 변경 기록
+## 13 P18 TC-07 저장소 복구 적용 (2026-11-08 KST)
+
+PR #51 병합 소스 `b323a26`의 migrations 010~016을 fresh private backup·restore DB rehearsal 뒤 VM service DB에 적용했다. VM 소스 파일의 migration SHA-256을 로컬 검토본과 대조했고, restore DB에서 세 recovery contract 및 동시 claim 1승/1충돌·release 복귀를 확인했다. Live `dubakwi_recovery_operator`는 NOLOGIN이며 runtime 역할은 dispatcher 실행 권한이 없다. live operator-role read-only inspect는 성공했다.
+
+기존 `R01 TC07 operator E2E 20261107` 사본은 구형 `recovery_finish` 직접 호출이어서 비활성화했다. canonical workflow 반입은 Edge 제어가 중단되어 완료하지 못했다. 기존 사본에서 credential 이름은 보였으나 해당 LOGIN의 dedicated role 권한은 미검증이다. state/DLQ recovery write, Jira/Discord 호출, credential 변경, canonical workflow import/activation은 0건이다. 세부는 [VM recovery 실행 보고](../runs/public/20261108-085318-vm-tc07-recovery-deploy/report.md)를 따른다.
+
+후속 local candidate migration 017은 `dubakwi_dlq_reader` 전용 list/inspect dispatcher만 제공하며 recovery dispatcher를 부여하지 않는다. `dubakwi-dlq-lookup`은 별도 reader credential + Jira read credential로 DLQ list/inspect와 Jira status/assignee GET만 수행하게 작성했다. [local verification](../runs/public/20261108-091400-local-dlq-jira-lookup/report.md)은 migrations 001~017 fresh disposable apply와 33 workflow checks 통과를 기록한다. Reviewed main 반영·fresh private restore rehearsal·VM migration·reader LOGIN/Credential·inactive workflow import와 실제 Jira GET은 아직 0건이다. VM은 앞선 010~016 상태를 유지한다.
+
+## 14 변경 기록
 
 | 날짜 | 버전 | 내용 |
 | --- | --- | --- |
+| 2026-11-08 | v0.13 | DLQ 조회 전용 migration 017·전용 reader role·Jira GET workflow 후보의 local 검증 기록. restore rehearsal·VM 반입은 pending |
+| 2026-11-08 | v0.12 | TC-07 migrations 010~016 live 적용·runtime/operator 권한 경계·read-only inspect·restore DB 경합 확인. dedicated LOGIN/Credential·inactive workflow import는 미완료 |
 | 2026-11-05 | v0.11 | P19 비활성54노드 Credential7개 참조 확인·B14/모델3개 실제 부분 시험·사본 비활성화·P11/기존Credential 보존·시간 기준 미판정 |
 | 2026-11-05 | v0.10 | GitLab79 원본25파일·고정 이미지 data-api 기동·P11 22/22·로그18/18·flow ops/doctor/check 실제 결과·이전 인계 선행 해석 정정 |
 | 2026-11-05 | v0.9 | data-api 부재/원본 인계 조건·RAG 환경 Webhook ID 보완·원본 Manual44청크와 실제 HTTP7/7·HTTPS검색·P11회귀5/5 기록 |

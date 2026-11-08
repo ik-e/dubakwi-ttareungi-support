@@ -47,16 +47,36 @@ Response and resolves the DLQ atomically. Migration 016 adds `complete` to the
 allowlisted dispatcher. This function trusts an explicit human verification
 attestation; it does not itself query or mutate Jira/Discord.
 
-Apply 010 through 016 after 009 in filename order. Provision a separate
-environment login as a member of the recovery operator role only after
-reviewing the new capability; never grant it to the normal n8n runtime login.
-The operator workflow accepts a manual JSON payload and validates the
-allowlisted commands. The operator checks the Jira effect in the UI, performs
-only the failed action with the capsule data, then submits its actual result to
-`complete`; the database stores the Response and resolves the DLQ only after
-all CAS and effect checks pass. It does not automate Jira/Discord writes. A
-stale or incomplete capsule remains pending/manual review. Do not resolve the
-item directly in the database to simulate completion.
+Migration 017 adds `recovery_list(jsonb)` and a separate `recovery_lookup(jsonb)`
+dispatcher. The latter permits only `list` and `inspect`, wrapping the existing
+security-definer storage functions. A separate NOLOGIN `dubakwi_dlq_reader`
+role receives only schema USAGE and `recovery_lookup` EXECUTE; it does not get
+the recovery operator dispatcher or direct table SELECT. The list returns only
+unresolved (`pending`/`reprocessing`) DLQ metadata for one scope, with a hard
+page size of 50 and offset cap of 10,000. It omits private summary, recovery
+capsule, effect payload, and request response. The manual
+`dubakwi-dlq-lookup` workflow uses a distinct reader credential and supports
+`list` and `inspect`; after an inspect, it may perform a Jira REST GET for
+status and assignee display name. It has no claim/resume/finish/complete/release
+input and no Jira mutation request.
+Rehearse 017 and its read-only contract after 001~016 in a disposable/restore
+database before any VM apply.
+
+Apply 010 through 017 after 009 in filename order. The recovery workflow uses a
+separate environment login as a member of the recovery operator role; never
+grant it to the normal n8n runtime or the read-only DLQ login. The recovery
+workflow accepts a manual JSON payload and validates the allowlisted recovery
+commands. Recovery actions remain manual and require verified external effects;
+do not resolve a DLQ directly in the database to simulate completion.
+
+For lookup, provision a different environment login as a member of
+`dubakwi_dlq_reader` only and store it in the n8n credential
+`dubakwi-dlq-reader`. Do not reuse the recovery operator or runtime credential.
+Import `workflows/dubakwi-dlq-lookup.json` inactive, bind that PostgreSQL
+credential and the existing Jira read credential, then manually run `list` and
+`inspect` while it remains inactive. Verify only Jira GET fields status and
+assignee display name. Do not activate it or use a workflow endpoint for this
+manual-only lookup path.
 
 In a disposable DB, run constraint/function/role contracts and the new
 `verification/case-context-contract.sql`. The legacy `case-contract.sql` verifies
@@ -64,12 +84,19 @@ In a disposable DB, run constraint/function/role contracts and the new
 two concurrent begin calls and bounded-query checks passed. On 2026-11-08 a
 fresh private VM backup was restored into a separate database; migrations
 010~016 and all three controlled-recovery contracts passed, and the storage
-snapshot matched before and after. The concurrent recovery-claim rehearsal was
-interrupted before its result could be captured. The live service database and
-n8n remain unchanged; live migration, dedicated operator credential, workflow
-import and operator-only inspect are still pending. Mixed-version restoration
-and rollback remain unverified. Roll back only to a tested compatible app/SQL
-combination.
+snapshot matched before and after. A follow-up concurrent claim test produced
+one `ok=true` winner and one `recovery_conflict`; the test claim was safely
+released to pending. Migrations 010~016 were then applied to the live service
+database from the reviewed PR #51 source after SHA-256 comparison. The
+`dubakwi_recovery_operator` role remains NOLOGIN and runtime cannot execute the
+dispatcher. A live read-only inspect through `SET ROLE` succeeded. A dedicated
+operator LOGIN/Credential least-privilege verification and canonical inactive
+workflow import are still pending;
+Jira/Discord action recovery was not run. See the [VM result](../../../runs/public/20261108-085318-vm-tc07-recovery-deploy/report.md).
+Migration 017 and the new lookup workflow are local-only candidates at this
+point; they are not covered by the earlier 010~016 VM evidence.
+Mixed-version restoration and rollback remain unverified. Roll back only to a
+tested compatible app/SQL combination.
 
 This directory prepares the two PostgreSQL tables owned by the R04 storage
 boundary. Jira remains the ticket source of truth, and n8n keeps its own
@@ -131,17 +158,22 @@ psql "$DUBAKWI_DATABASE_URL" -v ON_ERROR_STOP=1 \
   -f infra/db/migrations/015-operator-recovery-complete.sql
 psql "$DUBAKWI_DATABASE_URL" -v ON_ERROR_STOP=1 \
   -f infra/db/migrations/016-operator-recovery-complete-dispatch.sql
+
+psql "$DUBAKWI_DATABASE_URL" -v ON_ERROR_STOP=1 \
+  -f infra/db/migrations/017-operator-dlq-list.sql
 ```
 
 The deployment runbook requires a reviewed default-branch revision. Before a
-live apply, verify a fresh private backup and rehearse migrations 010~016 plus
-all three controlled-recovery contracts in a separate restore database. Apply in
+live apply, verify a fresh private backup and rehearse migrations 010~017 plus
+the controlled-recovery contracts and `verification/operator-dlq-list-contract.sql`
+in a separate restore database. Apply in
 filename order with ingress unaffected; these DDL files do not change runtime
 grants. Do not provision or grant a recovery login to `dubakwi_runtime`. Import
-`workflows/dubakwi-recovery-operator.json` inactive, bind the environment's
-dedicated recovery credential, and verify an operator-only read-only inspect
-before enabling manual operations. Keep the workflow inactive until role and
-credential checks pass. Record the applied commit and migration filenames in
+`workflows/dubakwi-dlq-lookup.json` inactive, bind a dedicated reader login that
+is a member of `dubakwi_dlq_reader` only and the existing Jira read credential,
+then manually verify list → selected inspect → Jira GET while the workflow
+remains inactive. Do not import/enable the recovery-operator workflow as part
+of this lookup-only scope. Record the applied commit and migration filenames in
 the private deployment record. Do not echo the connection URL or attach
 command output containing server details to a public report.
 
@@ -203,7 +235,7 @@ command output containing server details to a public report.
 9. After migration 010, run `verification/controlled-recovery-contract.sql`.
    It checks finish-response restore, replay, one-shot CAS and rejection when
    an external alert effect is unknown.
-10. In a disposable restore database, apply migrations 010~016 and run
+10. In a disposable restore database, apply migrations 010~017 and run
     `verification/controlled-recovery-claim-release-contract.sql` and
     `verification/controlled-recovery-unknown-effect-contract.sql`. They check
     owner/input/execution/revision CAS, duplicate/stale claim and release,
@@ -213,6 +245,12 @@ command output containing server details to a public report.
     `verification/controlled-recovery-contract.sql` for finish response
     restoration. Exercise two concurrent claim transactions and confirm one
     winner before enabling an operator workflow.
+11. Run `verification/operator-dlq-list-contract.sql`. Confirm the list is
+    scope-isolated, includes only pending/reprocessing rows, caps page size,
+    and omits summary/recovery/Response data. Verify the `dubakwi_dlq_reader`
+    role can use only the lookup dispatcher, cannot execute the recovery
+    dispatcher, and cannot SELECT the base table. Runtime must have no lookup
+    or recovery dispatcher EXECUTE.
 
 The constraint script uses synthetic values inside a transaction and rolls the
 transaction back. Run it only against an empty disposable test database, not the

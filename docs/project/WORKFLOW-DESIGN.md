@@ -319,6 +319,7 @@ R03이 승인된 지식을 검색 가능한 상태로 준비한다. 색인·메�
 | workflows/dubakwi-state.json | Execute Sub-workflow,외부 Webhook 없음 | R04 | 저장소 공개 계약의 고정 명령,드라이버별 내부 노드 R04 상세화 |
 | workflows/dubakwi-dlq.json | Execute Sub-workflow,외부 Webhook 없음 | R04 | DLQ 쓰기/운영 재처리의 고정 계약,R04 드라이버 상세화 |
 | workflows/dubakwi-recovery-operator.json | Manual Trigger + JSON input,외부 Webhook 없음 | R01 통합 (P18) | 전용 recovery operator Credential로 inspect/finish/claim/resume/complete/release를 parameterized allowlist 실행. Jira/Discord 외부효과는 운영자가 직접 수행·검증하고 complete가 Response·state completed·DLQ resolved를 CAS 저장. replay 자료 없는 capsule은 claim 거절. 실제 VM 반입·Jira action은 미검증 |
+| workflows/dubakwi-dlq-lookup.json | Manual Trigger + JSON input,외부 Webhook 없음 | R01 대리 편집 (P18; R04 workflow 경로) | 읽기 전용 list(미해결 DLQ, scope별 bounded page)·inspect 후 링크된 JBYS Jira issue의 status/assignee display name을 GET 조회. NOLOGIN `dubakwi_dlq_reader` 전용 credential과 기존 Jira read credential 이름 참조, Jira 상세·복구 capsule/Response 미노출, 상태 변경 command 없음. local contract 검증; migration 017·VM 반입/LOGIN-Credential 확인 미완료 |
 | workflows/dubakwi-errors.json | Error Trigger | R04 | 5 |
 
 실제 n8n 버전·포트·AI 연결·원시 출력은 D03 확인 전. 상세도에서 오류 엣지는 생략하고7절에서 붙인다. 단계도와 노드 상세도는 서로 다른 확대 수준이다.
@@ -1070,7 +1071,7 @@ R02 적용(2026-11-06, 강사 피드백 "호출별 timeout·재시도를 합쳐�
 
 ### 7.6. 실패 문의의 후속 처리 제한 (완료 제한)
 
-R01 결정(2026-11-06, PR #39): **실패한 문의의 연속 처리는 현재 지원하지 않으며, 원 요청 재개는 미구현이다.** 재개 드라이버가 없어 state `fail`은 실패·미확인을 기록만 하고, DLQ `resolve`는 DLQ 항목만 정리한다. 운영자 확인이나 DLQ 정리 뒤에도 그 문의는 다시 이어지지 않는다. STORAGE-DESIGN 4.2의 운영자 확인 후 조건부 재개는 설계만 있고 구현되지 않았다.
+R01 결정(2026-11-06, PR #39)은 당시 상태를 기록한다. 2026-11-08 기준 저장소 측 수동 복구 경계는 migrations 010–016으로 구현·VM 적용되었다. operator는 원 실행·Jira/Discord 효과·RecoveryCapsule을 확인하고 claim→resume→실패 단계 수동 처리→complete 또는 release를 수행한다. 이 저장 명령은 Jira/Discord를 호출하지 않으며, 지원되지 않는 capsule이나 미확인 효과는 거절/pending으로 둔다. VM DB의 operator-only inspect 및 restore DB 동시 claim 1승/1충돌은 [별도 실행 결과](../../runs/public/20261108-085318-vm-tc07-recovery-deploy/report.md)로 확인했다. 전용 LOGIN/Credential과 inactive workflow import는 아직 없어 운영자가 n8n 절차를 사용하는 경로는 검증되지 않았고, 실제 Jira action/complete도 미실행이다. 자동 재실행을 지원한다고 해석하지 않는다.
 
 | 상황 | 결과 | 비고 |
 | --- | --- | --- |

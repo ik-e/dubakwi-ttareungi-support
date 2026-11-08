@@ -1,0 +1,56 @@
+{
+  "run_id": "20261108-091400-local-dlq-jira-lookup",
+  "date_kst": "2026-11-08",
+  "environment": "Windows local worktree; Node.js 24.22.1; temporary PostgreSQL 16.15",
+  "source": {
+    "main_commit": "b705be3",
+    "work_branch": "r01/p18-dlq-jira-lookup",
+    "workflow": "workflows/dubakwi-dlq-lookup.json",
+    "migration": "infra/db/migrations/017-operator-dlq-list.sql",
+    "workflow_change_reviewed_or_merged": false,
+    "migration_applied_to_vm": false
+  },
+  "scope": "read-only DLQ list/inspect and linked Jira issue status/assignee lookup",
+  "results": {
+    "workflow_contract_checks": "33/33 passed",
+    "related_regression": {
+      "operator_input": "25/25 passed",
+      "finish_capsule": "3/3 passed",
+      "handoff_capsule": "6 checks passed",
+      "recovery_parity": "8/8 actions covered",
+      "project_docs": "22 files; 771 links; 58 anchors; 0 errors",
+      "public_files": "575 files; 1,139 links; 0 errors",
+      "git_diff_check": "passed",
+      "tscan_staged": "unavailable; check_public_files.py used as substitute"
+    },
+    "workflow_json_parse": "passed",
+    "fresh_db_migrations_001_017": "passed",
+    "dedicated_reader_list_dispatch": "passed",
+    "dedicated_reader_inspect_dispatch": "passed",
+    "inspect_output_sanitization_before_n8n": "passed",
+    "reader_recovery_dispatch_execute": "denied",
+    "reader_list_helper_direct_execute": "denied",
+    "runtime_list_execute": "denied",
+    "runtime_dispatch_execute": "denied",
+    "reader_direct_dead_letters_select": "denied",
+    "list_contract_scope_pagination_open_filter": "passed",
+    "list_contract_private_capsule_and_summary_omission": "passed",
+    "jira_output_allowlist": "passed"
+  },
+  "external_effects": {
+    "vm_database_write": 0,
+    "jira_get": 0,
+    "jira_write": 0,
+    "discord_write": 0,
+    "workflow_import": 0,
+    "workflow_activation": 0
+  },
+  "result": "local_read_only_lookup_candidate_passed; VM_integration_pending",
+  "pending": [
+    "Review/merge the workflow and migration candidate to main",
+    "Fresh private backup and restore rehearsal including migration 017 and its contract",
+    "Apply migration 017 from reviewed main to VM and verify operator/runtime boundaries",
+    "Import lookup workflow inactive and bind the environment credentials",
+    "Provision and verify a dedicated dubakwi_dlq_reader LOGIN/Credential and existing Jira read credential, then perform one Jira GET-only lookup"
+  ]
+}
