@@ -1,14 +1,5 @@
--- Read-only, bounded listing for the manual DLQ lookup workflow.
+-- Read-only, bounded list/inspect branch for the existing manual recovery operator workflow.
 BEGIN;
-
-DO $$
-BEGIN
-    IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'dubakwi_dlq_reader') THEN
-        CREATE ROLE dubakwi_dlq_reader
-            NOLOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT;
-    END IF;
-END;
-$$;
 
 CREATE FUNCTION dubakwi_service.recovery_list(payload jsonb)
 RETURNS jsonb
@@ -84,7 +75,7 @@ END;
 $$;
 
 REVOKE ALL ON FUNCTION dubakwi_service.recovery_list(jsonb) FROM PUBLIC;
-GRANT USAGE ON SCHEMA dubakwi_service TO dubakwi_dlq_reader;
+GRANT USAGE ON SCHEMA dubakwi_service TO dubakwi_recovery_operator;
 
 CREATE FUNCTION dubakwi_service.recovery_lookup(payload jsonb)
 RETURNS jsonb
@@ -141,6 +132,6 @@ END;
 $$;
 REVOKE ALL ON FUNCTION dubakwi_service.recovery_lookup(jsonb) FROM PUBLIC;
 GRANT EXECUTE ON FUNCTION dubakwi_service.recovery_lookup(jsonb)
-    TO dubakwi_dlq_reader;
+    TO dubakwi_recovery_operator;
 
 COMMIT;

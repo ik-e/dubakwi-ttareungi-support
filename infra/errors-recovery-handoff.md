@@ -1,6 +1,6 @@
 # 오류 운영 알림과 수동 확인
 
-2026-11-08 현재 보충: VM에는 010~016과 read-only `inspect`가 적용됐지만 조회 workflow는 미반입이다. 조회만 제공하기 위해 local candidate `017-operator-dlq-list.sql`과 `workflows/dubakwi-dlq-lookup.json`을 추가했다. 새 흐름은 scope별 pending/reprocessing 목록, 선택 항목 inspect, 연결된 JBYS issue의 상태·담당자 GET만 한다. local fixture 검증은 통과했으며 migration 017의 restore rehearsal/review/VM 적용과 Jira GET은 미실행이다. 실행 증거는 [local lookup 보고서](../runs/public/20261108-091400-local-dlq-jira-lookup/report.md)다. 기존 재처리 workflow와 별도이며 Jira/Discord 상태를 변경하지 않는다.
+2026-11-08 현재 보충: VM에는 010~016과 read-only `inspect`가 적용됐지만 canonical operator workflow는 아직 반입되지 않았다. 별도 workflow를 추가하지 않고 기존 `dubakwi-recovery-operator`에 `list`/`inspect` 분기와 링크된 Jira status/assignee GET을 통합하는 migration 017·workflow source를 준비했다. 기존 operator DB credential과 `dubakwi-Jira SW Cloud account`(Dubakwi Jira 도메인)를 재사용하고 새 credential·Discord 호출은 없다. disposable migrations 001~017, SQL 권한·가림 계약, 기존 workflow 계약 검증은 통과했으나 restore rehearsal·VM 반입·실제 Jira GET은 아직 미실행이다. 실행 증거는 [기존 operator lookup 보고서](../runs/public/20261108-091400-local-dlq-jira-lookup/report.md)다. 조회 분기는 state/DLQ/Jira를 변경하지 않으며 기존 수동 recovery action route와 분리된다.
 
 2026-11-08 VM restore rehearsal 후속: [실행 결과](../runs/public/20261108-080045-vm-tc07-recovery/report.md). 서비스 DB fresh backup을 별도 restore DB에 복원해 migrations 010–016과 계약 3종을 통과했으며 서비스 DB·workflow·credential은 변경하지 않았다. 경합 시험 중 첫 claim이 restore DB에 commit된 것은 확인했지만 web SSH 연결이 다시 끊겨 두 번째 결과는 확인하지 못했다. 1승/1충돌 판정은 보류한다.
 

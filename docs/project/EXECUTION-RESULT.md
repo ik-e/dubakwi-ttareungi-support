@@ -1,6 +1,6 @@
 # 워크플로우 실행 결과서 · 두바퀴
 
-2026-11-08 TC-07 조회 전용 DLQ/Jira 후보: [실행 보고서](../../runs/public/20261108-091400-local-dlq-jira-lookup/report.md)·[요약](../../runs/public/20261108-091400-local-dlq-jira-lookup/summary.json). Migration 017 list의 범위/페이지 제한·operator-only 권한 및 새 inactive workflow의 `list`/`inspect`→linked Jira GET 계약을 임시 PostgreSQL과 33 workflow checks로 검증했다. 검증은 local fixture이며 fresh restore rehearsal·review·VM apply/import/credential 연결·실제 Jira GET은 pending이다. 조회 전용 workflow에는 Jira/DB mutation이 없고 재처리는 범위 밖이다.
+2026-11-08 TC-07 기존 operator 경로 DLQ/Jira 조회 재구성: [실행 보고서](../../runs/public/20261108-094943-local-existing-operator-lookup/report.md)·[요약](../../runs/public/20261108-094943-local-existing-operator-lookup/summary.json). 별도 workflow/reader 설계를 기존 `dubakwi-recovery-operator` workflow·recovery operator DB credential·두바퀴 Jira 도메인의 `dubakwi-Jira SW Cloud account` 재사용으로 변경했다. Migration 017은 bounded `list`와 가림 처리된 `inspect`를 추가하고, 올바르게 연결된 `JBYS-<number>`를 inspect했을 때만 Jira 상태·담당자 GET을 수행한다. disposable migrations 001~017과 SQL/workflow 계약 검증을 통과했다. 이번 실행에서는 VM 적용과 실제 Jira GET을 확인하지 않았고 state/DLQ/Jira/Discord 변경도 없었다.
 
 2026-11-08 TC-07 VM fresh backup·restore rehearsal: [실행 보고서](../../runs/public/20261108-080045-vm-tc07-recovery/report.md)·[요약](../../runs/public/20261108-080045-vm-tc07-recovery/summary.json). PR #51 병합 revision `b323a26` 기준으로 비공개 백업의 archive 검사를 통과했고 별도 restore DB에 migrations 010–016과 recovery contract 3종을 적용해 모두 통과했다. 저장 snapshot 전후 일치. 동시 claim 확인은 웹 SSH 종료로 결과 미확인이다. 라이브 DB migration, workflow/credential 변경, Jira·Discord 효과는 0건이다.
 

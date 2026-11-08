@@ -1,0 +1,37 @@
+{
+  "run_id": "20261108-094943-local-existing-operator-lookup",
+  "date": "2026-11-08",
+  "environment": "local-disposable-postgresql-16.15",
+  "source": {
+    "branch": "r01/p18-dlq-jira-lookup",
+    "base_commit": "fc56bb4",
+    "workflow": "workflows/dubakwi-recovery-operator.json",
+    "migration": "017-operator-dlq-list.sql"
+  },
+  "scenario": "TC-07 existing operator read-only DLQ list/inspect and linked Jira query contract",
+  "result": "pass_local_only",
+  "checks": {
+    "lookup_workflow_contract": "37/37 passed",
+    "operator_workflow_contract": "25 passed",
+    "finish_capsule_contract": "3/3 passed",
+    "handoff_recovery_capsule_contract": "6 passed",
+    "fresh_migrations_001_017": "passed",
+    "operator_dlq_list_sql_contract": "passed",
+    "workflow_json_and_code_node_syntax": "passed",
+    "git_diff_check": "passed"
+  },
+  "live_effects": {
+    "vm_database": 0,
+    "dlq_or_state_write": 0,
+    "jira_read": 0,
+    "jira_write": 0,
+    "discord_send": 0
+  },
+  "pending": [
+    "migration 017 private backup and restore rehearsal",
+    "reviewed source/default-branch deployment gate",
+    "VM migration and existing n8n operator workflow update",
+    "read-only Jira GET result verification"
+  ],
+  "details": "report.md"
+}

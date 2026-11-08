@@ -185,13 +185,14 @@ PR #51 병합 소스 `b323a26`의 migrations 010~016을 fresh private backup·re
 
 기존 `R01 TC07 operator E2E 20261107` 사본은 구형 `recovery_finish` 직접 호출이어서 비활성화했다. canonical workflow 반입은 Edge 제어가 중단되어 완료하지 못했다. 기존 사본에서 credential 이름은 보였으나 해당 LOGIN의 dedicated role 권한은 미검증이다. state/DLQ recovery write, Jira/Discord 호출, credential 변경, canonical workflow import/activation은 0건이다. 세부는 [VM recovery 실행 보고](../runs/public/20261108-085318-vm-tc07-recovery-deploy/report.md)를 따른다.
 
-후속 local candidate migration 017은 `dubakwi_dlq_reader` 전용 list/inspect dispatcher만 제공하며 recovery dispatcher를 부여하지 않는다. `dubakwi-dlq-lookup`은 별도 reader credential + Jira read credential로 DLQ list/inspect와 Jira status/assignee GET만 수행하게 작성했다. [local verification](../runs/public/20261108-091400-local-dlq-jira-lookup/report.md)은 migrations 001~017 fresh disposable apply와 33 workflow checks 통과를 기록한다. Reviewed main 반영·fresh private restore rehearsal·VM migration·reader LOGIN/Credential·inactive workflow import와 실제 Jira GET은 아직 0건이다. VM은 앞선 010~016 상태를 유지한다.
+후속 migration 017은 기존 `dubakwi_recovery_operator` 역할에 bounded `list`와 sanitizing `inspect` dispatcher 실행만 추가한다. 새 로그인/credential이나 별도 workflow를 만들지 않는다. 기존 비활성 `dubakwi-recovery-operator`에 조회 분기를 붙이고 기존 `dubakwi-Jira SW Cloud account`의 `dubakwi-ttareungi-support.atlassian.net` 도메인에서 status/assignee GET만 한다. [기존 operator 통합 local verification](../runs/public/20261108-091400-local-dlq-jira-lookup/report.md)은 disposable migrations 001~017, SQL 권한·가림 계약과 workflow checks 통과를 기록한다. Restore rehearsal·검토된 기본 브랜치·VM migration·기존 operator workflow 반입/갱신·실제 Jira GET은 아직 완료되지 않았다. VM은 앞선 010~016 상태를 유지한다.
 
 ## 14 변경 기록
 
 | 날짜 | 버전 | 내용 |
 | --- | --- | --- |
-| 2026-11-08 | v0.13 | DLQ 조회 전용 migration 017·전용 reader role·Jira GET workflow 후보의 local 검증 기록. restore rehearsal·VM 반입은 pending |
+| 2026-11-08 | v0.14 | 별도 workflow/reader 설계를 기존 operator workflow·credential로 바꾼 migration 017 조회 전용 분기의 local 재검증. restore rehearsal·VM 반입은 pending |
+| 2026-11-08 | v0.13 | DLQ 조회 전용 migration 017·전용 reader role·Jira GET workflow 후보의 local 검증 기록. 이후 기존 operator workflow에 통합하는 안으로 대체 |
 | 2026-11-08 | v0.12 | TC-07 migrations 010~016 live 적용·runtime/operator 권한 경계·read-only inspect·restore DB 경합 확인. dedicated LOGIN/Credential·inactive workflow import는 미완료 |
 | 2026-11-05 | v0.11 | P19 비활성54노드 Credential7개 참조 확인·B14/모델3개 실제 부분 시험·사본 비활성화·P11/기존Credential 보존·시간 기준 미판정 |
 | 2026-11-05 | v0.10 | GitLab79 원본25파일·고정 이미지 data-api 기동·P11 22/22·로그18/18·flow ops/doctor/check 실제 결과·이전 인계 선행 해석 정정 |

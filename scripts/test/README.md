@@ -28,7 +28,7 @@ VM P19 연결 시험 사본과 전용 mock은 `make_vm_p19_bundle.py`로 만든�
 
 `fake_jira.py`는 로컬 예행 전용 가짜 Jira다. 실제 Jira 통과 증거로 쓰지 않는다. 실제 state·DLQ·handoff 연결 사본은 `make_vm_p19_real_bundle.py`로 만든다. 대응표와 S1 통과 기준은 [VM P19 실제 연결 시험](vm-p19-real-test.md)을 따른다.
 
-TC-07의 복구 저장 계약은 disposable PostgreSQL에 migrations 001~017을 적용해 확인한다. 운영자 입력·finish capsule 계약은 `node scripts/test/tc07-operator-workflow-contract.js` 및 `node scripts/test/tc07-finish-capsule-contract.js`로, handoff가 종료·배정·검증 snapshot이 생성된 문맥 갱신 실패 인자를 가린 recovery capsule에 보존하는지는 `node scripts/test/tc07-handoff-recovery-capsule-contract.js`로 확인한다. DLQ/Jira 조회 전용 workflow는 `node scripts/test/tc07-dlq-lookup-workflow-contract.js`와 `infra/db/verification/operator-dlq-list-contract.sql`로 검사한다. migration 017 restore rehearsal과 VM 적용은 별도 evidence로 기록하며, 이 로컬 계약은 외부 Jira 조회나 VM 배포를 대신하지 않는다.
+TC-07의 복구 저장 계약은 disposable PostgreSQL에 migrations 001~017을 적용해 확인한다. 운영자 입력·finish capsule 계약은 `node scripts/test/tc07-operator-workflow-contract.js` 및 `node scripts/test/tc07-finish-capsule-contract.js`로, handoff가 종료·배정·검증 snapshot이 생성된 문맥 갱신 실패 인자를 가린 recovery capsule에 보존하는지는 `node scripts/test/tc07-handoff-recovery-capsule-contract.js`로 확인한다. 기존 수동 `dubakwi-recovery-operator` workflow의 DLQ/Jira read-only lookup 분기는 `node scripts/test/tc07-dlq-lookup-workflow-contract.js`와 `infra/db/verification/operator-dlq-list-contract.sql`로 검사한다. migration 017 restore rehearsal, VM 반영, Jira GET은 각각 별도 evidence로 기록하며, 이 로컬 계약은 외부 Jira 조회나 VM 배포를 대신하지 않는다.
 
 `build_knowledge_search_mock.py`는 승인 전 지식으로 답하는 시험용 search를 만든다. 산출물은 커밋하지 않고 실제 검색 평가에 쓰지 않는다.
 

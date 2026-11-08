@@ -318,8 +318,7 @@ R03이 승인된 지식을 검색 가능한 상태로 준비한다. 색인·메�
 | workflows/dubakwi-index.json | 관리자 Manual Trigger | R03 | [RAG 설계서](RAG-ARCHITECTURE.md) 참조 |
 | workflows/dubakwi-state.json | Execute Sub-workflow,외부 Webhook 없음 | R04 | 저장소 공개 계약의 고정 명령,드라이버별 내부 노드 R04 상세화 |
 | workflows/dubakwi-dlq.json | Execute Sub-workflow,외부 Webhook 없음 | R04 | DLQ 쓰기/운영 재처리의 고정 계약,R04 드라이버 상세화 |
-| workflows/dubakwi-recovery-operator.json | Manual Trigger + JSON input,외부 Webhook 없음 | R01 통합 (P18) | 전용 recovery operator Credential로 inspect/finish/claim/resume/complete/release를 parameterized allowlist 실행. Jira/Discord 외부효과는 운영자가 직접 수행·검증하고 complete가 Response·state completed·DLQ resolved를 CAS 저장. replay 자료 없는 capsule은 claim 거절. 실제 VM 반입·Jira action은 미검증 |
-| workflows/dubakwi-dlq-lookup.json | Manual Trigger + JSON input,외부 Webhook 없음 | R01 대리 편집 (P18; R04 workflow 경로) | 읽기 전용 list(미해결 DLQ, scope별 bounded page)·inspect 후 링크된 JBYS Jira issue의 status/assignee display name을 GET 조회. NOLOGIN `dubakwi_dlq_reader` 전용 credential과 기존 Jira read credential 이름 참조, Jira 상세·복구 capsule/Response 미노출, 상태 변경 command 없음. local contract 검증; migration 017·VM 반입/LOGIN-Credential 확인 미완료 |
+| workflows/dubakwi-recovery-operator.json | Manual Trigger + JSON input,외부 Webhook 없음 | R01 통합 (P18) | 기존 operator Credential을 사용한다. `list`/`inspect`는 별도 `recovery_lookup(jsonb)` read-only dispatcher로 분기해 미해결 DLQ의 bounded list와 sanitizing inspect를 제공하고, 링크된 JBYS Jira issue는 기존 `dubakwi-Jira SW Cloud account`로 status/assignee display name GET만 한다. 복구 action은 기존 `recovery_control` route에 유지되며 lookup branch에서 호출할 수 없다. Local contract 통과; migration 017 restore rehearsal·VM 반입·실제 Jira GET은 미완료 |
 | workflows/dubakwi-errors.json | Error Trigger | R04 | 5 |
 
 실제 n8n 버전·포트·AI 연결·원시 출력은 D03 확인 전. 상세도에서 오류 엣지는 생략하고7절에서 붙인다. 단계도와 노드 상세도는 서로 다른 확대 수준이다.

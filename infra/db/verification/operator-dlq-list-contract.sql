@@ -68,24 +68,27 @@ $$;
 
 DO $$
 BEGIN
-    IF has_function_privilege('dubakwi_dlq_reader', 'dubakwi_service.recovery_lookup(jsonb)', 'EXECUTE') IS DISTINCT FROM true
-       OR has_function_privilege('dubakwi_dlq_reader', 'dubakwi_service.recovery_list(jsonb)', 'EXECUTE') IS DISTINCT FROM false
-       OR has_function_privilege('dubakwi_dlq_reader', 'dubakwi_service.recovery_control(jsonb)', 'EXECUTE') IS DISTINCT FROM false
+    IF has_function_privilege('dubakwi_recovery_operator', 'dubakwi_service.recovery_lookup(jsonb)', 'EXECUTE') IS DISTINCT FROM true
+       OR has_function_privilege('dubakwi_recovery_operator', 'dubakwi_service.recovery_list(jsonb)', 'EXECUTE') IS DISTINCT FROM false
+       OR has_function_privilege('dubakwi_recovery_operator', 'dubakwi_service.recovery_control(jsonb)', 'EXECUTE') IS DISTINCT FROM true
        OR has_function_privilege('dubakwi_runtime', 'dubakwi_service.recovery_lookup(jsonb)', 'EXECUTE') IS DISTINCT FROM false
        OR has_function_privilege('dubakwi_runtime', 'dubakwi_service.recovery_control(jsonb)', 'EXECUTE') IS DISTINCT FROM false THEN
-        RAISE EXCEPTION 'lookup/recovery function grants are broader than intended';
+        RAISE EXCEPTION 'lookup/recovery function grants do not preserve the existing operator boundary';
     END IF;
     IF EXISTS (
         SELECT 1 FROM pg_roles
-        WHERE rolname = 'dubakwi_dlq_reader'
+        WHERE rolname = 'dubakwi_recovery_operator'
           AND (rolcanlogin OR rolsuper OR rolcreatedb OR rolcreaterole OR rolinherit)
     ) THEN
-        RAISE EXCEPTION 'read-only role must remain NOLOGIN and nonprivileged';
+        RAISE EXCEPTION 'existing operator group role must remain NOLOGIN and nonprivileged';
+    END IF;
+    IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'dubakwi_dlq_reader') THEN
+        RAISE EXCEPTION 'lookup must reuse the existing operator role instead of provisioning a new reader role';
     END IF;
 END;
 $$;
 
-SET LOCAL ROLE dubakwi_dlq_reader;
+SET LOCAL ROLE dubakwi_recovery_operator;
 DO $$
 DECLARE
     result jsonb;
@@ -94,7 +97,7 @@ BEGIN
         '{"op":"list","scope":"tc07-list-contract","limit":10,"offset":0}'::jsonb
     );
     IF result ->> 'ok' <> 'true' OR jsonb_array_length(result -> 'items') <> 2 THEN
-        RAISE EXCEPTION 'reader role could not list unresolved items: %', result;
+        RAISE EXCEPTION 'existing operator role could not list unresolved items: %', result;
     END IF;
     result := dubakwi_service.recovery_lookup(
         '{"op":"inspect","scope":"tc07-list-contract","dlq_id":"tc07-list-pending","operator_id":"synthetic-reader"}'::jsonb
@@ -106,17 +109,17 @@ BEGIN
        OR result::text LIKE '%recovery%'
        OR result::text LIKE '%effects%'
        OR result::text LIKE '%response%' THEN
-        RAISE EXCEPTION 'reader role could not inspect a selected DLQ: %', result;
+        RAISE EXCEPTION 'existing operator role could not inspect a selected DLQ: %', result;
     END IF;
     result := dubakwi_service.recovery_lookup(
         '{"op":"claim","scope":"tc07-list-contract"}'::jsonb
     );
     IF result ->> 'ok' <> 'false'
        OR result ->> 'error_code' <> 'invalid_dlq_lookup_request' THEN
-        RAISE EXCEPTION 'read-only dispatcher accepted a recovery action: %', result;
+        RAISE EXCEPTION 'read-only lookup dispatcher accepted a recovery action: %', result;
     END IF;
     IF has_table_privilege(current_user, 'dubakwi_service.dead_letters', 'SELECT') THEN
-        RAISE EXCEPTION 'reader role must not SELECT the DLQ table directly';
+        RAISE EXCEPTION 'operator workflow must not SELECT the DLQ table directly';
     END IF;
 END;
 $$;
