@@ -61,8 +61,15 @@ read-only dispatcher; after an inspect, it may perform a Jira REST GET for
 status and assignee display name using the existing Dubakwi Jira credential.
 Lookup input cannot invoke claim/resume/finish/complete/release or any Jira
 mutation request. Existing recovery commands keep their original route.
-Rehearse 017 and its read-only contract after 001~016 in a disposable/restore
-database before any VM apply.
+For a clean database, apply 010~016 before 017. On the PR36 dual-storage VM
+database, `recovery_finish(jsonb)` already existed, so the 2026-11-08 change
+applied migration 017 directly after a private backup and restore rehearsal;
+the targeted bounded-list/sanitized-inspect checks passed on both restore and
+live database. The broader `operator-dlq-list-contract.sql` also asserts the
+010~016 `recovery_control(jsonb)` dispatcher and therefore remains incomplete
+on a restore containing only `recovery_finish`. Do not interpret that contract
+failure as a lookup failure or as evidence that the recovery dispatcher is
+installed. See the [lookup execution report](../../../runs/public/20261108-101605-vm-tc07-dlq-lookup/report.md).
 
 Apply 010 through 017 after 009 in filename order. The existing operator
 workflow uses its environment login as a member of the recovery operator role;
@@ -92,9 +99,14 @@ dispatcher. A live read-only inspect through `SET ROLE` succeeded. A dedicated
 operator LOGIN/Credential least-privilege verification and canonical inactive
 workflow import are still pending;
 Jira/Discord action recovery was not run. See the [VM result](../../../runs/public/20261108-085318-vm-tc07-recovery-deploy/report.md).
-Migration 017 and the lookup branch in the existing operator workflow are
-local-only candidates at this point; they are not covered by the earlier
-010~016 VM evidence.
+Migration 017 and its existing-workflow list/inspect/Jira GET branch were
+applied and read-only verified on the PR36 dual-storage VM database on
+2026-11-08. This is separate from the earlier 010~016 service-DB evidence and
+does not establish full recovery actions or the full operator contract on the
+dual-storage database. The VM lacked the canonical workflow ID from the source
+JSON, so verification reused the existing inactive `R01 TC07 operator E2E`
+manual test workflow ID in place; it did not create a new workflow or register
+the source under its canonical ID.
 Mixed-version restoration and rollback remain unverified. Roll back only to a
 tested compatible app/SQL combination.
 

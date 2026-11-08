@@ -131,7 +131,7 @@ stateDiagram-v2
 
 이 도표는 저장된 상태의 전이다. 저장소 자체 장애로 failed/unknown 기록조차 실패하면 마지막 저장값이 processing으로 남을 수 있다. 응답·실행 기록·DLQ 등 가능한 경로에 확인 필요를 남기고, 오래된 processing을 자동 재실행하지 않는다.
 
-운영자 복구의 저장 전이는 migrations 010–016의 별도 operator-only 경계로 구현한다. 2026-11-08 VM service DB에 적용했고 runtime 역할에는 dispatcher 권한이 없다. 복원 DB 경합 및 live read-only inspect 증거와 남은 전용 credential/workflow 조건은 [TC-07 실행 보고서](../../runs/public/20261108-085318-vm-tc07-recovery-deploy/report.md)를 참조한다. 이후 조회 전용 DLQ list helper migration 017과 목록/inspect→Jira GET workflow를 로컬 후보로 추가했으며 VM에 적용하지 않았다. 이 경로는 외부 Jira/Discord 상태를 변경하지 않는다.
+운영자 복구의 저장 전이는 migrations 010–016의 별도 operator-only 경계로 구현한다. 2026-11-08 VM service DB에 적용했고 runtime 역할에는 dispatcher 권한이 없다. 복원 DB 경합 및 live read-only inspect 증거는 [TC-07 실행 보고서](../../runs/public/20261108-085318-vm-tc07-recovery-deploy/report.md)를 참조한다. 별도 PR36 dual-storage DB에는 기존 `recovery_finish(jsonb)`가 있었으며, 2026-11-08 migration 017을 백업·복원 리허설 뒤 적용했다. 기존 비활성 운영자 워크플로우에서 bounded list/inspect와 링크 Jira 상태·담당자 GET을 확인했다. [조회 전용 실행 증거](../../runs/public/20261108-101605-vm-tc07-dlq-lookup/report.md)는 TC-07 조회 slice만 통과를 의미하며 전체 복구 계약은 포함하지 않는다. 조회는 Jira/Discord 상태를 변경하지 않는다.
 
 | 전이·입력 | 조건과 수행 작업 | 금지 사항 |
 | --- | --- | --- |

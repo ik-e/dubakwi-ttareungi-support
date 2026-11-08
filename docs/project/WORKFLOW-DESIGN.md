@@ -318,7 +318,7 @@ R03이 승인된 지식을 검색 가능한 상태로 준비한다. 색인·메�
 | workflows/dubakwi-index.json | 관리자 Manual Trigger | R03 | [RAG 설계서](RAG-ARCHITECTURE.md) 참조 |
 | workflows/dubakwi-state.json | Execute Sub-workflow,외부 Webhook 없음 | R04 | 저장소 공개 계약의 고정 명령,드라이버별 내부 노드 R04 상세화 |
 | workflows/dubakwi-dlq.json | Execute Sub-workflow,외부 Webhook 없음 | R04 | DLQ 쓰기/운영 재처리의 고정 계약,R04 드라이버 상세화 |
-| workflows/dubakwi-recovery-operator.json | Manual Trigger + JSON input,외부 Webhook 없음 | R01 통합 (P18) | 기존 operator Credential을 사용한다. `list`/`inspect`는 별도 `recovery_lookup(jsonb)` read-only dispatcher로 분기해 미해결 DLQ의 bounded list와 sanitizing inspect를 제공하고, 링크된 JBYS Jira issue는 기존 `dubakwi-Jira SW Cloud account`로 status/assignee display name GET만 한다. 복구 action은 기존 `recovery_control` route에 유지되며 lookup branch에서 호출할 수 없다. Local contract 통과; migration 017 restore rehearsal·VM 반입·실제 Jira GET은 미완료 |
+| workflows/dubakwi-recovery-operator.json | Manual Trigger + JSON input,외부 Webhook 없음 | R01 통합 (P18) | 기존 operator Credential을 사용한다. `list`/`inspect`는 `recovery_lookup(jsonb)` read-only dispatcher로 분기해 미해결 DLQ의 bounded list와 sanitizing inspect를 제공하고, 링크된 JBYS Jira issue는 기존 `dubakwi-Jira SW Cloud account`로 status/assignee display name GET만 한다. 복구 action은 JSON source에 기존 `recovery_control` route로 유지되지만 PR36 dual-storage DB에서는 action 계약을 미검증했다. 2026-11-08 migration 017을 PR36 dual-storage DB에 적용하고 기존 비활성 R01 TC-07 수동 시험 workflow ID에서 list/inspect 및 Jira GET을 확인했다. canonical source ID import는 미완료다. 상세 결과·한계는 [TC-07 lookup run](../../runs/public/20261108-101605-vm-tc07-dlq-lookup/report.md) 참조. |
 | workflows/dubakwi-errors.json | Error Trigger | R04 | 5 |
 
 실제 n8n 버전·포트·AI 연결·원시 출력은 D03 확인 전. 상세도에서 오류 엣지는 생략하고7절에서 붙인다. 단계도와 노드 상세도는 서로 다른 확대 수준이다.

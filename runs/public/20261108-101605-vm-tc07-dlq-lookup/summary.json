@@ -1,0 +1,39 @@
+{
+  "run_id": "20261108-101605-vm-tc07-dlq-lookup",
+  "date": "2026-11-08",
+  "environment": "vm-pr36-postgresql-n8n-linked-jira-read-only",
+  "source_commit": "3b7bc74",
+  "migration": "017-operator-dlq-list.sql",
+  "workflow": "existing-inactive-r01-tc07-operator-e2e-manual-test-workflow-reused-in-place",
+  "scenario": "TC-07 DLQ list/inspect and linked Jira status/assignee GET",
+  "result": "pass_read_only_lookup_slice",
+  "checks": {
+    "private_backup_archive_validation": "passed",
+    "separate_restore": "passed",
+    "migration_017_restore": "passed",
+    "targeted_read_only_list_inspect": "passed",
+    "direct_table_select_for_operator_login": "denied_as_intended",
+    "broader_operator_dlq_contract": "incomplete_recovery_control_absent_on_dual_storage_restore",
+    "migration_017_pr36_database": "passed",
+    "n8n_list": "passed",
+    "n8n_inspect": "passed",
+    "jira_read": "passed_issue_found",
+    "jira_status": "해야 할 일",
+    "jira_assignee": null,
+    "workflow_active_after_test": false,
+    "manual_payload_after_test": "{}",
+    "canonical_source_workflow_id_imported": false,
+    "additional_workflow_id_created": false,
+    "project_docs_check": "passed_22_files_775_links_58_anchors",
+    "public_files_check": "passed_580_candidates_1144_links",
+    "diff_check_and_evidence_json": "passed"
+  },
+  "live_effects": {
+    "pr36_state_or_dlq_writes": 0,
+    "jira_writes": 0,
+    "discord_sends": 0,
+    "wrong_service_database_lookup_functions": "removed"
+  },
+  "scope_limit": "read-only DLQ lookup only; retry/recovery actions and full operator recovery contracts not verified",
+  "details": "report.md"
+}

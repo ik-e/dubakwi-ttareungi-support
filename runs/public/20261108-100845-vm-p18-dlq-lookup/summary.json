@@ -1,0 +1,32 @@
+{
+  "run_id": "20261108-100845-vm-p18-dlq-lookup",
+  "date": "2026-11-08",
+  "environment": "vm-n8n-and-postgresql-private-restore",
+  "source_commit": "3b7bc74",
+  "scenario": "TC-07 existing PR36 operator DLQ lookup deployment",
+  "result": "partial_blocked",
+  "checks": {
+    "private_pr36_dump_archive_validation": "passed",
+    "restore_to_separate_database": "passed",
+    "existing_workflow_import_same_id_inactive": "passed",
+    "live_lookup_execution": "failed_missing_recovery_lookup_function",
+    "migration_010_restore_rehearsal": "blocked_existing_recovery_finish_signature",
+    "jira_read": "not_reached",
+    "discord_send": "not_attempted"
+  },
+  "live_effects": {
+    "pr36_request_or_dlq_rows_changed": 0,
+    "jira_writes": 0,
+    "discord_messages": 0,
+    "other_service_db_schema": "migration_017_applied_lookup_functions_and_operator_grants_only;cleanup_pending"
+  },
+  "pending": [
+    "web_ssh_reconnect",
+    "inspect_existing_recovery_finish_definition",
+    "rehearse_compatible_migrations_on_private_restore",
+    "apply_lookup_schema_to_pr36_database",
+    "remove_lookup_functions_from_wrong_service_database",
+    "verify_read_only_dlq_and_jira_lookup"
+  ],
+  "details": "report.md"
+}

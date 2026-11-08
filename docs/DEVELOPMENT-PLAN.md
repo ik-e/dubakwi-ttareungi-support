@@ -857,3 +857,7 @@ WF-11 해석을 [WORKFLOW-DESIGN 보충](project/WORKFLOW-DESIGN.md)과 [근거 
 ### TC-07 DLQ 운영자 재개 unknown-effect 보호 — 2026-11-08 KST
 
 [새 disposable 검증](../runs/public/20261108-073512-local-tc07-unknown-effect-release/report.md)에서 migrations 001~016과 finish/claim-release/unknown-effect SQL 계약을 모두 통과했다. 재개 재시도 실패 시 `release`가 대상 effect 상태를 CAS로 저장하며 unknown을 보존하고, 다음 재시도는 Jira 효과 재확인 없이는 claim되지 않는다. confirmed 효과는 replay 없이 adopt/complete한다. Operator workflow 계약 25/25, finish capsule 3/3, Handoff capsule 6/6, 문서·공개 후보 링크 검사 통과. TC-07의 VM migration, Jira/Discord 외부 action과 실제 티켓 복구는 미실행으로 유지한다.
+
+### P18 TC-07 PR36 DLQ read-only 조회 — 2026-11-08 KST
+
+[VM 실행 증거](../runs/public/20261108-101605-vm-tc07-dlq-lookup/report.md): PR36 dual-storage DB를 비공개 dump로 백업하고 별도 DB restore를 확인한 뒤 기존 `recovery_finish(jsonb)`를 보존하고 migration 017만 적용했다. 복원본·운영 DB에서 operator bounded list와 sanitized inspect가 성공했고 runtime 직접 테이블 SELECT는 거부됐다. 기존 비활성 n8n operator workflow로 scope `dubakwi-p19-real`의 목록과 실제 DLQ 상세를 읽고 연결된 Jira `JBYS-33`의 status GET 결과 `해야 할 일`, assignee null을 확인했다. 시험 후 workflow active=false, 수동 입력 `{}`다. 요청 상태/DLQ·Jira·Discord 쓰기는 0이다. 잘못 대상으로 적용했던 service DB의 lookup 함수 두 개는 제거했다. **read-only lookup slice만 완료**이며, 기존 통합 SQL contract는 PR36 dual DB restore에 `recovery_control(jsonb)`가 없어 불완전으로 남고 재처리·복구 기능 전체의 검증으로 확대하지 않는다. 이전 실패 결과는 각각의 실행 기록에 보존한다.
