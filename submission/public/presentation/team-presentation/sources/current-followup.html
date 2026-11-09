@@ -1,0 +1,54 @@
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>11/08 같은 Jira 티켓 · 보완 맥락 누적</title><style>body{max-width:1120px;margin:36px auto;padding:0 24px 64px;font:17px/1.75 system-ui,"Malgun Gothic",sans-serif;color:#183128;background:#f6f8f4}a{color:#245f39}h1{line-height:1.3}h2{margin-top:2em}table{border-collapse:collapse;display:block;overflow:auto}td,th{border:1px solid #b6c7b8;padding:8px 12px;text-align:left;vertical-align:top}pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#e8eee5;padding:20px}svg,img{max-width:100%;height:auto}.public-note{padding:14px 20px;border-left:4px solid #587442;background:#e7efdf}nav{display:flex;gap:24px;margin-bottom:24px}article{background:white;padding:24px;border:1px solid #d5dfd0}</style></head><body><nav><a href="../index.html">발표로 돌아가기</a></nav><h1>11/08 같은 Jira 티켓 · 보완 맥락 누적</h1><p class="public-note">공개용 정리본입니다. 계정·접속 정보와 원문 화면은 제외했으며, 팀원 원본과 제출용 전체 자료는 로컬에서 보존합니다. 과거 결과는 기록 당시 조건으로 읽어 주세요.</p><h1>VM Jira D03 티켓 대조 및 Discord 계정 경계 확인</h1>
+
+<ul>
+<li>실행 ID: <code>20261108-152100-vm-jira-d03-crosscheck</code> (KST)</li>
+<li>실행 시각: 2026-11-08 15:21 KST</li>
+<li>환경: 기존 PR36 Discord 봇, Edge Jira 로그인 세션, 로컬 채널 어댑터 검사</li>
+<li>범위: 직전 D03 후속 응답의 Jira 이슈 대조, 등록 사용자 매핑 경계 검사</li>
+</ul>
+
+<h2>결과</h2>
+
+<table>
+<thead>
+<tr>
+<th>검증</th>
+<th>판정</th>
+<th>관측</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>D03 Jira 티켓 재사용</td>
+<td>통과</td>
+<td>Discord 후속 응답에서 확인된 synthetic Jira 이슈를 열었다. Jira 설명의 <code>case_id</code> 및 <code>first_request_id</code>가 Discord 흐름의 연결 건과 일치하고, Jira 댓글의 <code>dubakwi-case-context:v1</code> 기록에 revision 1, 2, 3과 동일한 <code>ticket_key</code>가 남아 있다. 추가 후속이 새 이슈 대신 같은 티켓에 기록된 것을 확인했다.</td>
+</tr>
+<tr>
+<td>담당자 전달 기록</td>
+<td>부분 통과</td>
+<td>Jira 담당자 필드에 담당자가 지정되어 있고, 최신 전달 기록에 역할 <code>support</code>, 부족 정보 및 보완 횟수가 보인다. 실제 담당자가 읽고 처리했는지, Discord 알림을 받았는지는 확인하지 않았다.</td>
+</tr>
+<tr>
+<td>Jira 처리 상태</td>
+<td>관측</td>
+<td>이슈 상세에서 상태는 <code>해야 할 일</code>(To Do)로 보였다. 이 실행에서는 상태를 변경하지 않았다.</td>
+</tr>
+<tr>
+<td>등록/미등록 사용자 경계</td>
+<td>단위 검사 통과, 실 UI 미실행</td>
+<td><code>parse_user_map</code>의 알려지지 않은 Discord ID 조회 결과와 설정 검사를 포함해 <code>uv run --locked python -m unittest tests.channels.test_discord_bot</code>의 22개 테스트가 통과했다. 봇 코드도 사용자 매핑 누락 시 지원 webhook 호출 전에 거부 응답을 반환한다. 다만 해당 interaction 분기 자체를 모의 Discord 상호작용으로 호출하는 테스트나 별도 계정의 실제 UI 결과는 이번 실행에서 얻지 않았다.</td>
+</tr>
+<tr>
+<td>별도 임시 Discord 계정의 라이브 경로</td>
+<td>미실행</td>
+<td>실제 별도 Discord ID의 세션을 사용하지 않았다. 저장소의 <code>citizen-a/b/c</code>는 내부 테스트 사용자 ID이며 Discord 플랫폼 계정 자체가 아니다. 타인의 ID를 사용하거나 기존 운영 매핑을 임시로 바꾸지 않았다.</td>
+</tr>
+</tbody></table>
+
+<h2>한계 및 후속</h2>
+
+<ul>
+<li>Jira 티켓의 댓글과 현재 담당자 필드는 관리자 화면에서 확인했지만, 담당자 본인의 열람 및 실제 Discord 수신은 별도 증거가 없다.</li>
+<li>D05는 매핑 함수 단위 검사와 코드 경로 검토까지만 했다. 사용자 관점의 실 Discord 시험에는 별도 임시 Discord 계정 또는 승인된 시험 계정의 세션과 해당 계정의 서버 매핑이 필요하다.</li>
+<li>기존 D03 원 실행 기록은 수정하지 않는다. 이번 교차 확인은 <a href="../../../../../runs/public/20261108-144900-vm-discord-d03-verified/report.md">D03 실행 기록</a>을 보강하는 별도 증거다.</li>
+</ul>
+</body></html>

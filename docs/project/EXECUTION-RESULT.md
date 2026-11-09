@@ -1,7 +1,7 @@
 ## 2026-11-08 현재 구현·검증 상태
 
 <!-- final-closeout-current -->
-**최종 취합 v1.0 · 2026-11-09.** 제출용 문서는 로컬 `submission/final/docs/EXECUTION-RESULT.md`에 공식 6절로 정리했다. 본 파일의 날짜별 최초 실패·재시험·표본 수는 원 이력으로 보존한다.
+**최종 취합 v1.0 · 2026-11-09.** 공식 6절의 [공개용 최종본](../../submission/public/docs/EXECUTION-RESULT.md)을 main에서 읽을 수 있다. 로컬 `submission/final/docs/EXECUTION-RESULT.md`와 원문 화면은 보존한다. 본 파일의 날짜별 최초 실패·재시험·표본 수는 원 이력으로 보존한다.
 
 | 최신 요약 | 판정 |
 | --- | --- |

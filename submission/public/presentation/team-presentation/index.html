@@ -1,0 +1,96 @@
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>두바퀴 · 시민 문의 지원</title><link rel="stylesheet" href="presentation.css"><link rel="stylesheet" href="story.css"></head><body class="story-deck"><header class="topbar"><a class="brand" href="#slide-1" aria-label="첫 장">두바퀴<span>시민 문의 지원</span></a><span id="chapter">문제와 범위</span><nav aria-label="발표 도구"><button id="contents">목차</button><button id="library">전체 자료</button><button id="notes">발표자 메모</button><button id="fullscreen">전체 화면</button></nav></header><main id="stage" tabindex="-1"><section class="slide active story-title" data-title="두바퀴 · 시민 문의 지원" data-chapter="문제와 범위" data-seconds="20" data-role="팀 소개" data-source="system">
+ <p class="story-eyebrow">두바퀴 · 시민 문의 지원</p><h1>근거로 안내하고,<br>필요한 문의는<br><em>담당자에게 연결합니다.</em></h1><p class="story-title-sub">따릉이 문의를 대상으로 구현·검증한 교육용 프로젝트</p></section>
+<section class="slide story-problem" data-title="반납했는데 아직 이용 중이라면?" data-chapter="문제와 범위" data-seconds="60" data-role="문제 정의" data-source="system">
+ <p class="story-eyebrow">시민의 문의</p><blockquote class="hero-question">“반납했는데 앱에는<br>아직 이용 중이라고 떠요.”</blockquote>
+ <div class="question-path"><span>무엇을 더<br><b>확인할까?</b></span><i aria-hidden="true">→</i><span>어떤 근거로<br><b>안내할까?</b></span><i aria-hidden="true">→</i><span>담당자에게 무엇을<br><b>전달할까?</b></span></div><p class="story-takeaway">질문에 담긴 정보를 다음 처리 단계로 이어갑니다.</p></section>
+<section class="slide " data-title="시민과 담당자 사이에서 맡은 범위" data-chapter="문제와 범위" data-seconds="100" data-role="시스템·팀 구성" data-source="system">
+ <header class="slide-head"><h1>시민과 담당자 사이에서 맡은 범위</h1><p>대여 · 반납 · 고장 · 요금/환불 · 후속 조회 · 개인정보/보안</p></header>
+ <div class="architecture" aria-label="시민 Discord와 n8n 문의 처리, 지식 검색, 처리 기록, Jira 담당자의 연결">
+  <div class="arch-person"><b>시민</b><span>Discord /문의</span><small>접수·비공개 답변</small></div><div class="arch-link">문의 →<br>← 답변</div>
+  <div class="arch-core"><b>문의 판단·처리</b><span>n8n · 흐름 설계</span><div class="core-support"><div><span class="vertical-link">↕</span><strong>지식 검색</strong><small>검색 담당</small></div><div><span class="vertical-link">↕</span><strong>처리 기록</strong><small>연동·기록 담당</small></div></div></div><div class="arch-link">맥락·결과<br>↔</div><div class="arch-person"><b>Jira · 담당자</b><span>검토·메모·상태 관리</span><small>연동 담당</small></div>
+ </div><div class="cross-team"><span>시스템 전체</span><b>통합·운영</b><b>시험·검증</b></div><p class="story-boundary">실제 환불 · 강제 반납 · 잠금 해제 · 출동 승인은 구현 범위 밖입니다.</p><div class="actions"><button data-open-doc="charter">팀 역할 상세</button><button data-explain="scope">설계 시나리오와 확인 범위</button></div></section>
+<section class="slide atlas-slide" data-title="문의에 따라 다음 행동을 결정한다" data-chapter="처리 흐름" data-seconds="190" data-role="흐름 설계" data-source="current-workflow">
+ <header class="slide-head compact"><h1>문의에 따라 다음 행동을 결정한다</h1><p>정보 부족은 보완하고, 보완 한도·근거 부족은 담당자에게 연결합니다.</p></header>
+ <div id="atlas-home" class="atlas-host"></div><div class="actions"><button data-explain="connection">연결선으로 전달하는 정보</button><button data-explain="logic">분기·합류·보완 반복</button><button data-open-doc="r02-notes">원본 설명·회고</button></div></section>
+<section class="slide evidence-preparation" data-title="안내에 쓸 근거를 준비한다" data-chapter="답변의 근거" data-seconds="120" data-role="지식 준비" data-source="current-rag">
+
+ <header class="slide-head"><h1>안내에 쓸 근거를 준비한다</h1><p>문서를 문단으로 나누고, 출처와 권한을 붙여 검색할 수 있게 만듭니다.</p></header>
+ <div class="preparation-route" aria-label="대여 안내 원본에서 문단 청크를 만들고 벡터 색인에 저장">
+  <article><span class="route-label">원본 문서</span><h2>대여 안내</h2><p>대여 준비<br><b>QR 인식 문제</b><br>연결·대여 실패</p></article><i aria-hidden="true">→</i>
+  <article class="chosen-chunk"><span class="route-label">검색할 문단 · 청크</span><h2>QR 인식 문제</h2><p>“QR 인식이 어려울 때<br>자전거 번호를 직접 입력”</p><small>문서·절 · 출처 · 유형 · 권한</small></article><i aria-hidden="true">→</i>
+  <article><span class="route-label">임베딩 · 색인</span><h2>의미를 숫자로 저장</h2><p>text-embedding-3-large<br><b>3,072차원</b></p><small>질문도 같은 모델로 변환</small></article>
+ </div>
+ <div class="chunk-decision"><table class="chunk-table"><caption>공개 문서 청킹 비교 · 11/05 직접 임베딩 시험</caption><thead><tr><th>비교 항목</th><th>절 전체</th><th>문단 단위 · 선택</th></tr></thead><tbody><tr><th>평가 청크</th><td>33개</td><td>36개</td></tr><tr><th>상위 3개에 기대 근거 포함</th><td>13 / 13질문</td><td>13 / 13질문</td></tr></tbody></table><p><b>검색 지표는 같았습니다.</b><br>실제 안내와 교육용 가정을<br>구분할 수 있는 문단을 선택했습니다.</p></div>
+ <div class="actions"><button data-explain="chunk">비교 범위·선택 이유</button><button data-explain="retrieval">모델·메타데이터</button><button data-open-doc="r03-slides">팀원 원본 전체</button><button data-pdf="rag">원본 설계 PDF</button></div>
+</section>
+<section class="slide evidence-search" data-title="허용된 근거가 있을 때 안내한다" data-chapter="답변의 근거" data-seconds="120" data-role="지식 검색" data-source="current-rag">
+
+ <header class="slide-head"><h1>허용된 근거가 있을 때 안내한다</h1><p>검색 범위를 먼저 제한하고, 질문과 맞는 근거를 답변에 연결합니다.</p></header>
+ <div class="search-route" aria-label="시민 질문, 공개 문서 권한 선택, 의미 검색, 근거 유무에 따른 안내 또는 이관">
+  <article class="search-question"><span class="route-label">시민의 질문</span><h2>“QR이 안 읽혀요.”</h2><p>같은 모델로<br>질문을 임베딩</p></article><i aria-hidden="true">→</i>
+  <article class="search-permission"><span class="route-label">권한으로 범위 선택</span><h2>공개 자료만</h2><p>서버가 확인한 권한</p><small>제한 자료는<br>허용된 담당자 요청에서만</small></article><i aria-hidden="true">→</i>
+  <article class="search-match"><span class="route-label">의미가 가까운 근거 검색</span><h2>QR 안내 문단</h2><p>코사인 유사도<br>최대 5개 반환</p><small>근거 본문과 출처를 함께 전달</small></article><i aria-hidden="true">→</i>
+  <div class="search-outcomes"><article><b>근거가 있으면</b><p>답변 작성·검증<br><strong>안내 + 출처</strong></p></article><article><b>근거가 없으면</b><p><strong>담당자 연결</strong></p></article></div>
+ </div>
+ <div class="recovery-strip"><b>검색 준비 유지</b><span>메모리 색인 · 재시작 후 <strong>44개 재색인 → QR 근거 답변</strong> 확인</span><button data-explain="recovery">복구·백업·확장</button></div>
+ <div class="actions"><button data-explain="retrieval">권한·검색 상세</button><button data-open-doc="latest-rag">권한별 시험 결과</button><button data-open-doc="current-recovery">복구 실행 근거</button><button data-open-doc="r03-notes">팀원 개념·회고</button></div>
+</section>
+<section class="slide handoff-slide" data-title="담당자는 같은 문의에서 이어받는다" data-chapter="담당자 인계" data-seconds="110" data-role="연동·기록" data-source="current-followup">
+
+ <header class="slide-head"><h1>담당자는 같은 문의에서 이어받는다</h1><p>n8n이 문의 내용을 갱신하고, 담당자는 Jira에서 검토·기록·상태 관리를 이어갑니다.</p></header>
+ <div class="handoff-controls"><div class="handoff-tabs" role="tablist" aria-label="문의 인계 단계"><button data-handoff-step="0" role="tab">1 최초 문의</button><button data-handoff-step="1" role="tab">2 추가 답변</button><button data-handoff-step="2" role="tab">3 한도 이관</button><button data-handoff-step="3" role="tab">4 담당자 처리</button></div><button id="handoff-reset" aria-label="문의 인계 처음부터">처음</button><button id="handoff-next">다음 동작 →</button><small>설명용 재생</small></div>
+ <div id="handoff-stage" class="handoff-stage" role="tabpanel" aria-live="polite">
+  <article class="handoff-system"><div class="system-name">n8n <span>문의 판단·처리</span></div><div class="handoff-input"><small id="handoff-input-label">시민의 입력</small><p id="handoff-input"></p></div><div class="handoff-decision"><small>판단·다음 행동</small><h2 id="handoff-decision"></h2><p id="handoff-response"></p></div></article>
+  <div class="handoff-connection"><div class="wire outgoing"><span id="handoff-outbound"></span><i aria-hidden="true">→</i></div><div class="wire incoming"><i aria-hidden="true">←</i><span id="handoff-inbound"></span></div><p id="handoff-connection-note"></p></div>
+  <article class="handoff-jira"><div class="system-name">Jira <span>같은 문의 기록</span></div><dl><div><dt>문의 요약</dt><dd>반납했는데 앱에는 이용 중</dd></div><div><dt>추가로 확인한 내용</dt><dd id="handoff-facts"></dd></div><div><dt>아직 확인할 정보</dt><dd id="handoff-missing"></dd></div><div><dt>담당·처리 단계</dt><dd id="handoff-owner"></dd></div></dl><p class="jira-staff-action" id="handoff-staff"></p></article>
+ </div>
+ <p class="handoff-observation" id="handoff-observation"></p>
+ <div class="actions"><button data-explain="handoff">저장·중복 방지·처리 범위</button><button data-gallery="r04-slides-8">팀원 원본 처리도</button><button data-open-doc="current-followup">같은 문의 검증 근거</button><button data-open-doc="current-dlq">실패 내역 조회</button></div>
+</section>
+<section class="slide " data-title="시민의 문의부터 담당자의 처리까지" data-chapter="실제 시연" data-seconds="300" data-role="시연" data-source="presentation-demo">
+ <header class="slide-head"><h1>시민의 문의부터 담당자의 처리까지</h1><p>근거 안내, 같은 문의 보완, 근거 부족 이관, Jira 처리 순서로 확인합니다.</p></header>
+ <div class="demo-tabs" role="tablist" aria-label="시연 순서"><button class="selected" data-demo="normal">정상 안내</button><button data-demo="supplement">보완 한도</button><button data-demo="fault">근거 없음</button><button data-demo="handoff">Jira 처리</button></div><div id="demo-panel" class="demo-panel" aria-live="polite"></div>
+ <div class="actions"><button data-open-doc="presentation-demo">시연 입력·확인 절차</button><button data-open-doc="presentation-demo">Discord 리허설 기록</button><button data-open-doc="latest-jira">Jira 처리 기록</button><button data-pdf="execution">과거 실행 기록</button></div><p class="story-caption">5분 구성 · 전환 여유 30초 포함 · 실행 상태와 과거 증거는 구분해 설명</p></section>
+<section class="slide test-results-slide" data-title="시험 조건과 실제 결과를 함께 확인했다" data-chapter="검증 결과" data-seconds="80" data-role="시험·품질" data-source="current-execution">
+
+ <header class="slide-head"><h1>시험 조건과 실제 결과를 함께 확인했다</h1><p>검색 단위 시험과 실제 문의 리허설에서 기대한 동작을 각각 대조했습니다.</p></header>
+ <table class="test-results"><thead><tr><th>시험한 상황</th><th>기대한 동작</th><th>실제로 확인한 결과</th></tr></thead><tbody>
+  <tr><th>검색·권한 경계</th><td>허용된 자료만 반환<br>근거 없음·잘못된 요청 구분</td><td><strong>16 / 16 충족</strong><small>검색 전용 시험</small></td></tr>
+  <tr><th>정상 QR 문의</th><td>대여 방법과 출처 안내</td><td><strong>안내 + 관련 근거 확인</strong></td></tr>
+  <tr><th>같은 문의 보완</th><td>앞선 정보 유지<br>3회차 한도에서 담당자 연결</td><td><strong>같은 티켓에 누적 후 이관</strong><small>최초 문의 + 추가 답변 2회</small></td></tr>
+  <tr><th>근거 없는 문의</th><td>추측 안내 없이 담당자 연결</td><td><strong>근거 0건 · 이관 사유 확인</strong></td></tr>
+  <tr><th>Jira 담당자 작업</th><td>담당 지정·상태·처리 메모 기록</td><td><strong>배정·진행 중·메모 저장</strong></td></tr>
+ </tbody></table>
+ <p class="story-caption">검색 시험 16건과 리허설 3개 흐름·5개 입력은 서로 다른 범위입니다. 전체 성공률로 합산하지 않습니다.</p>
+ <div class="actions"><button data-open-doc="latest-rag">검색 시험 근거</button><button data-open-doc="presentation-demo">리허설·서버 대조</button><button data-open-doc="latest-jira">Jira 별도 시험</button><button data-open-doc="current-alert">알림 확인</button><button data-open-doc="r05-slides">반복 시험·측정값</button></div>
+</section>
+<section class="slide completion-check-slide" data-title="응답·Jira·저장 결과를 함께 확인했다" data-chapter="검증 결과" data-seconds="60" data-role="실패·재시험" data-source="r05-notes">
+ <header class="slide-head"><h1>응답·Jira·저장 결과를 함께 확인했다</h1><p>정상 안내가 끝나려면, 티켓 상태와 처리 기록도 맞아야 합니다.</p></header>
+ <div class="completion-comparison">
+  <article class="completion-before">
+   <p class="completion-label">시험에서 발견한 문제</p>
+   <div class="completion-break" aria-label="정상 문의의 Jira 안내 완료 단계가 실패함"><span>정상 문의</span><i aria-hidden="true">→</i><div><b>Jira 안내 완료</b><strong aria-label="실패">×</strong></div></div>
+   <h2>티켓을 완료로<br>바꾸는 설정이 없었습니다.</h2>
+   <p class="completion-explanation">기대했던 안내 완료 처리 실패<br>해당 실행은 부분 실패로 이관</p>
+  </article>
+  <div class="completion-retest"><span>원인 보완</span><i aria-hidden="true">→</i><b>같은 문의<br>다시 시험</b></div>
+  <article class="completion-after">
+   <p class="completion-label">보완 후 확인한 결과</p>
+   <ul class="completion-results" aria-label="재시험의 Jira·저장·응답 확인 결과">
+    <li><span class="completion-check" aria-hidden="true">✓</span><div><b>Jira</b><span>티켓의 안내 완료 확인</span></div></li>
+    <li><span class="completion-check" aria-hidden="true">✓</span><div><b>저장</b><span>처리 결과의 기록 확인</span></div></li>
+    <li><span class="completion-check" aria-hidden="true">✓</span><div><b>응답</b><span>최종 안내 응답 확인</span></div></li>
+   </ul>
+   <p class="completion-scope">정상 문의 <b>1건</b>에서 연결 확인</p>
+  </article>
+ </div>
+ <p class="completion-takeaway">시민에게 보낸 응답과 실제 처리 기록을 함께 대조했습니다.</p>
+ <p class="story-caption">11/06 개발·재시험 기록 · 반복 안정성과 격리 장애 시험은 별도 확인 범위</p>
+ <div class="actions"><button data-open-doc="r05-notes" data-find="대표 실패">실패·수정·재시험 기록</button><button data-pdf="execution" data-page="13">과거 실행 기록</button><button data-open-doc="current-tests">최종 시험 범위·미실행</button><button data-open-doc="r05-slides" data-find="중복 요청 시험">다른 시험 사례</button></div>
+</section>
+<section class="slide story-closing" data-title="문의의 다음 단계가 이어지도록" data-chapter="결과와 결론" data-seconds="30" data-role="팀 전체" data-source="current-closeout">
+ <p class="story-eyebrow">처음의 시민 질문으로 돌아가면</p><blockquote class="closing-question">“반납했는데 아직 이용 중이라고 떠요.”</blockquote>
+ <div class="closing-route"><span>필요한 정보<br><b>확인</b></span><i>→</i><span>근거 안내 또는<br><b>담당자 인계</b></span><i>→</i><span>앞선 맥락으로<br><b>검토·기록·상태 관리</b></span></div><h1>문의의 다음 단계를<br><em>연결했습니다.</em></h1><p class="story-caption">교육용 모의 환경의 대표 사례 확인 · 실제 환불·반납 변경은 범위 밖<br>다양한 입력·반복 실행·운영 상황의 검증은 별도 필요</p><div class="actions"><button data-open-doc="presentation-guide">필수 산출물 대응</button></div></section>
+<section class="slide story-thanks" data-title="감사합니다" data-chapter="감사 인사" data-seconds="10" data-role="두바퀴" data-source="presentation-guide">
+ <p class="story-eyebrow">두바퀴 · 시민 문의 지원</p><h1>감사합니다.</h1><p class="thanks-invitation">질문을 받겠습니다.</p><div class="actions"><button id="questions">질의응답 · 팀 자료 전체</button></div>
+</section></main><footer class="deck-footer"><button id="previous" aria-label="이전 슬라이드">←</button><span id="page-count">01 / 12</span><button id="next-slide" aria-label="다음 슬라이드">→</button><div id="progress" aria-label="발표 진행"></div><span id="role-label"></span><button id="source-button">출처·상세</button></footer><div id="atlas-layer"><iframe id="atlas" src="r02-atlas.html" title="시나리오별 문의 처리 흐름" sandbox="allow-scripts allow-same-origin allow-downloads"></iframe></div><div id="overlay-backdrop" hidden></div><dialog id="overlay" aria-labelledby="overlay-title" aria-modal="true"><div class="overlay-head"><h2 id="overlay-title"></h2><button id="close-overlay">닫기 ×</button></div><div id="overlay-tools"></div><div id="overlay-body"></div><div id="overlay-footer"></div></dialog><div id="live-status" class="sr-only" aria-live="polite"></div><script src="assets/source-data.js"></script><script src="assets/pdf-data.js"></script><script src="notes.js"></script><script src="presentation.js"></script><script src="story.js"></script></body></html>

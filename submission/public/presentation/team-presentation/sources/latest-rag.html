@@ -1,0 +1,122 @@
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>11/08 · PR36 검색 16건</title><style>body{max-width:1120px;margin:36px auto;padding:0 24px 64px;font:17px/1.75 system-ui,"Malgun Gothic",sans-serif;color:#183128;background:#f6f8f4}a{color:#245f39}h1{line-height:1.3}h2{margin-top:2em}table{border-collapse:collapse;display:block;overflow:auto}td,th{border:1px solid #b6c7b8;padding:8px 12px;text-align:left;vertical-align:top}pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#e8eee5;padding:20px}svg,img{max-width:100%;height:auto}.public-note{padding:14px 20px;border-left:4px solid #587442;background:#e7efdf}nav{display:flex;gap:24px;margin-bottom:24px}article{background:white;padding:24px;border:1px solid #d5dfd0}</style></head><body><nav><a href="../index.html">발표로 돌아가기</a></nav><h1>11/08 · PR36 검색 16건</h1><p class="public-note">공개용 정리본입니다. 계정·접속 정보와 원문 화면은 제외했으며, 팀원 원본과 제출용 전체 자료는 로컬에서 보존합니다. 과거 결과는 기록 당시 조건으로 읽어 주세요.</p><h1>PR36 전용 RAG 전체 검색 matrix</h1>
+<li>실행 ID: <code>20261108-142200-vm-pr36-rag-full-matrix</code> (KST)</li>
+<li>실행 시각: 2026-11-08 14:22 KST</li>
+<li>환경: aio-t2 VM, Edge Web SSH의 user-api 컨테이너 → PR36 search webhook</li>
+<li>입력/기대값 원본: <code>cases/search.json</code> 16개 사례</li>
+<li>대상: <code>R01 PR36 a657890 search</code> (<code>/webhook/dubakwi-search-pr36-a657890</code>)</li>
+<h2>결과</h2>
+<table>
+<thead>
+<tr>
+<th>사례</th>
+<th>응답 상태</th>
+<th>확인한 기대 결과</th>
+<th>판정</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>SR-WF01</td>
+<td><code>ok</code></td>
+<td>public rental-guide QR 절</td>
+<td>통과</td>
+</tr>
+<tr>
+<td>SR-WF02</td>
+<td><code>ok</code></td>
+<td>public return-guide 반납 미완료 절</td>
+<td>통과</td>
+</tr>
+<tr>
+<td>SR-WF03</td>
+<td><code>empty</code></td>
+<td>근거 0건</td>
+<td>통과</td>
+</tr>
+<tr>
+<td>SR-WF04</td>
+<td><code>ok</code></td>
+<td>fees-refund-guide</td>
+<td>통과</td>
+</tr>
+<tr>
+<td>SR-WF12</td>
+<td><code>ok</code></td>
+<td>privacy-security-guide의 계정 침해 공개 초동 안내</td>
+<td>통과</td>
+</tr>
+<tr>
+<td>SR-TC04</td>
+<td><code>ok</code></td>
+<td>fees-refund-guide 환불 근거</td>
+<td>통과</td>
+</tr>
+<tr>
+<td>SR-TC09a</td>
+<td><code>ok</code></td>
+<td>return-guide 반납 안내</td>
+<td>통과</td>
+</tr>
+<tr>
+<td>SR-TC09b</td>
+<td><code>ok</code></td>
+<td>privacy-security-guide 로그인/계정 찾기</td>
+<td>통과</td>
+</tr>
+<tr>
+<td>SR-WF05</td>
+<td><code>ok</code></td>
+<td>시민 내부 정책 요청에도 public 근거만 반환</td>
+<td>통과</td>
+</tr>
+<tr>
+<td>SR-R01</td>
+<td><code>ok</code></td>
+<td>이관 정책 질문에 public 근거만 반환</td>
+<td>통과</td>
+</tr>
+<tr>
+<td>SR-R02</td>
+<td><code>ok</code></td>
+<td>티켓 lifecycle 질문에 public 근거만 반환</td>
+<td>통과</td>
+</tr>
+<tr>
+<td>SR-R03</td>
+<td><code>ok</code></td>
+<td>시민 자기소개로 staff 권한 승격 없음; public 근거만 반환</td>
+<td>통과</td>
+</tr>
+<tr>
+<td>SR-R04</td>
+<td><code>error</code></td>
+<td><code>invalid_request</code>, evidence 0건, 제한 canary 미노출</td>
+<td>통과</td>
+</tr>
+<tr>
+<td>SR-STAFF01</td>
+<td><code>ok</code></td>
+<td>허용된 staff 권한으로 restricted handoff-policy 반환</td>
+<td>통과</td>
+</tr>
+<tr>
+<td>SR-STAFF02</td>
+<td><code>ok</code></td>
+<td>허용된 staff 권한으로 restricted ticket-lifecycle 반환</td>
+<td>통과</td>
+</tr>
+<tr>
+<td>SR-OFF</td>
+<td><code>skipped</code></td>
+<td>검색 비활성, evidence 0건</td>
+<td>통과</td>
+</tr>
+</tbody></table>
+<p><strong>집계: 16/16 통과.</strong> 모든 요청은 검색 전용이었다. 시민 권한 사례에서 restricted 근거가 반환되지 않았고, 제한 자료 양성 대조는 staff 권한에서만 해당 자료를 반환했다. 직전 PR36 표적 7건 시험의 결과와 일치한다. 13:14 legacy search의 SR-WF12 raw query 실패는 PR36 전용 경로 결과와 분리한다.</p>
+<h2>실행 기록 대조</h2>
+<p>검색 UI의 Executions 화면은 <code>No executions found</code>다. 읽기 전용 SQLite 조회에서는 이 배치에 대응하는 PR36 search webhook 실행 16개(ID #2228–#2243)가 모두 <code>running</code>, <code>stoppedAt=null</code>로 남았다. 각 webhook은 HTTP 200 응답을 돌려줬다. PR36 index 수동 실행 #2211도 같은 DB 상태다. 과거 #2167은 이번 조회에 나타나지 않았다.</p>
+<p>PR36 workflow DB settings는 <code>saveDataSuccessExecution=none</code>, <code>saveManualExecutions=false</code>, <code>saveExecutionProgress=false</code>다. 따라서 UI에 완료 이력이 없는 것은 저장 설정으로 설명된다. 다만 실제 SQLite row가 성공 응답 뒤에도 <code>running</code>인 이유는 설정만으로 확정되지 않는다. execution row를 직접 수정/삭제하지 않았다. index execution #2211의 종료시각이 없어 색인 시간은 계산할 수 없다.</p>
+<h2>한계 및 부수 효과</h2>
+<li>검색 기준의 결과/권한 assertion은 통과했지만 개별 응답 latency는 기록되지 않았다.</li>
+<li>색인 처리 시간은 미측정이다. 단순 계측을 위해 인메모리 Simple Vector Store에 같은 44 chunks를 다시 쌓지 않았다.</li>
+<li>Jira, Discord, support state, DLQ는 호출하지 않았다. n8n execution metadata 행 16개는 관측한 실제 저장 효과다.</li>
+<li>SQLite read-only 조회와 workflow setting read만 수행했다. 저장 설정·workflow를 변경하지 않았다.</li></body></html>

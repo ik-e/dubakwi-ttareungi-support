@@ -1,0 +1,592 @@
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>최종 제출 · 노코드 워크플로우 설계서</title><style>body{max-width:1120px;margin:36px auto;padding:0 24px 64px;font:17px/1.75 system-ui,"Malgun Gothic",sans-serif;color:#183128;background:#f6f8f4}a{color:#245f39}h1{line-height:1.3}h2{margin-top:2em}table{border-collapse:collapse;display:block;overflow:auto}td,th{border:1px solid #b6c7b8;padding:8px 12px;text-align:left;vertical-align:top}pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#e8eee5;padding:20px}svg,img{max-width:100%;height:auto}.public-note{padding:14px 20px;border-left:4px solid #587442;background:#e7efdf}nav{display:flex;gap:24px;margin-bottom:24px}article{background:white;padding:24px;border:1px solid #d5dfd0}</style></head><body><nav><a href="../index.html">발표로 돌아가기</a></nav><h1>최종 제출 · 노코드 워크플로우 설계서</h1><p class="public-note">공개용 정리본입니다. 계정·접속 정보와 원문 화면은 제외했으며, 팀원 원본과 제출용 전체 자료는 로컬에서 보존합니다. 과거 결과는 기록 당시 조건으로 읽어 주세요.</p><h1>노코드 워크플로우 설계서 · 두바퀴</h1>
+
+<p>최종 제출본 v1.0 · 2026-11-09 KST · 작성·취합 R01</p>
+
+<p><strong>근거가 있는 시민 문의는 출처와 함께 안내하고, 정보나 근거가 부족하면 같은 문의의 맥락을 담당자에게 넘긴다.</strong> 자동 답변, Jira 처리, 저장 결과를 함께 확인해야 한 요청을 완료로 판단한다.</p>
+
+<table>
+<thead>
+<tr>
+<th>기준</th>
+<th>이번 제출본의 범위</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>소스 기준</td>
+<td><code>main</code> <code>dd919d7</code>의 업무 코드와 11/09 마감 문서 변경. 실제 8개 JSON의 노드·연결은 <a href="../../../../../runs/public/20261109-112300-local-final-closeout/workflow-map.md">직접 집계 목록</a> 참조</td>
+</tr>
+<tr>
+<td>VM 증거 기준</td>
+<td>11/07 PR36 통합 실행, 11/08 검색·Discord/Jira 시험, 11/09 대표 시연 리허설. 각각의 버전·환경은 실행 결과서에 구분</td>
+</tr>
+<tr>
+<td>최신 확인</td>
+<td>QR 안내, 반납 보완 1→2→3회차 이관, 근거 없는 질문 이관, 담당자 Jira 배정·진행 상태·내부 메모. Jira <code>All</code> 큐에 완료 티켓 포함</td>
+</tr>
+<tr>
+<td>남은 한계</td>
+<td>모든 로컬 JSON과 현 VM 전체 export의 동일성은 미확인. 운영자 복구 action은 이번 완료 범위 밖. D10/TC-15는 BLOCKED / NOT RUN</td>
+</tr>
+<tr>
+<td>문서의 관계</td>
+<td>본 파일은 제출용 정리본. <a href="../../../../../docs/project/WORKFLOW-DESIGN.md">상세 계약 원본</a>, <a href="../../../../../docs/project/STORAGE-DESIGN.md">저장소 계약</a>, <a href="../../../docs/EXECUTION-RESULT.md">날짜별 증거</a>는 보존</td>
+</tr>
+</tbody></table>
+
+<h2>1. 업무 시나리오</h2>
+
+<p>시민이 Discord의 문의 기능으로 입력하면 기존 API를 거쳐 n8n Webhook이 처리한다. n8n은 등록 사용자와 권한을 확인하고 분류·검색·답변·검증을 조정한다. Jira는 문의 인계와 담당자의 검토 공간이며, PostgreSQL은 최소 상태·요청 결과·DLQ를 보존한다. 실제 따릉이 기관 시스템과 연결한 서비스가 아닌 교육용 구현이다.</p>
+
+<table>
+<thead>
+<tr>
+<th>문의 유형 6개</th>
+<th>자동으로 할 수 있는 일</th>
+<th>사람이 판단할 일</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>대여·잠금 해제</td>
+<td>QR·번호·설정·절차 안내</td>
+<td>실제 잠금 제어, 개별 이용 상태 불일치</td>
+</tr>
+<tr>
+<td>반납 완료 미확인</td>
+<td>잠금·알림·화면·장소/시각 확인 질문과 절차 안내</td>
+<td>실제 반납 처리, 기록 정정</td>
+</tr>
+<tr>
+<td>고장·이동 곤란</td>
+<td>신고 방법, 대상·위치·증상 확인</td>
+<td>현장 출동·수리·안전 판단</td>
+</tr>
+<tr>
+<td>요금·환불</td>
+<td>공개 기준·신청 절차 안내</td>
+<td>환불 승인, 결제 취소, 요금 정정</td>
+</tr>
+<tr>
+<td>본인 문의 상태·후속</td>
+<td>소유권을 확인한 접수 조회·추가 진술 연결</td>
+<td>담당자의 실제 업무 수행</td>
+</tr>
+<tr>
+<td>개인정보·보안</td>
+<td>공개 신고 경로·초동 안내</td>
+<td>침해 여부·범위·개별 권한 판단</td>
+</tr>
+</tbody></table>
+
+<p>분류값 <code>unknown</code>은 분류 실패·불명확함을 표현하는 보조값이며 일곱 번째 업무 유형이 아니다. 유형 6개와 아래 처리 경로 5개는 서로 다른 분류다.</p>
+
+<table>
+<thead>
+<tr>
+<th>처리 경로</th>
+<th>조건</th>
+<th>결과</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>S1 일반 안내</td>
+<td>충분한 정보·허용 근거·검증 통과</td>
+<td>Jira 생성·안내 완료 종료, 출처 포함 응답</td>
+</tr>
+<tr>
+<td>S2 보완</td>
+<td>정보 부족, 현재 1·2회차</td>
+<td>같은 문의·티켓을 유지하고 추가 정보 요청</td>
+</tr>
+<tr>
+<td>S3 담당자 이관</td>
+<td>사람 판단, 근거 없음, 보완 한도, 검증 실패</td>
+<td>요약·진술·시도·누락·근거를 보존하고 담당 역할로 인계</td>
+</tr>
+<tr>
+<td>S4 본인 접수 조회</td>
+<td>서버가 확인한 소유자와 대상 일치</td>
+<td>상태 안내. 조회 대상 티켓과 이번 문의 티켓을 구분</td>
+</tr>
+<tr>
+<td>S5 긴급</td>
+<td>안전·보안 위험 진술 등</td>
+<td>긴급 담당 연결을 먼저 수행하고 가능한 초동 근거를 후속 제공</td>
+</tr>
+</tbody></table>
+
+<p><strong>완료의 의미:</strong> Jira의 자동 종료는 ‘안내 제공 완료’다. 실제 반납·환불·고장 해결을 뜻하지 않는다. DB의 <code>completed</code>는 요청 결과를 저장했다는 뜻이다. Jira 담당자가 <code>Done</code>으로 바꾸는 업무 처리와도 구분한다.</p>
+
+<h2>2. 전체 흐름</h2>
+
+<ol>
+<li>입력 형식·인증·등록·권한을 검사한다. 명백한 공격과 부적절한 요청은 업무 처리 전에 거절한다.</li>
+<li>요청 ID·소유자·입력 해시로 중복을 판별하고, <code>case_ref</code>가 있으면 같은 문의의 이전 맥락을 읽는다.</li>
+<li>분류 모델이 문의 유형·긴급도·부족한 정보·사람 판단 필요를 제안하고 Code 노드가 계약과 정책을 검사한다.</li>
+<li>필요한 경우 허용된 문서를 검색하고 본인 접수를 조회한다. 검색 결과 없음·실패·생략은 서로 다른 상태다.</li>
+<li>근거가 있으면 답변을 만들고 별도 검증 역할이 근거·정책·민감정보를 확인한다. 부족하면 보완 또는 이관한다.</li>
+<li>저장 의도를 남긴 뒤 Jira 생성·재사용·종료·배정·문맥 기록의 효과를 확인한다. 알려진 티켓 ID를 저장하고 최종 결과를 조건부 확정한다.</li>
+<li>저장한 응답과 실행 메타데이터를 연결해 사용자에게 반환한다. 외부 효과가 불확실하면 성공으로 덮거나 자동 재시도하지 않는다.</li>
+</ol>
+
+<h2>3. 워크플로우 흐름도</h2>
+
+<pre><code class="language-mermaid">flowchart TD
+  A[Discord 문의] --&gt; B[입력·등록·권한·중복 검사]
+  B --&gt; C[문의 분류]
+  C --&gt; D{업무 경로}
+  D --&gt;|일반 안내| E[허용 문서 검색·필요한 본인 조회]
+  E --&gt; F{근거 확인}
+  F --&gt;|충분| G[답변 생성·검증]
+  F --&gt;|없음·실패| H[담당자 인계 준비]
+  G --&gt;|통과| I[안내 완료 준비]
+  G --&gt;|미통과| H
+  D --&gt;|정보 부족 1·2회차| J[보완 질문 준비]
+  D --&gt;|3회차·사람 판단| H
+  D --&gt;|긴급| K[긴급 담당 연결·초동 안내]
+  D --&gt;|본인 조회| L[소유권 확인·상태 안내]
+  I --&gt; M[Jira 처리·효과 확인]
+  J --&gt; M
+  H --&gt; M
+  K --&gt; M
+  L --&gt; M
+  M --&gt; N[최종 저장·응답]
+  M --&gt;|실패·효과 미확인| O[known ID 보존·DLQ·수동 확인]
+  N -. 다음 보완 요청의 case_ref .-&gt; B
+</code></pre>
+
+<p>상자는 업무 단계이며 하나의 n8n 노드와 일대일 대응하지 않는다. 실제 JSON 기준 대응은 다음과 같다.</p>
+
+<table>
+<thead>
+<tr>
+<th>단계</th>
+<th>실제 노드·파일</th>
+<th>역할</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>수신·사용자 확인</td>
+<td>support B01~B05</td>
+<td>요청 정규화, 팀 사용자 API 확인</td>
+</tr>
+<tr>
+<td>중복·문맥</td>
+<td>B07a <code>BeginRequest</code>, B07 <code>요청 문맥 읽기</code>, B08 <code>문맥 정리</code>, B09 <code>신규·재전송</code></td>
+<td>처리권·저장 결과·같은 문의 복원</td>
+</tr>
+<tr>
+<td>분류·분기</td>
+<td>B10 <code>문의 분류</code>, L01, B11 <code>분류 판정</code>, B12 <code>업무 분기</code></td>
+<td>LLM 제안과 Code 정책 분리</td>
+</tr>
+<tr>
+<td>검색·조회</td>
+<td>B13~B18</td>
+<td>B14 RAG 검색, B15 본인 기록 조회, B16 취합, B17 근거 판정</td>
+</tr>
+<tr>
+<td>생성·검증</td>
+<td>B19/L02, B20/L03, B21</td>
+<td>답변과 검증을 별도로 수행</td>
+</tr>
+<tr>
+<td>결과·Jira</td>
+<td>B22~B31, <code>dubakwi-handoff.json</code></td>
+<td>보완/이관/고정 안내 준비, Jira 처리·효과 확인</td>
+</tr>
+<tr>
+<td>최종 저장·응답</td>
+<td>B37~B39, B32, B34, B33, B35, B36</td>
+<td>저장 의도→저장 허용→최종 저장→응답·메타 기록</td>
+</tr>
+<tr>
+<td>실패</td>
+<td>X01~X07, <code>dubakwi-errors.json</code>, <code>dubakwi-dlq.json</code></td>
+<td>실패 종류·외부 효과에 따라 보존·알림</td>
+</tr>
+<tr>
+<td>최소 상태</td>
+<td><code>dubakwi-state.json</code></td>
+<td>PostgreSQL 조건부 처리권·결과, Jira 문맥 검증</td>
+</tr>
+<tr>
+<td>운영 조회</td>
+<td><code>dubakwi-recovery-operator.json</code></td>
+<td>제한된 DLQ 목록·상세·연결 Jira 조회. 복구 실행과 구분</td>
+</tr>
+</tbody></table>
+
+<table>
+<thead>
+<tr>
+<th>파일</th>
+<th>로컬 노드 수</th>
+<th>연결 수</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>dubakwi-support.json</td>
+<td>54</td>
+<td>75</td>
+</tr>
+<tr>
+<td>dubakwi-handoff.json</td>
+<td>71</td>
+<td>91</td>
+</tr>
+<tr>
+<td>dubakwi-state.json</td>
+<td>31</td>
+<td>39</td>
+</tr>
+<tr>
+<td>dubakwi-search.json</td>
+<td>19</td>
+<td>25</td>
+</tr>
+<tr>
+<td>dubakwi-index.json</td>
+<td>11</td>
+<td>14</td>
+</tr>
+<tr>
+<td>dubakwi-errors.json</td>
+<td>9</td>
+<td>8</td>
+</tr>
+<tr>
+<td>dubakwi-dlq.json</td>
+<td>6</td>
+<td>5</td>
+</tr>
+<tr>
+<td>dubakwi-recovery-operator.json</td>
+<td>13</td>
+<td>13</td>
+</tr>
+</tbody></table>
+
+<p>모든 실제 노드명·타입·입출력 포트·연결은 <a href="../../../../../runs/public/20261109-112300-local-final-closeout/workflow-map.md">워크플로우 목록 부록</a>에 있다. 팀원이 만든 모의 재생 화면의 노드 수를 현행 JSON 수로 사용하지 않는다.</p>
+
+<h2>4. 에이전트 역할 · 분기 · 병렬 · 루프</h2>
+
+<h3>4.1 역할 카드</h3>
+
+<table>
+<thead>
+<tr>
+<th>역할</th>
+<th>입력</th>
+<th>출력·성공 조건</th>
+<th>실패 시</th>
+<th>Code와의 경계</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>분류 L01/B10</td>
+<td>사용자 진술·허용된 기존 사실</td>
+<td>유형, 긴급도, missing, needs_human, 사실 후보</td>
+<td>자동 종료하지 않고 안전 경로</td>
+<td>B11이 형식·진술·정책을 확인하고 최종 분기</td>
+</tr>
+<tr>
+<td>검색 B14</td>
+<td>SearchRequest의 query·서버 권한</td>
+<td>출처·점수·접근등급을 가진 evidence 또는 명시적 empty</td>
+<td>검색 오류와 근거 없음 구분</td>
+<td>LLM 판단자가 아닌 검색 도구. 서버에서 컬렉션 제한</td>
+</tr>
+<tr>
+<td>답변 L02/B19</td>
+<td>질문·확인 사실·허용 근거</td>
+<td>근거 범위의 안내 초안·출처</td>
+<td>이관</td>
+<td>실제 환불·제어·종료 권한 없음</td>
+</tr>
+<tr>
+<td>검증 L03/B20</td>
+<td>질문·사실·초안·근거</td>
+<td>근거/정책/민감정보 판정</td>
+<td>미통과 시 이관</td>
+<td>B21의 금지 주장·형식 검사도 함께 통과해야 함</td>
+</tr>
+</tbody></table>
+
+<p>세 모델 역할은 <code>gpt-4.1-mini</code>를 사용한다. 서로 다른 역할의 모델 호출이지 독립적으로 서버·Jira 권한을 가진 직원 에이전트가 아니다.</p>
+
+<h3>4.2 구조</h3>
+
+<ul>
+<li><strong>분기:</strong> 긴급 → 보완 한도 → 정보 부족 → 사람 판단 → 검색 경로 순으로 정책을 적용한다. 이미 이관된 문의의 후속은 담당 역할·우선순위를 유지하고 보완 질문으로 되돌리지 않는다.</li>
+<li><strong>분기와 합류:</strong> B13에서 검색과 필요한 조회를 준비하고 B14/B15 결과를 B16에서 합친다. 이것은 두 입력의 논리적 합류이며 두 외부 호출의 실측 동시 실행·속도 향상을 입증한 수치는 없다.</li>
+<li><strong>보완 반복:</strong> 최초 문의가 1회차, 추가 입력 두 번 뒤 3회차에 한도 이관한다. 세 번째 입력에서 정보가 채워져도 한도 검사가 먼저다. 이관 후 대화 자체를 영구 금지하는 ‘총 대화 3회 제한’은 아니다.</li>
+<li><strong>재전송:</strong> 같은 요청 ID·같은 소유자·같은 입력은 저장 응답을 재사용한다. 변경된 입력/소유자 또는 동시 처리 충돌은 409 등으로 구분한다. Jira·LLM을 맹목 재호출하지 않는다.</li>
+<li><strong>담당자 작업:</strong> Jira에서 담당자 지정, <code>In Progress</code>, 내부 메모, <code>Done</code> 처리가 가능하다. 담당자 댓글 자동 전송이나 완료 알림 왕복 루프는 구현하지 않았다. 시민의 후속 조회가 최신 상태를 읽는다.</li>
+</ul>
+
+<h2>5. 외부 연동 노드</h2>
+
+<table>
+<thead>
+<tr>
+<th>연동</th>
+<th>인증·비밀 위치</th>
+<th>시간·재시도</th>
+<th>실패 처리</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>시민 Webhook·내부 API</td>
+<td>팀 Header Auth/n8n Credential. 원문 헤더는 업무 로그에서 제외</td>
+<td>입력·등록 검증 후 업무 진행</td>
+<td>인증/등록 실패 시 접수 전 거절</td>
+</tr>
+<tr>
+<td>사용자 API B04</td>
+<td>내부 Credential</td>
+<td>1.5초</td>
+<td>사용자 미확인·권한 미확인을 정상 시민으로 추정하지 않음</td>
+</tr>
+<tr>
+<td>OpenAI L01/L02/L03</td>
+<td>n8n Credential</td>
+<td>분류 최대 4초, 생성 최대 4초, 검증 최대 3초. 남은 예산에 따라 축소</td>
+<td>429·지연·형식/검증 실패는 안전 이관·실패 경로</td>
+</tr>
+<tr>
+<td>RAG B14</td>
+<td>대응 search Webhook의 팀 인증</td>
+<td>3초</td>
+<td>empty/error/skipped 분리, 근거 없는 생성 금지</td>
+</tr>
+<tr>
+<td>Jira Handoff B27</td>
+<td>Jira API token Credential</td>
+<td>최대 15초, 잔여 deadline에서 마무리 3.5초를 제외한 예산 적용. 외부 쓰기 자동 재시도 0</td>
+<td>생성·문맥·종료·배정·알림의 효과별 판정, known ID 보존</td>
+</tr>
+<tr>
+<td>PostgreSQL state/DLQ</td>
+<td>DB Credential</td>
+<td>조건부 갱신과 마감 검사. 모든 DB 호출의 독립 하드 timeout 실측은 없음</td>
+<td>처리권·revision 불일치 거절, 실패/미확인 보존</td>
+</tr>
+<tr>
+<td>감사·운영 알림 B35/X04</td>
+<td>내부 API. 선택 UX 전송은 서버 비밀파일</td>
+<td>각 1.5초. H11 기존 상한 2초, 선택 UX 경계 1.5초</td>
+<td>ack·거절·효과 미확인 구분. ack가 사람 열람을 뜻하지 않음</td>
+</tr>
+</tbody></table>
+
+<p>전체 업무 deadline은 20초, 관측 실패 상한은 25초다. 일반 안내 8초는 목표이며 실제 달성 보장이 아니다. <code>WF11 max_seconds=6</code> 원 사례 기대 미충족은 결과서에 그대로 남긴다. 오류를 감추기 위해 기대값을 변경하지 않았다.</p>
+
+<h2>6. 노드 간 페이로드 (연결선마다)</h2>
+
+<h3>6.1 필드와 변환</h3>
+
+<p><code>?</code>는 선택 필드다. ID·날짜·상태는 string, attempt는 int, enabled는 boolean이다. 아래 계약은 주요 모듈 경계를 요약하며, 모든 내부 연결선은 <a href="../../../../../docs/project/WORKFLOW-DESIGN.md#6-%EB%85%B8%EB%93%9C-%EA%B0%84-%ED%8E%98%EC%9D%B4%EB%A1%9C%EB%93%9C-%EC%97%B0%EA%B2%B0%EC%84%A0%EB%A7%88%EB%8B%A4">상세 설계 6절</a>과 <a href="../../../../../runs/public/20261109-112300-local-final-closeout/workflow-map.md">실제 연결 부록</a>을 함께 읽는다. 오래된 설계 엣지 번호보다 실제 JSON의 노드·포트 연결을 우선한다.</p>
+
+<table>
+<thead>
+<tr>
+<th>연결</th>
+<th>필수 필드·자료형</th>
+<th>선택 필드</th>
+<th>변환·검사</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Discord/API → B01/B02</td>
+<td>request_id:string[1..64], user:string, question:string[1..500]</td>
+<td>channel, attempt:int≥1(기본1), context, case_ref</td>
+<td>인증 헤더 제거, 입력 검사. case_ref 없으면 새 문의</td>
+</tr>
+<tr>
+<td>사용자 API → B05/B08</td>
+<td>actor.id, role:citizen/support/security, access_levels:string[]</td>
+<td>없음</td>
+<td>요청자가 쓴 역할 대신 서버 조회 결과 사용</td>
+</tr>
+<tr>
+<td>B08 → B10/B11</td>
+<td>request, actor, support, facts, deadline_at</td>
+<td>기존 state_ref·known_ticket_id</td>
+<td>사실의 진술/확인·시도·누락·불확실성을 분리하고 이번 attempt 확정</td>
+</tr>
+<tr>
+<td>B11 → B12</td>
+<td>type, urgency, missing:string[], needs_human:boolean, facts, target_ticket_id:string/null</td>
+<td>없음</td>
+<td>분류 결과를 계약으로 정규화하고 긴급·한도·부족정보 정책 적용</td>
+</tr>
+<tr>
+<td>B13 → B14</td>
+<td>request_id, enabled:boolean, query, access_levels:string[], deadline_at</td>
+<td>없음</td>
+<td>서버가 검색 허용 등급 결정</td>
+</tr>
+<tr>
+<td>B14 → B16/B17</td>
+<td>request_id, status:ok/empty/skipped/error, evidence:array, error_code:string/null</td>
+<td>각 근거의 source_url, applies_to, source_checked_at</td>
+<td>evidence에 doc/section/chunk_id/text/score:number/access_level/version 포함</td>
+</tr>
+<tr>
+<td>B13 → B15 → B16</td>
+<td>request_id, kind:lookup, enabled, actor_id, target_ticket_id:string/null → status, record:object/null, masked:int</td>
+<td>가린 연락처</td>
+<td>타인 record=null. 조회 대상과 이번 접수 분리</td>
+</tr>
+<tr>
+<td>B17 → B19 → B20/B21</td>
+<td>허용 evidence·facts → 답변 초안 → 검증 판정</td>
+<td>없음</td>
+<td>답변 근거와 정책 검증을 함께 확인</td>
+</tr>
+<tr>
+<td>B25 → Handoff</td>
+<td>state_ref, request_id, kind:process, case_id, actor_id, first_request_id, attempt, ticket_id:string/null, action:close/wait/handoff, priority, assignee_role:string/null, context, answer, sources, close_status, transition_key, deadline_at</td>
+<td>expected_case_version은 현재 null</td>
+<td>검증된 Outcome과 현재 facts 사용. 제목·카테고리·문맥 가림</td>
+</tr>
+<tr>
+<td>Handoff → B28</td>
+<td>request_id, ticket_id:string/null, state_saved:boolean, state_ref, recovery, effects, error_code:string/null</td>
+<td>case_version:int/null</td>
+<td>생성/문맥/종료/배정/알림 각각 confirmed/none/failed/unknown 검사</td>
+</tr>
+<tr>
+<td>B31/B37~39 → B32</td>
+<td>op:save, state_ref, case_id, first_request_id, attempt, expected_case_version:null, ticket_id, facts, outcome, response</td>
+<td>없음</td>
+<td>prepare/bind/finish 저장 게이트·조건부 revision 유지</td>
+</tr>
+<tr>
+<td>B33/B36 → 시민</td>
+<td>request_id, route, answer, sources:array, ticket:null/object, agents:string[], security</td>
+<td>case_ref, reason, timings</td>
+<td>보완 응답 case_ref 필수. 비이관 ticket=null, 연락처·비밀 제거</td>
+</tr>
+<tr>
+<td>X01/E01 → DLQ/알림</td>
+<td>failed_node_id, error_code, known_ticket_id:string/null, effect, recovery capsule</td>
+<td>가린 문맥</td>
+<td>전체 원문·Credential 대신 재확인에 필요한 최소 정보</td>
+</tr>
+</tbody></table>
+
+<p><code>CaseFacts</code>는 summary, reported/confirmed 사실 배열, attempted_actions, missing, uncertainties, evidence_refs를 갖는다. 각 사실은 key/value/origin(user/document/api)와 선택 reference를 갖는다. <code>StateRef</code>와 복구 자료의 물리 필드는 <a href="../../../../../docs/project/STORAGE-DESIGN.md#storage-contract">저장소 공개 계약</a>을 단일 원본으로 사용한다.</p>
+
+<h3>6.2 같은 연결의 입력·출력 예</h3>
+
+<p>아래는 실제 11/09 관측의 <strong>가린 설명용 축약 예시</strong>다. 원시 JSON이나 동일 ID의 재전송용 입력은 아니다. 실제 대조 결과는 <a href="../../../../../runs/public/20261109-001140-vm-demo-rehearsal/backend-followup.md">리허설 서버 확인</a>에 있다.</p>
+
+<pre><code class="language-json">{&quot;request_id&quot;:&quot;demo-masked&quot;,&quot;user&quot;:&quot;citizen-masked&quot;,&quot;question&quot;:&quot;따릉이를 해외에서도 이용할 수 있나요?&quot;}
+</code></pre>
+
+<p>검색 근거가 없는 경우 <code>SearchResult.status=empty</code>, <code>evidence=[]</code>를 답변 생성 성공으로 바꾸지 않는다. B17/후속 정책은 이관 Outcome을 만들고 Jira·저장 결과 확인 후 다음 의미로 응답한다.</p>
+
+<pre><code class="language-json">{&quot;route&quot;:&quot;담당자 이관&quot;,&quot;sources&quot;:[],&quot;reason&quot;:&quot;no_evidence&quot;,&quot;case_ref&quot;:&quot;case-masked&quot;,&quot;ticket&quot;:{&quot;ticket_id&quot;:&quot;DEMO-1&quot;,&quot;priority&quot;:&quot;normal&quot;,&quot;duplicate&quot;:false}}
+</code></pre>
+
+<h2>7. 오류 처리</h2>
+
+<table>
+<thead>
+<tr>
+<th>상황</th>
+<th>확인 단계</th>
+<th>처리·사용자 의미</th>
+<th>근거</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>인증·미등록·타인 조회</td>
+<td>입력/사용자/소유권 검사</td>
+<td>거절, 타인 상세 비노출</td>
+<td>D05·D06·J04, 공통 WF05~08</td>
+</tr>
+<tr>
+<td>검색 결과 없음</td>
+<td>B17</td>
+<td>추측 답변 대신 담당자 이관, 출처 없음 명시</td>
+<td>WF03, 11/09 no_evidence</td>
+</tr>
+<tr>
+<td>LLM 429·지연·불량 출력</td>
+<td>각 호출 후 정규화·Code 검사</td>
+<td>안전 이관 또는 실패; 자동 완료 금지</td>
+<td>11/07 fault 시험, WF10</td>
+</tr>
+<tr>
+<td>Jira 생성/종료/배정 실패</td>
+<td>Handoff 효과 검사·B28</td>
+<td>실제 성공한 효과와 known ID 보존, 완료 주장 금지</td>
+<td>11/06 실패→재시험, 11/07 효과 대조</td>
+</tr>
+<tr>
+<td>중복·동시 요청</td>
+<td>begin·입력 해시·처리권</td>
+<td>저장 응답 재사용 또는 409</td>
+<td>WF09 및 동시성 시험</td>
+</tr>
+<tr>
+<td>저장 실패·효과 미확인</td>
+<td>prepare/bind/save/finish</td>
+<td>needs_review·DLQ·재전송 차단, 자동 재처리 금지</td>
+<td>TC16~18의 격리/통합 증거 범위</td>
+</tr>
+<tr>
+<td>예상 밖 예외</td>
+<td>Error Workflow</td>
+<td>가린 알림·DLQ, 자기 재귀 금지</td>
+<td>코드 존재·지정·배포·실제 자동 실행은 별도 판정</td>
+</tr>
+</tbody></table>
+
+<p><code>dubakwi-errors.json</code>은 존재하며 9개 노드로 구성된다. 11/07 시험 사본의 오류 경계 증거가 있지만, 현재 운영 대상 전체의 Error Workflow ID 지정·비밀 연결·자동 호출·사람 수신을 이번 문서 정리만으로 재확인한 것은 아니다. VM 기준과 실제 fault별 결과는 <a href="../../../docs/EXECUTION-RESULT.md">실행 결과서</a> 및 원 보고서를 따른다. 운영 알림 API 코드 존재와 사용자 보고의 Discord 수신도 구분한다.</p>
+
+<p>DLQ는 실패를 숨기는 성공 저장소가 아니다. TC-07에서 목록·상세·연결 Jira GET을 확인했으며, 운영자의 복구 action과 자동 재처리 엔진은 이번 완료 범위에 없다. D10/TC-15 격리 환경이 준비되지 않은 종단 시험은 미실행으로 남긴다.</p>
+
+<h2>8. 64~79일차에서 가져온 것</h2>
+
+<table>
+<thead>
+<tr>
+<th>가져온 개념·자료</th>
+<th>적용 위치</th>
+<th>팀 구현에서 구체화한 점</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Trigger → 처리 → 출력, 역할 카드</td>
+<td>support Webhook, 분류·답변·검증</td>
+<td>단일 객체 계약·Code 검증·전체 deadline 추가</td>
+</tr>
+<tr>
+<td>분기·병렬·루프 구성</td>
+<td>S1~S5, 검색/조회 합류, case_ref 보완</td>
+<td>최초 포함 3회차 한도, 이미 이관된 문의의 역할·우선순위 유지</td>
+</tr>
+<tr>
+<td>청킹·임베딩·권한 검색</td>
+<td>index/search</td>
+<td>실제 안내·가상 설정 분리, 서버 권한 컬렉션, 출처 보존</td>
+</tr>
+<tr>
+<td>인증·마스킹·실패 기록</td>
+<td>입력/API/Jira/state/errors/DLQ</td>
+<td>prepare/bind/finish와 외부 효과 미확인 구분</td>
+</tr>
+<tr>
+<td>공통 사례·벤치·결과 기록</td>
+<td>cases 및 runs</td>
+<td>14유형·세부 행·assertion 수를 분리, 최초 실패 보존</td>
+</tr>
+</tbody></table>
+
+<p>수업 예제의 수치·Credential 이름을 실제 검증값처럼 옮기지 않았다. 과정 도구 <code>flow.py check</code>와 팀 runner의 검사 범위는 다르며, 과정 도구의 Credential allowlist 제한을 통과한 것으로 표시하지 않는다. 구체적인 당시 채택·미채택 기록은 <a href="../../../../../docs/project/WORKFLOW-DESIGN.md#8-6479%EC%9D%BC%EC%B0%A8%EC%97%90%EC%84%9C-%EA%B0%80%EC%A0%B8%EC%98%A8-%EA%B2%83">상세 원본 8절</a>에 보존한다.</p>
+
+<p>최종 검증·사례 판정은 <a href="../../../docs/EXECUTION-RESULT.md">실행 결과서</a>, 발표 대본과 이 문서의 대응은 <a href="../speaker.html">발표자 메모</a>에서 확인한다.</p>
+</body></html>

@@ -1,0 +1,13 @@
+{
+  "scope": "Public final artifacts: file allowlist, normalized hashes, privacy patterns, local references, JS syntax, plan/data integrity. No visual/browser/service testing or complete PII/license guarantee.",
+  "checked_at": "2026-11-09T03:59:32.351Z",
+  "files": 72,
+  "checks": 75,
+  "passed": 75,
+  "local_reference_targets": 159,
+  "external_hosts": [
+    "github.com",
+    "docs.discord.com"
+  ],
+  "errors": []
+}

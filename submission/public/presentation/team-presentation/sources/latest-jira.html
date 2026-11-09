@@ -1,0 +1,37 @@
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>11/08 · Jira 담당자 처리</title><style>body{max-width:1120px;margin:36px auto;padding:0 24px 64px;font:17px/1.75 system-ui,"Malgun Gothic",sans-serif;color:#183128;background:#f6f8f4}a{color:#245f39}h1{line-height:1.3}h2{margin-top:2em}table{border-collapse:collapse;display:block;overflow:auto}td,th{border:1px solid #b6c7b8;padding:8px 12px;text-align:left;vertical-align:top}pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#e8eee5;padding:20px}svg,img{max-width:100%;height:auto}.public-note{padding:14px 20px;border-left:4px solid #587442;background:#e7efdf}nav{display:flex;gap:24px;margin-bottom:24px}article{background:white;padding:24px;border:1px solid #d5dfd0}</style></head><body><nav><a href="../index.html">발표로 돌아가기</a></nav><h1>11/08 · Jira 담당자 처리</h1><p class="public-note">공개용 정리본입니다. 계정·접속 정보와 원문 화면은 제외했으며, 팀원 원본과 제출용 전체 자료는 로컬에서 보존합니다. 과거 결과는 기록 당시 조건으로 읽어 주세요.</p><h1>VM Jira J02 담당자 티켓 처리 확인</h1>
+<li>실행 ID: <code>20261108-154900-vm-jira-j02-assignee-handling</code> (KST)</li>
+<li>실행 시각: 2026-11-08 15:49 KST</li>
+<li>환경: Jira JBYS 프로젝트 UI, 기존 D02 synthetic 문의</li>
+<li>공개본에서 Jira 이슈 키는 가림 처리</li>
+<h2>확인 결과</h2>
+<table>
+<thead>
+<tr>
+<th>항목</th>
+<th>판정</th>
+<th>UI 관측</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>synthetic 문의 확인</td>
+<td>통과</td>
+<td>반납 후 앱 이용 중 표시 문의인 기존 D02 테스트 티켓을 열었다.</td>
+</tr>
+<tr>
+<td>담당자 일치</td>
+<td>통과</td>
+<td>티켓 담당자는 <code>i i</code>; Jira 현재 로그인 사용자 표시와 내부 메모 작성자도 <code>i i</code>였다.</td>
+</tr>
+<tr>
+<td>처리 상태</td>
+<td>통과</td>
+<td>상태 변경 버튼이 <code>진행 중</code>으로 표시됐다.</td>
+</tr>
+<tr>
+<td>가상 처리 메모</td>
+<td>통과</td>
+<td>담당자 계정이 내부 메모 “J02 가상 시험: 담당자가 문의를 확인했습니다. 실제 이용자 조치는 수행하지 않았습니다.”를 남겼고 활동 목록에서 내부 메모로 보였다.</td>
+</tr>
+</tbody></table>
+<h2>판정 및 한계</h2>
+<p>J02의 담당자 직접 티켓 열람·진행 중 전환·내부 처리 메모를 확인해 통과로 판정한다. Discord 알림이 실제로 담당자에게 전달/열람됐는지, DB state/DLQ 효과는 이 화면에서 확인하지 않았다. 실제 이용자 대여/반납 조치는 수행하지 않았다.</p></body></html>

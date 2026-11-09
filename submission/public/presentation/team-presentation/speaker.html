@@ -1,0 +1,8 @@
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>두바퀴 · 발표자 메모</title><link rel="stylesheet" href="speaker.css"></head><body>
+<header><b>두바퀴 · 발표자 메모</b><span id="clock" aria-label="발표 경과 시간">00:00</span><button id="start">시간 시작</button><button id="reset">시간 초기화</button></header>
+<div class="workspace"><aside><p class="aside-label">발표 흐름 · 13장</p><nav id="slide-nav" aria-label="메모 슬라이드 선택"></nav><p class="aside-hint">청중 화면과 별도 창입니다.<br>메모 탐색은 청중 화면을 바꾸지 않습니다.</p></aside>
+<main><div class="follow-row"><label><input type="checkbox" id="follow" checked> 청중 화면 따라가기</label><span id="connection">독립 열람 · 청중 화면 연결 대기</span></div>
+<div class="title-row"><span id="slide-number"></span><h1 id="title"></h1><span id="budget"></span></div><p id="message"></p>
+<div class="note-tabs" role="tablist" aria-label="메모 종류"><button id="tab-script" data-note-tab="script" role="tab" aria-controls="note-panel" aria-selected="true" tabindex="0">발표 대본</button><button id="tab-actions" data-note-tab="actions" role="tab" aria-controls="note-panel" aria-selected="false" tabindex="-1">화면·조작</button><button id="tab-concepts" data-note-tab="concepts" role="tab" aria-controls="note-panel" aria-selected="false" tabindex="-1">필수 산출물·개념</button><button id="tab-evidence" data-note-tab="evidence" role="tab" aria-controls="note-panel" aria-selected="false" tabindex="-1">근거·주의</button></div>
+<article id="note-panel" role="tabpanel" aria-labelledby="tab-script" tabindex="0"></article><footer><div><b>다음 장으로</b><p id="transition"></p></div><span id="next"></span></footer>
+</main></div><script src="notes.js"></script><script src="speaker.js"></script></body></html>

@@ -1,5 +1,7 @@
 # 개발 산출물 관리
 
+**공개용 최종 자료:** [필수산출물 3종과 12장 발표·대본·시연 절차](../../submission/public/README.md)를 main에서 확인한다. HTML 발표는 저장소를 내려받아 실행한다. 원문 첨부를 포함한 기존 로컬 제출본과 공개 사본의 차이는 [공개 검증 기록](../../runs/public/20261109-124900-local-public-submission/report.md)을 따른다.
+
 <!-- final-closeout-current -->
 **2026-11-09 최종 제출 정리.** 로컬 `submission/final/docs/`에 필수산출물3종 v1.0, `submission/final/presentation/team-presentation/`에12장·20분 HTML과 발표자 메모를 정리했다. [60사례·64요구 추적](../../runs/public/20261109-112300-local-final-closeout/evidence-matrix.md)·[실제 노드/연결](../../runs/public/20261109-112300-local-final-closeout/workflow-map.md)·[마감 검사](../../runs/public/20261109-112300-local-final-closeout/report.md)·[DAY82](daily/DAY82.md)를 연결한다. 아래 목록의 이전 버전/초안 설명은 날짜별 관리 이력이며 현행 요약은 이 문단과 마감 기록을 우선한다.
 <!-- /final-closeout-current -->
