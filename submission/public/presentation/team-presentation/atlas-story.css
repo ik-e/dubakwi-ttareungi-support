@@ -1,0 +1,3 @@
+/* Human names in overview; identifiers remain available in original-node/detail views. */
+.story-overview .scenario .num{display:none}.story-overview .node-code{display:none}.story-overview .scenario-list .num{display:none}
+.story-overview .scenario strong{white-space:normal;line-height:1.25}.story-overview .scenario{align-items:center;min-height:36px}

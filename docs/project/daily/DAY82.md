@@ -7,6 +7,8 @@
 
 ## 1. 오늘 수행한 일
 
+후속 공개 작업: 사용자가 최종산출물과 발표의 main 반영을 요청해 [공개용 사본](../../../submission/public/README.md)을 추가한다. 개인·접속 정보와 원문 첨부는 제외하며 로컬 전체본·원본은 해시 대조로 보존한다. 검증 범위·실제 판정은 [공개 작업 기록](../../../runs/public/20261109-124900-local-public-submission/report.md)을 따른다.
+
 | 작업 | 결과·근거 | 구분 |
 | --- | --- | --- |
 | 대표 기능 리허설 정리 | QR·반납 보완·근거 없음 3흐름, 5요청의 저장 응답·감사 일치. 담당자 배정·진행 중·내부 메모 확인 | [실제 리허설](../../../runs/public/20261109-001140-vm-demo-rehearsal/report.md), [서버 대조](../../../runs/public/20261109-001140-vm-demo-rehearsal/backend-followup.md) |

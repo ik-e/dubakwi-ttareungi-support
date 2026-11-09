@@ -1,0 +1,133 @@
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>11/08 DLQ 목록·상세·연결 Jira 조회</title><style>body{max-width:1120px;margin:36px auto;padding:0 24px 64px;font:17px/1.75 system-ui,"Malgun Gothic",sans-serif;color:#183128;background:#f6f8f4}a{color:#245f39}h1{line-height:1.3}h2{margin-top:2em}table{border-collapse:collapse;display:block;overflow:auto}td,th{border:1px solid #b6c7b8;padding:8px 12px;text-align:left;vertical-align:top}pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#e8eee5;padding:20px}svg,img{max-width:100%;height:auto}.public-note{padding:14px 20px;border-left:4px solid #587442;background:#e7efdf}nav{display:flex;gap:24px;margin-bottom:24px}article{background:white;padding:24px;border:1px solid #d5dfd0}</style></head><body><nav><a href="../index.html">발표로 돌아가기</a></nav><h1>11/08 DLQ 목록·상세·연결 Jira 조회</h1><p class="public-note">공개용 정리본입니다. 계정·접속 정보와 원문 화면은 제외했으며, 팀원 원본과 제출용 전체 자료는 로컬에서 보존합니다. 과거 결과는 기록 당시 조건으로 읽어 주세요.</p><h1>TC-07 PR36 DLQ and Jira read-only lookup</h1>
+
+<ul>
+<li>Run ID: <code>20261108-101605-vm-tc07-dlq-lookup</code> (KST)</li>
+<li>Date: 2026-11-08</li>
+<li>Environment: VM PR36 PostgreSQL, n8n, and linked Jira GET</li>
+<li>Source commit: <code>3b7bc74</code> (<code>P18: integrate DLQ lookup into operator workflow</code>)</li>
+<li>Database migration: <code>017-operator-dlq-list.sql</code></li>
+<li>Workflow: existing inactive <code>dubakwi-recovery-operator</code> manual test workflow, same workflow ID</li>
+<li>Scenario: TC-07 unresolved DLQ list/inspect, then linked Jira status/assignee read</li>
+</ul>
+
+<h2>Result</h2>
+
+<p>PASS for the requested read-only lookup integration. A private dump of the
+configured PR36 database was archive-validated and restored to a separate
+database. On the restore, the existing <code>recovery_finish(jsonb)</code> was already
+present; migrations 010–016 were not reapplied. Migration 017 applied
+successfully, and a targeted read-only check as <code>dubakwi_recovery_operator</code>
+verified a bounded list, a sanitized inspect, and no direct table SELECT for
+the login. The broader <code>operator-dlq-list-contract.sql</code> was also attempted but
+stopped at its recovery-dispatcher check because <code>recovery_control(jsonb)</code> is
+not part of this dual-storage restore. No pass is claimed for that broader
+contract.</p>
+
+<p>Migration 017 then applied to the configured PR36 database. The VM lacked the
+canonical workflow ID from the source JSON, so the existing inactive
+<code>R01 TC07 operator E2E</code> manual test workflow ID was reused in place; no
+additional workflow ID was created. That workflow executed list and inspect
+successfully using the actual scope <code>dubakwi-p19-real</code>. Inspect found linked
+Jira issue <code>JBYS-33</code>; the existing
+<code>dubakwi-Jira SW Cloud account</code> performed a read-only GET. The returned status
+was <code>해야 할 일</code>; assignee was null (unassigned).</p>
+
+<p>The first Jira test input contained a mistyped DLQ ID and returned
+<code>recovery_not_found</code>; that failed attempt is retained in n8n execution history.
+The corrected ID then passed. In a separate schema-reconciliation mistake,
+migration 017 had first been applied to the service database; both lookup
+functions were subsequently dropped there. No service data rows were modified.</p>
+
+<h2>Checks and effects</h2>
+
+<table>
+<thead>
+<tr>
+<th>Check</th>
+<th>Result</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Private PR36 dump archive validation</td>
+<td>PASS</td>
+</tr>
+<tr>
+<td>Restore to separate database</td>
+<td>PASS</td>
+</tr>
+<tr>
+<td>Migration 017 on restored PR36 DB</td>
+<td>PASS</td>
+</tr>
+<tr>
+<td>Targeted list and inspect as operator role</td>
+<td>PASS; 5 listed, inspect object valid and sanitized</td>
+</tr>
+<tr>
+<td>Recovery operator direct table SELECT</td>
+<td>DENIED as intended</td>
+</tr>
+<tr>
+<td>Broader <code>operator-dlq-list-contract.sql</code></td>
+<td>INCOMPLETE; requires <code>recovery_control(jsonb)</code> absent from this restore</td>
+</tr>
+<tr>
+<td>Migration 017 on configured PR36 DB</td>
+<td>PASS</td>
+</tr>
+<tr>
+<td>Existing n8n workflow list execution</td>
+<td>PASS</td>
+</tr>
+<tr>
+<td>Existing n8n workflow inspect execution</td>
+<td>PASS</td>
+</tr>
+<tr>
+<td>Linked Jira status/assignee GET</td>
+<td>PASS; issue found, status <code>해야 할 일</code>, assignee null</td>
+</tr>
+<tr>
+<td>Workflow active after execution</td>
+<td><code>false</code></td>
+</tr>
+<tr>
+<td>Manual test payload after execution</td>
+<td>reset to <code>{}</code></td>
+</tr>
+<tr>
+<td>PR36 request/state/DLQ writes</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Jira writes / Discord sends</td>
+<td>0 / 0</td>
+</tr>
+<tr>
+<td>Wrong service DB lookup functions</td>
+<td>removed after reconciliation</td>
+</tr>
+<tr>
+<td><code>check_project_docs.py</code></td>
+<td>PASS; 22 files, 775 local links, 58 anchors</td>
+</tr>
+<tr>
+<td><code>check_public_files.py</code></td>
+<td>PASS; 580 candidate paths, 1,144 public local links</td>
+</tr>
+<tr>
+<td><code>git diff --check</code> and evidence JSON parse</td>
+<td>PASS</td>
+</tr>
+</tbody></table>
+
+<h2>Boundaries</h2>
+
+<p>This run verifies the TC-07 <strong>read-only lookup slice</strong> only. It does not verify
+DLQ retry/recovery actions, Discord, Jira mutation, or full operator recovery
+contracts on the PR36 dual-storage database. The workflow remains inactive and
+the test input is blank. Importing the source workflow under its canonical
+source ID remains separate; the tested existing VM manual test workflow can
+execute while inactive. Earlier failed attempts and the restore contract
+failure remain preserved in their original execution/evidence records.</p>
+</body></html>

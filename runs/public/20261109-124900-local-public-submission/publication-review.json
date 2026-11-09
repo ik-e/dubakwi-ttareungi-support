@@ -1,0 +1,75 @@
+{
+  "checked_at": "2026-11-09T04:03:05.687Z",
+  "scope": "Review new staged paths/text and decoded presentation data using locally reviewed exclusion terms; preserve official sections/checklist and original inputs. Private terms and local source paths are not recorded.",
+  "staged_files": 96,
+  "scanned_strings": 6223,
+  "official_sections": {
+    "WORKFLOW-DESIGN": {
+      "actual": 8,
+      "expected": 8
+    },
+    "RAG-ARCHITECTURE": {
+      "actual": 5,
+      "expected": 5
+    },
+    "EXECUTION-RESULT": {
+      "actual": 6,
+      "expected": 6
+    }
+  },
+  "original_checklist": {
+    "checked": 13,
+    "unchecked": 2
+  },
+  "preserved_input_paths": 979,
+  "errors": [
+    {
+      "file": "submission/public/presentation/team-presentation/assets/source-data.js",
+      "issue": "private term"
+    },
+    {
+      "file": "assets/source-data.js",
+      "issue": "private term"
+    },
+    {
+      "file": "assets/source-data.js",
+      "issue": "private term"
+    },
+    {
+      "file": "assets/source-data.js",
+      "issue": "private term"
+    },
+    {
+      "file": "assets/source-data.js",
+      "issue": "private term"
+    },
+    {
+      "file": "assets/source-data.js",
+      "issue": "private term"
+    },
+    {
+      "file": "assets/source-data.js",
+      "issue": "private term"
+    },
+    {
+      "file": "assets/source-data.js",
+      "issue": "private term"
+    },
+    {
+      "file": "assets/source-data.js",
+      "issue": "private term"
+    },
+    {
+      "file": "assets/source-data.js",
+      "issue": "private term"
+    },
+    {
+      "file": "assets/source-data.js",
+      "issue": "private term"
+    },
+    {
+      "file": "assets/source-data.js",
+      "issue": "private term"
+    }
+  ]
+}

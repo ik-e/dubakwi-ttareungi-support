@@ -1,7 +1,7 @@
 # RAG 아키텍처 설계서 · 두바퀴
 
 <!-- final-closeout-current -->
-**현행 정리 v0.24 · 2026-11-09.** 제출용 정리본은 로컬 `submission/final/docs/RAG-ARCHITECTURE.md`다. 아래 날짜별 기록은 최초 실패와 후속 확인의 이력으로 보존한다.
+**현행 정리 v0.24 · 2026-11-09.** [공개용 최종본](../../submission/public/docs/RAG-ARCHITECTURE.md)은 main에서 읽을 수 있다. 로컬 `submission/final/docs/RAG-ARCHITECTURE.md`와 팀원 원본은 보존한다. 아래 날짜별 기록은 최초 실패와 후속 확인의 이력으로 보존한다.
 
 - 실제 PR36 벡터 저장소는 프로세스 메모리다. PostgreSQL은 업무 상태/DLQ용이며 pgvector는 후속안이다. 지식 8개·준비 청크44개와 VM UI 처리44 items를 최종 저장 벡터 전수 개수로 혼동하지 않는다.
 - 최신 PR36 검색·권한은 [16/16](../../runs/public/20261108-142200-vm-pr36-rag-full-matrix/report.md), QR 및 SR-WF12 Support 종단은 별도 증거다. [11/09 리허설](../../runs/public/20261109-001140-vm-demo-rehearsal/backend-followup.md)에서 QR 근거 응답과 no_evidence 이관을 확인했다.

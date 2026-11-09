@@ -1,5 +1,19 @@
 # 개발과 공개 범위 관리 도구
 
+## 최종 제출본 공개 사본
+
+`publish_submission.cjs`는 로컬 `submission/final/`에서 검토한 텍스트·도표·상호작용을 `submission/public/`으로 만든다. 로컬 원본·PDF·화면은 수정하거나 업로드하지 않는다. 공개 사본을 읽는 데 생성 도구나 비공개 원본은 필요하지 않다. 작성/공개 정책은 [공개 범위](../../docs/PUBLICATION.md)를 따른다.
+
+생성에는 Node.js와 로컬 전체 제출본, 별도로 검토한 개인정보 제외 단어 배열 JSON이 필요하다. 이 JSON은 `tmp/` 등 Git 제외 경로에 보관하고 예시에 실제 개인정보를 넣지 않는다. 생성 후 내용·그림·링크를 다시 검토한다. 명령은 Git commit/push를 수행하지 않는다.
+
+```sh
+node scripts/dev/publish_submission.cjs --private-terms-file tmp/publication-private-terms.json
+node scripts/test/check_public_submission.cjs
+uv run --locked python scripts/test/check_public_files.py
+```
+
+검사기는 표준 Node.js만 사용해 공개 목록·정규화 해시·민감 패턴·로컬 링크·구문·발표/메모 데이터를 확인한다. 실제 브라우저 렌더링·발표 시간·VM 서비스 검사를 수행하지 않는다. `--output`은 새 증거 파일 경로, `--root`는 별도 clone 루트에 사용할 수 있다.
+
 담당 R01, 비밀/데이터 검토 R04, 재현/참조 검토 R05.
 
 현재 폴더에서 개발하고 Git으로 공개한다. [공개 정책](../../docs/PUBLICATION.md)과 `.gitignore`가

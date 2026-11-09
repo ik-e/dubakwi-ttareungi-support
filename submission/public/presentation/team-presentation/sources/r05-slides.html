@@ -1,0 +1,112 @@
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>시험과 품질 · 발표 공개 정리 7장</title><style>body{max-width:1120px;margin:36px auto;padding:0 24px 64px;font:17px/1.75 system-ui,"Malgun Gothic",sans-serif;color:#183128;background:#f6f8f4}a{color:#245f39}h1{line-height:1.3}h2{margin-top:2em}table{border-collapse:collapse;display:block;overflow:auto}td,th{border:1px solid #b6c7b8;padding:8px 12px;text-align:left;vertical-align:top}pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#e8eee5;padding:20px}svg,img{max-width:100%;height:auto}.public-note{padding:14px 20px;border-left:4px solid #587442;background:#e7efdf}nav{display:flex;gap:24px;margin-bottom:24px}article{background:white;padding:24px;border:1px solid #d5dfd0}</style></head><body><nav><a href="../index.html">발표로 돌아가기</a></nav><h1>시험과 품질 · 발표 공개 정리 7장</h1><p class="public-note">공개용 정리본입니다. 계정·접속 정보와 원문 화면은 제외했으며, 팀원 원본과 제출용 전체 자료는 로컬에서 보존합니다. 과거 결과는 기록 당시 조건으로 읽어 주세요.</p><div class="tag">R05 시험·품질 담당 구간</div>
+<h1>S09 시험·성능 결과<br>S10 실패·개선·남은 한계</h1>
+<p class="lead">팀 VM 실제 연동 환경에서 시험하고, 숫자는 모두 실행 보고서(runs/)에서 옮겼습니다</p>
+<h3>시험 환경</h3>
+<div class="sub">팀 VM n8n 시험 사본 (support 3e8547a)<br>실제 사용자 API · LLM · 검색 · Jira · PostgreSQL</div>
+<h3>공식 판정 실행</h3>
+<div class="sub">2026-11-06 20:50~20:57<br>같은 설정으로 25건 × 3회 + WF-01 처리시간 5회</div>
+<h3>근거 문서</h3>
+<div class="sub">실행 결과서 v0.8 (1~6절)<br>부록 실행 화면 17장</div>
+<div class="foot"><span>두바퀴 · 따릉이 시민 문의 지원</span><span>R05</span></div>
+<div class="notes"><b>발표자 메모</b> — 이 장은 PPT에서 S09 앞에 붙이거나 생략해도 됩니다. "지금부터는 실제 VM에서 시험한 결과입니다. 모든 숫자는 실행 보고서에서 옮긴 값입니다."</div>
+<div class="tag">S09 · 시험 범위</div>
+<h1>무엇을 몇 번 시험했나</h1>
+<p class="lead">같은 설정으로 실행 가능한 25건을 3번씩 돌렸습니다 — 3번 모두 같아야 통과</p>
+<h3>공통 시나리오 14유형</h3>
+<div class="big ok">8<small> / 14 유형</small></div>
+<div class="sub">3회 모두 기대 충족<br>실행 9유형 · <span class="warn">WF-01 흔들림</span><br><span class="na">미실행 5유형 (고장 3 · 조회 2)</span></div>
+<h3>팀 시나리오 24건</h3>
+<div class="big ok">11<small> / 24 건</small></div>
+<div class="sub">3회 모두 기대 충족<br>실행 13건 · <span class="bad">실패 2 (TC12·TC14)</span><br><span class="na">미실행 10 · 미구현 1 (TC07)</span></div>
+<h3>장애 시나리오 3유형</h3>
+<div class="big na">0<small> / 3 유형</small></div>
+<div class="sub">WF-04 외부 장애 · WF-10 LLM 멈춤 · WF-11 느린 API<br><span class="na">고장 시험 사본 미제공으로 미실행</span></div>
+<p class="note-row">실행 단위 25건 × 3회 = 75회 실행 · 응답 90건 · 3회 모두 같은 결과 <b class="ok">22 / 25건</b></p>
+<div class="foot"><span>근거: 실행 결과서 1·3절 (R1~R3 실행묶음)</span><span>R05</span></div>
+<div class="notes"><b>발표자 메모</b> — "공통 14유형 중 9유형을 실제 연동 환경에서 3번씩 돌렸고, 8유형은 세 번 모두 기대대로 나왔습니다. 고장과 조회 5유형은 시험용 사본과 데이터가 준비되지 않아 실행하지 못했고, 결과서에 사유와 함께 미실행으로 남겼습니다." 사례 수(건)와 실행 횟수(회)를 섞어 말하지 않기.</div>
+<div class="tag">S09 · 반복 결과</div>
+<h1>3번 중 2번 통과는 통과가 아니다</h1>
+<p class="lead">LLM이 들어간 시나리오는 3회 반복으로 흔들림까지 기록했습니다</p>
+<table>
+        <tbody><tr><th>판정</th><th>사례</th><th>3회</th></tr>
+        <tr><td><span class="pill p-ok">3회 동일</span></td><td>보완 질문·한도 이관·근거 없음 이관·권한 없음·주입 차단·중복 처리·입력 오류·충돌·긴급 이관·과차단 없음</td><td><b class="ok">22건</b></td></tr>
+        <tr><td><span class="pill p-warn">흔들림</span></td><td>WF-01 정상 문의<br><span class="sub">① 검색 3초 시간 초과로 이관 ③ 답 문장에 기대 단어 없음</span></td><td>FAIL · PASS · FAIL</td></tr>
+        <tr><td><span class="pill p-bad">실패</span></td><td>TC12 애매한 문의 · TC14 이관 뒤 후속 요청</td><td>3회 모두 FAIL</td></tr>
+      </tbody></table>
+<h3>응답 90건의 경로</h3>
+<table style="font-size:17px">
+        <tbody><tr><td>담당자 이관</td><td style="text-align:right"><b>32</b></td></tr>
+        <tr><td>보완 질문</td><td style="text-align:right"><b>20</b></td></tr>
+        <tr><td>자동 답변</td><td style="text-align:right"><b>11</b></td></tr>
+        <tr><td>차단 (프롬프트 주입)</td><td style="text-align:right"><b>9</b></td></tr>
+        <tr><td>HTTP 400 입력 오류 / 409 충돌</td><td style="text-align:right"><b>9 / 6</b></td></tr>
+        <tr><td>권한 없음</td><td style="text-align:right"><b>3</b></td></tr>
+      </tbody></table>
+<div class="sub">WF-01은 같은 질문 11번 중 9번 기대 충족</div>
+<div class="foot"><span>근거: 실행 결과서 1절·3.1~3.2절</span><span>R05</span></div>
+<div class="notes"><b>발표자 메모</b> — "25건 중 22건은 세 번 모두 같은 결과였습니다. WF-01 정상 문의는 한 번은 검색이 3초 제한을 넘겨 이관됐고, 한 번은 답 문장에 기대한 표현이 빠졌습니다. 그래서 통과가 아니라 흔들림으로 기록했습니다. 실패 두 건은 S10에서 설명합니다."</div>
+<div class="tag">S09 · 성능과 품질</div>
+<h1>근거 없는 답·권한 위반 0건, 속도는 8초 목표 초과</h1>
+<p class="lead">모든 응답은 25초 상한 안 — 정상 문의는 LLM 3번과 Jira 처리가 시간의 대부분</p>
+<h3>WF-01 처리시간</h3>
+<div class="big warn" style="font-size:40px">8.06<small>초 p50</small></div>
+<div class="sub">p95 10.69초 · 5회 측정</div>
+<h3>예외 처리 성공률</h3>
+<div class="big ok" style="font-size:40px">39/39</div>
+<div class="sub">예외 13건 × 3회 (고장 3유형 제외)</div>
+<h3>근거 없는 답 · 권한 위반</h3>
+<div class="big ok" style="font-size:40px">0 · 0</div>
+<div class="sub">자동 답변 11건 전부 근거 있음</div>
+<h3>요청당 LLM 호출</h3>
+<div class="big" style="font-size:40px">≈0.98</div>
+<div class="sub">응답 agents 기준 추정값</div>
+<h3>정상 문의 1건의 시간 구성 (n8n 실행 #305, 전체 13.1초)</h3>
+<div style="width:41%;background:#1f7a4d">LLM 3번 5.4초 · 41%</div>
+<div style="width:24%;background:#3d6fb6">Jira 3.2초 · 24%</div>
+<div style="width:14%;background:#7a8ea6">검색 1.9초</div>
+<div style="width:21%;background:#c3cad2;color:#33404d">기타 저장·분기 2.6초</div>
+<div class="legend"><span style="--c:#1f7a4d">분류 1.86 + 작성 2.17 + 검증 1.36초</span><span style="--c:#3d6fb6">티켓 생성·종료</span><span style="--c:#7a8ea6">RAG 검색</span><span style="--c:#c3cad2">하위 워크플로우·분기 등</span></div>
+<div class="foot"><span>근거: 실행 결과서 3절·3.2절 (처리시간 5회, n8n Logs 노드 시간 1회 측정)</span><span>R05</span></div>
+<div class="notes"><b>발표자 메모</b> — "근거 없는 답과 권한 위반은 0건이고, 실행한 예외 시나리오는 39번 모두 기대대로 처리됐습니다. 속도는 25초 상한은 지켰지만 정상 문의가 8초 목표를 넘었습니다. 시간을 나눠 보면 LLM 세 번과 Jira 처리가 3분의 2라 줄일 곳이 분명합니다." LLM 호출 수는 추정값이라고 꼭 말하기. 노드 시간은 한 번 잰 값.</div>
+<div class="tag">S10 · 대표 실패와 개선</div>
+<h1>정상 문의가 끝까지 처리되지 않았다 → 고쳐서 통과</h1>
+<p class="lead">실패한 실행을 지우지 않고 보존하고, 같은 질문으로 다시 시험했습니다</p>
+<div class="when">11/6 14:33 · 실행 #266</div>
+<h4 class="bad">안내 종료 실패</h4>
+<p>답변·검증까지 통과했지만 Jira에 <b>완료 전환이 없어</b> 종료 단계에서 멈춤 → 부분 실패로 이관, DLQ에 보존</p>
+<div class="arrow">→</div>
+<div class="when">11/6 15:16 · 실행 #279</div>
+<h4 class="bad">시간 예산 부족</h4>
+<p>Jira 설정 확인 뒤 재시험. 남은 시간 <b>15,120ms &lt; 필요 15,500ms</b>로 답변 작성 전에 이관</p>
+<div class="arrow">→</div>
+<div class="when">11/6 16:00 · 실행 #305</div>
+<h4 class="ok">다섯 구간 모두 통과</h4>
+<p>남은 시간에 맞춰 모델 한도를 조정(support 3e8547a). 입력 → 실행 → Jira 생성·종료 → DB 저장 → 응답 확인</p>
+<h3>남은 위험</h3>
+<div class="sub" style="font-size:18px;color:var(--ink)">같은 질문의 3회 반복은 <b class="warn">2/3만 기대 충족</b> — 검색이 3초 제한을 넘기면 정상 문의도 이관됨 (#796, 검색 3,018ms)</div>
+<div class="foot"><span>근거: 실행 결과서 4.1절 · 실행 #266·#279·#305 보고서</span><span>R05</span></div>
+<div class="notes"><b>발표자 메모</b> — "첫 정상 실행은 Jira 종료 전환이 없어서, 두 번째는 시간 예산이 380ms 모자라서 실패했습니다. 두 실패 기록을 그대로 두고 원인을 고친 뒤 같은 질문으로 다시 돌려 다섯 구간 모두 통과를 확인했습니다. 다만 반복 시험에서는 검색 시간 초과로 한 번 더 흔들렸고, 이것이 남은 위험입니다."</div>
+<div class="tag">S10 · 두 번째 실패 (부록 A05)</div>
+<h1>중복 요청 시험을 판정하지 못했다 → 입력 보완 → 통과</h1>
+<p class="lead">시스템 결함이 아니라 시험 입력의 문제 — 기대 결과는 바꾸지 않았습니다</p>
+<h4 class="bad">처음 (11/6 17:46·17:48, 2회)</h4>
+<p>"어제 이용권이 두 번 결제됐어요. 한 건 환불해 주세요."<br>→ 결제일·이용권·결제 수단이 없어 <b>보완 질문</b>으로 끝남<br>→ 이관이 안 되니 중복 처리를 판정할 수 없음</p>
+<h4 class="ok">보완 뒤 (11/6 20:33 재시험 + 3회 반복)</h4>
+<p>"11월 1일 오후에 30일 정기권을 앱에서 카드로 결제했는데 두 번 결제됐어요…"<br>→ 1차 이관·티켓 생성, 2차 <b>같은 티켓 · duplicate: true · 0.3초</b><br>→ n8n에서 분류(LLM)·티켓 생성 노드 <b>미실행</b> 확인 (#849)</p>
+<h3>배운 점</h3>
+<div class="sub" style="font-size:18px;color:var(--ink)">시스템은 설계대로 정보를 더 물었다 — 실패를 지우지 않았기 때문에 <b>결함과 시험 입력 문제를 구분</b>할 수 있었다</div>
+<div class="foot"><span>근거: 실행 결과서 4.2절 · WF-09 재시험 · 실행 #849</span><span>R05</span></div>
+<div class="notes"><b>발표자 메모</b> — "중복 요청 시험은 처음에 판정조차 못 했습니다. 원인은 시스템이 아니라 시험 질문이 너무 짧아서 시스템이 설계대로 보완 질문을 한 것이었습니다. 질문만 보완하고 기대 결과는 그대로 둔 채 다시 시험해, 두 번째 요청이 같은 티켓을 0.3초 만에 돌려주고 LLM도 다시 부르지 않는 것을 확인했습니다."</div>
+<div class="tag">S10 · 남은 한계</div>
+<h1>시험하지 않은 것을 통과로 말하지 않는다</h1>
+<p class="lead">미해결 결함과 검증 범위를 결과서에 그대로 기록했습니다</p>
+<h3>미해결 결함</h3>
+<li><b class="bad">이관 뒤 후속 요청(TC14)</b>: 이관된 건에 정보를 더 보내면 다시 보완 질문으로 돌아감 — 5번 모두 같음, 설계 대조 중</li>
+<li><b class="warn">검색 3초 제한</b>: 검색이 늦으면 정상 문의도 이관됨</li>
+<li><b class="warn">애매한 문의(TC12)</b>: 반납·요금이 섞이면 한쪽 정보만 물음 — 수정본 미배포</li>
+<h3>검증 범위의 한계</h3>
+<li>고장 3유형·조회 2유형 <span class="na">미실행</span> (시험 사본·데이터 미제공)</li>
+<li>실제 시민 인증·기관 시스템 미연동, 사용자·접수 건은 모의 데이터</li>
+<li>보안 발견: n8n 실행 기록에 팀 키가 평문으로 남음 → 저장 범위 조정 검토</li>
+<div class="foot"><span>근거: 실행 결과서 1.3·1.4·4.3·4.4절</span><span>R05</span></div>
+<div class="notes"><b>발표자 메모</b> — "남은 결함 세 가지와 검증하지 못한 범위를 그대로 보여 드립니다. 특히 고장 시나리오는 실행하지 못했기 때문에 통과라고 말하지 않습니다. 시험 중 실행 기록에 팀 키가 남는 보안 문제도 찾아 기록했습니다." 질의응답에서 고장 시험을 물으면: "설계와 사례 파일은 준비했고, 고장 사본이 없어 실행하지 못했다"고 답하기.</div></body></html>

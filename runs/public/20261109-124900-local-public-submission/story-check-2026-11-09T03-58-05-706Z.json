@@ -1,0 +1,238 @@
+{
+  "created": "2026-11-09T03:58:05.706Z",
+  "scope": "Static hashes/content plus linkedom DOM execution; no browser layout rendering, no VM/service rehearsal. Token pattern scan is not tscan.",
+  "pass": true,
+  "checks": 45,
+  "artifacts": [
+    {
+      "file": "index.html",
+      "sha256": "fe3e6fb1c8767c3f8e7df7cee5a434814218b7a6278e56f8c5a474c4dec794b6"
+    },
+    {
+      "file": "story.css",
+      "sha256": "ea56e9bf93501658a0126f6dee36cc0ca2c90b010077ba067a96b87a1ee3c173"
+    },
+    {
+      "file": "presentation.js",
+      "sha256": "f43b37cd8a883e18f97e9da97737cccc8738655ea2d8c5c4fbffa719b3675505"
+    },
+    {
+      "file": "notes.js",
+      "sha256": "9e7205443cf40a00982a8fc1ba5054d0571ef994ca421efc875e21fa0a53d7a1"
+    },
+    {
+      "file": "speaker.html",
+      "sha256": "28795f509da0bac1e91d7a4ff8b9cc78ac8d1168d350cb49852590cdb5a5ad13"
+    },
+    {
+      "file": "speaker.css",
+      "sha256": "b91e2a08d23f4776e48a6fc1297a20e4277f624656b9694084cea12c291a5bf1"
+    },
+    {
+      "file": "speaker.js",
+      "sha256": "2046d78fab2aeac40dd6e9432876d547b6f1457a4a9a9e2ae419057856bcfc9f"
+    },
+    {
+      "file": "story.js",
+      "sha256": "94b8755ecb784ec394fac7853adcd272c0b5e8045a129300b7b48eae6aa51266"
+    },
+    {
+      "file": "atlas-story.js",
+      "sha256": "80582f85aa60ee625ba93d802e9a0d4ab224c2bbd63c1c7fd1ddc19e57fbc860"
+    },
+    {
+      "file": "atlas-story.css",
+      "sha256": "19bbf36a275c631dd218d28821f71fec63f08fda8e52b066fd3f2416df6d9ea3"
+    },
+    {
+      "file": "guide-coverage.md",
+      "sha256": "26bb94e8d30ccc741383a5c0e0e2b4420970f7cec32d75b7ace373ad74935692"
+    },
+    {
+      "file": "demo-runbook.md",
+      "sha256": "860cca87d138b23d524a3f7171c0e56880110c9b62f876098a660eba9e204c21"
+    }
+  ],
+  "results": [
+    {
+      "name": "12 slides; 20 minutes; guide categories 3/5/4/5/3",
+      "pass": true
+    },
+    {
+      "name": "slide 1 title, timing, script, actions, mappings, evidence",
+      "pass": true
+    },
+    {
+      "name": "slide 2 title, timing, script, actions, mappings, evidence",
+      "pass": true
+    },
+    {
+      "name": "slide 3 title, timing, script, actions, mappings, evidence",
+      "pass": true
+    },
+    {
+      "name": "slide 4 title, timing, script, actions, mappings, evidence",
+      "pass": true
+    },
+    {
+      "name": "slide 5 title, timing, script, actions, mappings, evidence",
+      "pass": true
+    },
+    {
+      "name": "slide 6 title, timing, script, actions, mappings, evidence",
+      "pass": true
+    },
+    {
+      "name": "slide 7 title, timing, script, actions, mappings, evidence",
+      "pass": true
+    },
+    {
+      "name": "slide 8 title, timing, script, actions, mappings, evidence",
+      "pass": true
+    },
+    {
+      "name": "slide 9 title, timing, script, actions, mappings, evidence",
+      "pass": true
+    },
+    {
+      "name": "slide 10 title, timing, script, actions, mappings, evidence",
+      "pass": true
+    },
+    {
+      "name": "slide 11 title, timing, script, actions, mappings, evidence",
+      "pass": true
+    },
+    {
+      "name": "slide 12 title, timing, script, actions, mappings, evidence",
+      "pass": true
+    },
+    {
+      "name": "local full materials and all team originals remain byte-identical",
+      "pass": true
+    },
+    {
+      "name": "public sources contain text and diagrams; no raw originals or screenshots",
+      "pass": true
+    },
+    {
+      "name": "R02 embedded original program/data unchanged from backup",
+      "pass": true
+    },
+    {
+      "name": "atlas.js original interaction adapter unchanged",
+      "pass": true
+    },
+    {
+      "name": "atlas.css original interaction adapter unchanged",
+      "pass": true
+    },
+    {
+      "name": "JavaScript syntax: presentation.js",
+      "pass": true
+    },
+    {
+      "name": "JavaScript syntax: story.js",
+      "pass": true
+    },
+    {
+      "name": "JavaScript syntax: speaker.js",
+      "pass": true
+    },
+    {
+      "name": "JavaScript syntax: notes.js",
+      "pass": true
+    },
+    {
+      "name": "JavaScript syntax: atlas-story.js",
+      "pass": true
+    },
+    {
+      "name": "all main source/detail/gallery/PDF buttons resolve",
+      "pass": true
+    },
+    {
+      "name": "local scripts/styles exist: index.html",
+      "pass": true
+    },
+    {
+      "name": "local scripts/styles exist: speaker.html",
+      "pass": true
+    },
+    {
+      "name": "local scripts/styles exist: r02-atlas.html",
+      "pass": true
+    },
+    {
+      "name": "main loads after stale #slide-16; normalizes to #slide-12",
+      "pass": true
+    },
+    {
+      "name": "main navigation covers every slide; one visible slide",
+      "pass": true
+    },
+    {
+      "name": "contents has 12 destinations and original library opens",
+      "pass": true
+    },
+    {
+      "name": "all 7 explanatory panels open and return",
+      "pass": true
+    },
+    {
+      "name": "handoff keeps system and ticket elements while information accumulates",
+      "pass": true
+    },
+    {
+      "name": "staff stage distinguishes direct Jira work from automatic synchronization",
+      "pass": true
+    },
+    {
+      "name": "handoff keyboard selection remains on the current slide",
+      "pass": true
+    },
+    {
+      "name": "all original docs, visual galleries and PDFs remain reachable",
+      "pass": true
+    },
+    {
+      "name": "demo four steps switch content and selected tab",
+      "pass": true
+    },
+    {
+      "name": "speaker launch starts at current audience slide/version",
+      "pass": true
+    },
+    {
+      "name": "speaker standalone starts at requested slide",
+      "pass": true
+    },
+    {
+      "name": "12 slides expose script/actions/deliverables/evidence tabs",
+      "pass": true
+    },
+    {
+      "name": "speaker follows valid messages; manual browsing is independent",
+      "pass": true
+    },
+    {
+      "name": "presenter timer start/pause/reset stays local",
+      "pass": true
+    },
+    {
+      "name": "R02 loads preserved program and all 9 scenarios",
+      "pass": true
+    },
+    {
+      "name": "all R02 scenario/view buttons and timeline traverse every path",
+      "pass": true
+    },
+    {
+      "name": "R02 full diagram, zoom, details, play/pause, reset, next and speed work",
+      "pass": true
+    },
+    {
+      "name": "authored text contains no private key/token-shaped literal or added Japanese text",
+      "pass": true
+    }
+  ]
+}

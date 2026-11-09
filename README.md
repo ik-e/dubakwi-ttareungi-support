@@ -22,14 +22,14 @@
 
 ## 2. 현재 상태
 
-- 기준 저장소는 `main` `dd919d7`입니다. VM에는 PR36 API와 별도 UX API가 병렬로 배포되어 있습니다.
+- 업무 코드의 마감 기준은 `dd919d7`, 문서 취합 기준은 PR54의 `df684f3`입니다. 최신 문서와 공개 발표는 현재 main을 따릅니다. VM에는 PR36 API와 별도 UX API가 병렬로 배포되어 있습니다.
 - PR36 RAG 검색·권한 matrix 16/16, QR 및 SR-WF12 Support 종단을 확인했습니다. 재시작 후 PR36 index의 UI 44 items 처리와 QR 근거 응답도 확인했습니다. 44를 저장 벡터 전수 개수로 간주하지 않습니다.
 - Discord/Jira 이용자·담당자 시나리오와 TC-07 DLQ 조회는 개별 실행 증거로 판정합니다. DLQ는 bounded list/inspect와 연결 Jira GET까지이며 운영자 retry/recovery action은 이번 범위에 포함되지 않습니다.
 - D10 동일 interaction replay와 TC-15 격리 고장 종단은 시험 환경 미준비로 `BLOCKED / NOT RUN`입니다. 이는 기능 통과가 아닙니다.
 - VM 실행본과 저장소 커밋의 완전한 동일성은 입증되지 않았습니다. VM 결과는 각 보고서의 이미지·workflow 기준으로 확인합니다.
 - [60개 사례·64개 요구 ID의 판정·근거·한계](runs/public/20261109-112300-local-final-closeout/evidence-matrix.md)를 모두 연결했습니다. 전체 실행 통과율을 뜻하지 않습니다.
 - 11/09 대표 시연 3흐름·5요청의 저장/감사 일치와 Jira 담당자 처리를 확인했습니다. 현재 Jira All 큐에는 완료 티켓도 포함됩니다.
-- 필수산출물 최종본은 로컬 `submission/final/docs/`, 12장 HTML 발표·대본은 `submission/final/presentation/team-presentation/`입니다. [마감 검사·제출 범위](runs/public/20261109-112300-local-final-closeout/report.md)와 [DAY82](docs/project/daily/DAY82.md)를 함께 확인하세요.
+- **[필수산출물 최종본과 발표 자료](submission/public/README.md)**를 main에서 확인할 수 있습니다. [워크플로우](submission/public/docs/WORKFLOW-DESIGN.md)·[RAG](submission/public/docs/RAG-ARCHITECTURE.md)·[실행 결과](submission/public/docs/EXECUTION-RESULT.md), [12장 발표](submission/public/presentation/team-presentation/index.html)·[대본](submission/public/presentation/team-presentation/presenter-notes.md)·[시연 절차](submission/public/presentation/team-presentation/demo-runbook.md)를 포함합니다. HTML은 저장소를 내려받아 `submission/public/index.html`을 열면 실행됩니다. 개인·접속 정보와 원문 PDF/화면/가이드는 제외했고 전체 원본은 로컬에 보존합니다. [공개 검사](runs/public/20261109-124900-local-public-submission/report.md)·[DAY82](docs/project/daily/DAY82.md)를 함께 확인하세요.
 
 최신 판정은 [구현 현황과 마감 계획](docs/project/implementation-status-and-closeout-plan.md), [최종 통합 시험 계획](docs/project/final-test-plan.md), [실행 결과서](docs/project/EXECUTION-RESULT.md)에서 확인하세요.
 
