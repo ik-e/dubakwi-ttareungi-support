@@ -1,0 +1,24 @@
+{
+  "run_id": "20261108-142200-vm-pr36-rag-full-matrix",
+  "executed_at": "2026-11-08T14:22:19+09:00",
+  "environment": "aio-t2 VM, Edge Web SSH and PR36 user-api",
+  "source_case_file": "cases/search.json",
+  "workflow": "R01 PR36 a657890 search",
+  "case_count": 16,
+  "passed": 16,
+  "failed": 0,
+  "case_statuses": {
+    "SR-WF01":"ok", "SR-WF02":"ok", "SR-WF03":"empty", "SR-WF04":"ok", "SR-WF12":"ok", "SR-TC04":"ok", "SR-TC09a":"ok", "SR-TC09b":"ok", "SR-WF05":"ok", "SR-R01":"ok", "SR-R02":"ok", "SR-R03":"ok", "SR-R04":"error:invalid_request", "SR-STAFF01":"ok", "SR-STAFF02":"ok", "SR-OFF":"skipped"
+  },
+  "access_checks": {"public_restricted_evidence":0,"staff_restricted_positive_cases":2,"citizen_canary_leak":false},
+  "execution_persistence": {
+    "ui_execution_history":"No executions found",
+    "search_rows":[{"first_id":2228,"last_id":2243,"count":16,"status":"running","stopped_at":null}],
+    "index_execution":{"id":2211,"status":"running","stopped_at":null,"ui_result":"success_44_items"},
+    "workflow_save_settings":{"saveDataSuccessExecution":"none","saveManualExecutions":false,"saveExecutionProgress":false},
+    "prior_id_2167_present":false
+  },
+  "external_effects":{"jira":0,"discord":0,"support_state":0,"dlq":0,"n8n_execution_rows_created":16},
+  "latency":{"individual_search_ms":"not_measured","index_duration":"not_measurable_no_stoppedAt"},
+  "result":"pr36_full_search_case_matrix_16_of_16_pass_execution_rows_remain_running_and_index_duration_unmeasurable"
+}

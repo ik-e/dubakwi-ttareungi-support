@@ -1,38 +1,34 @@
 # 개발 산출물 관리
 
-이번 개발의 제안서·헌장·설계·결과·데일리·발표 자료는 `docs/project/`에서 관리합니다. 조사 근거는 [research — 공개본 제외 자료](../../docs/PUBLIC-SOURCES.md), 과제 요구와 보존 원문은 [guideline — 공개본 제외 자료](../../docs/PUBLIC-SOURCES.md)에 둡니다.
+<!-- final-closeout-current -->
+**2026-11-09 최종 제출 정리.** 로컬 `submission/final/docs/`에 필수산출물3종 v1.0, `submission/final/presentation/team-presentation/`에12장·20분 HTML과 발표자 메모를 정리했다. [60사례·64요구 추적](../../runs/public/20261109-112300-local-final-closeout/evidence-matrix.md)·[실제 노드/연결](../../runs/public/20261109-112300-local-final-closeout/workflow-map.md)·[마감 검사](../../runs/public/20261109-112300-local-final-closeout/report.md)·[DAY82](daily/DAY82.md)를 연결한다. 아래 목록의 이전 버전/초안 설명은 날짜별 관리 이력이며 현행 요약은 이 문단과 마감 기록을 우선한다.
+<!-- /final-closeout-current -->
+
+이 문서는 개발 문서의 진입점과 실제 보관 위치를 안내합니다. 편집 원본은 현재 저장소 경로에 두고, 과제 제출 패키지는 공식 경로를 보존해 별도로 구성합니다. 과제 가이드 원문은 로컬 보존된 `docs/guideline/`에서 관리하며, 조사 근거와 외부 원문 위치는 [출처 안내](../../docs/PUBLIC-SOURCES.md)를 참조합니다.
 
 팀원은 [첫 실행/인계 안내](../TEAM-START.md)와 [공유 전 전체 점검](TEAM-READINESS-REVIEW.md)을 먼저 확인합니다.
 
-현재 실제 구현·통합 증거와 사용자 관점 완료 기준, 우선 마감 순서는 [구현 현황과 사용자 기준 마감 계획](implementation-status-and-closeout-plan.md)을 먼저 확인합니다. 이 문서는 R01의 통합 현황이며 타 역할 검증을 대신하지 않습니다.
+현재 시험 판정은 [PR36 최종 통합 시험 계획](final-test-plan.md)과 [개발 원장](../DEVELOPMENT-PLAN.md)을 확인합니다. 사용자 관점 기준선은 [구현 현황과 사용자 기준 마감 계획](implementation-status-and-closeout-plan.md), 구현·배포 경계는 각 상세 설계와 연결된 실행 근거를 따릅니다. 서로 다른 날짜·브랜치·VM 실행은 하나의 통과 수로 합산하지 않습니다.
 
 ## 산출물 목록
 
 검토 보고서와 증거의 시점별 목록은 [reviews 대문 — 공개본 제외 자료](../../docs/PUBLIC-SOURCES.md)을 참조합니다. 재사용 도구는 [scripts/test](../../scripts/test/README.md), 일회성 작업은 [tmp 안내 — 공개본 제외 자료](../../docs/PUBLIC-SOURCES.md)로 구분합니다.
 
-작성 기준: 2026-11-03. 아래는 문서 작성 상태와 편집 책임을 안내합니다. 개발 작업·승인·시험의 완료 증거와 상태는 [개발 계획의 작업 원장](../DEVELOPMENT-PLAN.md#5-작업-원장)에서 관리합니다. 실명 대신 [팀 헌장](TEAM-CHARTER.md)의 역할 ID R01~R05를 사용하며 기존 ①~⑤와 순서대로 대응합니다.
+현황 확인일: 2026-11-08. 아래 표는 문서 위치와 현재 확인된 상태를 요약합니다. 작업별 완료 상태는 [개발 원장의 작업 원장](../DEVELOPMENT-PLAN.md#5-작업-원장), 시험별 판정은 [최종 시험 계획](final-test-plan.md)과 실행 결과를 원본으로 합니다. 역할 소유권은 [팀 헌장](TEAM-CHARTER.md)을 따릅니다.
 
-| 산출물·예정 위치 | 문서 상태 | 편집 책임 | 다음 작업 |
-| --- | --- | --- | --- |
-| [TOPIC.md](TOPIC.md) | 초안 v0.7 | ① 팀장·통합 | 문의 유형·구성 검토, 티켓 종료 계약 확인, 강사 확인 |
-| [TEAM-CHARTER.md](TEAM-CHARTER.md) | v0.17·R01 기존 핵심 로직 통합, R02 새 UX 개선 담당 | R01 팀장·통합 | 기존 문의 처리 로직·연동은 R01, 새 UX 화면·문구·상호작용 개선은 R02 |
-| [SYSTEM-DESIGN.md](SYSTEM-DESIGN.md) | 초안 v0.12·최상위 논리 설계 | R01 취합·R02~R05 공동 검토 | 구성·상태·기능 추적·디렉터리 용도·Docker Compose 기준 확인 후 상세로 이동 |
-| [구현 현황과 사용자 기준 마감 계획](implementation-status-and-closeout-plan.md) | v3.3·사용자 기준 종합 마감, R01 핵심 로직·R02 새 UX 개선 구분 | R01 통합·R02 UX 담당 | TC-07 claim/resume/failed release/verified complete 저장 경계를 disposable DB에서, operator 수동 명령 19/19 검사로 확인. Jira action은 운영자 수동 수행 방식이며 args-null 캡슐 보강, 실제 Jira/VM 적용, stale claim live 확인은 미완료다. RAG/Jira 종단·장애/DLQ 회귀 후 TC-15를 마지막 VM 시험으로 둔다. |
-| [Python 개발 기준](../PYTHON-DEVELOPMENT.md)·[공개 정책](../PUBLICATION.md) | 도구/설정 작성·서비스 구현 전 | R01·R05 품질/R04 공개 검토 | uv 잠금·Ruff·CI, 같은 폴더 .gitignore·Git 후보·공개 링크 검사 |
-| [작업 규칙](../../AGENTS.md)·[배포 안내](../../infra/README.md) | 기준 작성·실제 배포 전 | R01·R04/R05 검토 | Git/n8n/시험·동기화·Docker 실행/복구, 환경 확인 후 compose 작성 |
-| [VM 배포 전 점검](../../infra/vm-preflight.md)·[환경 예시](../../.env.example) | v0.11·GitLab79 data-api·P11 22/22·P19 검색/모델 부분 연결 | R01·R04 저장/R05 재현 검토 | 기존 n8n 유지·data-api/배포본 인계·백업/복원·Credential·입구 시험 |
-| [PostgreSQL 전용 Compose](../../infra/postgres-compose.yaml)·[준비/검토 안내](../../infra/postgres-deployment.md) | 준비 v0.1·VM 미적용 | R01 준비·R04 저장/권한·R05 복원 검토 | 이미지 고정·비밀/볼륨·owner/runtime·마이그레이션/복원·Credential 적용 조건 |
-| [WORKFLOW-DESIGN.md](WORKFLOW-DESIGN.md) | 초안 v0.14 | R02 오케스트레이션 | Jira 어댑터·공개 계약 검토,저장소 내부는 STORAGE-DESIGN 참조. D01~D07의 실행 관리는 개발 계획 참조 |
-| [설계 v0.2 검증 보고서 — 공개본 제외 자료](../../docs/PUBLIC-SOURCES.md) | 정적·문서 검증 기록 | R02 취합·전원 검토 | 이전 v0.2의 P1 3건·P2 7건 이력. 현행 설계 검토는 아래 종합 검증 참조 |
-| [설계서 종합 검증 — 공개본 제외 자료](../../docs/PUBLIC-SOURCES.md) | 문서 검증 완료·실행 미검증 | R02 취합·전원 검토 | v0.9/v0.2/v0.1 검증 시점의 P1 4건·P2 3건 기록. 현행 보완 결과는 후속 재검증 참조 |
-| [보완·참조 재검증 — 공개본 제외 자료](../../docs/PUBLIC-SOURCES.md) | 보완 시점의 문서 검증 기록·실행 미검증 | R02 취합·전원 검토 | 워크플로우 v0.10/RAG v0.3/저장소 v0.2 보완 당시 스냅샷. 이후 시스템/경로/규칙 추가와 본문 수정은 당시 해시의 검증 범위 밖 |
-| [RAG-ARCHITECTURE.md](RAG-ARCHITECTURE.md) | v0.10·로컬 측정/VM 수동색인·검색 부분 시험 | R03 RAG | 검색·색인 내부 노드/엣지와 지식·청킹·임베딩·권한·복구 상세. 지식 승인·비교 평가·서버 인가/VM 재시작 검증 필요 |
-| [RAG 지식 초안6개](RAG-ARCHITECTURE.md#11-검토-전-초안과-서비스-지식의-관계) | 검토 전·서비스 색인 금지 | R03 작성·R04 권한/R05 근거 검토 | 출처·적용 조건 승인 후 knowledge 이관·manifest 등록·색인/검색 시험 |
-| [STORAGE-DESIGN.md](STORAGE-DESIGN.md) | 초안 v0.4·팀 보조 설계 | R04 연동·안정성 | 최소 상태·DLQ·실행 기록 구조/운영. PostgreSQL 2테이블은 제안,실제 저장·연동 확인 필요 |
-| `EXECUTION-RESULT.md` | 미작성 | ⑤ 시험·품질 | 기대/실제·실행 보고서·실패/수정·재시험·한계 |
-| [daily/DAY80.md](daily/DAY80.md)·[DAY81.md](daily/DAY81.md)·`DAY82.md` | DAY80 공식양식 사후초안·DAY81 11/06 10:48 중간초안·DAY82 미작성 | ① 취합·전원 참여 | 당일 작업 번호·증거·막힘·다음 목표 기록 |
-| `images/` | 폴더 준비·자료 없음 | ⑤ 시험·품질 | 개인정보를 가린 실행 증거 |
-| `presentation/` | Discord 첨부 원본 일부 보관·통합 발표 미작성 | ① 편집·전원 제공 | [현행 발표 계획](../PRESENTATION-PLAN.md)에 따른 원본 보존·공용 파일·메모·리허설 기록. 공개 진행 상태는 [개발 원장 P29](../DEVELOPMENT-PLAN.md#5-작업-원장)에 기록하며, 내부 첨부 원본 목록은 공개하지 않는다. 계획과 실제 제작/연습 완료를 구분 |
+| 원본·경로 | 2026-11-08 현재 상태 | 기준·다음 연결 |
+| --- | --- | --- |
+| [TOPIC.md](TOPIC.md)·[TEAM-CHARTER.md](TEAM-CHARTER.md) | 팀 작성 문서 보관. 주제 승인 상태는 제안서/원장 기준으로 확인 | 가이드 공식 제출 요구와 승인 여부를 구분. 역할·경로 소유권은 헌장 원본 |
+| [SYSTEM-DESIGN.md](SYSTEM-DESIGN.md) | 논리 설계 v0.12; 머리말에 11/7 적용 상태 v0.14 기록 | 최상위 구성·상태·범위에서 상세 설계로 연결. 본문 과거 표시는 당시 이력 |
+| [WORKFLOW-DESIGN.md](WORKFLOW-DESIGN.md) | v0.23 실제 저장소 JSON 노드 수와 VM 기준선 날짜 표기 정정; VM 매핑 미확인 | 실제 배포·시험은 VM 증거 및 [개발 원장](../DEVELOPMENT-PLAN.md)에서 확인 |
+| [RAG-ARCHITECTURE.md](RAG-ARCHITECTURE.md) | v0.24, PR36 RAG matrix 16/16·Support 종단 및 14:02 재시작 후 44건 재색인/QR 확인 연결 | SQLite execution `running` 표기와 색인 시간은 미해결 관측 한계. 기능 경로 재확인과 구분하며 추가 gate 아님 |
+| [STORAGE-DESIGN.md](STORAGE-DESIGN.md) | v0.17; VM SQL 001~017 적용과 TC-07 read-only DLQ/Jira 조회 기록 | 저장 계약 원본. [TC-07 VM 조회 결과](../../runs/public/20261108-101605-vm-tc07-dlq-lookup/report.md) 참조. 운영자 retry/recovery action은 이번 완료 범위 밖 |
+| [구현 현황·마감 계획](implementation-status-and-closeout-plan.md)·[최종 통합 시험 계획](final-test-plan.md) | 각각 v5.6·v1.26 | PR36 기준선·사용자 완료 기준 및 현행 시험 판정의 요약 문서 |
+| [EXECUTION-RESULT.md](EXECUTION-RESULT.md)·[최종 PR36 RAG matrix](../../runs/public/20261108-142200-vm-pr36-rag-full-matrix/report.md) | 누적 실행 결과서와 날짜별 가린 보고서 존재. 최신 Discord/Jira UAT·RAG·DLQ·readiness 근거는 실행 묶음별 연결 | 최신 요약은 v5.5/v1.25 상태 문서를 참조. 수치와 판정 범위는 각 run 원본에서 확인. 실행 기록은 60개 사례·64개 요구 ID 추적을 대신하지 않음 |
+| [daily/DAY80.md](daily/DAY80.md)·[DAY81.md](daily/DAY81.md)·[DAY82.md](daily/DAY82.md) | DAY80 과거 초안, DAY81 당일 결과 사후 정리, DAY82 11/09 실제 리허설·마감 정리 | 제출 스냅샷은 `submission/final/daily/DAY82.md`; 당일 활동·발표·리허설·제출 기록은 실제 증거로만 갱신 |
+| [team cases](../../cases/team.json)·[demo sequence](../../requests/demo-sequence.json)·[support workflow](../../workflows/dubakwi-support.json)·[knowledge manifest](../../knowledge/manifest.json) | 시나리오·시연 요청·canonical workflow JSON·지식 자산 위치 | 저장소 원본과 VM 배포본은 별개로 확인. 전체 사례/요구 추적은 마감 작업 |
+| [R03 presentation script](presentation/r03-rag-script.md)·`presentation/originals/received-20261108/` | 역할별 참고 문서 및 11/08 수신 원본 11개 보존. 통합 발표 원고는 `submission/final/presentation/FINAL-PRESENTATION.md` | 수신 원본은 보존 자료. 통합본은 확인된 개념·증거만 반영한 초안이며 리허설/발표 완료 아님 |
+| 최종 제출 후보 | `submission/final/` (로컬 전용: `SUBMISSION-CANDIDATES.md`, `docs/WORKFLOW-DESIGN.md`, `docs/RAG-ARCHITECTURE.md`, `docs/EXECUTION-RESULT.md`, DAY82, 발표 원고) | 11/09 제출용 3종·발표·DAY82·근거 부록 정리. 실제 검사 결과와 미확인은 마감 기록에서 구분. 원본 가이드와 [P31](../DEVELOPMENT-PLAN.md#5-작업-원장)을 계속 대조 |
 
 ## 문서 참조와 정보의 원본
 
@@ -44,13 +40,13 @@
 | 전체 순서·분기·업무 Request/Response·Ticket 계약 | [워크플로우6절](WORKFLOW-DESIGN.md#6-노드-간-페이로드-연결선마다) | RAG·저장소는 공개 업무 계약을 참조 |
 | 저장 StateRef·Begin/State/SaveResult·복구 캡슐 | [저장소6.1](STORAGE-DESIGN.md#storage-contract) | 본체·Jira 어댑터·DLQ가 같은 봉투를 사용 |
 | 청킹·검색·색인·RAG 내부 스키마 | [RAG](RAG-ARCHITECTURE.md) | 본체는 SearchRequest/SearchResult만 연결 |
-| 최소 상태/DLQ 구조·보존·재처리 | [STORAGE-DESIGN](STORAGE-DESIGN.md) | 워크플로우는 호출 지점·실패 분기만 명시 |
+| 최소 상태/DLQ 구조·보존 | [STORAGE-DESIGN](STORAGE-DESIGN.md) | 현재 검증 범위는 bounded DLQ list/inspect와 연결 Jira GET이며 recovery/retry action은 미구현 |
 | 경로별 주 담당·검토자 | [TEAM-CHARTER 경로표](TEAM-CHARTER.md#1-팀) | 시스템은 경로 용도, 개발 계획은 작업 책임 참조 |
 | 작업 절차·변경 동기화 | [AGENTS](../../AGENTS.md) | 문서·Git·n8n·시험·배포 작업 시 적용 |
 | Docker 배포·업데이트·백업/복구 | [infra 안내](../../infra/README.md) | compose 설정/실행과 VM 검증 연결 |
 | 작업 번호·상태·담당·확인 시점 | [개발 계획](../DEVELOPMENT-PLAN.md) | 설계서에서 작업 상태를 중복 관리하지 않음 |
 | 사실 근거·조사 한계 | [출처 원장 — 공개본 제외 자료](../../docs/PUBLIC-SOURCES.md) | 공개 지식 작성 시 확인일·적용 범위 연결 |
-| 실제 시험 결과 | cases/runs/실행 결과서(작성 전) | 검증 보고·설계 초안을 실행 증거로 대신하지 않음 |
+| 실제 시험 결과 | [PR36 최종 RAG matrix](../../runs/public/20261108-142200-vm-pr36-rag-full-matrix/report.md)·[실행 결과서](EXECUTION-RESULT.md) | 개별 가린 실행 보고서가 근거이며, 요약은 해당 증거 범위를 넘지 않음 |
 
 공식 템플릿의 큰 절은 유지한다. 과거 검토 보고서는 당시 스냅샷이며 현행 설계의 상태는 후속 재검증 기록에서 구분한다. 공개 계약은 생산·소비 문서마다 복제 편집하지 않고 위 원본을 함께 갱신한다.
 
@@ -83,18 +79,23 @@
 
 공식 양식의 `docs/TOPIC.md` 등은 원문 그대로 보존합니다. 팀의 작성 원본은 다음 경로를 사용합니다.
 
-| 공식 양식의 경로 | 팀 작성 원본 |
+| 가이드 제출 경로 | 팀 작성 원본 또는 현재 제출 후보 |
 | --- | --- |
+| `README.md`·`AGENTS.md` | 저장소 루트의 동일 파일 |
 | `docs/TOPIC.md` | `docs/project/TOPIC.md` |
 | `docs/TEAM-CHARTER.md` | `docs/project/TEAM-CHARTER.md` |
 | `docs/WORKFLOW-DESIGN.md` | `docs/project/WORKFLOW-DESIGN.md` |
 | `docs/RAG-ARCHITECTURE.md` | `docs/project/RAG-ARCHITECTURE.md` |
-| `docs/STORAGE-DESIGN.md` (팀 보조 문서,제출 패키지 포함) | `docs/project/STORAGE-DESIGN.md` |
-| `docs/SYSTEM-DESIGN.md` (팀 보조 문서,제출 패키지 포함) | `docs/project/SYSTEM-DESIGN.md` |
 | `docs/EXECUTION-RESULT.md` | `docs/project/EXECUTION-RESULT.md` |
 | `docs/daily/`·`docs/images/` | `docs/project/daily/`·`docs/project/images/` |
+| `workflows/` | 동일한 canonical `workflows/dubakwi-*.json` 경로 |
+| `knowledge/` | 동일 경로의 공개/제한 지식 및 `manifest.json` |
+| `data/users.json`·`data/records.json` | 동일 경로의 가상 시험 데이터 |
+| `cases/common.json`·`cases/team.json` | 동일 경로; `cases/team-extended.json`은 추가 팀 사례 |
+| `requests/`·`runs/` | 동일 경로의 시연 입력과 가린 실행 증거 |
+| 보조 설계 `docs/STORAGE-DESIGN.md`·`docs/SYSTEM-DESIGN.md` | 각각 `docs/project/STORAGE-DESIGN.md`·`docs/project/SYSTEM-DESIGN.md` |
 
-저장소 설계서는 추가 보조 문서이며 다른 설계서가 참조하므로 제출 패키지에도 포함하고 링크를 검사합니다. 제출 경로의 변경 허용 여부는 강사 확인 전입니다. 제출 도구가 공식 경로를 요구하면 팀장이 제출용 패키지에서 경로·상대 링크를 맞추고 재현·검사를 수행합니다. 개발 중에는 중복 편집본을 만들지 않습니다. 경로 대응 확인은 P31 제출 검사에 포함합니다.
+보조 설계서는 다른 설계서가 참조하므로 공식 필수 세 문서와 구분해 제출 패키지에 함께 포함합니다. 위 표는 공식 경로와 작성 원본의 대응입니다. `submission/final/`에는 필수 산출물 3종의 링크 재기준화 스냅샷과 그 출처 안내, DAY82·후보 목록·발표 원고가 있습니다. 패키지의 나머지 필수 파일 수집, VM 재현·비밀 검사와 최종 제출은 완료되지 않았으며 P31에서 수행합니다.
 
 [개발 계획](../DEVELOPMENT-PLAN.md) · [발표 계획](../PRESENTATION-PLAN.md) · [문서 대문](../README.md)
 
@@ -109,4 +110,4 @@ R05 P13/P25 통합 산출물: [공통 사례](../../cases/common.json), [팀 사
 
 ## PR36 로컬 통합 수용 기록
 
-현재 후보의 원본 파일 수용·제외·역사 보존 및 설계 대조는 [로컬 수용 대조](../../infra/pr36-local-acceptance.md)를 따른다. [실행 결과서](EXECUTION-RESULT.md)는 과거 정상1건·반복/실패·PASS*·미실행을 구분하며 이번 로컬 시험을 실제 VM 통과로 합산하지 않는다. [R03 발표 대본](presentation/r03-rag-script.md)은 PR24 당시 초안이고 PDF/이미지는 공개하지 않았다.
+현재 후보의 원본 파일 수용·제외·역사 보존 및 설계 대조는 [로컬 수용 대조](../../infra/pr36-local-acceptance.md)를 따른다. [실행 결과서](EXECUTION-RESULT.md)는 과거 정상1건·반복/실패·PASS*·미실행을 구분하며 이번 로컬 시험을 실제 VM 통과로 합산하지 않는다. [R03 발표 대본](presentation/r03-rag-script.md)은 PR24 당시 초안이고 PDF/이미지는 공개하지 않았다.\n\n\n

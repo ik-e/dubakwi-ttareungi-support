@@ -1,0 +1,15 @@
+{
+  "run_id": "20261108-144413-vm-discord-d04-lookup",
+  "date": "2026-11-08",
+  "environment": "Edge connected Discord UI; existing PR36 bot",
+  "cases": {
+    "D04": "passed: citizen status lookup returned closed response for existing completed synthetic case"
+  },
+  "synthetic_discord_requests_submitted": 1,
+  "jira_state_changed": false,
+  "database_lookup_log_verified": false,
+  "limitations": [
+    "This UI check observes the citizen response only; it does not independently verify the backing Jira GET or database audit record",
+    "This run does not imply full scenario completion"
+  ]
+}

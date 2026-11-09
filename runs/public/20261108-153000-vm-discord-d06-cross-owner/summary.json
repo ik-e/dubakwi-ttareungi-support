@@ -1,0 +1,14 @@
+{
+  "run_id": "20261108-153000-vm-discord-d06-cross-owner",
+  "date_kst": "2026-11-08 15:30",
+  "environment": "vm-pr36-discord-jira-ui",
+  "scenario": "D06_cross_owner_case_ref",
+  "test_account_owner": "citizen-c",
+  "target_case_owner": "citizen-a",
+  "target_case_state": "open_todo_synthetic",
+  "discord_result": "generic_case_ref_unavailable; no foreign case detail or Jira key returned",
+  "jira_new_issue_search": "no matching issue found",
+  "database_state_dlq": "not_checked",
+  "status": "passed_with_effect_scope_limited_to_discord_response_and_jira_search",
+  "evidence": "report.md"
+}

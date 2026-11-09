@@ -1,10 +1,21 @@
 # 노코드 워크플로우 설계서 · 두바퀴
 
+<!-- final-closeout-current -->
+**현행 정리 v0.24 · 2026-11-09.** 제출용 정리본은 로컬 `submission/final/docs/WORKFLOW-DESIGN.md`다. 본 문서는 상세 계약·과거 설계 이력을 보존한다. 아래 날짜가 있는 미구현/미반영 문구는 당시 상태이며 이 요약을 덮어쓰지 않는다.
+
+- 문의 유형은 6개, 대표 처리 경로는 5개다. 최초 문의 1회차와 추가 입력 2회 뒤 3회차에 한도 이관한다. 이관 후 후속은 담당 역할·우선순위를 유지한다.
+- 최신 실제 동작은 [11/09 리허설과 서버 대조](../../runs/public/20261109-001140-vm-demo-rehearsal/backend-followup.md)의 QR 안내·반납 보완·근거 없음 3흐름/5요청이다. Jira 배정·진행 중·내부 메모와 All 큐의 완료 포함을 확인했다. Jira 상태 관리는 실제 환불/반납 조작이나 완료 push가 아니다.
+- [8개 소스 JSON 전체 노드·연결](../../runs/public/20261109-112300-local-final-closeout/workflow-map.md)을 직접 집계했다. B35가 메타 기록 노드이며 리허설 보고서의 B33 감사 라벨과 구분한다. VM 전체 export 동일성은 미확인이다.
+- [60개 사례·64개 요구 근거표](../../runs/public/20261109-112300-local-final-closeout/evidence-matrix.md)와 [마감 검증 기록](../../runs/public/20261109-112300-local-final-closeout/report.md)에서 확인 범위와 미실행을 구분한다. 기존 실패 기록·계약·원본은 보존했다.
+<!-- /final-closeout-current -->
+
+v0.23 · 2026-11-08: 저장소 workflow JSON node 수를 직접 집계해 3절 표를 갱신했다. 문서·계수 정정이며 공개 계약이나 실행 동작 변경은 없다.
+
 v0.22 · 2026-11-08: Handoff 종료·배정 실패는 운영자 수동 재개를 위해 action 필수 인자를 masked `payload/close`·`payload/assign`으로 보존한다. H61은 검증용 context snapshot이 존재할 때만 `payload/context_update`로 보존한다. Local fixture contract 6/6 통과; VM에 반입하거나 Jira에서 수행한 것은 아니다. create/alert 및 검증 snapshot 없는 context update는 inspect-only/안전 거절을 유지한다.
 
 v0.21 선택 UX 전송 환경 · 2026-11-07: 별도 시험 사본의 H11/X04/E09는 [UX API 알림 경계](../../infra/user-api-deployment.md#optional-isolated-ux-discord-egress)로 연결할 수 있다. Discord URL을 n8n 실행 항목에 넣지 않고 기존 API 프로세스가 비밀파일을 읽어 전송한다. HTTP 204는 메시지 ack, 424는 거절, 502/503/504는 효과 미확인으로 기존 정규화와 DLQ/재전송 차단을 유지한다. 1.5초·자동 재시도0이며 기존 H11의2초 상한·업무 Request/Response·prepare/bind/save/finish 의미를 바꾸지 않는다. 정상 환경은 기본 설정을 보존한다. 실제 배포·알림 수신 증거는 별도 실행 결과로 판정한다.
 
-현행 적용 상태: v0.20 / 2026-11-07. v0.19 통합본(main a657890)을 VM에 적용했다. [실제 연결 검증](../../runs/public/20261107-170503-vm-pr36-integration/report.md)에서 정상 종료·조회·배정·save·실패 보존과 B17 축소 예산의 write 실행을 확인했다. WF11의 6초는 가이드 사례 예시이며 SLA가 아니다. 8.288초 사례 assertion 불일치는 보존하지만 20초 운영 deadline 안에 안전 이관한 것으로 기록한다. TC15 원 기대/unknown 게이트 충돌은 별도 미해결이다. 아래 v0.18 및 날짜별 수치는 원본 이력이다. 정상 결과와 R05 공식 최종 판정을 구분한다.
+2026-11-07 당시 VM 적용 기록: v0.20. v0.19 통합본(main a657890)을 VM에 적용했다. [실제 연결 검증](../../runs/public/20261107-170503-vm-pr36-integration/report.md)에서 정상 종료·조회·배정·save·실패 보존과 B17 축소 예산의 write 실행을 확인했다. WF11의 6초는 가이드 사례 예시이며 SLA가 아니다. 8.288초 사례 assertion 불일치는 보존하지만 20초 운영 deadline 안에 안전 이관한 것으로 기록한다. TC15 원 기대/unknown 게이트 충돌은 별도 미해결이다. 아래 v0.18 및 날짜별 수치는 원본 이력이다. 정상 결과와 R05 공식 최종 판정을 구분한다.
 
 전체 구성·상태 관계·기능/시나리오 추적은 [최상위 시스템 설계서](SYSTEM-DESIGN.md)를 먼저 읽는다. 이 문서는 노드·엣지와 업무 계약의 상세 원본이다.
 
@@ -310,16 +321,18 @@ R03이 승인된 지식을 검색 가능한 상태로 준비한다. 색인·메�
 
 워크플로우 파일(검색·색인의 내부 명세와 노드 수 원본은 RAG 설계서):
 
-| 파일 | 웹훅 · 트리거 | 맡은 사람 | 노드 수 |
+아래 수치는 2026-11-08 현재 저장소 JSON 파일의 물리 node 수다. 논리 단계 수와 다를 수 있고 VM 게시본의 node 수·내용과 동일하다고 보장하지 않는다. 정확한 VM JSON hash/source mapping은 미확인이다.
+
+| 파일 | 웹훅 · 트리거 | 맡은 사람 | 저장소 JSON 노드 수·설계 구분 |
 | --- | --- | --- | --- |
-| workflows/dubakwi-support.json | Header Auth POST dubakwi-support | R02 | 42 기본안+X 7개 확장 |
-| workflows/dubakwi-search.json | 내부 Header Auth Webhook | R03 | [RAG 설계서](RAG-ARCHITECTURE.md) 참조 |
-| workflows/dubakwi-handoff.json | 내부 Header Auth Webhook | R04 | 20 |
-| workflows/dubakwi-index.json | 관리자 Manual Trigger | R03 | [RAG 설계서](RAG-ARCHITECTURE.md) 참조 |
-| workflows/dubakwi-state.json | Execute Sub-workflow,외부 Webhook 없음 | R04 | 저장소 공개 계약의 고정 명령,드라이버별 내부 노드 R04 상세화 |
-| workflows/dubakwi-dlq.json | Execute Sub-workflow,외부 Webhook 없음 | R04 | DLQ 쓰기/운영 재처리의 고정 계약,R04 드라이버 상세화 |
-| workflows/dubakwi-recovery-operator.json | Manual Trigger + JSON input,외부 Webhook 없음 | R01 통합 (P18) | 기존 operator Credential을 사용한다. `list`/`inspect`는 `recovery_lookup(jsonb)` read-only dispatcher로 분기해 미해결 DLQ의 bounded list와 sanitizing inspect를 제공하고, 링크된 JBYS Jira issue는 기존 `dubakwi-Jira SW Cloud account`로 status/assignee display name GET만 한다. 복구 action은 JSON source에 기존 `recovery_control` route로 유지되지만 PR36 dual-storage DB에서는 action 계약을 미검증했다. 2026-11-08 migration 017을 PR36 dual-storage DB에 적용하고 기존 비활성 R01 TC-07 수동 시험 workflow ID에서 list/inspect 및 Jira GET을 확인했다. canonical source ID import는 미완료다. 상세 결과·한계는 [TC-07 lookup run](../../runs/public/20261108-101605-vm-tc07-dlq-lookup/report.md) 참조. |
-| workflows/dubakwi-errors.json | Error Trigger | R04 | 5 |
+| workflows/dubakwi-support.json | Header Auth POST dubakwi-support | R02 | 54개(42 B 노드 + 3 LLM + 9 X 오류 처리 노드); B 본체 설계 42개와 X 확장 그룹을 구분 |
+| workflows/dubakwi-search.json | 내부 Header Auth Webhook | R03 | 19개; 검색 내부 명세는 [RAG 설계서](RAG-ARCHITECTURE.md) 참조 |
+| workflows/dubakwi-handoff.json | 내부 Header Auth Webhook | R04 | 71개; 논리 도구 단계와 세부 검증/쓰기 가드 노드 수를 구분 |
+| workflows/dubakwi-index.json | 관리자 Manual Trigger | R03 | 11개; 색인 내부 명세는 [RAG 설계서](RAG-ARCHITECTURE.md) 참조 |
+| workflows/dubakwi-state.json | Execute Sub-workflow,외부 Webhook 없음 | R04 | 31개; 저장소 공개 계약의 고정 명령, 드라이버별 내부 노드 상세화 |
+| workflows/dubakwi-dlq.json | Execute Sub-workflow,외부 Webhook 없음 | R04 | 6개; DLQ 쓰기/운영 계약, 운영자 list/inspect와 recovery action은 별도 경계 |
+| workflows/dubakwi-recovery-operator.json | Manual Trigger + JSON input,외부 Webhook 없음 | R01 통합 (P18) | 저장소 JSON 13개 노드. 기존 operator Credential을 사용한다. `list`/`inspect`는 `recovery_lookup(jsonb)` read-only dispatcher로 분기해 미해결 DLQ의 bounded list와 sanitizing inspect를 제공하고, 링크된 JBYS Jira issue는 기존 `dubakwi-Jira SW Cloud account`로 status/assignee display name GET만 한다. 복구 action은 JSON source에 기존 `recovery_control` route로 유지되지만 PR36 dual-storage DB에서는 action 계약을 미검증했다. 2026-11-08 migration 017을 PR36 dual-storage DB에 적용하고 기존 비활성 R01 TC-07 수동 시험 workflow ID에서 list/inspect 및 Jira GET을 확인했다. canonical source ID import는 미완료다. 상세 결과·한계는 [TC-07 lookup run](../../runs/public/20261108-101605-vm-tc07-dlq-lookup/report.md) 참조. |
+| workflows/dubakwi-errors.json | Error Trigger | R04 | 9개 |
 
 실제 n8n 버전·포트·AI 연결·원시 출력은 D03 확인 전. 상세도에서 오류 엣지는 생략하고7절에서 붙인다. 단계도와 노드 상세도는 서로 다른 확대 수준이다.
 

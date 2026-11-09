@@ -1,0 +1,72 @@
+{
+  "n8n_inventory": {
+    "ux_workflows_published": 5,
+    "scope": "UI inventory only; exact exported JSON/credential binding hashes not inspected",
+    "dual_storage": {
+      "state": true,
+      "dlq": true,
+      "errors_published": false,
+      "support": true,
+      "handoff": true
+    },
+    "recovery_operator_published": false,
+    "workflow_total": 106,
+    "pr36_core": {
+      "handoff": {
+        "published": true
+      },
+      "errors": {
+        "published": true
+      },
+      "state": {
+        "published": true
+      },
+      "search": {
+        "published": true
+      },
+      "index": {
+        "id": "dubakwiPR36a657Index",
+        "trigger": "Manual",
+        "execution_history": "no_executions_found",
+        "published": false
+      },
+      "support": {
+        "id": "dubakwiPR36a657Support",
+        "published": true
+      },
+      "dlq": {
+        "published": true
+      }
+    }
+  },
+  "vm": {
+    "containers": "PR36 API healthy; UX API healthy; Discord bot running; PostgreSQL healthy; n8n running; ancillary containers running/healthy",
+    "n8n_version": "2.42.6",
+    "hostname": "aio-t2",
+    "postgresql_version": "16.15"
+  },
+  "live_effects": {
+    "database_writes": 0,
+    "discord_sends": 0,
+    "workflow_executions": 0,
+    "jira_writes": 0
+  },
+  "run_id": "20261108-120800-vm-runtime-refresh",
+  "source_commit": "dd919d709649171336f13a29a0306fae4da702f2",
+  "details": "report.md",
+  "environment": "team VM via existing Edge web SSH and n8n UI",
+  "date": "2026-11-08",
+  "executed_at": "2026-11-08T12:08:00+09:00",
+  "local_checks": {
+    "coverage_plan": "64 requirement IDs; 12 packages; runtime tests 0",
+    "project_docs": "23 files; 817 local links; 58 anchors; 0 errors",
+    "public_files": "591 candidates; 580 tracked; 0 errors",
+    "git_diff_check": "passed"
+  },
+  "result": "runtime_baseline_confirmed_workflow_source_mapping_incomplete",
+  "blockers": [
+    "Exact source↔VM workflow JSON/credential mapping incomplete",
+    "Current VM RAG memory population/readiness not independently verified",
+    "TC-07 recovery_control absent; TC-15 remains last-stage synthetic test"
+  ]
+}

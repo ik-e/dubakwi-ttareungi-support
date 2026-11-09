@@ -1,0 +1,12 @@
+{
+  "run_id": "20261108-152100-vm-jira-d03-crosscheck",
+  "date_kst": "2026-11-08 15:21",
+  "environment": "vm-pr36-discord-jira-ui-and-local-tests",
+  "jira_issue": "synthetic_issue_key_redacted",
+  "D03_ticket_reuse": "passed: same case and first_request_id; Jira context revisions 1-3 share the same ticket key",
+  "staff_handoff": "partial: assigned and handoff record visible; human read and Discord receipt unverified",
+  "jira_status": "observed_todo_unchanged",
+  "discord_registration_boundary": "22 adapter unit tests passed; unknown ID lookup covered, bot branch reviewed, live interaction not run",
+  "separate_live_discord_identity": "not_run: no separate temporary Discord session used",
+  "evidence": "report.md"
+}

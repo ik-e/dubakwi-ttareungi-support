@@ -1,0 +1,16 @@
+{
+  "run_id": "20261108-154900-vm-jira-j02-assignee-handling",
+  "date_kst": "2026-11-08 15:49",
+  "environment": "vm-jira-ui",
+  "scenario": "J02_assignee_direct_handling",
+  "issue_key": "masked_public",
+  "assignee": "i i",
+  "current_login_display": "i i",
+  "status": "in_progress",
+  "internal_note": "present_and_matches_expected_synthetic_note",
+  "jira_history_ui": "assignee_account_authored_note; issue currently in progress",
+  "discord_notification_receipt": "not_checked",
+  "database_state_dlq": "not_checked",
+  "status_result": "passed_j02_direct_assignee_handling",
+  "evidence": "report.md"
+}

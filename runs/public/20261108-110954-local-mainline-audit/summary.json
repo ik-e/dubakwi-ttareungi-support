@@ -1,0 +1,26 @@
+{
+  "run_id": "20261108-110954-local-mainline-audit",
+  "date": "2026-11-08",
+  "environment": "local-git-and-github-read-only-audit",
+  "source_commit": "dd919d709649171336f13a29a0306fae4da702f2",
+  "branch": "r01/p18-dlq-jira-lookup",
+  "result": "source_baseline_fixed_vm_manifest_pending",
+  "checks": {
+    "origin_main": "dd919d709649171336f13a29a0306fae4da702f2",
+    "current_branch_head_matches_origin_main": true,
+    "local_main_fast_forwarded_from": "bad410c",
+    "local_main_after": "dd919d709649171336f13a29a0306fae4da702f2",
+    "existing_worktree_changes_preserved": true,
+    "application_source_changes_in_worktree": 0,
+    "open_prs_audited": [24, 29, 32, 33, 34, 35, 39, 43, 45],
+    "additional_merge_required_for_pr36_baseline": false,
+    "pr_merges_or_closures_performed": 0,
+    "other_worktrees_or_branches_deleted": 0,
+    "project_doc_check": "passed_22_files_788_links_58_anchors",
+    "public_files_check": "passed_585_candidates_1163_links",
+    "git_diff_check": "passed",
+    "vm_full_artifact_manifest": "pending"
+  },
+  "details": "report.md",
+  "limits": "VM image/workflow/SQL/RAG index full manifest not captured; open PRs remain open."
+}

@@ -1,10 +1,26 @@
 # RAG 아키텍처 설계서 · 두바퀴
 
-현행 적용 상태: v0.12 / 2026-11-07. main a657890의 검색·지식·manifest를 별도 VM 사본에 반입하고 같은 n8n 프로세스에서 44청크를 재색인했다. [실제 검증](../../runs/public/20261107-170503-vm-pr36-integration/report.md)은 QR 정상 근거와 API→B05→RAG 권한 7개 구성 요소 시험을 포함한다(3개는 API 출력 fixture). 서버 DB의 문의 상태 저장과 RAG 메모리 색인은 별개이며 영속 벡터 저장을 새로 도입하지 않았다. 아래 이전 VM 미반영·지연 기록은 당시 이력으로 보존한다. 임베딩 단계별 비용/지연 전체 측정과 R03/R05 최종 확인은 별도다.
+<!-- final-closeout-current -->
+**현행 정리 v0.24 · 2026-11-09.** 제출용 정리본은 로컬 `submission/final/docs/RAG-ARCHITECTURE.md`다. 아래 날짜별 기록은 최초 실패와 후속 확인의 이력으로 보존한다.
+
+- 실제 PR36 벡터 저장소는 프로세스 메모리다. PostgreSQL은 업무 상태/DLQ용이며 pgvector는 후속안이다. 지식 8개·준비 청크44개와 VM UI 처리44 items를 최종 저장 벡터 전수 개수로 혼동하지 않는다.
+- 최신 PR36 검색·권한은 [16/16](../../runs/public/20261108-142200-vm-pr36-rag-full-matrix/report.md), QR 및 SR-WF12 Support 종단은 별도 증거다. [11/09 리허설](../../runs/public/20261109-001140-vm-demo-rehearsal/backend-followup.md)에서 QR 근거 응답과 no_evidence 이관을 확인했다.
+- 청킹 비교는 전체44/41 중 공개36/33을 같은 공개 정상 질문13개+WF03으로 평가했다. hit@3와 최종 답변 품질을 구분한다. 9,426토큰은 이 비교 실험 사용량이며 VM 색인/운영 비용은 미측정이다.
+- manifest의 승인 대기·index_enabled=false는 유지하며 교육용 demo 사용과 실서비스 승인을 구분한다. SQLite running 잔류·색인 시간 미측정·VM 전체 source mapping은 남은 한계다. [최종 근거표](../../runs/public/20261109-112300-local-final-closeout/evidence-matrix.md).
+<!-- /final-closeout-current -->
+
+**2026-11-08 13:57 VM execution 상태 대조:** SQLite read-only 조회는 PR36 index #2167을 `running`으로 표시하지만, workflow execution 화면은 `Could not find execution`, 전체 실행 목록의 `Running` 필터는 비어 있다. 별도 legacy `dubakwi-index` 실행 #2170은 10.699초 `Success`였으나 PR36과 다른 memory key namespace다. 이전 PR36 44청크 복구는 성공했지만 소요시간 미측정이다. 이 불일치는 실행 중인 작업인지 저장/표시가 누락된 stale metadata인지 확정하지 못한다. 현재 PR36 사용자 RAG 종단은 통과했다. UI에서 중지 대상을 찾지 못해 중지/재색인은 하지 않았다. [대조 결과](../../runs/public/20261108-135700-vm-rag-execution-ui-crosscheck/report.md).
+
+문서 개정·현행 검증 기준: v0.23 / 2026-11-08. v0.22의 direct embedding 비교 범위 정정(public-only 평가 13개 정상 query + WF03)은 [원시 결과](../../runs/public/20261105-120437-chunk-retrieval-comparison/summary.json)를 따른다. VM n8n에는 legacy `dubakwi-search`와 PR36 전용 `R01 PR36 a657890 search`가 별도 memory key namespace로 존재하며 PR36 Support B14는 `/dubakwi-search-pr36-a657890`를 호출한다. 14:02 실행에서 n8n 재시작 후 PR36 전용 index가 44 items UI 성공을 보였고, 직후 QR 문의가 `rental-guide` 근거 답변을 반환했다([재시작·재색인 결과](../../runs/public/20261108-140200-vm-pr36-rag-recovery/report.md)). 따라서 이 PR36 namespace의 재시작 후 재색인·QR 기능 경로는 한 번 확인됐다. 다만 SQLite #2167과 UI상 성공한 #2211이 모두 `running`/`stoppedAt=null`로 남아 실행 메타데이터 종료 상태는 미해결이며 index 처리시간도 미측정이다. 메타데이터 원인 규명은 사용자 완료 기준의 추가 시험 gate로 두지 않는다. 13:14 direct search의 SR-WF12 raw query miss와 13:30 Support intent-transform E2E 통과는 서로 다른 계층 결과로 모두 보존한다. 이전 시각별·버전별 VM 미반영 기록은 당시 증거로 유지한다.
 
 **2026-11-07 R05 결과 검토:** WF-01 실행 #796은 B14 검색 호출이 3초 제한을 넘겨 이관됐다(검색 약 3,018ms). 임베딩·네트워크·검색 처리 시간은 분리 측정되지 않아 정확한 원인은 미확인이다. 시민 제한 요청 차단과 검색까지 도달한 시민의 제한 자료 비노출, 담당자 양성 대조는 별도로 판정한다. PR #31 지식·검색 수정은 main에 병합됐으나 마지막 확인된 VM 색인에는 미반영이며 현재 VM 상태는 R01 인계 확인이 필요하다. [시험 범위와 인계](../rag-knowledge/r03-evidence-review-20261107.md).
 
 전체 구성·상태·시나리오에서 RAG의 위치는 [최상위 시스템 설계서](SYSTEM-DESIGN.md)를 참조한다. 검색·색인 내부 상세의 원본은 이 문서다.
+
+**2026-11-08 VM 상태 재대조:** [11/7 PR36 통합 실행](../../runs/public/20261107-170503-vm-pr36-integration/report.md)은 팀 VM에서 재시작 뒤 44청크를 재색인하고 QR 문의의 실제 검색·근거 응답 및 AUTH 표적 7/7(그중 통제 API fixture 3개)를 기록했다. 11/8 Discord D08에서도 `breakdown-report` / 고장 신고 근거가 표시됐다. 12:56 관측은 서로 다른 RAG workflow/key를 교차 사용한 결과였다. 13:06에 대응 `dubakwi-index` 실행 후 legacy search smoke를 통과했다. 13:14 direct matrix는 15/16을 통과했다. SR-WF12 원 입력은 단일 raw search에서 기대 절이 누락됐으나 B13-style hint 진단 및 13:30 PR36 full Support 경로에서 보안 근거를 회복하고 urgent handoff했다. 13:23 `/dubakwi-support`는 P11 골격 경로로 분류됐다. 실제 PR36 endpoint는 13:25 QR answer와 13:30 SR-WF12 처리 종단을 확인했다. n8n 실행 2167이 `running`으로 남아 재시작 복구는 미실행이다. 상세는 [13:06 결과](../../runs/public/20261108-130600-vm-rag-correct-pair/report.md), [13:14 matrix](../../runs/public/20261108-131400-vm-rag-matrix/report.md), [13:23 legacy 경로](../../runs/public/20261108-132300-vm-support-rag-e2e/report.md), [13:25 QR 종단](../../runs/public/20261108-132500-vm-pr36-rag-e2e/report.md), [13:30 SR-WF12 종단](../../runs/public/20261108-133000-vm-pr36-rag-wf12-e2e/report.md). VM에는 병렬 RAG 계열이 둘이므로 Support 호출 경로와 대응 index key를 함께 확인해야 한다.
+**13:47 실행 상태 새로고침:** 기존 Edge 웹 SSH 경로를 이용해 실제 컨테이너를 식별하고 n8n SQLite 실행 메타데이터를 read-only로 다시 읽었다. PR36 index 실행 2167이 계속 `running`, `stoppedAt=null`이며 일치 workflow에서 최근 실행은 1건이었다. 이는 상태 확인 가능성을 증명하지만 memory store가 살아 있거나 복구됐음을 뜻하지 않는다. 재시작/재색인과 현재 vector population 대조는 미실행이다. [결과](../../runs/public/20261108-134700-vm-rag-execution-refresh/report.md).
+
+**2026-11-08 PR36 검색 기능 판정 갱신:** 대응 PR36 index/search 경로로 `cases/search.json` 16개를 실행해 16/16 기대 결과를 확인했다. public/restricted 권한, citation 대상, empty/invalid/off 경계를 포함하며 QR 문의와 SR-WF12 intent transform Support 종단도 별도 통과했다([전체 matrix](../../runs/public/20261108-142200-vm-pr36-rag-full-matrix/report.md), [QR 종단](../../runs/public/20261108-132500-vm-pr36-rag-e2e/report.md), [SR-WF12 종단](../../runs/public/20261108-133000-vm-pr36-rag-wf12-e2e/report.md)). 계획된 PR36 RAG 기능 시험은 완료다. SQLite 실행 row의 `running` 잔류와 index 처리시간 미측정은 관측 한계로 기록하고 추가 기능 시험의 gate로 확대하지 않는다. 임의 재색인은 수행하지 않는다.
 
 **문서 관계:** 이 문서가 RAG 지식·청킹·임베딩·색인·검색 및 운영 설계의 공식 원본이다. [제출용 5절 요약](../rag-knowledge/rag-architecture.md)은 이 문서와 측정 증거를 바탕으로 정리한 시점별 설명 자료이며 별도의 계약 원본이 아니다. 설계가 변경되면 이 문서를 먼저 갱신하고 제출용 요약을 동기화한다. 아래 과거 버전과 측정 이력은 당시 상태로 보존한다.
 
@@ -12,7 +28,7 @@
 
 **2026-11-06 현행 검증 요약:** R05의 [실행 305 정상 1건 판정](https://github.com/ik-e/dubakwi-ttareungi-support/blob/r05/p19-s1-verdict/runs/public/20261106-162030-vm-p19-s1-r05-verdict/report.md)은 public 검색 결과 5건, 기대 QR 절 2위, 답변 4문장의 근거 일치를 기록했다. R05가 n8n 화면을 확인했으며 Discord 화면·DB·Jira 독립 조회는 R01 보고에 의존했다. 정상 1건은 권한 전반·장애·복구 통과가 아니다. 시민 답변에 내부 출처 설명이 섞인 F-S1-03은 [PR #31](https://github.com/ik-e/dubakwi-ttareungi-support/pull/31)의 변경본 적용·재색인 및 최종 답변 재시험 전까지 미해결이다. R05는 실행 305의 시작 시각 기록 불일치도 보고했으며 R01 확인이 필요하다.
 
-**청킹 비교 보완:** [직접 임베딩 비교](https://github.com/ik-e/dubakwi-ttareungi-support/blob/codex/rag-presentation-permission-tests/runs/public/20261105-120437-chunk-retrieval-comparison/summary.json)는 공개 질문 13개에서 절·문단 방식과 절 전체 방식 모두 기대 문서·절 hit@3 각각 13/13을 기록했다. 절 전체 방식은 3개 절에서 실제·가상 정보가 섞여 그대로 적용하지 않았다. 이는 n8n 종단·답변 품질·R05 공식 판정이 아니며 아래 이전 표는 당시 측정 이력이다.
+**청킹 비교 보완 (2026-11-05 direct embedding):** [실행 기록](../../runs/public/20261105-120437-chunk-retrieval-comparison/summary.json)은 총 14개 query(공개 정상 13개 + out-of-domain WF03 1개)를 public-only로 직접 임베딩 API와 Python cosine으로 비교했다. 문단 청크 36개와 절 전체 청크 33개(전체 prepare 구조의 44개/41개 중 public 부분)에서 두 방식 모두 정상 질문의 기대 문서·절 hit@3가 각각 13/13이었고 WF03은 empty였다. 이는 n8n 로더·실제 VM 검색·최종 답변 품질·R05 공식 판정이 아니다. 절 전체 방식은 실제 안내와 가상 설정이 섞인 3개 절 때문에 그대로 운영 선택하지 않았다.
 
 - 작성: 2026-11-03 KST / 버전·상태: **v0.10 교육용 로컬 측정·VM 수동 색인과 검색 부분 시험 반영** / 책임: R03, 검토: R02·R04·R05.
 - v0.10 변경: R01이 팀장 PR 정리 지시에 따라 VM 실행9의 원본 Manual44청크·ready·실제 HTTP7메서드와 후속 B14 연결 증거를 동기화했다. [현행 VM 인계](../rag-knowledge/r03-vm-index-handoff.md)를 따르며 아래 로컬 이력은 보존한다. VM 재시작/재색인·실제 사용자 인가·공식 판정은 여전히 미완료다. 지식 승인·검색 로직·공개 계약은 바꾸지 않았다.
@@ -35,10 +51,10 @@
 | 문서 길이 | 8개 Markdown 파일 텍스트 기준 최소 **405자**, 중앙값 **1,049자**, 최대 **2,385자**. Python `read_text(encoding="utf-8")` 및 `len()` 실측, 줄바꿈 포함, 2026-11-05. 토큰 수 아님 |
 | 언어 | 한국어 중심, QR·앱 등 일부 영문 용어. 비율은 미측정 |
 | 갱신 주기 | 정기 주기 미확정. 출처나 정책 변경을 확인하면 원문을 검토하고 manifest 해시·버전을 갱신한 뒤 색인을 재생성하는 안 |
-| 접근 권한 | `public` 시민용 6개, `restricted` 담당자용 가상 정책 2개. 시민은 public, 서버에서 허용된 담당자는 public+restricted. 사용자 조회→B05→RAG 전체 인가는 미검증 |
+| 접근 권한 | `public` 시민용 6개, `restricted` 담당자용 가상 정책 2개. 시민은 public, 서버에서 허용된 담당자는 public+restricted. 11/07 AUTH 표적 7개(실제 API4·통제 fixture3), 11/08 PR36 검색16개와 Support 종단 증거를 구분해 확인 |
 | 승인 | `knowledge/manifest.json` 기준 8개 모두 승인 대기·색인 비활성. 명시적인 demo 준비로만 로컬 시연에 사용하며 서비스 지식 승인을 의미하지 않음 |
 
-문서 목록·원본 해시·출처·승인 상태·접근권한은 manifest로 관리する。調査原文はサービス知識として自動承認しない。
+문서 목록·원본 해시·출처·승인 상태·접근권한은 manifest로 관리한다. 조사 원문을 서비스 지식으로 자동 승인하지 않는다.
 
 ### 1.1 검토 전 초안과 서비스 지식의 관계
 
@@ -108,7 +124,7 @@ Simple Vector Store는 재시작 시 데이터가 사라질 수 있고 인스턴
 | 항목 | 우리 선택 | 비교한 다른 선택 | 근거 (숫자) |
 | --- | --- | --- | --- |
 | 전처리 | 사용자가 수집한 안내를 주제별 Markdown으로 정리하고 실제 안내·가상 설정 및 출처를 구분. 파일 경로·권한·승인 상태·정규화한 줄바꿈 기준 SHA-256 검증 | 자동 HTML 본문 추출은 별도 구현하지 않음 | manifest 8개; 전체 품질·최신성 승인은 대기 |
-| 청킹 단위 | Markdown `##` 절 아래 빈 줄로 구분한 문단. 실제 안내와 가상 설정이 한 문단에 섞인 특정 표현은 분리 | 절 전체·300자 고정 길이는 비교 후보 | 전처리 결과 44개; 절 전체 구조 41개와 길이만 비교; 같은 질문의 대안 hit@k 비교 미실행 |
+| 청킹 단위 | Markdown `##` 절 아래 빈 줄로 구분한 문단. 실제 안내와 가상 설정이 한 문단에 섞인 특정 표현은 분리 | 절 전체·300자 고정 길이 | 전처리 구조 비교는 전체 문단 44개(공개36·제한8), 절 전체 41개(공개33·제한8). 별도 direct embedding public-only 평가에서 문단36개·절33개, 정상 query 13개 기대 doc/section hit@3 각 13/13; out-of-domain WF03 empty. n8n/VM 종단 비교는 아님 |
 | 오버랩 | **전처리 청크 기준** 인접 문단 복제 없음, **0자** | 길이 기반 분할의 50자 또는 토큰 오버랩 후보 | 주제·문단 경계를 우선 보존하는 초기 선택. 검색 품질에 따른 최적화·비교 미측정 |
 | 청크 앞에 붙이는 것 | `[실제 안내]` 또는 `[가상 설정]`을 본문에 붙임. `title`, `section`은 메타데이터이며 임베딩 본문 앞에 별도 추가하지 않음 | 제목·절을 본문에 접두하는 방식 | 대안 성능 비교 미실행 |
 | 표·목록 처리 | Markdown 문단을 보존. 문단 단위 이외 표 머리글 반복·절차 보호를 위한 별도 로직 없음 | 긴 표의 헤더 반복과 단계별 분할은 후속 설계 | 현재 문서 내 실제 활용 여부·분할 품질 별도 평가 필요 |
@@ -118,12 +134,12 @@ Simple Vector Store는 재시작 시 데이터가 사라질 수 있고 인스턴
 | 방식 | 청크 수 | 길이 최소 | 중앙 | 최대 | hit@3 |
 | --- | ---: | ---: | ---: | ---: | --- |
 | 현재 절·문단 단위 | 44: public 36, restricted 8 | 61자 | 124.5자 | 251자 | 교육용 공개 Q01~Q13에서 기대 문서 포함 13/13, 기대 절 정확 일치 13/13. [실행 기록](../../runs/public/20261105-093642-local-rag-r05-review/summary.json); R05 공식 판정 아님 |
-| 절 전체 구조 비교(동일 절의 준비 청크를 결합) | 41 | 61자 | 123자 | 364자 | 미측정. 3개 절에서 실제·가상 청크가 섞여 그대로 운영에 사용하지 않음 |
+| 절 전체 구조 비교(동일 절의 준비 청크를 결합) | 41: public 33, restricted 8 | 61자 | 123자 | 364자 | 별도 public-only direct embedding 비교에서 기대 문서 hit@3 13/13, 기대 절 hit@3 13/13; WF03 empty. 3개 절에서 실제·가상 정보 혼합 |
 | 고정 길이 후보 | 미측정 | 미측정 | 미측정 | 미측정 | 동일 질문 비교 미실행 |
 
 길이는 `[실제 안내]`·`[가상 설정]` 표시를 포함한 Python 문자 수이며 토큰이 아니다. Q13은 대안으로 제시된 절 중 하나를 비교했다. 문서/절 hit@3은 정답 품질이나 다국어 모델 비교를 뜻하지 않는다. n8n 데이터 로더의 `textSplittingMode=simple`은 별도로 존재하므로 최종 저장 청크 수·재분할 여부는 저장본에서 재확인한다.
 
-측정 계획: 동일 원본·권한·질문10개 이상으로 청킹2방식 이상을 비교한다. 질문별 기대 doc/section을 구현 전에 정하고 정상 안내·정보 없음·긴급 초동·제한 문서·도메인 용어를 포함한다. 청크 분포와 hit@k,공통 WF01/03/05/12 및 팀 사례 답변 품질을 함께 기록한다. 가이드의 chunk_stats.py 제공 여부·입출력은 P01에서 확인하고 실제 명령·설정·보고서 경로를 실행 후 기재한다.
+비교 범위와 남은 한계: 2026-11-05 direct embedding 평가는 public-only 정상 13개와 out-of-domain 1개, 단일 실행, 직접 API/cosine 방식이다. 이로써 두 청킹안의 retrieval hit@3 비교는 있으나 RAG 답변 품질, 제한 문서 검색, n8n loader가 만든 최종 vector 수·동일 인덱스 결과 비교는 별도 지표다. 고정 300자 후보의 hit@k는 측정하지 않았다. 확인되지 않은 수치는 추정하거나 통과로 대체하지 않는다.
 
 ## 3. 임베딩
 
@@ -142,10 +158,10 @@ Simple Vector Store는 재시작 시 데이터가 사라질 수 있고 인스턴
 
 | 항목 | 값 |
 | --- | --- |
-| 저장소 | 현재 로컬: n8n Simple Vector Store의 프로세스 메모리. 이후 팀 VM: Docker 기반 PostgreSQL에 RAG 데이터 영속 저장 계획, 벡터 검색은 pgvector 확장 및 n8n PGVector 노드 검토. 아직 구현·배포 전. 실제 로컬 시험 키: `dubakwi-demo-public`, `dubakwi-demo-restricted`, `dubakwi-demo-readiness` |
+| 저장소 | 현재 로컬·PR36 VM: n8n Simple Vector Store의 프로세스 메모리. PostgreSQL은 업무 상태/DLQ에 배포됐으며 RAG 영속 저장(pgvector/n8n PGVector)은 후속안으로 미구현이다. 로컬 시험 키: `dubakwi-demo-public`, `dubakwi-demo-restricted`, `dubakwi-demo-readiness` |
 | 명명·전환 | 현 demo 키에는 버전이 없고 각 권한별로 기존 내용을 재생성한다. 운영 제안 `dubakwi_kb_v<version>_<access>`; 새 버전 완전 검증 뒤 검색 설정을 전환하는 방식은 미구현 |
 | 메타데이터 | 저장 로더 설정: `doc`, `title`, `section`, `chunk_id`, `access_level`, `type`, `version`, `source_url`, `source_checked_at`. 일부 출처 URL은 없을 수 있음. `updated_at`·제품군 필터는 현재 구현하지 않음 |
-| 검색 전 필터 | 인증된 내부 호출자의 `access_levels`를 검사하고 허용된 public/restricted 메모리 키만 검색. 서버 사용자 인증과 role→권한 전달은 R02/R04 통합 시험 전 |
+| 검색 전 필터 | 인증된 내부 호출자의 `access_levels`를 검사하고 허용된 public/restricted 메모리 키만 검색. 서버 사용자 인증·권한 전달은 11/07 AUTH 및 11/08 Support/권한 검색 증거의 범위에서 확인. 모든 사용자 조합 전수 판정은 아님 |
 | 검색 후 처리 | 접근수준·필수 필드 검사, 0.30 미만 제외, 점수순 상위 5건. 일반 중복 청크 제거는 현재 별도 구현 확인되지 않음 |
 | 파티션·샤딩 | public/restricted 메모리 키 분리는 소규모 논리 분리. 분산 샤딩·제품군/조직 단위 파티셔닝은 미구현이며 지속형 저장소 도입 시 데이터량·권한 기준으로 검토 |
 
@@ -299,3 +315,8 @@ I04는 최종 청크를 만든 뒤 I05가 batch1 처리한다. I07 본문은 $js
 | 확장 ×10/×100 | 같은 청크 분포가 유지된다는 가정의 단순 규모: **약 440/4,400청크**. 토큰·비용과 해당 실행의 청크별 성공 확인이 없어 시간·비용 추정 보류 | 기준 44개에 T초·X토큰·C달러가 측정되면 10배·100배를 초기 추정하고 실제 재측정. Docker 기반 PostgreSQL+pgvector를 우선 설계하고 배치 임베딩·권한 필터·필요 시 파티션/샤딩 검토 |
 
 색인/검색 실패는 자체 결과·운영 기록에 남기고 본체에는 공개 error 계약만 반환한다. 오류 원문·전체 문서·Credential을 외부 응답이나 감사 로그에 복사하지 않는다. 재시작·후보 버전 실패·롤백·제한 검색·청크 일부 실패를 시험한다. 문서·검색 결과·시간·비용·비교 보고서가 생기면 미측정 표를 증거로 교체한다. 초안 작성은 구현·측정 완료가 아니다.
+**2026-11-08 14:01 복구 재시험:** n8n 재시작 후 PR36 전용 index workflow가 UI에서 44 items 성공했고, 직후 PR36 Support QR synthetic 문의에 HTTP 200 자동 답변과 public `rental-guide` 근거가 반환됐다. 다만 SQLite의 #2167 및 새 #2211 execution row가 계속 `running`/`stoppedAt=null`로 보여 UI/DB 실행 메타데이터 불일치는 미해결이다. 색인 시간 계측 및 전체 matrix 재실행은 하지 않았다. [시험 결과](../../runs/public/20261108-140200-vm-pr36-rag-recovery/report.md).
+
+**2026-11-08 14:14 PR36 직접 검색 경계 시험:** PR36 전용 search workflow에서 7개 표적 assertion(public QR, empty, invalid access, disabled, 시민 canary 비노출, 담당자 restricted 양성, 혼합 보안 query)을 모두 통과했다. 이는 legacy 전체 16-case matrix 15/16 결과를 소급 변경하지 않으며 PR36 전체 검색 matrix도 아니다. index는 UI 기준 44 items 성공·ready이나 SQLite #2211이 running으로 남고 종료 시간이 없어 인덱싱 지연을 계측하지 못했다. [시험 기록](../../runs/public/20261108-141600-vm-pr36-rag-matrix/report.md).
+
+**2026-11-08 14:22 PR36 전체 사례 검증:** `cases/search.json` 전체 16건을 PR36 전용 search webhook에서 실행했다. QR/반납/환불/보안 근거, 검색 empty/invalid/off, 시민 제한 자료 차단, staff restricted 양성 대조를 포함해 16/16 기대 결과가 맞았다. [전체 결과](../../runs/public/20261108-142200-vm-pr36-rag-full-matrix/report.md). 실행 UI가 비어 있는 것은 workflow settings의 `saveDataSuccessExecution=none`, `saveManualExecutions=false`, `saveExecutionProgress=false`와 일치한다. 그러나 SQLite에 성공 응답을 낸 16개 webhook row와 UI 성공 수동 index #2211이 `running`/종료시각 없음으로 남는 별도 persistence 이상은 원인 미확정이다. 따라서 기능 검색 matrix는 완료됐지만 execution persistence와 정확한 index runtime 측정은 남는다.

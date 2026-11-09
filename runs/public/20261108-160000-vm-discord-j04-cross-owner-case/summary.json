@@ -1,0 +1,17 @@
+{
+  "run_id": "20261108-160000-vm-discord-j04-cross-owner-case",
+  "date_kst": "2026-11-08 16:00",
+  "environment": "vm-discord-jira-ui",
+  "scenario": "J04_cross_owner_case_ref",
+  "requester_fixture": "citizen-c",
+  "case_owner_fixture": "citizen-a",
+  "case_ref_source": "synthetic Jira case_id; value omitted from public artifact",
+  "discord_result": "private_generic_case_ref_unavailable; no foreign details or ticket key",
+  "existing_issue_status_before": "to_do",
+  "existing_issue_status_after": "to_do",
+  "existing_issue_last_updated": "about_2_days_before_test; unchanged on UI",
+  "jira_search_for_test_question": "0 matching issues",
+  "database_state_dlq": "not_checked",
+  "status": "passed_with_effect_scope_limited_to_discord_response_and_jira_ui_search",
+  "evidence": "report.md"
+}

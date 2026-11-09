@@ -1,0 +1,16 @@
+{
+  "run_id": "20261108-121900-vm-discord-uat-followup",
+  "date_kst": "2026-11-08",
+  "environment": "Edge connected Discord UI; PR36 bot",
+  "cases": {
+    "D02": "partial: clarification requested, no Jira key shown",
+    "D03": "partial: same case reference retained, Jira reuse not observed",
+    "D07": "pass_response_boundary: internal material refused",
+    "D08": "pass_response_scope: safety guidance and citation shown",
+    "D09": "pass_response_boundary: details requested, no refund promise/action"
+  },
+  "discord_requests_observed": 5,
+  "jira_effects_observed": "none in UI; database not independently queried",
+  "workflow_changes": 0,
+  "overall_uat": "partial"
+}

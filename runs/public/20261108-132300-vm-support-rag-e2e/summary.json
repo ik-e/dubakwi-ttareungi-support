@@ -1,0 +1,23 @@
+{
+  "run_id": "20261108-132300-vm-support-rag-e2e",
+  "executed_at": "2026-11-08T13:23:00+09:00",
+  "environment": "aio-t2 VM via Edge web SSH",
+  "code_version": "local and remote main dd919d7 plan baseline; active VM workflow version not independently attested",
+  "case_id": "RAG-SUPPORT-E2E-QR",
+  "request_id": "rag-e2e-qr-20261108-1400",
+  "result": "not_pass",
+  "http_status": 200,
+  "route": "담당자 이관",
+  "reason": "skeleton_mock",
+  "ticket": null,
+  "sources": [],
+  "effects": {
+    "jira_ticket_created": false,
+    "discord_notification_sent": false
+  },
+  "limitations": [
+    "This is the legacy P11 skeleton endpoint, not the active PR36 Support endpoint.",
+    "n8n execution 2167 remains running with no saved runData; restart/stop was not attempted."
+  ],
+  "detail": "report.md"
+}

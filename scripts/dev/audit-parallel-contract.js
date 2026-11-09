@@ -20,7 +20,10 @@ function check(id, node, expected, probe) {
 }
 const base = () => ({request: {request_id: 'contract-followup-a', case_ref: 'case-contract-a', question: '추가 정보를 전달합니다.', attempt: 99}, actor: {id: 'citizen-a', role: 'citizen'}, security: {masked: 0}, deadline_at: new Date(Date.now() + 60000).toISOString(), time_budget: {search_ms: 3000, ticket_min_ms: 5000, tail_ms: 3500}});
 check('A01', 'B08', 3, () => run('support', 'B08', clone(examples.fixtures.begin_handed_off), base()).json.support.attempt);
-const follow = {...base(), support: {...clone(examples.fixtures.begin_handed_off.support), attempt: 1}, facts: clone(examples.fixtures.begin_handed_off.facts)};
+// Build the downstream context through the real B08 node. B11/B25 rely on
+// its handed_off_followup flag; hand-assembling only SupportCase/facts creates
+// an invalid probe and reports false implementation gaps.
+const follow = run('support', 'B08', clone(examples.fixtures.begin_handed_off), base()).json;
 const triage = {type: 'fees', urgency: 'normal', missing: ['charge_detail'], needs_human: false, facts: {summary: '추가 정보', reported: []}, target_ticket_id: null};
 check('A02', 'B11', 'handoff', () => run('support', 'B11', {text: JSON.stringify(triage)}, clone(follow)).json.plan);
 check('A03', 'B25', {role: 'security', priority: 'high'}, () => {
@@ -44,6 +47,6 @@ check('A08', 'H39', {route: 'context', assigned: 'confirmed', alert: 'confirmed'
 check('A09', 'H39', {route: 'context', error: 'partial_effect', alert: 'unknown'}, () => {const r = hand(['dubakwi-alert-attempted-support']); return {route: r.route, error: r.ctx.error_code, alert: r.ctx.effects.alert.status};});
 const ids = examples.cases.map(c => c.id);
 check('A10', 'examples', true, () => ids.length === new Set(ids).size && examples.cases.every(c => typeof c.given !== 'string' || (c.given.startsWith('fixture:') && examples.fixtures[c.given.slice(8)])));
-const summary = {environment: 'local Node; mocked node inputs; no HTTP/DB/Jira/n8n execution', baseline: '2cb28c3 business workflow sources', contract_version: examples.version, source_sha256: Object.fromEntries(['support', 'handoff'].map(k => [k, crypto.createHash('sha256').update(fs.readFileSync(path.join(root, `workflows/dubakwi-${k}.json`))).digest('hex')])), counts: Object.fromEntries(['pass', 'implementation_gap', 'probe_error'].map(s => [s, results.filter(r => r.status === s).length])), results};
+const summary = {environment: 'local Node; mocked node inputs; no HTTP/DB/Jira/n8n execution', baseline: 'current local workflow bytes identified by source_sha256; not a VM execution', contract_version: examples.version, source_sha256: Object.fromEntries(['support', 'handoff'].map(k => [k, crypto.createHash('sha256').update(fs.readFileSync(path.join(root, `workflows/dubakwi-${k}.json`))).digest('hex')])), counts: Object.fromEntries(['pass', 'implementation_gap', 'probe_error'].map(s => [s, results.filter(r => r.status === s).length])), results};
 console.log(JSON.stringify(summary, null, 2));
 if (summary.counts.probe_error) process.exitCode = 1;

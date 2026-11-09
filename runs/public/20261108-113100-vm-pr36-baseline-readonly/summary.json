@@ -1,0 +1,55 @@
+{
+  "run_id": "20261108-113100-vm-pr36-baseline-readonly",
+  "date": "2026-11-08",
+  "environment": "edge-web-ssh-vm-docker-n8n-postgresql-read-only",
+  "source_commit": "dd919d7",
+  "scenario": "PR36 and UX deployed baseline inventory",
+  "result": "read_only_snapshot_partial_manifest",
+  "checks": {
+    "docker_server": "29.9.2",
+    "pr36_user_api": "healthy_dubakwi-user-api:pr36-a657890",
+    "ux_user_api": "healthy_dubakwi-user-api:ux-6f9561b",
+    "discord_bot": "running_dubakwi-discord-bot:pr36-1328c63",
+    "n8n": "running_dubakwi-n8n-auth-boundary:pr36-a657890",
+    "postgres": "healthy_16.15",
+    "configured_pr36_db_recovery_finish_jsonb": true,
+    "configured_pr36_db_recovery_list_jsonb": true,
+    "configured_pr36_db_recovery_lookup_jsonb": true,
+    "configured_pr36_db_recovery_control_jsonb": false,
+    "pr36_core_workflows_published_except_index": true,
+    "dual_storage_errors_published": false,
+    "five_ux_workflows_published": true,
+    "recovery_operator_published": false,
+    "services_or_data_changed": false,
+    "n8n_server_version": "2.42.6",
+    "n8n_runner_version": "2.42.6",
+    "postgres_server_version": "16.15",
+    "pr36_index_workflow_id": "dubakwiPR36a657Index",
+    "pr36_index_memory_key_namespace": "dubakwi-pr36-a657890-{public,restricted}",
+    "pr36_index_workflow_published": false,
+    "pr36_index_ui_execution_history": "no_executions_found",
+    "current_rag_vector_population": "unverified_memory_only",
+    "image_source_provenance": "not_proven_oci_revision_labels_empty"
+  },
+  "live_effects": {
+    "workflow_executions": 0,
+    "database_writes": 0,
+    "jira_writes": 0,
+    "discord_sends": 0
+  },
+  "scope_limit": "read-only runtime snapshot; full deployment provenance, credentials, RAG version, triggers, and complete workflow inventory not verified",
+  "details": "report.md",
+  "image_id_prefixes": {
+    "search": "sha256:f1bbc31c7bef7a7d8dd2b105",
+    "pr36_api": "sha256:4001727dbd9d45227c7aa9d",
+    "ux_api": "sha256:2cd3c43c2553943fc20d3d9",
+    "discord": "sha256:1aeb6fc597b7a9913f339917",
+    "n8n": "sha256:99c18d48ffa86a9a8040ae2a",
+    "postgres": "sha256:e8a07d2c7579b03b8938cdb"
+  },
+  "documentation_checks": {
+    "diff_check": "passed",
+    "public_files": "passed_587_candidates_1170_links",
+    "project_docs": "passed_22_files_794_links_58_anchors"
+  }
+}

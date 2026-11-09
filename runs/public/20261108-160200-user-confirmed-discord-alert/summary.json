@@ -1,0 +1,10 @@
+{
+  "run_id": "20261108-160200-user-confirmed-discord-alert",
+  "date_kst": "2026-11-08 16:02",
+  "environment": "user-confirmed-existing-j02-discord-alert",
+  "scenario": "J02_assignee_discord_alert_receipt",
+  "evidence_source": "user_direct_confirmation",
+  "status": "passed_user_confirmed; no independent screenshot_or_delivery_log",
+  "linked_j02_run": "../20261108-154900-vm-jira-j02-assignee-handling/report.md",
+  "evidence": "report.md"
+}

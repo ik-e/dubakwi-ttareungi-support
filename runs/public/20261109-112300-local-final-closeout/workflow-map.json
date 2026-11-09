@@ -1,0 +1,3102 @@
+{
+  "scope": "Repository JSON only; not a current VM export equality claim",
+  "sha256_normalization": "UTF-8 text without BOM; CRLF converted to LF before hashing",
+  "workflows": [
+    {
+      "file": "workflows/dubakwi-dlq.json",
+      "sha256": "0609dd031864173aa608f72487d59b83a370770dad08332b82ebbce3aea70635",
+      "nodes": [
+        {
+          "name": "D01 DLQ 명령 수신",
+          "type": "n8n-nodes-base.executeWorkflowTrigger"
+        },
+        {
+          "name": "D02 계약 검사와 안전 차단",
+          "type": "n8n-nodes-base.code"
+        },
+        {
+          "name": "D03 실제 DLQ 호출 여부",
+          "type": "n8n-nodes-base.if"
+        },
+        {
+          "name": "D04 PostgreSQL DLQ 저장",
+          "type": "n8n-nodes-base.postgres"
+        },
+        {
+          "name": "D05 DLQ 결과 정규화",
+          "type": "n8n-nodes-base.code"
+        },
+        {
+          "name": "D06 계약 거절 반환",
+          "type": "n8n-nodes-base.noOp"
+        }
+      ],
+      "edges": [
+        {
+          "from": "D01 DLQ 명령 수신",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "D02 계약 검사와 안전 차단",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "D02 계약 검사와 안전 차단",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "D03 실제 DLQ 호출 여부",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "D03 실제 DLQ 호출 여부",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "D04 PostgreSQL DLQ 저장",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "D03 실제 DLQ 호출 여부",
+          "from_type": "main",
+          "from_port": 1,
+          "to": "D06 계약 거절 반환",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "D04 PostgreSQL DLQ 저장",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "D05 DLQ 결과 정규화",
+          "to_type": "main",
+          "to_port": 0
+        }
+      ],
+      "node_count": 6,
+      "edge_count": 5
+    },
+    {
+      "file": "workflows/dubakwi-errors.json",
+      "sha256": "e8f6e5df8d0025cf416190922859cd528033495304c6fc75ca0a819a3b56359a",
+      "nodes": [
+        {
+          "name": "E01 예상 밖 오류 수신",
+          "type": "n8n-nodes-base.errorTrigger"
+        },
+        {
+          "name": "E02 오류 가림과 안전 차단",
+          "type": "n8n-nodes-base.code"
+        },
+        {
+          "name": "E03 저장 설정 확인",
+          "type": "n8n-nodes-base.if"
+        },
+        {
+          "name": "E05 중단 요청 상태 확인",
+          "type": "n8n-nodes-base.executeWorkflow"
+        },
+        {
+          "name": "E06 DLQ 요청 구성",
+          "type": "n8n-nodes-base.code"
+        },
+        {
+          "name": "E04 오류 보관",
+          "type": "n8n-nodes-base.executeWorkflow"
+        },
+        {
+          "name": "E08 오류 경로 안전 종료",
+          "type": "n8n-nodes-base.code"
+        },
+        {
+          "name": "E07 설정 미완료 안전 종료",
+          "type": "n8n-nodes-base.code"
+        },
+        {
+          "name": "E09 운영 실패 알림",
+          "type": "n8n-nodes-base.httpRequest"
+        }
+      ],
+      "edges": [
+        {
+          "from": "E01 예상 밖 오류 수신",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "E02 오류 가림과 안전 차단",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "E02 오류 가림과 안전 차단",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "E03 저장 설정 확인",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "E03 저장 설정 확인",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "E05 중단 요청 상태 확인",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "E03 저장 설정 확인",
+          "from_type": "main",
+          "from_port": 1,
+          "to": "E07 설정 미완료 안전 종료",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "E05 중단 요청 상태 확인",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "E06 DLQ 요청 구성",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "E06 DLQ 요청 구성",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "E04 오류 보관",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "E04 오류 보관",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "E09 운영 실패 알림",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "E09 운영 실패 알림",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "E08 오류 경로 안전 종료",
+          "to_type": "main",
+          "to_port": 0
+        }
+      ],
+      "node_count": 9,
+      "edge_count": 8
+    },
+    {
+      "file": "workflows/dubakwi-handoff.json",
+      "sha256": "a6ab83fb0035ca42024f7d63ef94885612ace20ad1857794673162ae55ba8073",
+      "nodes": [
+        {
+          "name": "H01 도구 요청",
+          "type": "n8n-nodes-base.webhook"
+        },
+        {
+          "name": "H02 요청 계약 검사",
+          "type": "n8n-nodes-base.code"
+        },
+        {
+          "name": "H03 저장 준비 필요",
+          "type": "n8n-nodes-base.if"
+        },
+        {
+          "name": "H14 Jira 전 상태 저장",
+          "type": "n8n-nodes-base.executeWorkflow"
+        },
+        {
+          "name": "H13 도구 응답",
+          "type": "n8n-nodes-base.respondToWebhook"
+        },
+        {
+          "name": "H21 조회 실행 여부",
+          "type": "n8n-nodes-base.if"
+        },
+        {
+          "name": "H04 본인 기록 조회",
+          "type": "n8n-nodes-base.httpRequest"
+        },
+        {
+          "name": "H22 조회 결과 정규화",
+          "type": "n8n-nodes-base.code"
+        },
+        {
+          "name": "H15 저장 결과 판정",
+          "type": "n8n-nodes-base.code"
+        },
+        {
+          "name": "H16 Jira 실행 허용",
+          "type": "n8n-nodes-base.if"
+        },
+        {
+          "name": "H23 중복 조회 준비",
+          "type": "n8n-nodes-base.code"
+        },
+        {
+          "name": "H29 Jira 기존 건 조회",
+          "type": "n8n-nodes-base.httpRequest"
+        },
+        {
+          "name": "H24 생성 판정",
+          "type": "n8n-nodes-base.code"
+        },
+        {
+          "name": "H25 생성 필요",
+          "type": "n8n-nodes-base.if"
+        },
+        {
+          "name": "H05 Jira 티켓 생성",
+          "type": "n8n-nodes-base.httpRequest"
+        },
+        {
+          "name": "H06 티켓 식별 확인",
+          "type": "n8n-nodes-base.code"
+        },
+        {
+          "name": "H26 티켓 연결 필요",
+          "type": "n8n-nodes-base.if"
+        },
+        {
+          "name": "H30 연결 입력 구성",
+          "type": "n8n-nodes-base.code"
+        },
+        {
+          "name": "H17 티켓 연결 저장",
+          "type": "n8n-nodes-base.executeWorkflow"
+        },
+        {
+          "name": "H18 연결 저장 판정",
+          "type": "n8n-nodes-base.code"
+        },
+        {
+          "name": "H07 종료 분기",
+          "type": "n8n-nodes-base.if"
+        },
+        {
+          "name": "H27 이관 분기",
+          "type": "n8n-nodes-base.if"
+        },
+        {
+          "name": "H31 종료 전환 조회 준비",
+          "type": "n8n-nodes-base.code"
+        },
+        {
+          "name": "H32 Jira 전환 조회",
+          "type": "n8n-nodes-base.httpRequest"
+        },
+        {
+          "name": "H33 종료 계획",
+          "type": "n8n-nodes-base.code"
+        },
+        {
+          "name": "H34 종료 실행 가능",
+          "type": "n8n-nodes-base.if"
+        },
+        {
+          "name": "H08 Jira 안내 종료",
+          "type": "n8n-nodes-base.httpRequest"
+        },
+        {
+          "name": "H36 종료 판정",
+          "type": "n8n-nodes-base.code"
+        },
+        {
+          "name": "H37 담당 후보 조회 준비",
+          "type": "n8n-nodes-base.code"
+        },
+        {
+          "name": "H38 Jira 담당 후보 조회",
+          "type": "n8n-nodes-base.httpRequest"
+        },
+        {
+          "name": "H39 배정 계획",
+          "type": "n8n-nodes-base.code"
+        },
+        {
+          "name": "H40 배정 실행 가능",
+          "type": "n8n-nodes-base.if"
+        },
+        {
+          "name": "H09 Jira 맥락 저장·배정",
+          "type": "n8n-nodes-base.httpRequest"
+        },
+        {
+          "name": "H42 배정 판정",
+          "type": "n8n-nodes-base.code"
+        },
+        {
+          "name": "H10 배정 확인",
+          "type": "n8n-nodes-base.if"
+        },
+        {
+          "name": "H19 알림 의도 저장",
+          "type": "n8n-nodes-base.executeWorkflow"
+        },
+        {
+          "name": "H20 알림 실행 허용",
+          "type": "n8n-nodes-base.code"
+        },
+        {
+          "name": "H43 알림 실행 허용",
+          "type": "n8n-nodes-base.if"
+        },
+        {
+          "name": "H11 담당 알림",
+          "type": "n8n-nodes-base.httpRequest"
+        },
+        {
+          "name": "H44 알림 판정",
+          "type": "n8n-nodes-base.code"
+        },
+        {
+          "name": "H49 알림 성공 표식 필요",
+          "type": "n8n-nodes-base.if"
+        },
+        {
+          "name": "H50 Jira 알림 성공 표식",
+          "type": "n8n-nodes-base.httpRequest"
+        },
+        {
+          "name": "H51 알림 성공 표식 판정",
+          "type": "n8n-nodes-base.code"
+        },
+        {
+          "name": "H12 티켓 결과 구성",
+          "type": "n8n-nodes-base.code"
+        },
+        {
+          "name": "H48 보완 횟수 갱신 필요",
+          "type": "n8n-nodes-base.if"
+        },
+        {
+          "name": "H45 보완 횟수 갱신 준비",
+          "type": "n8n-nodes-base.code"
+        },
+        {
+          "name": "H46 Jira 보완 횟수 저장",
+          "type": "n8n-nodes-base.httpRequest"
+        },
+        {
+          "name": "H47 보완 횟수 판정",
+          "type": "n8n-nodes-base.code"
+        },
+        {
+          "name": "H52 검증 문맥 조회 준비",
+          "type": "n8n-nodes-base.code"
+        },
+        {
+          "name": "H63 문맥 읽기 허용",
+          "type": "n8n-nodes-base.if"
+        },
+        {
+          "name": "H53 Jira 문맥 연결 조회",
+          "type": "n8n-nodes-base.httpRequest"
+        },
+        {
+          "name": "H54 문맥 댓글 조회 준비",
+          "type": "n8n-nodes-base.code"
+        },
+        {
+          "name": "H55 Jira 전체 문맥 댓글 조회",
+          "type": "n8n-nodes-base.httpRequest"
+        },
+        {
+          "name": "H56 문맥 검증과 조건부 기록 계획",
+          "type": "n8n-nodes-base.code"
+        },
+        {
+          "name": "H57 새 문맥 기록 필요",
+          "type": "n8n-nodes-base.if"
+        },
+        {
+          "name": "H58 Jira 가린 문맥 저장",
+          "type": "n8n-nodes-base.httpRequest"
+        },
+        {
+          "name": "H59 저장 문맥 재조회 준비",
+          "type": "n8n-nodes-base.code"
+        },
+        {
+          "name": "H60 Jira 저장 문맥 재조회",
+          "type": "n8n-nodes-base.httpRequest"
+        },
+        {
+          "name": "H61 문맥 저장 재조회 판정",
+          "type": "n8n-nodes-base.code"
+        },
+        {
+          "name": "H70 외부 쓰기 마감 검사 H05",
+          "type": "n8n-nodes-base.code"
+        },
+        {
+          "name": "H71 외부 쓰기 허용 H05",
+          "type": "n8n-nodes-base.if"
+        },
+        {
+          "name": "H72 외부 쓰기 마감 검사 H08",
+          "type": "n8n-nodes-base.code"
+        },
+        {
+          "name": "H73 외부 쓰기 허용 H08",
+          "type": "n8n-nodes-base.if"
+        },
+        {
+          "name": "H74 외부 쓰기 마감 검사 H09",
+          "type": "n8n-nodes-base.code"
+        },
+        {
+          "name": "H75 외부 쓰기 허용 H09",
+          "type": "n8n-nodes-base.if"
+        },
+        {
+          "name": "H76 외부 쓰기 마감 검사 H11",
+          "type": "n8n-nodes-base.code"
+        },
+        {
+          "name": "H77 외부 쓰기 허용 H11",
+          "type": "n8n-nodes-base.if"
+        },
+        {
+          "name": "H78 외부 쓰기 마감 검사 H46",
+          "type": "n8n-nodes-base.code"
+        },
+        {
+          "name": "H79 외부 쓰기 허용 H46",
+          "type": "n8n-nodes-base.if"
+        },
+        {
+          "name": "H80 외부 쓰기 마감 검사 H50",
+          "type": "n8n-nodes-base.code"
+        },
+        {
+          "name": "H81 외부 쓰기 허용 H50",
+          "type": "n8n-nodes-base.if"
+        }
+      ],
+      "edges": [
+        {
+          "from": "H01 도구 요청",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "H02 요청 계약 검사",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "H02 요청 계약 검사",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "H03 저장 준비 필요",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "H03 저장 준비 필요",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "H14 Jira 전 상태 저장",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "H03 저장 준비 필요",
+          "from_type": "main",
+          "from_port": 1,
+          "to": "H21 조회 실행 여부",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "H14 Jira 전 상태 저장",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "H15 저장 결과 판정",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "H21 조회 실행 여부",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "H04 본인 기록 조회",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "H21 조회 실행 여부",
+          "from_type": "main",
+          "from_port": 1,
+          "to": "H13 도구 응답",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "H04 본인 기록 조회",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "H22 조회 결과 정규화",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "H22 조회 결과 정규화",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "H13 도구 응답",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "H15 저장 결과 판정",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "H16 Jira 실행 허용",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "H16 Jira 실행 허용",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "H23 중복 조회 준비",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "H16 Jira 실행 허용",
+          "from_type": "main",
+          "from_port": 1,
+          "to": "H13 도구 응답",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "H23 중복 조회 준비",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "H29 Jira 기존 건 조회",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "H29 Jira 기존 건 조회",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "H24 생성 판정",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "H24 생성 판정",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "H25 생성 필요",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "H25 생성 필요",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "H70 외부 쓰기 마감 검사 H05",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "H25 생성 필요",
+          "from_type": "main",
+          "from_port": 1,
+          "to": "H06 티켓 식별 확인",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "H05 Jira 티켓 생성",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "H06 티켓 식별 확인",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "H06 티켓 식별 확인",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "H26 티켓 연결 필요",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "H26 티켓 연결 필요",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "H30 연결 입력 구성",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "H26 티켓 연결 필요",
+          "from_type": "main",
+          "from_port": 1,
+          "to": "H12 티켓 결과 구성",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "H30 연결 입력 구성",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "H17 티켓 연결 저장",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "H17 티켓 연결 저장",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "H18 연결 저장 판정",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "H18 연결 저장 판정",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "H52 검증 문맥 조회 준비",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "H07 종료 분기",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "H31 종료 전환 조회 준비",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "H07 종료 분기",
+          "from_type": "main",
+          "from_port": 1,
+          "to": "H27 이관 분기",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "H27 이관 분기",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "H37 담당 후보 조회 준비",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "H27 이관 분기",
+          "from_type": "main",
+          "from_port": 1,
+          "to": "H48 보완 횟수 갱신 필요",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "H31 종료 전환 조회 준비",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "H32 Jira 전환 조회",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "H32 Jira 전환 조회",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "H33 종료 계획",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "H33 종료 계획",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "H34 종료 실행 가능",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "H34 종료 실행 가능",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "H72 외부 쓰기 마감 검사 H08",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "H34 종료 실행 가능",
+          "from_type": "main",
+          "from_port": 1,
+          "to": "H12 티켓 결과 구성",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "H08 Jira 안내 종료",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "H36 종료 판정",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "H36 종료 판정",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "H12 티켓 결과 구성",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "H37 담당 후보 조회 준비",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "H38 Jira 담당 후보 조회",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "H38 Jira 담당 후보 조회",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "H39 배정 계획",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "H39 배정 계획",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "H40 배정 실행 가능",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "H40 배정 실행 가능",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "H74 외부 쓰기 마감 검사 H09",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "H40 배정 실행 가능",
+          "from_type": "main",
+          "from_port": 1,
+          "to": "H48 보완 횟수 갱신 필요",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "H09 Jira 맥락 저장·배정",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "H42 배정 판정",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "H42 배정 판정",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "H10 배정 확인",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "H10 배정 확인",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "H19 알림 의도 저장",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "H10 배정 확인",
+          "from_type": "main",
+          "from_port": 1,
+          "to": "H12 티켓 결과 구성",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "H19 알림 의도 저장",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "H20 알림 실행 허용",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "H20 알림 실행 허용",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "H43 알림 실행 허용",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "H43 알림 실행 허용",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "H76 외부 쓰기 마감 검사 H11",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "H43 알림 실행 허용",
+          "from_type": "main",
+          "from_port": 1,
+          "to": "H12 티켓 결과 구성",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "H11 담당 알림",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "H44 알림 판정",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "H44 알림 판정",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "H49 알림 성공 표식 필요",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "H49 알림 성공 표식 필요",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "H80 외부 쓰기 마감 검사 H50",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "H49 알림 성공 표식 필요",
+          "from_type": "main",
+          "from_port": 1,
+          "to": "H12 티켓 결과 구성",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "H50 Jira 알림 성공 표식",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "H51 알림 성공 표식 판정",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "H51 알림 성공 표식 판정",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "H12 티켓 결과 구성",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "H12 티켓 결과 구성",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "H13 도구 응답",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "H48 보완 횟수 갱신 필요",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "H45 보완 횟수 갱신 준비",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "H48 보완 횟수 갱신 필요",
+          "from_type": "main",
+          "from_port": 1,
+          "to": "H12 티켓 결과 구성",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "H45 보완 횟수 갱신 준비",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "H78 외부 쓰기 마감 검사 H46",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "H46 Jira 보완 횟수 저장",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "H47 보완 횟수 판정",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "H47 보완 횟수 판정",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "H12 티켓 결과 구성",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "H52 검증 문맥 조회 준비",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "H63 문맥 읽기 허용",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "H63 문맥 읽기 허용",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "H53 Jira 문맥 연결 조회",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "H63 문맥 읽기 허용",
+          "from_type": "main",
+          "from_port": 1,
+          "to": "H12 티켓 결과 구성",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "H53 Jira 문맥 연결 조회",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "H54 문맥 댓글 조회 준비",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "H54 문맥 댓글 조회 준비",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "H55 Jira 전체 문맥 댓글 조회",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "H55 Jira 전체 문맥 댓글 조회",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "H56 문맥 검증과 조건부 기록 계획",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "H56 문맥 검증과 조건부 기록 계획",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "H57 새 문맥 기록 필요",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "H57 새 문맥 기록 필요",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "H58 Jira 가린 문맥 저장",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "H57 새 문맥 기록 필요",
+          "from_type": "main",
+          "from_port": 1,
+          "to": "H07 종료 분기",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "H58 Jira 가린 문맥 저장",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "H59 저장 문맥 재조회 준비",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "H59 저장 문맥 재조회 준비",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "H60 Jira 저장 문맥 재조회",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "H60 Jira 저장 문맥 재조회",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "H61 문맥 저장 재조회 판정",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "H61 문맥 저장 재조회 판정",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "H07 종료 분기",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "H70 외부 쓰기 마감 검사 H05",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "H71 외부 쓰기 허용 H05",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "H71 외부 쓰기 허용 H05",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "H05 Jira 티켓 생성",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "H71 외부 쓰기 허용 H05",
+          "from_type": "main",
+          "from_port": 1,
+          "to": "H12 티켓 결과 구성",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "H72 외부 쓰기 마감 검사 H08",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "H73 외부 쓰기 허용 H08",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "H73 외부 쓰기 허용 H08",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "H08 Jira 안내 종료",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "H73 외부 쓰기 허용 H08",
+          "from_type": "main",
+          "from_port": 1,
+          "to": "H12 티켓 결과 구성",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "H74 외부 쓰기 마감 검사 H09",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "H75 외부 쓰기 허용 H09",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "H75 외부 쓰기 허용 H09",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "H09 Jira 맥락 저장·배정",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "H75 외부 쓰기 허용 H09",
+          "from_type": "main",
+          "from_port": 1,
+          "to": "H12 티켓 결과 구성",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "H76 외부 쓰기 마감 검사 H11",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "H77 외부 쓰기 허용 H11",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "H77 외부 쓰기 허용 H11",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "H11 담당 알림",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "H77 외부 쓰기 허용 H11",
+          "from_type": "main",
+          "from_port": 1,
+          "to": "H12 티켓 결과 구성",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "H78 외부 쓰기 마감 검사 H46",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "H79 외부 쓰기 허용 H46",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "H79 외부 쓰기 허용 H46",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "H46 Jira 보완 횟수 저장",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "H79 외부 쓰기 허용 H46",
+          "from_type": "main",
+          "from_port": 1,
+          "to": "H12 티켓 결과 구성",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "H80 외부 쓰기 마감 검사 H50",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "H81 외부 쓰기 허용 H50",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "H81 외부 쓰기 허용 H50",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "H50 Jira 알림 성공 표식",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "H81 외부 쓰기 허용 H50",
+          "from_type": "main",
+          "from_port": 1,
+          "to": "H12 티켓 결과 구성",
+          "to_type": "main",
+          "to_port": 0
+        }
+      ],
+      "node_count": 71,
+      "edge_count": 91
+    },
+    {
+      "file": "workflows/dubakwi-index.json",
+      "sha256": "a38a03a65b174d985543e5e3f6fd6128ded53d744fb65ead14aa95537e24e48e",
+      "nodes": [
+        {
+          "name": "Manual",
+          "type": "n8n-nodes-base.manualTrigger"
+        },
+        {
+          "name": "Prepare chunks",
+          "type": "n8n-nodes-base.code"
+        },
+        {
+          "name": "One chunk",
+          "type": "n8n-nodes-base.splitInBatches"
+        },
+        {
+          "name": "Insert chunk",
+          "type": "@n8n/n8n-nodes-langchain.vectorStoreInMemory"
+        },
+        {
+          "name": "Embeddings",
+          "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi"
+        },
+        {
+          "name": "Loader",
+          "type": "@n8n/n8n-nodes-langchain.documentDefaultDataLoader"
+        },
+        {
+          "name": "Start marker",
+          "type": "n8n-nodes-base.code"
+        },
+        {
+          "name": "Mark building",
+          "type": "@n8n/n8n-nodes-langchain.vectorStoreInMemory"
+        },
+        {
+          "name": "Finish marker",
+          "type": "n8n-nodes-base.code"
+        },
+        {
+          "name": "Mark ready",
+          "type": "@n8n/n8n-nodes-langchain.vectorStoreInMemory"
+        },
+        {
+          "name": "Readiness loader",
+          "type": "@n8n/n8n-nodes-langchain.documentDefaultDataLoader"
+        }
+      ],
+      "edges": [
+        {
+          "from": "Manual",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "Start marker",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "Prepare chunks",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "One chunk",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "One chunk",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "Finish marker",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "One chunk",
+          "from_type": "main",
+          "from_port": 1,
+          "to": "Insert chunk",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "Insert chunk",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "One chunk",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "Embeddings",
+          "from_type": "ai_embedding",
+          "from_port": 0,
+          "to": "Insert chunk",
+          "to_type": "ai_embedding",
+          "to_port": 0
+        },
+        {
+          "from": "Embeddings",
+          "from_type": "ai_embedding",
+          "from_port": 0,
+          "to": "Mark building",
+          "to_type": "ai_embedding",
+          "to_port": 0
+        },
+        {
+          "from": "Embeddings",
+          "from_type": "ai_embedding",
+          "from_port": 0,
+          "to": "Mark ready",
+          "to_type": "ai_embedding",
+          "to_port": 0
+        },
+        {
+          "from": "Loader",
+          "from_type": "ai_document",
+          "from_port": 0,
+          "to": "Insert chunk",
+          "to_type": "ai_document",
+          "to_port": 0
+        },
+        {
+          "from": "Start marker",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "Mark building",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "Mark building",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "Prepare chunks",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "Finish marker",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "Mark ready",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "Readiness loader",
+          "from_type": "ai_document",
+          "from_port": 0,
+          "to": "Mark building",
+          "to_type": "ai_document",
+          "to_port": 0
+        },
+        {
+          "from": "Readiness loader",
+          "from_type": "ai_document",
+          "from_port": 0,
+          "to": "Mark ready",
+          "to_type": "ai_document",
+          "to_port": 0
+        }
+      ],
+      "node_count": 11,
+      "edge_count": 14
+    },
+    {
+      "file": "workflows/dubakwi-recovery-operator.json",
+      "sha256": "797e3d32fb207998ebc5ad3bfa4db4fa73980428afa39346306eb77e1ea05718",
+      "nodes": [
+        {
+          "name": "R01 수동 운영자 시작",
+          "type": "n8n-nodes-base.manualTrigger"
+        },
+        {
+          "name": "R01a 복구 명령 입력",
+          "type": "n8n-nodes-base.set"
+        },
+        {
+          "name": "R02 복구 입력 검증",
+          "type": "n8n-nodes-base.code"
+        },
+        {
+          "name": "R03 실행 허용",
+          "type": "n8n-nodes-base.if"
+        },
+        {
+          "name": "R03a 조회 전용 분기",
+          "type": "n8n-nodes-base.if"
+        },
+        {
+          "name": "R04 제한 복구 함수 호출",
+          "type": "n8n-nodes-base.postgres"
+        },
+        {
+          "name": "R05 DLQ 읽기 전용 조회",
+          "type": "n8n-nodes-base.postgres"
+        },
+        {
+          "name": "R06 조회 결과 정리",
+          "type": "n8n-nodes-base.code"
+        },
+        {
+          "name": "R07 연결된 Jira 있음",
+          "type": "n8n-nodes-base.if"
+        },
+        {
+          "name": "R08 Jira 상태·담당 조회",
+          "type": "n8n-nodes-base.httpRequest"
+        },
+        {
+          "name": "R09 Jira 결과 정리",
+          "type": "n8n-nodes-base.code"
+        },
+        {
+          "name": "R10 조회 결과 반환",
+          "type": "n8n-nodes-base.code"
+        },
+        {
+          "name": "R11 입력 거절",
+          "type": "n8n-nodes-base.noOp"
+        }
+      ],
+      "edges": [
+        {
+          "from": "R01 수동 운영자 시작",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "R01a 복구 명령 입력",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "R01a 복구 명령 입력",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "R02 복구 입력 검증",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "R02 복구 입력 검증",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "R03 실행 허용",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "R03 실행 허용",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "R03a 조회 전용 분기",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "R03 실행 허용",
+          "from_type": "main",
+          "from_port": 1,
+          "to": "R11 입력 거절",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "R03a 조회 전용 분기",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "R05 DLQ 읽기 전용 조회",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "R03a 조회 전용 분기",
+          "from_type": "main",
+          "from_port": 1,
+          "to": "R04 제한 복구 함수 호출",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "R05 DLQ 읽기 전용 조회",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "R06 조회 결과 정리",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "R06 조회 결과 정리",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "R07 연결된 Jira 있음",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "R07 연결된 Jira 있음",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "R08 Jira 상태·담당 조회",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "R07 연결된 Jira 있음",
+          "from_type": "main",
+          "from_port": 1,
+          "to": "R10 조회 결과 반환",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "R08 Jira 상태·담당 조회",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "R09 Jira 결과 정리",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "R09 Jira 결과 정리",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "R10 조회 결과 반환",
+          "to_type": "main",
+          "to_port": 0
+        }
+      ],
+      "node_count": 13,
+      "edge_count": 13
+    },
+    {
+      "file": "workflows/dubakwi-search.json",
+      "sha256": "9a6c8da7d432c2d4c29a62a1610a27e5adcf3152377f52e3d887683b4f2e2175",
+      "nodes": [
+        {
+          "name": "Webhook",
+          "type": "n8n-nodes-base.webhook"
+        },
+        {
+          "name": "Validate request",
+          "type": "n8n-nodes-base.code"
+        },
+        {
+          "name": "Valid and enabled",
+          "type": "n8n-nodes-base.if"
+        },
+        {
+          "name": "Skip or error",
+          "type": "n8n-nodes-base.code"
+        },
+        {
+          "name": "Search public",
+          "type": "@n8n/n8n-nodes-langchain.vectorStoreInMemory"
+        },
+        {
+          "name": "Is staff",
+          "type": "n8n-nodes-base.if"
+        },
+        {
+          "name": "Search restricted",
+          "type": "@n8n/n8n-nodes-langchain.vectorStoreInMemory"
+        },
+        {
+          "name": "Staff result",
+          "type": "n8n-nodes-base.code"
+        },
+        {
+          "name": "Citizen result",
+          "type": "n8n-nodes-base.code"
+        },
+        {
+          "name": "Respond",
+          "type": "n8n-nodes-base.respondToWebhook"
+        },
+        {
+          "name": "Embeddings",
+          "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi"
+        },
+        {
+          "name": "Collect public",
+          "type": "n8n-nodes-base.code"
+        },
+        {
+          "name": "Read readiness",
+          "type": "@n8n/n8n-nodes-langchain.vectorStoreInMemory"
+        },
+        {
+          "name": "Initial readiness",
+          "type": "n8n-nodes-base.code"
+        },
+        {
+          "name": "Is index ready",
+          "type": "n8n-nodes-base.if"
+        },
+        {
+          "name": "Index unavailable",
+          "type": "n8n-nodes-base.code"
+        },
+        {
+          "name": "Collect restricted",
+          "type": "n8n-nodes-base.code"
+        },
+        {
+          "name": "Final readiness staff",
+          "type": "@n8n/n8n-nodes-langchain.vectorStoreInMemory"
+        },
+        {
+          "name": "Final readiness citizen",
+          "type": "@n8n/n8n-nodes-langchain.vectorStoreInMemory"
+        }
+      ],
+      "edges": [
+        {
+          "from": "Webhook",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "Validate request",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "Validate request",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "Valid and enabled",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "Valid and enabled",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "Read readiness",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "Valid and enabled",
+          "from_type": "main",
+          "from_port": 1,
+          "to": "Skip or error",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "Skip or error",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "Respond",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "Search public",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "Collect public",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "Is staff",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "Search restricted",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "Is staff",
+          "from_type": "main",
+          "from_port": 1,
+          "to": "Final readiness citizen",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "Search restricted",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "Collect restricted",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "Staff result",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "Respond",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "Citizen result",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "Respond",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "Embeddings",
+          "from_type": "ai_embedding",
+          "from_port": 0,
+          "to": "Search public",
+          "to_type": "ai_embedding",
+          "to_port": 0
+        },
+        {
+          "from": "Embeddings",
+          "from_type": "ai_embedding",
+          "from_port": 0,
+          "to": "Search restricted",
+          "to_type": "ai_embedding",
+          "to_port": 0
+        },
+        {
+          "from": "Embeddings",
+          "from_type": "ai_embedding",
+          "from_port": 0,
+          "to": "Read readiness",
+          "to_type": "ai_embedding",
+          "to_port": 0
+        },
+        {
+          "from": "Embeddings",
+          "from_type": "ai_embedding",
+          "from_port": 0,
+          "to": "Final readiness staff",
+          "to_type": "ai_embedding",
+          "to_port": 0
+        },
+        {
+          "from": "Embeddings",
+          "from_type": "ai_embedding",
+          "from_port": 0,
+          "to": "Final readiness citizen",
+          "to_type": "ai_embedding",
+          "to_port": 0
+        },
+        {
+          "from": "Collect public",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "Is staff",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "Read readiness",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "Initial readiness",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "Initial readiness",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "Is index ready",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "Is index ready",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "Search public",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "Is index ready",
+          "from_type": "main",
+          "from_port": 1,
+          "to": "Index unavailable",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "Index unavailable",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "Respond",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "Collect restricted",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "Final readiness staff",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "Final readiness staff",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "Staff result",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "Final readiness citizen",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "Citizen result",
+          "to_type": "main",
+          "to_port": 0
+        }
+      ],
+      "node_count": 19,
+      "edge_count": 25
+    },
+    {
+      "file": "workflows/dubakwi-state.json",
+      "sha256": "bf89d930cad680d08b8e839fe3d8dad2fb744a548c812222cc792b5e96b6ae39",
+      "nodes": [
+        {
+          "name": "S01 상태 명령 수신",
+          "type": "n8n-nodes-base.executeWorkflowTrigger"
+        },
+        {
+          "name": "S02 계약 검사와 안전 차단",
+          "type": "n8n-nodes-base.code"
+        },
+        {
+          "name": "S03 실제 저장 호출 여부",
+          "type": "n8n-nodes-base.if"
+        },
+        {
+          "name": "S04 PostgreSQL 상태 저장",
+          "type": "n8n-nodes-base.postgres"
+        },
+        {
+          "name": "S05 저장 결과 정규화",
+          "type": "n8n-nodes-base.code"
+        },
+        {
+          "name": "S06 계약 거절 반환",
+          "type": "n8n-nodes-base.noOp"
+        },
+        {
+          "name": "S07 저장 요청 여부",
+          "type": "n8n-nodes-base.if"
+        },
+        {
+          "name": "S08 Jira 문맥 확인 요청 구성",
+          "type": "n8n-nodes-base.code"
+        },
+        {
+          "name": "S09 Jira 문맥 확인",
+          "type": "n8n-nodes-base.httpRequest"
+        },
+        {
+          "name": "S10 문맥 확인 판정",
+          "type": "n8n-nodes-base.code"
+        },
+        {
+          "name": "S11 확인 통과 여부",
+          "type": "n8n-nodes-base.if"
+        },
+        {
+          "name": "S12 보완 확인 필요",
+          "type": "n8n-nodes-base.if"
+        },
+        {
+          "name": "S13 보완 case 조회",
+          "type": "n8n-nodes-base.postgres"
+        },
+        {
+          "name": "S14 보완 대상 판정",
+          "type": "n8n-nodes-base.code"
+        },
+        {
+          "name": "S15 Jira 확인 필요",
+          "type": "n8n-nodes-base.if"
+        },
+        {
+          "name": "S16 Jira 보완 case 확인",
+          "type": "n8n-nodes-base.httpRequest"
+        },
+        {
+          "name": "S17 Jira 열림 판정",
+          "type": "n8n-nodes-base.code"
+        },
+        {
+          "name": "S18 보완 시작 가능",
+          "type": "n8n-nodes-base.if"
+        },
+        {
+          "name": "S19 보완 처리권 획득",
+          "type": "n8n-nodes-base.postgres"
+        },
+        {
+          "name": "S20 보완 결과 정규화",
+          "type": "n8n-nodes-base.code"
+        },
+        {
+          "name": "S21 보완 문맥 댓글 조회 준비",
+          "type": "n8n-nodes-base.code"
+        },
+        {
+          "name": "S22 Jira 보완 전체 댓글 조회",
+          "type": "n8n-nodes-base.httpRequest"
+        },
+        {
+          "name": "S23 최종 문맥 댓글 조회 준비",
+          "type": "n8n-nodes-base.code"
+        },
+        {
+          "name": "S24 Jira 최종 전체 댓글 조회",
+          "type": "n8n-nodes-base.httpRequest"
+        },
+        {
+          "name": "S25 최종 문맥 수정 필요",
+          "type": "n8n-nodes-base.if"
+        },
+        {
+          "name": "S26 Jira 최종 문맥 저장",
+          "type": "n8n-nodes-base.httpRequest"
+        },
+        {
+          "name": "S27 최종 저장 재조회 준비",
+          "type": "n8n-nodes-base.code"
+        },
+        {
+          "name": "S28 Jira 최종 저장 재조회",
+          "type": "n8n-nodes-base.httpRequest"
+        },
+        {
+          "name": "S29 최종 저장 일치 판정",
+          "type": "n8n-nodes-base.code"
+        },
+        {
+          "name": "S30 최종 저장 확인 통과",
+          "type": "n8n-nodes-base.if"
+        },
+        {
+          "name": "S31 최종 문맥 읽기 허용",
+          "type": "n8n-nodes-base.if"
+        }
+      ],
+      "edges": [
+        {
+          "from": "S01 상태 명령 수신",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "S02 계약 검사와 안전 차단",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "S02 계약 검사와 안전 차단",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "S03 실제 저장 호출 여부",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "S03 실제 저장 호출 여부",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "S07 저장 요청 여부",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "S03 실제 저장 호출 여부",
+          "from_type": "main",
+          "from_port": 1,
+          "to": "S06 계약 거절 반환",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "S04 PostgreSQL 상태 저장",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "S05 저장 결과 정규화",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "S07 저장 요청 여부",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "S08 Jira 문맥 확인 요청 구성",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "S07 저장 요청 여부",
+          "from_type": "main",
+          "from_port": 1,
+          "to": "S04 PostgreSQL 상태 저장",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "S08 Jira 문맥 확인 요청 구성",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "S31 최종 문맥 읽기 허용",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "S09 Jira 문맥 확인",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "S23 최종 문맥 댓글 조회 준비",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "S10 문맥 확인 판정",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "S11 확인 통과 여부",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "S11 확인 통과 여부",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "S04 PostgreSQL 상태 저장",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "S11 확인 통과 여부",
+          "from_type": "main",
+          "from_port": 1,
+          "to": "S25 최종 문맥 수정 필요",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "S05 저장 결과 정규화",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "S12 보완 확인 필요",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "S12 보완 확인 필요",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "S13 보완 case 조회",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "S12 보완 확인 필요",
+          "from_type": "main",
+          "from_port": 1,
+          "to": "S06 계약 거절 반환",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "S13 보완 case 조회",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "S14 보완 대상 판정",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "S14 보완 대상 판정",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "S15 Jira 확인 필요",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "S15 Jira 확인 필요",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "S16 Jira 보완 case 확인",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "S15 Jira 확인 필요",
+          "from_type": "main",
+          "from_port": 1,
+          "to": "S06 계약 거절 반환",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "S16 Jira 보완 case 확인",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "S21 보완 문맥 댓글 조회 준비",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "S17 Jira 열림 판정",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "S18 보완 시작 가능",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "S18 보완 시작 가능",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "S19 보완 처리권 획득",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "S18 보완 시작 가능",
+          "from_type": "main",
+          "from_port": 1,
+          "to": "S06 계약 거절 반환",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "S19 보완 처리권 획득",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "S20 보완 결과 정규화",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "S20 보완 결과 정규화",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "S06 계약 거절 반환",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "S21 보완 문맥 댓글 조회 준비",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "S22 Jira 보완 전체 댓글 조회",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "S22 Jira 보완 전체 댓글 조회",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "S17 Jira 열림 판정",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "S23 최종 문맥 댓글 조회 준비",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "S24 Jira 최종 전체 댓글 조회",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "S24 Jira 최종 전체 댓글 조회",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "S10 문맥 확인 판정",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "S25 최종 문맥 수정 필요",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "S26 Jira 최종 문맥 저장",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "S25 최종 문맥 수정 필요",
+          "from_type": "main",
+          "from_port": 1,
+          "to": "S06 계약 거절 반환",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "S26 Jira 최종 문맥 저장",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "S27 최종 저장 재조회 준비",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "S27 최종 저장 재조회 준비",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "S28 Jira 최종 저장 재조회",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "S28 Jira 최종 저장 재조회",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "S29 최종 저장 일치 판정",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "S29 최종 저장 일치 판정",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "S30 최종 저장 확인 통과",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "S30 최종 저장 확인 통과",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "S04 PostgreSQL 상태 저장",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "S30 최종 저장 확인 통과",
+          "from_type": "main",
+          "from_port": 1,
+          "to": "S06 계약 거절 반환",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "S31 최종 문맥 읽기 허용",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "S09 Jira 문맥 확인",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "S31 최종 문맥 읽기 허용",
+          "from_type": "main",
+          "from_port": 1,
+          "to": "S06 계약 거절 반환",
+          "to_type": "main",
+          "to_port": 0
+        }
+      ],
+      "node_count": 31,
+      "edge_count": 39
+    },
+    {
+      "file": "workflows/dubakwi-support.json",
+      "sha256": "674120e8bab1d681bbc034fc09c677649e830cece408933ea77ea57f5159432a",
+      "nodes": [
+        {
+          "name": "B01 문의 수신",
+          "type": "n8n-nodes-base.webhook"
+        },
+        {
+          "name": "B02 입력 검사",
+          "type": "n8n-nodes-base.code"
+        },
+        {
+          "name": "B03 입력 통과",
+          "type": "n8n-nodes-base.if"
+        },
+        {
+          "name": "B04 사용자 확인",
+          "type": "n8n-nodes-base.httpRequest"
+        },
+        {
+          "name": "B05 등록·권한 확인",
+          "type": "n8n-nodes-base.code"
+        },
+        {
+          "name": "B06 사용자 통과",
+          "type": "n8n-nodes-base.if"
+        },
+        {
+          "name": "B33 응답 구성",
+          "type": "n8n-nodes-base.code"
+        },
+        {
+          "name": "B35 메타 기록",
+          "type": "n8n-nodes-base.httpRequest"
+        },
+        {
+          "name": "B36 응답",
+          "type": "n8n-nodes-base.respondToWebhook"
+        },
+        {
+          "name": "B07a BeginRequest 구성",
+          "type": "n8n-nodes-base.set"
+        },
+        {
+          "name": "B07 요청 문맥 읽기",
+          "type": "n8n-nodes-base.executeWorkflow"
+        },
+        {
+          "name": "B08 문맥 정리",
+          "type": "n8n-nodes-base.code"
+        },
+        {
+          "name": "B09 신규·재전송 분기",
+          "type": "n8n-nodes-base.switch"
+        },
+        {
+          "name": "B10 문의 분류",
+          "type": "@n8n/n8n-nodes-langchain.chainLlm"
+        },
+        {
+          "name": "L01 분류 모델",
+          "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi"
+        },
+        {
+          "name": "B11 분류 판정",
+          "type": "n8n-nodes-base.code"
+        },
+        {
+          "name": "B12 업무 분기",
+          "type": "n8n-nodes-base.switch"
+        },
+        {
+          "name": "B13 검색·조회 준비",
+          "type": "n8n-nodes-base.code"
+        },
+        {
+          "name": "B14 RAG 검색",
+          "type": "n8n-nodes-base.httpRequest"
+        },
+        {
+          "name": "B15 본인 기록 조회",
+          "type": "n8n-nodes-base.httpRequest"
+        },
+        {
+          "name": "B16 검색·조회 모으기",
+          "type": "n8n-nodes-base.merge"
+        },
+        {
+          "name": "B17 근거 판정",
+          "type": "n8n-nodes-base.code"
+        },
+        {
+          "name": "B18 답변 경로",
+          "type": "n8n-nodes-base.switch"
+        },
+        {
+          "name": "B19 답변 생성",
+          "type": "@n8n/n8n-nodes-langchain.chainLlm"
+        },
+        {
+          "name": "L02 답변 모델",
+          "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi"
+        },
+        {
+          "name": "B20 답변 검증",
+          "type": "@n8n/n8n-nodes-langchain.chainLlm"
+        },
+        {
+          "name": "L03 검증 모델",
+          "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi"
+        },
+        {
+          "name": "B21 검증 판정",
+          "type": "n8n-nodes-base.code"
+        },
+        {
+          "name": "B22 보완 질문 준비",
+          "type": "n8n-nodes-base.code"
+        },
+        {
+          "name": "B23 이관 준비",
+          "type": "n8n-nodes-base.code"
+        },
+        {
+          "name": "B24 고정 안내 준비",
+          "type": "n8n-nodes-base.code"
+        },
+        {
+          "name": "B25 티켓 요청 준비",
+          "type": "n8n-nodes-base.code"
+        },
+        {
+          "name": "B26 티켓 처리 필요",
+          "type": "n8n-nodes-base.if"
+        },
+        {
+          "name": "B27 티켓 생성·처리",
+          "type": "n8n-nodes-base.httpRequest"
+        },
+        {
+          "name": "B28 티켓 결과 확인",
+          "type": "n8n-nodes-base.code"
+        },
+        {
+          "name": "B29 티켓 처리 확인",
+          "type": "n8n-nodes-base.if"
+        },
+        {
+          "name": "B30 긴급 후속 필요",
+          "type": "n8n-nodes-base.if"
+        },
+        {
+          "name": "B31 결과 저장 준비",
+          "type": "n8n-nodes-base.code"
+        },
+        {
+          "name": "B37a 저장 준비 명령",
+          "type": "n8n-nodes-base.set"
+        },
+        {
+          "name": "B37 최종 저장 의도 기록",
+          "type": "n8n-nodes-base.executeWorkflow"
+        },
+        {
+          "name": "B38 저장 준비 결과 합성",
+          "type": "n8n-nodes-base.code"
+        },
+        {
+          "name": "B39 최종 저장 실행 허용",
+          "type": "n8n-nodes-base.if"
+        },
+        {
+          "name": "B32a SaveRequest 선택",
+          "type": "n8n-nodes-base.set"
+        },
+        {
+          "name": "B32 결과 저장",
+          "type": "n8n-nodes-base.executeWorkflow"
+        },
+        {
+          "name": "B34 응답 준비 확인",
+          "type": "n8n-nodes-base.if"
+        },
+        {
+          "name": "X01 실패 분류",
+          "type": "n8n-nodes-base.code"
+        },
+        {
+          "name": "X06a 실패 상태 명령",
+          "type": "n8n-nodes-base.set"
+        },
+        {
+          "name": "X06 실패 상태 저장",
+          "type": "n8n-nodes-base.executeWorkflow"
+        },
+        {
+          "name": "X07 실패 기록 결과 합성",
+          "type": "n8n-nodes-base.code"
+        },
+        {
+          "name": "X02 실패 부작용 선택",
+          "type": "n8n-nodes-base.switch"
+        },
+        {
+          "name": "X03a DLQ 요청 구성",
+          "type": "n8n-nodes-base.set"
+        },
+        {
+          "name": "X03 실패 보관",
+          "type": "n8n-nodes-base.executeWorkflow"
+        },
+        {
+          "name": "X04 실패 알림",
+          "type": "n8n-nodes-base.httpRequest"
+        },
+        {
+          "name": "X05 실패 응답 준비",
+          "type": "n8n-nodes-base.code"
+        }
+      ],
+      "edges": [
+        {
+          "from": "B01 문의 수신",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "B02 입력 검사",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "B02 입력 검사",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "B03 입력 통과",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "B03 입력 통과",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "B04 사용자 확인",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "B03 입력 통과",
+          "from_type": "main",
+          "from_port": 1,
+          "to": "B33 응답 구성",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "B04 사용자 확인",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "B05 등록·권한 확인",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "B05 등록·권한 확인",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "B06 사용자 통과",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "B06 사용자 통과",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "B07a BeginRequest 구성",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "B06 사용자 통과",
+          "from_type": "main",
+          "from_port": 1,
+          "to": "B33 응답 구성",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "B35 메타 기록",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "B36 응답",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "B07a BeginRequest 구성",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "B07 요청 문맥 읽기",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "B07 요청 문맥 읽기",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "B08 문맥 정리",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "B08 문맥 정리",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "B09 신규·재전송 분기",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "B09 신규·재전송 분기",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "B10 문의 분류",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "B09 신규·재전송 분기",
+          "from_type": "main",
+          "from_port": 1,
+          "to": "B33 응답 구성",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "B09 신규·재전송 분기",
+          "from_type": "main",
+          "from_port": 2,
+          "to": "B33 응답 구성",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "B09 신규·재전송 분기",
+          "from_type": "main",
+          "from_port": 3,
+          "to": "B33 응답 구성",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "B09 신규·재전송 분기",
+          "from_type": "main",
+          "from_port": 4,
+          "to": "X01 실패 분류",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "B10 문의 분류",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "B11 분류 판정",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "B11 분류 판정",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "B12 업무 분기",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "B12 업무 분기",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "B13 검색·조회 준비",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "B12 업무 분기",
+          "from_type": "main",
+          "from_port": 1,
+          "to": "B22 보완 질문 준비",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "B12 업무 분기",
+          "from_type": "main",
+          "from_port": 2,
+          "to": "B23 이관 준비",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "B12 업무 분기",
+          "from_type": "main",
+          "from_port": 3,
+          "to": "B23 이관 준비",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "B12 업무 분기",
+          "from_type": "main",
+          "from_port": 4,
+          "to": "X01 실패 분류",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "B13 검색·조회 준비",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "B14 RAG 검색",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "B13 검색·조회 준비",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "B15 본인 기록 조회",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "B14 RAG 검색",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "B16 검색·조회 모으기",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "B15 본인 기록 조회",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "B16 검색·조회 모으기",
+          "to_type": "main",
+          "to_port": 1
+        },
+        {
+          "from": "B16 검색·조회 모으기",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "B17 근거 판정",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "B17 근거 판정",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "B18 답변 경로",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "B18 답변 경로",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "B19 답변 생성",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "B18 답변 경로",
+          "from_type": "main",
+          "from_port": 1,
+          "to": "B24 고정 안내 준비",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "B18 답변 경로",
+          "from_type": "main",
+          "from_port": 2,
+          "to": "B23 이관 준비",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "B18 답변 경로",
+          "from_type": "main",
+          "from_port": 3,
+          "to": "X01 실패 분류",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "B19 답변 생성",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "B20 답변 검증",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "B20 답변 검증",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "B21 검증 판정",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "B21 검증 판정",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "B25 티켓 요청 준비",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "B22 보완 질문 준비",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "B25 티켓 요청 준비",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "B23 이관 준비",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "B25 티켓 요청 준비",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "B24 고정 안내 준비",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "B25 티켓 요청 준비",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "B25 티켓 요청 준비",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "B26 티켓 처리 필요",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "B26 티켓 처리 필요",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "B27 티켓 생성·처리",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "B26 티켓 처리 필요",
+          "from_type": "main",
+          "from_port": 1,
+          "to": "B31 결과 저장 준비",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "B27 티켓 생성·처리",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "B28 티켓 결과 확인",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "B28 티켓 결과 확인",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "B29 티켓 처리 확인",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "B29 티켓 처리 확인",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "B30 긴급 후속 필요",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "B29 티켓 처리 확인",
+          "from_type": "main",
+          "from_port": 1,
+          "to": "X01 실패 분류",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "B30 긴급 후속 필요",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "B13 검색·조회 준비",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "B30 긴급 후속 필요",
+          "from_type": "main",
+          "from_port": 1,
+          "to": "B31 결과 저장 준비",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "B31 결과 저장 준비",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "B37a 저장 준비 명령",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "B37a 저장 준비 명령",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "B37 최종 저장 의도 기록",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "B37 최종 저장 의도 기록",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "B38 저장 준비 결과 합성",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "B38 저장 준비 결과 합성",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "B39 최종 저장 실행 허용",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "B39 최종 저장 실행 허용",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "B32a SaveRequest 선택",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "B39 최종 저장 실행 허용",
+          "from_type": "main",
+          "from_port": 1,
+          "to": "X01 실패 분류",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "B32a SaveRequest 선택",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "B32 결과 저장",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "B32 결과 저장",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "B33 응답 구성",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "B33 응답 구성",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "B34 응답 준비 확인",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "B34 응답 준비 확인",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "B35 메타 기록",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "B34 응답 준비 확인",
+          "from_type": "main",
+          "from_port": 1,
+          "to": "X01 실패 분류",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "X01 실패 분류",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "X06a 실패 상태 명령",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "X06a 실패 상태 명령",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "X06 실패 상태 저장",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "X06 실패 상태 저장",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "X07 실패 기록 결과 합성",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "X07 실패 기록 결과 합성",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "X02 실패 부작용 선택",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "X02 실패 부작용 선택",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "X03a DLQ 요청 구성",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "X02 실패 부작용 선택",
+          "from_type": "main",
+          "from_port": 1,
+          "to": "X04 실패 알림",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "X02 실패 부작용 선택",
+          "from_type": "main",
+          "from_port": 2,
+          "to": "X05 실패 응답 준비",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "X02 실패 부작용 선택",
+          "from_type": "main",
+          "from_port": 3,
+          "to": "X05 실패 응답 준비",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "X03a DLQ 요청 구성",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "X03 실패 보관",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "X03 실패 보관",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "X04 실패 알림",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "X04 실패 알림",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "X05 실패 응답 준비",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "X05 실패 응답 준비",
+          "from_type": "main",
+          "from_port": 0,
+          "to": "B33 응답 구성",
+          "to_type": "main",
+          "to_port": 0
+        },
+        {
+          "from": "L01 분류 모델",
+          "from_type": "ai_languageModel",
+          "from_port": 0,
+          "to": "B10 문의 분류",
+          "to_type": "ai_languageModel",
+          "to_port": 0
+        },
+        {
+          "from": "L02 답변 모델",
+          "from_type": "ai_languageModel",
+          "from_port": 0,
+          "to": "B19 답변 생성",
+          "to_type": "ai_languageModel",
+          "to_port": 0
+        },
+        {
+          "from": "L03 검증 모델",
+          "from_type": "ai_languageModel",
+          "from_port": 0,
+          "to": "B20 답변 검증",
+          "to_type": "ai_languageModel",
+          "to_port": 0
+        }
+      ],
+      "node_count": 54,
+      "edge_count": 75
+    }
+  ]
+}

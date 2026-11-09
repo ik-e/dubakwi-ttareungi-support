@@ -1,0 +1,24 @@
+{
+  "run_id": "20261108-131400-vm-rag-matrix",
+  "date_kst": "2026-11-08 13:14",
+  "environment": "aio-t2 VM through Edge web SSH",
+  "search_endpoint": "/webhook/dubakwi-search",
+  "matching_index": "dubakwi-index (completed in run 20261108-130600-vm-rag-correct-pair)",
+  "search_case_matrix": {"total": 16, "passed": 15, "failed": 1, "blocked": 0, "not_run": 0},
+  "failed_case": {
+    "id": "SR-WF12",
+    "reason": "multi-intent original query did not retrieve expected account-compromise guidance section in top five",
+    "restricted_or_canary_leak": false,
+    "diagnostic": "clean security query and B13-style security hint query both retrieved the expected public section"
+  },
+  "access_controls": "no restricted evidence or restricted canary appeared in public-role test responses; both staff-role cases returned restricted evidence",
+  "support_e2e": "NOT_COMPLETED: synthetic request to /dubakwi-support returned HTTP 401 Authorization data is wrong; no bypass attempted",
+  "restart_recovery": "NOT_RUN: live n8n restart could interrupt active workflows and erase in-memory index; no safe maintenance window available",
+  "jira_discord_state_dlq_mutations": 0,
+  "local_validation": {
+    "project_docs": "PASS: 23 files, 860 local links, 58 anchors, 0 errors",
+    "public_files": "PASS: 606 candidates, 580 tracked, ignored tracked 0, 1251 public local links, 0 errors",
+    "git_diff_check": "PASS with CRLF normalization warnings"
+  },
+  "overall": "PARTIAL: 15/16 direct search cases pass; SR-WF12 relevance and full Support/restart recovery remain"
+}

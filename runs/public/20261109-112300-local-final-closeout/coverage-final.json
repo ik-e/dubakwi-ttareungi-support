@@ -1,0 +1,27 @@
+{
+  "environment": "local plan/fixture structure audit only; no service execution",
+  "baseline": "14bdd5a",
+  "plan_version": "1.0",
+  "mapped_requirements": 64,
+  "packages": 12,
+  "planned_acceptance_tests": 64,
+  "planned_by_area": {
+    "C": 8,
+    "B": 9,
+    "J": 15,
+    "S": 10,
+    "R": 8,
+    "E": 8,
+    "O": 6
+  },
+  "runtime_tests_executed": 0,
+  "known_limit": [
+    "S10/TC07 automatic replay not implemented"
+  ],
+  "errors": [],
+  "source_sha256_lf": {
+    "infra/design-implementation-mapping.md": "421b533edbcf212da664ede9cb1c1ea8be9ae4a54bccfd3d1e7f09c240c462bc",
+    "infra/contracts/full-system-coverage.json": "98f81d9be15db81356c40aa4cff7414d04e11b1ca803fa08591cb8a860ad0495",
+    "infra/contracts/jira-case-context-v1.example.json": "0816137ee69557a8a773c1b26fb708dd5c3576f6266cd7678e3e580d037af05d"
+  }
+}

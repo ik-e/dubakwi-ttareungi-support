@@ -1,0 +1,35 @@
+{
+  "run_id": "20261108-130600-vm-rag-correct-pair",
+  "date_kst": "2026-11-08 13:06",
+  "environment": "aio-t2 VM via Edge SSH/n8n UI",
+  "root_cause": "index/search workflow families use separate memory key namespaces; previous test executed PR36 index then queried legacy Support search",
+  "action": "executed existing legacy dubakwi-index Manual workflow; no edit or publish",
+  "index_chunks_processed": 44,
+  "results": {
+    "SR-WF01": "PASS: 200 ok; public QR evidence returned",
+    "SR-WF03": "PASS: 200 empty; no evidence",
+    "SR-STAFF01": "PASS: 200 ok; restricted evidence returned to restricted access request",
+    "SR-R04": "PASS: 200 invalid_request; no evidence",
+    "SR-OFF": "PASS: 200 skipped; no evidence",
+    "PR36 dedicated search route": "PASS: 200 ok; public QR evidence returned"
+  },
+  "side_effects": {
+    "jira": 0,
+    "discord": 0,
+    "support_state": 0,
+    "dlq": 0,
+    "embedding": "existing OpenAI Embeddings nodes processed demo corpus"
+  },
+  "local_validation": {
+    "project_docs": "PASS: 23 files, 852 local links, 58 anchors, 0 errors",
+    "public_files": "PASS: 604 candidates, 580 tracked, ignored tracked 0, 1242 public local links, 0 errors",
+    "rag_artifact_tests": "PASS: 4/4",
+    "git_diff_check": "PASS with existing CRLF normalization warnings"
+  },
+  "limitations": [
+    "only targeted RAG cases executed, not all 16 cases/search.json",
+    "Simple Vector Store is in-memory and requires reindex after n8n restart",
+    "two active search workflow families remain; no reroute/deactivation/change made"
+  ],
+  "overall": "TARGETED_RAG_PATH_RECOVERED; full RAG matrix remains"
+}

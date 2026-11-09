@@ -1,0 +1,122 @@
+{
+  "environment": "local Node; mocked node inputs; no HTTP/DB/Jira/n8n execution",
+  "baseline": "current local workflow bytes identified by source_sha256; not a VM execution",
+  "contract_version": "1.3",
+  "source_sha256": {
+    "support": "674120e8bab1d681bbc034fc09c677649e830cece408933ea77ea57f5159432a",
+    "handoff": "1a42717f2dae7ee732e13f565efe5f0ee745e68116df55b00af88bece92abc89"
+  },
+  "counts": {
+    "pass": 10,
+    "implementation_gap": 0,
+    "probe_error": 0
+  },
+  "results": [
+    {
+      "id": "A01",
+      "node": "B08",
+      "expected": 3,
+      "observed": 3,
+      "status": "pass"
+    },
+    {
+      "id": "A02",
+      "node": "B11",
+      "expected": "handoff",
+      "observed": "handoff",
+      "status": "pass"
+    },
+    {
+      "id": "A03",
+      "node": "B25",
+      "expected": {
+        "role": "security",
+        "priority": "high"
+      },
+      "observed": {
+        "role": "security",
+        "priority": "high"
+      },
+      "status": "pass"
+    },
+    {
+      "id": "A04",
+      "node": "B24",
+      "expected": true,
+      "observed": true,
+      "status": "pass"
+    },
+    {
+      "id": "A05",
+      "node": "H22",
+      "expected": true,
+      "observed": true,
+      "status": "pass"
+    },
+    {
+      "id": "A06",
+      "node": "H22",
+      "expected": {
+        "status": "error",
+        "record": null,
+        "error": "lookup_error"
+      },
+      "observed": {
+        "status": "error",
+        "record": null,
+        "error": "lookup_error"
+      },
+      "status": "pass"
+    },
+    {
+      "id": "A07",
+      "node": "H22",
+      "expected": {
+        "status": "ok",
+        "masked": 2
+      },
+      "observed": {
+        "status": "ok",
+        "masked": 2
+      },
+      "status": "pass"
+    },
+    {
+      "id": "A08",
+      "node": "H39",
+      "expected": {
+        "route": "context",
+        "assigned": "confirmed",
+        "alert": "confirmed"
+      },
+      "observed": {
+        "route": "context",
+        "assigned": "confirmed",
+        "alert": "confirmed"
+      },
+      "status": "pass"
+    },
+    {
+      "id": "A09",
+      "node": "H39",
+      "expected": {
+        "route": "context",
+        "error": "partial_effect",
+        "alert": "unknown"
+      },
+      "observed": {
+        "route": "context",
+        "error": "partial_effect",
+        "alert": "unknown"
+      },
+      "status": "pass"
+    },
+    {
+      "id": "A10",
+      "node": "examples",
+      "expected": true,
+      "observed": true,
+      "status": "pass"
+    }
+  ]
+}

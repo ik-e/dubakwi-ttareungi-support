@@ -1,4 +1,42 @@
+## 2026-11-08 현재 구현·검증 상태
+
+<!-- final-closeout-current -->
+**최종 취합 v1.0 · 2026-11-09.** 제출용 문서는 로컬 `submission/final/docs/EXECUTION-RESULT.md`에 공식 6절로 정리했다. 본 파일의 날짜별 최초 실패·재시험·표본 수는 원 이력으로 보존한다.
+
+| 최신 요약 | 판정 |
+| --- | --- |
+| 60사례·64요구 | [모든 ID의 판정·근거·한계 연결](../../runs/public/20261109-112300-local-final-closeout/evidence-matrix.md). 연결 누락0이며 전 기능 PASS 아님 |
+| 검색·권한 | 11/08 PR36 search 16/16. 단위 시험 범위 |
+| 11/09 리허설 | [3흐름·5요청](../../runs/public/20261109-001140-vm-demo-rehearsal/backend-followup.md), 저장/감사5건 일치. 반납3회차 attempt_limit, 해외이용 no_evidence |
+| Jira | 담당자 배정·진행 중·내부 메모 확인. 사용자가 변경한 All 큐에 완료/진행/대기 티켓 함께 표시 |
+| 미실행·제외 | D10/TC15 BLOCKED / NOT RUN; TC07은 read-only 조회만 확인, 복구 action 범위 밖 |
+| 제출 검사 | [마감 기록](../../runs/public/20261109-112300-local-final-closeout/report.md). 문서/DOM/공개 후보 검사와 실서비스·연속 시간 리허설을 구분 |
+
+11/07 업무 정의41·실행40·응답 기대충족38·미충족2·미구현1과 최신 검색16/16을 합산하지 않는다. 공통14유형은17행을 유형으로 묶은 수이며 세부 assertion 수와 다르다. 현행 로컬 main dd919d7과 전체 VM export 동일성은 미확인이다. 아래 ‘미실행’은 해당 시점/조건의 기록이며 후속 근거를 소급 덮지 않는다.
+<!-- /final-closeout-current -->
+
+현재 판정은 [구현 현황 v5.5](implementation-status-and-closeout-plan.md)와 [최종 시험 계획 v1.25](final-test-plan.md)를 기준으로 한다. PR36 RAG 검색/권한 matrix 16/16, QR·SR-WF12 Support 종단, 14:02 restart→44 items reindex→QR 기능 확인, J02 담당자 처리 및 사용자 확인 알림 수신, TC-07 bounded DLQ list/inspect와 연결 Jira GET은 각 실행 증거 범위에서 확인됐다. SQLite execution #2167/#2211의 `running` 잔류와 색인 시간 미측정은 기능 결과와 구분한 관측 한계다. TC-07 운영자 retry/recovery action은 이번 조회 전용 완료 범위 밖이다. D10·TC-15는 환경 미준비로 BLOCKED/NOT RUN이며 기능 통과가 아니다. 최종 60 사례·64 요구 ID 추적, 제출 패키지 완결·비밀 검사·VM 재현 확인은 남아 있다. 저장소 `main` `dd919d7`과 VM PR36 이미지/워크플로우의 완전한 source mapping은 입증되지 않았으므로 VM 실행을 해당 커밋 결과로 합산하지 않는다.
+
+2026-11-08 당시 계획 간소화 기록: 확보된 baseline·로컬 회귀·DLQ 조회·RAG 정상 종단은 재실행하지 않고 기존 증거로 연결했다. 당시 순서는 이용자/RAG/Jira, 저장/DLQ·오류, TC-15 최후순위, 최종 회귀·산출물의 5묶음이었다. 최신 판정은 위 v1.25 계획을 따른다.
+
+2026-11-08 D06 타인 문의 접근 경계 종단: [새 실행 결과](../../runs/public/20261108-153000-vm-discord-d06-cross-owner/report.md)에서 현재 등록 Discord 테스트 계정이 R05 synthetic 타인 소유 열린 문의를 `case_ref`로 제출했을 때 일반 연결값 오류만 반환하고, Jira 검색에서 시험 문구 신규 issue가 없는 것을 확인했다. DB state/DLQ는 이 실행에서 조회하지 않았다. D06는 실 Discord 봇 경로 통과, D05 별도 미등록 계정 경로는 계속 미실행이다.
+
+2026-11-08 D03 Jira 후속 대조 및 등록 경계 검사: [새 실행 결과](../../runs/public/20261108-152100-vm-jira-d03-crosscheck/report.md)에서 Discord가 반환한 synthetic 이슈를 Jira 화면에서 대조했다. 동일 case/first_request_id와 같은 ticket_key를 가진 context revision 1~3을 확인해 D03 티켓 재사용·후속 누적을 통과로 보강했다. 담당자 지정은 보였으나 실제 열람·Discord 수신은 미확인이다. Discord 어댑터 표적 unittest 22/22 통과와 사용자 매핑 누락 분기 코드 검토를 기록했다. 별도 실 Discord ID의 라이브 등록/미등록 시험은 실행하지 않았다.
+
+2026-11-08 PR36 RAG 남은 기능 matrix 완료: [실행 결과](../../runs/public/20261108-142200-vm-pr36-rag-full-matrix/report.md)에서 `cases/search.json` 16개를 PR36 대응 index/search 경로로 실행해 16/16 통과했다. QR 답변 및 SR-WF12 intent transform Support 종단도 기존 별도 증거로 연결한다. 이로써 계획된 RAG 검색·권한 기능 시험은 완료다. SQLite `running` 잔류 및 index duration 미측정은 기록상 한계로 유지하며 새 테스트 gate로 확대하지 않는다. 나머지는 사용자/담당자 시나리오의 미판정·차단 사례, 미구현 TC-07 recovery action, 격리 경계 미확정인 TC-15, 최종 요구/산출물 추적이다. 계획 버전 v1.17과 마감 현황 v5.3에 동기화했다.
+
+2026-11-08 VM PR36 RAG 상태 재대조: [실행 보고서](../../runs/public/20261108-122400-vm-rag-readiness/report.md)·[요약](../../runs/public/20261108-122400-vm-rag-readiness/summary.json). manifest 8개 모두 승인 대기/색인 비활성, VM index workflow는 Manual·Publish 비활성·실행 이력 없음, search는 Published를 확인했다. 기능은 11/7 VM 종단과 11/8 D08 출처 응답으로 확인됐다. 현재 population·과거 시험 설정의 상세 계보는 부분 확인이며 기능 차단 사유는 아니다. 검색/색인 실행 및 외부 효과는 없었다.
+
+2026-11-08 Discord UAT 후속: [결과](../../runs/public/20261108-121900-vm-discord-uat-followup/report.md)·[요약](../../runs/public/20261108-121900-vm-discord-uat-followup/summary.json). Edge Discord에서 D02/D03 보완 흐름, D07 내부자료 거부, D08 고장 안전안내와 근거, D09 환불 경계 질문을 관측했다. D02/D03은 Jira 키와 재사용 효과가 나타나지 않아 부분이며, 응답 범위 기준 D07/D08/D09는 통과다. DB 효과를 직접 확인하지 않아 쓰기 0으로 단정하지 않는다. 전체 UAT는 부분 완료다.
+
 # 워크플로우 실행 결과서 · 두바퀴
+
+2026-11-08 Discord UAT D04 후속: [실행 보고서](../../runs/public/20261108-144413-vm-discord-d04-lookup/report.md)·[요약](../../runs/public/20261108-144413-vm-discord-d04-lookup/summary.json). 기존 완료 synthetic 문의를 `case_ref`로 연결해 시민 상태 조회를 제출했고, 비공개 응답 “종료된 문의입니다. 새 문의로 접수해 주세요.”를 확인했다. 이 실행은 Jira 변경 없이 응답만 확인했으며 DB 조회 로그는 별도 검증하지 않았다. D04 UI 결과는 통과, 전체 UAT는 아직 미완료다.
+
+2026-11-08 최종 통합 시험 진행상태 갱신: [VM runtime 기준선 재확인](../../runs/public/20261108-120800-vm-runtime-refresh/report.md)에서 기존 Edge 웹 SSH 경로로 컨테이너 상태와 n8n `2.42.6`·PostgreSQL `16.15`를 확인했다. [1단계 로컬 회귀](../../runs/public/20261108-115900-local-phase01-regression/report.md)는 148 unittest(141 pass/7 skip), 157/157 support skeleton, contract fixture와 dry-run을 기록하며 실제 통합 효과와 분리한다. 현재 workflow ID/source mapping 상세와 추가 RAG 권한·검색 사례, TC-07 recovery, TC-15가 남아 있어 전체 종단 PASS는 아니다. n8n 목록은 106 workflows이며 PR36 core의 support/search/handoff/errors/dlq/state는 Published, index는 Manual·Publish 비활성이고 해당 UI execution 이력은 보이지 않았다. 이 상태는 11/7 실제 색인·검색 성공을 부정하지 않으며, exact source↔VM mapping과 현재 memory population 세부는 미확인이다. 자세한 목록은 [runtime refresh](../../runs/public/20261108-120800-vm-runtime-refresh/report.md)를 참조한다.
+2026-11-08 TC-07 VM DLQ/Jira 조회 slice: [실행 보고서](../../runs/public/20261108-101605-vm-tc07-dlq-lookup/report.md)·[요약](../../runs/public/20261108-101605-vm-tc07-dlq-lookup/summary.json). 별도 restore rehearsal 및 live migration 017 이후 기존 비활성 운영자 workflow에서 bounded DLQ list/sanitized inspect와 연결 Jira 상태·담당자 GET을 확인했다. 시험 후 workflow는 비활성, 입력 `{}`이며 PR36 state/DLQ, Jira, Discord 쓰기 0이다. **조회 slice만 통과**했으며 recovery action, broader operator contract는 미완료다. 이전 로컬 구현 준비 기록은 보존한다.
+
+2026-11-08 Discord·Jira 사용자 UAT 부분 실행: [실행 보고서](../../runs/public/20261108-104900-vm-discord-jira-uat/report.md)·[요약](../../runs/public/20261108-104900-vm-discord-jira-uat/summary.json). 등록된 Discord 사용자의 비공개 D02 이관, 같은 문의의 Jira 이슈/문맥 revision 재사용, Jira 진행·완료 전환, 종료 뒤 원 소유자 상태 조회를 실제 UI에서 확인했다. 지정 문구와 다른 후속 입력이므로 D03은 부분 확인, 담당자의 직접 열람/Discord 수신과 나머지 시나리오는 미확인이다. 입력 조작 중 case_ref 없는 별도 synthetic 문의가 추가 접수된 사실도 결과에 기록했다. 전체 안내서 통과로 판정하지 않는다.
 
 2026-11-08 TC-07 기존 operator 경로 DLQ/Jira 조회 재구성: [실행 보고서](../../runs/public/20261108-094943-local-existing-operator-lookup/report.md)·[요약](../../runs/public/20261108-094943-local-existing-operator-lookup/summary.json). 별도 workflow/reader 설계를 기존 `dubakwi-recovery-operator` workflow·recovery operator DB credential·두바퀴 Jira 도메인의 `dubakwi-Jira SW Cloud account` 재사용으로 변경했다. Migration 017은 bounded `list`와 가림 처리된 `inspect`를 추가하고, 올바르게 연결된 `JBYS-<number>`를 inspect했을 때만 Jira 상태·담당자 GET을 수행한다. disposable migrations 001~017과 SQL/workflow 계약 검증을 통과했다. 이번 실행에서는 VM 적용과 실제 Jira GET을 확인하지 않았고 state/DLQ/Jira/Discord 변경도 없었다.
 
@@ -46,6 +84,12 @@
 이후 로컬 다운로드/업로드 없이 VM n8n UI에서 게시 PR36 support와 handoff를 직접 복제할 수 있음을 확인했다. [VM UI 복제 결과](../../runs/public/20261107-205221-vm-tc15-ui-duplication/report.md)에 기록한 두 게시본 사본은 미게시 상태이며 시험 요청은 아직 보내지 않았다. 최초에 미게시 초안에서 만든 support copy는 시험 대상에서 제외했다. 따라서 Edge 파일 선택 권한을 바꾸지 않아도 TC-15를 이어갈 수 있다.
 
 2026-11-07 TC-15 H11 고장 대체 구성: [결과](../../runs/public/20261107-210536-vm-tc15-h11-replacement/report.md). 게시 handoff 사본에서 H11 HTTP Request를 synthetic 503 Code 노드로 교체하고 앞뒤 연결을 확인했다. 현재 `Publish`가 비활성이라 두 synthetic 요청은 미실행이며 Jira/DB/DLQ/Discord 효과는 0이다. 전체 시험은 기존 게시 워크플로우와 사례 명세를 대상으로 진행하며 새 업무 기능 구현은 포함하지 않는다.
+
+2026-11-08 VM 후속 [RAG·TC-15 점검](../../runs/public/20261108-125600-vm-final-test-followup/report.md): 기존 manual index workflow가 demo chunk 44개를 처리했으나, PR36 search endpoint의 SR-WF01은 색인 전후 모두 HTTP 200 `index_not_ready`였다. SR-OFF `skipped`, SR-R04 `invalid_request`는 기대 계약과 일치했다. TC-15 Support 사본이 active이며 B14/B15/B27이 운영 PR36 검색/조회 webhook을 참조하는 것을 확인해 격리 ingress와 Handoff fault 배선 확인 전 synthetic 요청은 미실행했다. 따라서 RAG 통합과 TC-15 종단은 미완료이며 전체 사용자 테스트 완료가 아니다. 이전 보고서의 수치·판정은 소급 수정하지 않는다.
+
+2026-11-08 RAG 경로 진단 후속: [대응 index/search 실행 결과](../../runs/public/20261108-130600-vm-rag-correct-pair/report.md). VM workflow DB에서 기본 Support 검색과 PR36 전용 검색이 다른 memory key namespace를 사용함을 확인했다. 대응 `dubakwi-index` 실행 뒤 기본 `/dubakwi-search`는 SR-WF01 public evidence, SR-WF03 empty, SR-STAFF01 restricted evidence, SR-R04 invalid_request, SR-OFF skipped로 표적 통과했다. PR36 전용 `/dubakwi-search-pr36-a657890`도 별도 public QR smoke를 통과했다. 앞선 `index_not_ready`는 서로 다른 workflow pair를 교차 사용한 결과로 판명됐다. 전체 16개 RAG 사례, Discord/Jira 및 사용자 종단 완료를 뜻하지 않는다.
+
+2026-11-08 RAG 전체 search matrix: [실행 보고서](../../runs/public/20261108-131400-vm-rag-matrix/report.md). `cases/search.json` 16개에서 15 pass, SR-WF12 혼합 query의 기대 security section 누락 1 fail. 두 B13-style security hint query는 기대 공개 절을 찾았고 restricted/canary 누출은 없었다. active `/dubakwi-support` synthetic 요청은 Header Auth mismatch 401로 workflow 종단이 실행되지 않았다. n8n 재시작/재색인은 활성 webhook 영향과 메모리 index 소실 때문에 이번 실행에서 하지 않았다. 전체 RAG 파이프라인 완료가 아니다.
 
 2026-11-07 P18/P20 로컬 오류·DLQ 검사: [실행 보고서](../../runs/public/20261107-205400-local-error-dlq-contract/report.md)·[요약](../../runs/public/20261107-205400-local-error-dlq-contract/summary.json). alert_marker 검증/dedup 7/7, 복구·DLQ parity 8/8 action, state/DLQ 16개 사례와 운영 알림 acknowledgement fixture가 통과했다. 모두 로컬 계약/fixture이며 실제 VM 고장 주입·DLQ 효과·운영자 수신은 미검증이다.
 
@@ -458,6 +502,8 @@
 
 | 날짜 | 버전 | 내용 |
 | --- | --- | --- |
+| 2026-11-08 | v1.0 | D06 타인 소유 문의의 Discord 종단 차단과 Jira 신규 issue 검색 결과 추가 |
+| 2026-11-08 | v0.9 | D03 Jira 동일 티켓 revision 1~3 대조 및 Discord 등록 사용자 경계 표적 검사 결과 추가 |
 | 2026-11-07 | v0.8 | n8n Logs 패널의 노드별 시간 반영(#305 7개 노드, #796 2개 노드): 3.2 단계별 시간 표와 8초 초과 원인(LLM 3번 41%·Jira 24%), 2.1·2.2 노드 시간, 4.1 잔여 위험 |
 | 2026-11-07 | v0.7 | 2.3 이관 로그에 n8n 실행 #851(R1 WF-12) 노드 경로와 화면 4장(로컬) 반영. 2절 대표 로그 3건 모두 실행 화면 확보 |
 | 2026-11-07 | v0.6 | n8n 실행 #849(R1 WF-09 2차)로 재전송이 LLM·티켓 노드 없이 저장 응답을 돌려준 것 확인, 화면 4장(로컬, 키 칸 가림). 보안 발견: 실행 기록 B01 headers에 팀 키 평문 저장(R01 확인 요청) |
@@ -509,3 +555,62 @@ R02 c6b4644와 후속 계약/보안/records 수정은 이번 로컬 통합에 �
 2026-11-07 사례 명세 41건의 요청 전 dry-run: [보고서](../../runs/public/20261107-214910-local-p26-case-matrix/report.md)·[요약](../../runs/public/20261107-214910-local-p26-case-matrix/summary.json). payload 구성 27, 준비 조건 차단 13, TC-07 미구현 1. 어떤 건도 서비스 실행 PASS로 집계하지 않았으며 외부 효과는 0이다.
 
 2026-11-07 전체 요구 구조 정적 감사: [보고서](../../runs/public/20261107-215556-local-p26-coverage/report.md)·[요약](../../runs/public/20261107-215556-local-p26-coverage/summary.json). 64개 요구/acceptance test와 12개 패키지의 구조 연결 오류 0, 런타임 실행 0이다. WF-11은 기존 VM 실행 8.288초로 가이드 예시 6초 assertion과 불일치했으나 20초 운영 deadline은 위반하지 않았다.
+
+2026-11-08 VM PR36/UX 배포 기준선 읽기 스냅샷: [실행 보고서](../../runs/public/20261108-113100-vm-pr36-baseline-readonly/report.md)·[요약](../../runs/public/20261108-113100-vm-pr36-baseline-readonly/summary.json). PR36 API `pr36-a657890`과 UX API `ux-6f9561b`가 병렬 실행 중이고, Discord bot `pr36-1328c63`, PostgreSQL `16.15`다. PR36 DB는 `recovery_finish/list/lookup`이 있으나 `recovery_control`이 없었다. n8n 관련 workflow 게시 표시와 instance-wide 지표를 기록했다. 조회 명령만 수행했으며 workflow 실행, DB/API 변경, Jira 쓰기, Discord 전송은 0건이다.
+
+2026-11-08 버전 확인 추가: VM image ID prefix와 n8n `2.42.6`·PostgreSQL `16.15`를 확보하고, PR36/UX/Discord image tag suffix를 저장소 commit에 매핑했다. 앱 이미지에 OCI revision label이 없어 source build provenance는 입증되지 않았다. RAG index workflow `dubakwiPR36a657Index`의 memory key에는 `a657890`이 포함되지만 workflow 미게시·실행 이력 없음·in-memory vector store로 인해 현 적재 내용/version은 미확인이다. 해당 저장소를 재작성하는 index 실행은 이번 read-only 조사에서 하지 않았다.
+
+2026-11-08 로컬 전체 회귀 및 정적 산출물 검사: [실행 결과](../../runs/public/20261108-123600-local-final-regression/report.md). unittest 148건(141 통과·7 생략·실패 0), support skeleton 157/157, P12/P18/P19/P20·R04·TC-07 계약 스크립트, verifier boundary, Ruff lint/format 검사가 통과했다. 문서 링크/공개 후보 검사도 최종 재검사에서 오류 0이다. RAG HTTP 7건은 내부 키/endpoint 미설정으로 생략했다. 로컬 결과는 VM/Discord/Jira 종단이나 전체 사례 통과를 뜻하지 않는다.
+
+2026-11-08 기존 synthetic Jira 문의 티켓 읽기 전용 후속 확인: [보고서](../../runs/public/20261108-124100-vm-jira-readonly-followup/report.md). 티켓 완료·담당자 배정·case context 활동을 확인했다. 알림 전송 시도 표시는 담당자 직접 수신/열람 증거가 아니다. 이 확인은 기존 lifecycle 표본 재확인이며 새 테스트 수에 합산하지 않는다.
+
+동일 시각 Edge 웹 SSH 재연결은 `aio-t2 login:` 입력 프롬프트에서 멈췄다. 로그인 식별 정보 입력 전이라 VM shell 명령·웹훅 요청은 0건이며, TC-15 고장 시험은 실행하지 않았다. Discord의 미지원 질의 입력 역시 필수 입력 UI가 해소되지 않아 제출하지 않았고, 전송/티켓 효과는 없다.
+
+2026-11-08 VM Support RAG synthetic 종단 확인: [실행 보고서](../../runs/public/20261108-132300-vm-support-rag-e2e/report.md)·[요약](../../runs/public/20261108-132300-vm-support-rag-e2e/summary.json). Existing bot team-key mount로 `X-Team-Key` 인증에 성공해 active `/dubakwi-support`에 QR 질문을 보냈다. HTTP 200이지만 `skeleton_mock` 담당자 이관, ticket null, sources empty였고 응답이 실제 접수/티켓/이관이 없음을 명시했다. RAG 답변 종단은 미확인으로 판정했다. n8n execution 2167은 `running`, 상세 runData 없음으로 재확인되어 stop/restart를 수행하지 않았다. Jira/Discord 신규 업무 효과는 없었다. 후속 문서 정적 검사: 23 files, 865 local links, 58 anchors, errors 0; 공개 파일 검사 608 candidates, 580 tracked, ignored tracked 0, 1,256 public local links, errors 0.
+
+2026-11-08 active PR36 RAG 종단: [QR 답변](../../runs/public/20261108-132500-vm-pr36-rag-e2e/report.md)과 [SR-WF12 보안 혼합 문의](../../runs/public/20261108-133000-vm-pr36-rag-wf12-e2e/report.md). 정확한 active PR36 webhook `/dubakwi-support-pr36-a657890`을 확인해 실행했다. QR 문의는 `rental-guide` 공개 근거를 포함한 자동 응답으로 통과했다. SR-WF12는 B13 intent transform 후 `privacy-security-guide` 공개 근거·urgent/high handoff와 Jira `JBYS-172`를 반환했다. Raw direct-search SR-WF12 relevance miss는 원 결과로 보존하며, operational E2E는 해당 transform으로 통과했다. 기본 `/dubakwi-support`는 P11 골격 경로라 별도 분류한다. Jira ticket creation은 확인했으나 Discord 수신은 별도 검증하지 않았다. n8n execution 2167이 running이라 restart/reindex recovery는 미실행이다.
+
+2026-11-08 RAG 문서 최종 동기화 검사: `uv run --locked python scripts/test/check_project_docs.py`는 23 files, 879 local links, 58 anchors, errors 0. `uv run --locked python scripts/test/check_public_files.py`는 612 candidates, 580 tracked, ignored tracked 0, 1,272 public local links, errors 0. `git diff --check` 통과(CRLF 정규화 안내만 출력).
+
+2026-11-08 Discord 알림 수신 읽기 전용 확인: [실행 결과](../../runs/public/20261108-134000-vm-discord-alert-readonly/report.md). 기존 민원 채널의 근거 기반 QR/반납/고장 응답, Jira 이관 표본, 종료 문의 차단, 환불 확인 질문, 내부 자료 거부가 화면에 남아 있음을 확인했다. 담당자 전용 `jira-알림` 채널은 현재 계정에 제한되어 메시지를 읽을 수 없었다. JBYS-172의 `alert-sent` 표식은 실제 수신/열람 증거가 아니다. 새 메시지·티켓 변경·권한 변경은 없었다. 문서 검사 23 files/879 links/58 anchors, 공개 후보 612/580 tracked/1272 links, 오류 0; `git diff --check` 통과.
+
+제출 전 보안 도구 확인: 지침의 `tscan scan .`을 시도했으나 `tscan` 명령이 환경에 설치/제공되지 않아 검사 미실행이다. 이를 대체하는 비밀 보장 결과로 간주하지 않는다.
+
+2026-11-08 VM RAG 실행 상태 재조회: [실행 보고서](../../runs/public/20261108-134700-vm-rag-execution-refresh/report.md)·[요약](../../runs/public/20261108-134700-vm-rag-execution-refresh/summary.json). 임시 재개 절차에 따라 기존 Edge 웹 SSH로 접근했다. 실제 n8n 컨테이너의 SQLite를 `OPEN_READONLY`로 열어 execution #2167 `running`, `stoppedAt=null`, 최근 일치 실행 1건을 확인했다. 일반 컨테이너명 오타는 `docker ps`에서 실제 이름을 확인해 바로잡았으며, workflow 실행/정지·재색인·DB 쓰기는 없었다. 상태 확인은 가능하지만 recovery 완료나 memory store population은 미검증이다. 열린 실행과 인메모리 store 때문에 재시작·재색인은 보류 상태다.
+
+2026-11-08 VM RAG execution UI/DB 대조: [실행 보고서](../../runs/public/20261108-135700-vm-rag-execution-ui-crosscheck/report.md)·[요약](../../runs/public/20261108-135700-vm-rag-execution-ui-crosscheck/summary.json). SQLite에는 PR36 index #2167 `running`이 있으나 해당 execution UI는 `Could not find execution`, 전체 UI의 Running 필터는 `No executions`였다. 별도 legacy index #2170은 10.699초 성공으로 표시되나 PR36 실행시간 대용이 아니다. 11/7 PR36 44청크 재색인 및 최근 QR/SR-WF12 E2E는 성공했다. 실제 실행 여부와 저장 메타데이터 불일치가 해소되지 않았고 UI 중지 대상이 없어 강제 중지/재색인을 수행하지 않았다.
+
+2026-11-08 VM PR36 RAG 복구 재시험: [보고서](../../runs/public/20261108-140200-vm-pr36-rag-recovery/report.md)·[요약](../../runs/public/20261108-140200-vm-pr36-rag-recovery/summary.json). 기존 Edge 웹 SSH를 통해 n8n 컨테이너를 재시작하고 PR36 전용 index workflow를 UI Manual 실행했다. UI 성공 및 44 items를 확인했고, 직후 synthetic QR 문의는 HTTP 200 자동 답변과 public rental-guide 근거 2건을 반환했다. Jira/Discord 효과는 0건이다. Read-only SQLite에는 과거 #2167 및 신규 UI 성공 #2211이 모두 running/stoppedAt=null로 남아 execution 메타데이터 불일치는 미해결이다. 색인 시간은 계측하지 않았고 전체 RAG matrix 재시험이 아니다.
+
+2026-11-08 VM PR36 RAG boundary matrix 시도: [결과 불명 기록](../../runs/public/20261108-141000-vm-pr36-rag-boundary-attempt/report.md). PR36 direct search용 7개 synthetic 사례 batch를 기존 Edge Web SSH에서 제출했으나, 응답 회수 전에 CUA timeout 및 URL 검증 불가로 관측이 끊겼다. 실행 여부·처리 범위가 미확인이라 통과 수에 포함하지 않고 같은 request_id 재전송을 금지했다. SSH 재개 시 실행 기록에서 먼저 대조한다.
+
+2026-11-08 VM PR36 RAG 표적 matrix: [보고서](../../runs/public/20261108-141600-vm-pr36-rag-matrix/report.md)·[요약](../../runs/public/20261108-141600-vm-pr36-rag-matrix/summary.json). PR36 전용 search webhook에서 7개 경계/혼합 보안 사례를 실행해 7/7 표적 assertion 통과를 확인했다. 시민 canary 응답에 restricted 근거가 없고 staff positive에서만 ticket-lifecycle restricted 근거가 반환됐다. 색인 UI는 44 items 성공/ready였지만 실행 목록은 비어 있고 SQLite #2211은 running/stoppedAt=null로 남았다. 정확한 색인 시간은 미측정이며 전체 16사례를 재실행한 것은 아니다.
+
+2026-11-08 VM PR36 RAG 전체 검색 사례: [보고서](../../runs/public/20261108-142200-vm-pr36-rag-full-matrix/report.md)·[요약](../../runs/public/20261108-142200-vm-pr36-rag-full-matrix/summary.json). `cases/search.json` 16건을 PR36 전용 검색 webhook으로 실행해 기대 상태·문서·절·접근권한을 대조했고 16/16 통과했다. citizen canary/restricted 비노출과 staff restricted 양성 2건을 확인했다. read-only DB 대조에서 새 webhook 실행 #2228–#2243 16건과 앞서 UI 성공한 index #2211이 `running`, stoppedAt null로 남았다. workflow는 성공/수동 execution save와 진행 기록을 비활성화해 UI history 부재는 설명되나 DB 잔류 상태 원인은 확정하지 못했다. 색인 runtime도 미측정이다. Jira/Discord/state/DLQ 효과는 없다.
+2026-11-08 Discord UAT 이어하기: [결과](../../runs/public/20261108-143400-vm-discord-d03-continuation/report.md)·[요약](../../runs/public/20261108-143400-vm-discord-d03-continuation/summary.json). 기존 채널에서 새 synthetic D02 접수와 D03 후속을 실행했다. D03에서는 추가 옵션 목록에서 `case_ref`를 선택하고 해당 칸에 이전 연결값을 넣어 제출했으며, 같은 연결값을 돌려받았다. Jira key·issue 재사용·DB 효과는 이번 화면에서 확인하지 못해 D03은 부분 판정이다. 전체 UAT 완료로 판정하지 않는다.
+
+### 2026-11-08 D03 사용자 후속 종단 재확인
+
+[VM Discord 실행](../../runs/public/20261108-144900-vm-discord-d03-verified/report.md)에서 가이드 문장을 기존 synthetic case_ref로 정확히 전송했다. 봇이 동일 case 응답과 Jira 접수 키를 반환했다. 후속 [Jira 대조](../../runs/public/20261108-152100-vm-jira-d03-crosscheck/report.md)에서 같은 case/first_request_id와 동일 ticket_key의 revision 1~3, 담당자 지정 및 support handoff 기록을 확인해 티켓 재사용·후속 누적은 통과로 보강했다. 실제 담당자 열람·알림 수신은 미확인이다. 등록 경계 unittest 22/22와 코드 분기를 확인했으나 별도 계정 실 UI 및 D10 replay는 실행하지 않았다. 과거 결과는 덮어쓰지 않았다.
+
+### 2026-11-08 UAT 사례별 잔여 경계 정리
+
+기존 [PR36 통합](../../runs/public/20261107-170503-vm-pr36-integration/report.md), [10:49 UAT](../../runs/public/20261108-104900-vm-discord-jira-uat/report.md), [12:19 UAT](../../runs/public/20261108-121900-vm-discord-uat-followup/report.md), 오늘의 [D04](../../runs/public/20261108-144413-vm-discord-d04-lookup/report.md)·[D03 Discord](../../runs/public/20261108-144900-vm-discord-d03-verified/report.md)·[D03 Jira 대조](../../runs/public/20261108-152100-vm-jira-d03-crosscheck/report.md)·[D06 타인 문의 차단](../../runs/public/20261108-153000-vm-discord-d06-cross-owner/report.md)를 사례별로 연결했다. D01/D02/J01/J03/D04/D06/D07/D08/D09는 기존 또는 신규 UI 증거가 있다. D03 같은 Jira issue 재사용과 revision 1~3 누적은 확인했으나 실제 담당자 열람/알림 수신은 미검증이다. D05/J04 별도 identity UI, D10 interaction replay harness는 미판정이다. 이 범위 외 신규 시험 gate는 추가하지 않는다.
+
+
+2026-11-08 D05/D10 local boundary 회귀 및 잔여 계획 판정: [보고서](../../runs/public/20261108-153500-local-discord-replay-boundary/report.md)·[요약](../../runs/public/20261108-153500-local-discord-replay-boundary/summary.json). `uv run --locked` Discord adapter suite 22/22 통과. D05 미등록 map lookup과 D10 동일 interaction의 안정 request_id 재사용만 로컬에서 확인했고, live 미등록 Discord ID·플랫폼 재전달·외부 호출 0은 미검증이다. J02 담당자 실제 열람/수신은 현재 계정 권한 제한으로 미검증. TC-15는 기존 사본이 운영 PR36 webhook을 참조하므로 격리 배선 확인 전 요청을 보내지 않아 차단/미실행이다. 이 회차 외부 효과/VM 변경은 없다.
+
+
+2026-11-08 D05 미등록 계정 VM 종단: [보고서](../../runs/public/20261108-154200-vm-discord-d05-unregistered/report.md)·[요약](../../runs/public/20261108-154200-vm-discord-d05-unregistered/summary.json). Chrome Discord 임시 계정의 문의에 봇이 비공개 미등록 거절을 반환했다. Jira 전체 텍스트 검색에서 입력 문구 일치 항목은 없었다. DB state/DLQ는 직접 조회하지 않아 효과 범위를 제한해 기록한다.
+
+
+2026-11-08 J02 담당자 처리 확인: [보고서](../../runs/public/20261108-154900-vm-jira-j02-assignee-handling/report.md)·[요약](../../runs/public/20261108-154900-vm-jira-j02-assignee-handling/summary.json). Jira에서 기존 D02 가상 티켓을 담당자 `i i` 계정이 열고 상태를 `진행 중`으로 두었으며, 동일 계정 작성 내부 메모를 확인했다. J02는 담당자 직접 열람·처리 기준 통과다. Discord 알림 수신과 DB state/DLQ 효과는 이 확인 범위에 포함하지 않았다.
+
+
+2026-11-08 J04 cross-owner live 확인: [보고서](../../runs/public/20261108-160000-vm-discord-j04-cross-owner-case/report.md)·[요약](../../runs/public/20261108-160000-vm-discord-j04-cross-owner-case/summary.json). 등록 Discord `citizen-c`가 `citizen-a` synthetic case_ref를 제출했고 비공개 일반 거절 응답을 받았다. 기존 Jira 티켓은 To Do·기존 업데이트 시각 그대로였고, 시험 문구 검색에서 일치 issue 0건을 확인했다. DB state/DLQ·외부 호출은 직접 확인하지 않았다.
+
+
+2026-11-08 담당자 Discord 알림 수신 사용자 확인: [기록](../../runs/public/20261108-160200-user-confirmed-discord-alert/report.md)·[요약](../../runs/public/20261108-160200-user-confirmed-discord-alert/summary.json). 사용자가 J02 synthetic 티켓 담당자 알림을 실제로 받았다고 확인해 수신 판정을 완료했다. 이 회차의 독립 화면/전송 로그 증거는 없다.
+
+
+2026-11-08 D10/TC-15 환경 준비도 최종 점검: [보고서](../../runs/public/20261108-160500-vm-final-test-environment-readiness/report.md)·[요약](../../runs/public/20261108-160500-vm-final-test-environment-readiness/summary.json). D10 통합 replay/effect harness가 없고 TC-15는 운영 웹훅·공유 DB 분리를 입증할 수 없어 환경 미준비. 사용자 지시에 따라 요청 전송/워크플로우 변경 없이 BLOCKED/NOT RUN으로 시험 검증을 종결했다. 이는 기능 통과가 아니다.

@@ -1,0 +1,25 @@
+{
+  "run_id": "20261108-141600-vm-pr36-rag-matrix",
+  "executed_at": "2026-11-08T14:14:00+09:00",
+  "environment": "aio-t2 VM via Edge Web SSH and PR36 user-api",
+  "workflow": "R01 PR36 a657890 search",
+  "cases": {
+    "total": 7,
+    "passed": 7,
+    "failed": 0,
+    "results": [
+      {"id":"public_qr","http":200,"status":"ok","assertion":"public rental-guide QR evidence"},
+      {"id":"empty","http":200,"status":"empty","evidence_count":0},
+      {"id":"invalid_access","http":200,"status":"error","error":"invalid_request","evidence_count":0},
+      {"id":"disabled","http":200,"status":"skipped","evidence_count":0},
+      {"id":"citizen_canary","http":200,"status":"ok","restricted_evidence_count":0,"restricted_canary_count":0},
+      {"id":"staff_restricted","http":200,"status":"ok","restricted_ticket_lifecycle_evidence":true},
+      {"id":"mixed_security","http":200,"status":"ok","public_privacy_security_evidence":true,"restricted_evidence_count":0}
+    ]
+  },
+  "index_execution": {"ui_result":"success","items":44,"readiness":"ready"},
+  "execution_persistence": {"ui_history":"no executions found","sqlite_rows":[{"id":2211,"status":"running","stopped_at":null}],"id_2167_in_same_query_result":false,"duration_measurable":false},
+  "external_effects": {"jira":0,"discord":0,"search_only":true},
+  "result":"pr36_targeted_rag_matrix_7_of_7_pass_execution_metadata_stale_running_and_index_duration_unresolved",
+  "limitations":["Not the complete 16-case matrix", "Request latency not measured", "No DB state/DLQ diff in this run"]
+}
