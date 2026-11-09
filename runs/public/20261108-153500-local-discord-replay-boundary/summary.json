@@ -1,0 +1,18 @@
+{
+  "run_id": "20261108-153500-local-discord-replay-boundary",
+  "date_kst": "2026-11-08 15:35",
+  "environment": "local-windows-uv-locked",
+  "scenarios": {
+    "D05": "local_adapter_boundary_pass_live_identity_not_run",
+    "D10": "local_stable_request_id_tests_pass_live_replay_not_run",
+    "J02": "blocked_assignee_receipt_not_observable",
+    "TC-15": "blocked_no_isolated_ingress_fault_wiring"
+  },
+  "discord_adapter_unittest": {
+    "passed": 22,
+    "failed": 0
+  },
+  "vm_mutations": 0,
+  "synthetic_post_sent": false,
+  "evidence": "report.md"
+}

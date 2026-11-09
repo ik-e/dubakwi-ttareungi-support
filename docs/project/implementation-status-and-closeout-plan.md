@@ -1,10 +1,15 @@
 # 구현 현황과 사용자 기준 마감 계획
 
+<!-- final-closeout-current -->
+**11/09 현재:** 최종 자료 마감을 수행했다. 이전 날짜의 ‘추적표 미완료’·‘담당자 처리 전’ 문구는 당시 기록이며 현행은 [최종 근거표](../../runs/public/20261109-112300-local-final-closeout/evidence-matrix.md)와 [마감 검증](../../runs/public/20261109-112300-local-final-closeout/report.md)을 따른다. 새 기능·운영 고장 시험·VM 배포는 추가하지 않았다.
+<!-- /final-closeout-current -->
+
 - 작성일: 2026-11-08 KST
-- 버전·상태: v4.1 / R02는 새 UX 개선만 담당하고 R01은 기존 업무 로직 통합·마감을 담당한다. TC-15 종단은 미판정이다. PR #51의 TC-07 recovery 저장 계층을 반영했고 fresh private backup·restore DB 계약 통과 후 VM service DB에 migrations 010–016을 적용했다. restore DB 동시 claim은 1승/1 `recovery_conflict`, release 복귀를 확인했다. live role-as-operator inspect는 read-only로 통과했으며 runtime execute 권한은 없다. 조회 전용 DLQ list/inspect→Jira GET workflow와 migration 017을 로컬 후보로 추가하고 별도 NOLOGIN reader role, fresh disposable migrations 001~017, 33 contract checks를 확인했다. 새 후보는 검토·fresh restore rehearsal·VM 적용 전이며 reader LOGIN/Credential 및 실 Jira GET은 미실행이다. 기존 Jira·Discord write 효과 0건. TC-07 action 복구 및 create/alert producer capsule은 미완료다.
-- 기준 코드: `main` `b705be3` (PR #36 통합본과 후속 PR #46~#52 반영)
+- 버전·상태: v5.6 / 코드 기준선은 `origin/main` `dd919d7`로 고정했다. PR #36과 후속 PR #46~#52가 포함된다. R02는 새 UX 개선, R01은 기존 업무 경로와 마감을 담당한다. PR36 RAG search 사례/권한 기능은 [16/16 통과](../../runs/public/20261108-142200-vm-pr36-rag-full-matrix/report.md) 및 두 Support 종단으로 완료 판정했다. SQLite execution row의 `running` 표기와 색인 시간 미측정은 기록상 잔여 한계이며 추가 시험 gate가 아니다. D05/J04 거부 경계와 J02 담당자 직접 처리·사용자 확인 Discord 알림 수신을 최신 근거에 반영했다. D10/TC-15는 [환경 미준비](../../runs/public/20261108-160500-vm-final-test-environment-readiness/report.md)로 BLOCKED/NOT RUN 종결했으며 기능 통과가 아니다. TC-07은 DLQ list/inspect 및 연결 Jira GET read-only 조회를 확인했다. 운영자 retry/recovery action은 이번 완료 범위 밖이다. 60사례·64요구의 판정/근거표와 제출용 3문서·발표·DAY82를 정리했다. [마감 기록](../../runs/public/20261109-112300-local-final-closeout/report.md)에서 실제 검사·패키지·Git 상태를 확인한다. 전체 상세는 [최종 시험 계획 v1.26](final-test-plan.md)을 참조한다.
+- 기준 코드: `main` `dd919d7` (PR #36 통합본, 후속 PR #46~#52 및 P18 DLQ 조회 기록 반영; 로컬/원격 main 일치)
 - 기준 실행: [PR #36 실제 VM 통합 검증](../../runs/public/20261107-170503-vm-pr36-integration/report.md)
 - 결정 방식: 사용자는 R01이 PR #36처럼 전체 마감을 통합 추진하고 타 역할의 검증 회신을 기다리지 않도록 지시했다. 이 문서는 R01 관측·판정만 기록하며 타 역할 승인이나 미실행 시험을 만들어내지 않는다.
+- 사용자 수동 UAT 절차: [Discord·Jira 시나리오 시험 안내서](../../cases/discord-jira-user-acceptance.md). 시험 계획과 기존 실행 증거를 구분하며, 현재 지원되지 않는 Jira 기반 DLQ 관리는 차단 항목으로 표시한다.
 
 ## 1. 완료 기준
 
@@ -25,19 +30,23 @@
 | 영역 | 현재 증거 | 현재 판정과 빈틈 |
 | --- | --- | --- |
 | 정상 시민 종단 | 실제 Discord 비공개 응답 → 등록 사용자 확인 → 분류 → RAG → 답변/검증 → Jira 종료 → PostgreSQL completed/save → 독립 재조회가 일치했다. 대표 실행은 11.988초, 별도 표본은 14.817초·9.934초다. | 정상 경로가 실제 연결됨. 8초 목표는 충족하지 않았고 표본 수로 일반 성능을 보장하지 않는다. |
-| 보완·이관·조회 | 기존 실행의 Jira 생성·문맥·배정·알림 API 수락에 더해, [2026-11-07 Edge VM 종단](../../runs/public/20261107-201652-vm-p26-jira-lifecycle/report.md)에서 같은 티켓 보완, owner/other/missing 조회, Jira 완료 전환 뒤 owner 조회 `closed`, DB completed/respond와 DLQ 0을 관측했다. | 상태→시민 조회 연결은 synthetic ticket으로 확인. 현재 Jira 로그인으로 테스트 전환했으므로 배정된 직원이 직접 처리했다는 증거, 사람의 Discord 수신, 실제 환불 완료는 아니다. |
-| RAG와 권한 | 최신 통합 검증에서 44청크를 재색인했고 실제 QR 질문의 근거 응답을 확인했다. [추가 로컬 표적 검사](../../runs/public/20261107-204523-local-rag-contract/report.md)에서 artifact 4개, 청킹 경계 7개, 오프라인 role filter 2개, 실제 B05→B13→RAG Validate Code fixture 7개와 producer/consumer fixture 3개가 통과했다. | 로컬 계약/fixture 결과이며 AUTH03/05/07의 일부도 모의 입력이다. 실제 VM 검색·사용자 identity API·권한별 증거/인용·오류와 Discord 종단은 미완료. HTTP RAG 7개도 OpenAI 사용료·내부 key·실행 webhook을 필요로 해 이 번들에서는 실행하지 않았다. |
-| 업무·장애 회귀 | 기존 41개 정의 중 40개를 실행, 사례 assertion은 38개 충족·2개 불일치였다. 정상 29개/36단계와 장애 17개 실행묶음/21단계의 외부 효과 대조 불일치 0건이 보고됐다. 실행 정의 밖 준비 중단·반복도 별도 기록됐다. | 이 수치는 R01 VM 관측이며 공식 전체 PASS가 아니다. WF-11의 6초는 guide 예시 assertion이고 8.288초는 20초 운영 deadline 내 안전 이관이다. TC-15 원 기대 충돌·별도 격리 시험, TC-07의 실제 Jira finish 및 복구 action 확인이 남았다. |
+| 보완·이관·조회 | [2026-11-07 VM Jira lifecycle](../../runs/public/20261107-201652-vm-p26-jira-lifecycle/report.md)와 [J02 담당자 처리](../../runs/public/20261108-154900-vm-jira-j02-assignee-handling/report.md)에서 같은 synthetic 티켓 보완·상태전환·본인 조회, 담당자의 진행 처리·내부 메모를 확인했다. 담당자 Discord 알림 수신은 [사용자 확인](../../runs/public/20261108-160200-user-confirmed-discord-alert/report.md)이다. | 담당자 처리는 확인됐다. 알림은 사용자 보고이며 독립 전송 로그가 없다. 실제 환불 완료를 뜻하지 않는다. D05·D06·J04 거부 경계는 각각의 개별 실행 범위만 통과했다. |
+| RAG와 권한 | PR36 [search matrix](../../runs/public/20261108-142200-vm-pr36-rag-full-matrix/report.md) 16/16, [QR Support E2E](../../runs/public/20261108-132500-vm-pr36-rag-e2e/report.md), [SR-WF12 E2E](../../runs/public/20261108-133000-vm-pr36-rag-wf12-e2e/report.md), [14:02 재시작 후 재색인·QR](../../runs/public/20261108-140200-vm-pr36-rag-recovery/report.md)를 확인했다. | 계획된 PR36 검색·권한 기능 시험과 한 번의 restart→reindex→QR 기능 경로는 확인됐다. SQLite execution row의 `running` 종료 상태 불일치와 색인 시간 미측정은 남은 관측 한계이며 추가 시험 gate가 아니다. |
+| 업무·장애 회귀 | 과거 41개 정의 표본과 2026-11-06의 25건×3회, 2026-11-08 UAT 및 개별 실행 결과를 [최종 시험 계획](final-test-plan.md)에 연결했다. | 서로 다른 기준·범위의 수치를 합산해 전체 PASS로 표시하지 않는다. D10 replay와 TC-15 격리 고장 종단은 환경 미준비로 BLOCKED/NOT RUN이며 기능 통과가 아니다. |
 | UX Jira·Discord 알림 | PR #49는 새 UX Jira 프로젝트 유형 `10003`을 렌더 사본에 선택 적용한다(기존 사이트 기본 `10006`은 유지). PR #50은 기존 user API 프로세스에 기본 비활성 `POST /alerts`를 추가했다. 렌더러는 UX 사본의 H11/X04/E09 전송 endpoint만 내부 API로 바꾸며 canonical `workflows/*.json`은 수정하지 않는다. 알림 URL은 API 전용 비밀 파일에서 읽고 n8n JSON/실행 항목에서 분리한다. | 두 PR은 main 병합 및 CI 통과 상태이나 새 Jira Credential/프로젝트 연결, UX API 비밀 설정, 별도 workflow 사본 적용, 실제 Discord 전송은 아직 미검증이다. 기본 운영 환경의 알림 동작은 비활성 설정을 유지한다. |
-| 저장·DLQ·복원 | PostgreSQL state/save/fail/DLQ, known ID 보존, 동시 동일 요청 409/200 및 응답 재사용을 확인했다. 추가 [TC-07 local contract](../../runs/public/20261108-073512-local-tc07-unknown-effect-release/report.md)와 [VM recovery 적용](../../runs/public/20261108-085318-vm-tc07-recovery-deploy/report.md)에서 migrations 001~016, 계약 3종, restore DB 동시 claim 1승/1충돌, live 010~016 및 operator-only read-only inspect를 확인했다. | DB 저장 계층은 VM에 배포됨. 전용 operator LOGIN/Credential과 inactive workflow import/inspect-only는 미완료이며, 실제 Jira/Discord action 및 완료 복구는 미실행이다. TC-07 운영 사용 가능 상태가 아니며 전체 완료도 아니다. disposable DB 경합은 운영 RTO가 아니다. 운영 RPO/RTO·백업 주기·사람의 운영 알림 수신은 확정/실측되지 않았다. |
+| 저장·DLQ·복원 | PostgreSQL state/save/fail/DLQ와 known ID 보존·동일 요청 차단을 확인했다. [TC-07 VM lookup](../../runs/public/20261108-101605-vm-tc07-dlq-lookup/report.md)에서 migration 017 후 bounded list/sanitized inspect와 연결 Jira GET을 기존 비활성 manual test workflow에서 통과시켰다. | **조회 slice만** 통과. `recovery_control` 부재로 broader recovery contract가 미완료이고 DLQ retry/recovery action은 마감 범위에 포함되지 않는다. disposable DB 경합은 운영 RTO가 아니다. 운영 RPO/RTO·백업 주기는 확정/실측되지 않았다. |
 | 보안 | 새 저장 실행 357건에서 현재 팀·내부·Jira·DB·OpenAI·봇 비밀값 일치 0건을 확인했고 새 키/폐기 키 인증 경계를 확인했다. | 과거 실행 원문·백업은 별도 보존 상태다. 전체 과거자료 소거 또는 모든 보존 정책 충족으로 확대하지 않는다. |
-| 복구 구현·실연동 검증 | TC-07 operator 저장 경계, action capsule 입력, CAS claim/resume/release/complete는 로컬 구현했고 migrations 010–016을 VM service DB에 적용했다. restore DB 동시 claim과 live role-as-operator inspect도 확인했다. | 자동/범용 재시도는 만들지 않는다. 전용 operator LOGIN/Credential, inactive workflow 반입·inspect-only, 실제 Jira/Discord 효과 처리와 완료 복구는 남았다. known ID·외부 효과·owner·원 실행 종료를 확인한 작업만 수동으로 재개하고, 불명확하거나 캡슐이 없는 건은 `manual_required`로 남긴다. |
+| 복구 구현·실연동 검증 | Local disposable 저장 경계 및 migration 010–016 restore/live 검사와 TC-07 read-only lookup을 각각 확인했다. Migration 017의 bounded DLQ/Jira 조회도 기존 비활성 manual test workflow에서 확인했다. | 현재 사용자 완료 범위는 조회까지다. 운영자 retry/recovery action은 범위 밖이며 구현·검증 완료로 주장하지 않는다. |
 
 ### 2026-11-07 Edge 웹 VM 읽기 점검
 
 [읽기 전용 재점검 결과](../../runs/public/20261107-194606-vm-pr36-readonly-recheck/report.md)는 당시 VM 토폴로지 스냅샷이다. 이후 [승인된 synthetic J01/J02/J03 표본](../../runs/public/20261107-201652-vm-p26-jira-lifecycle/report.md)에서 이관·보완 재사용·문맥 누적·권한별 조회·Jira 완료 후 시민 `closed` 조회·DB/DLQ 상태를 확인했다. 담당자 본인의 실제 업무 수행/수신은 확인하지 않았다. core workflow 실행 UI에 저장 실행이 없어 노드별 호출·모델 시간은 확인할 수 없다. TC-15는 승인됐다. Edge 파일 업로드 경로가 막혔지만 VM n8n UI에서 게시된 PR36 support/handoff를 직접 Duplicate 할 수 있음을 [재점검](../../runs/public/20261107-205221-vm-tc15-ui-duplication/report.md)했다. 새 사본은 아직 게시/활성화하거나 호출하지 않았다. 먼저 만든 미게시 support 초안 사본은 TC-15 대상에서 제외했고 보존했다. WF-11, RAG 실제 VM 권한/인용 종단, 전체 VM manifest도 계속 남는다.
 
 세부 원본: [시스템 설계](SYSTEM-DESIGN.md), [워크플로우 설계](WORKFLOW-DESIGN.md), [RAG 설계](RAG-ARCHITECTURE.md), [저장소 설계](STORAGE-DESIGN.md), [실행 결과서](EXECUTION-RESULT.md), [64개 요구사항 실행 매핑](../../infra/contracts/full-system-coverage.json).
+
+### 2026-11-08 VM PR36/UX 기준선 읽기 스냅샷
+
+[읽기 전용 결과](../../runs/public/20261108-113100-vm-pr36-baseline-readonly/report.md)에서 PR36 API와 UX API가 같은 VM에 병렬 배포되어 있음을 재확인했다. 이미지 태그는 각각 `pr36-a657890`, `ux-6f9561b`이고 Docker `29.9.2`, PostgreSQL `16.15`, n8n `2.42.6`이다. 이미지 ID prefix를 기록했으며 tag suffix는 기존 Git commit으로 확인했다. 앱 이미지의 OCI revision label은 비어 있어 source provenance는 확정하지 않았다. n8n 목록은 관련 PR36 core 6개 중 5개 Published, dual-storage 4개 중 3개 Published, UX 5개 모두 Published, recovery operator는 Published 표시 없음으로 보였다. PR36 index workflow ID와 memory key에 `a657890` namespace가 들어간 것은 확인했으나, workflow 미게시·실행 이력 없음·메모리 벡터 저장 특성 때문에 현재 index 적재/문서 revision은 미확인이다. PR36 DB에는 `recovery_list/lookup`과 `recovery_finish`가 있으나 `recovery_control`은 없다. 이번 snapshot은 서비스/DB/워크플로우를 변경하지 않았다.
 
 ### 열린 PR과 현재 기준선
 
@@ -56,33 +65,37 @@
 
 ## 3. 우선 마감 계획
 
+전체 사례와 수용 요구를 의존성 순으로 실행할 상세 계획은 [PR36 최종 통합 시험 계획](final-test-plan.md)이다. 이 문서는 실행 계획이며 시험 결과를 뜻하지 않는다. 이번 계획의 시험 실행은 아직 시작하지 않았다.
+
 R01은 사용자 지시에 따라 구현·통합·시험 창을 순차 진행한다. 타 역할의 검증 회신을 기다리는 것을 선행 조건으로 삼지 않는다. 기존 소유자·의존 코드·실제 상태를 확인하고, 대리 수정은 R01 통합 후보로 명확히 표시한다. 외부 서비스에서 실제로 하지 않은 행위를 통과 처리하지 않는다.
 
 | 순서 | 마감 묶음 | 담당 | 선행 조건·의존성 | 할 일 | 완료 기준·증거 |
 | --- | --- | --- | --- | --- | --- |
-| 1 | 기준 버전·대상 고정 | R01 | 없음. 나머지 모든 트랙의 공통 기준 | main `6f9561b`, 실행 이미지, 7개 업무 워크플로우, SQL, RAG 색인/지식, 기존 Discord/Jira/DB 연결과 PR #49/#50 UX 확장을 새 비밀 없는 manifest에 고정한다. 기존 실패·미확인 이력은 건드리지 않는다. | 실행 전/후 같은 버전 manifest, 기존 VM 상태와 작업 scope의 충돌 없음 |
+| 1 | 기준 버전·대상 고정 | R01 | 없음. 나머지 모든 트랙의 공통 기준 | main `dd919d7`은 고정했다. 실행 이미지, 7개 업무 워크플로우, SQL, RAG 색인/지식, 기존 Discord/Jira/DB 연결 및 PR #49/#50 UX 확장 버전은 새 비밀 없는 VM manifest로 대조한다. 기존 실패·미확인 이력은 건드리지 않는다. | 실행 전/후 같은 버전 manifest, 기존 VM 상태와 작업 scope의 충돌 없음 |
 | 2 | 새 UX 표현·상호작용 개선 | R02 | 1 완료 후 시작. R01 핵심 트랙과 병렬 가능 | UX 사본의 이용자 안내 문구·화면/상호작용을 개선한다. Jira/API 연결 설정, Credential, 외부 효과와 업무 상태 전이는 R01이 기존 계약에 맞춰 구현·검증한다. | UX 표현·상호작용이 설계된 사용자 기대와 맞는 R02 증거. backend 연결/비밀/업무 계약은 R01 증거로 별도 판정 |
 | 3 | 새 UX 사용성 확인 | R02 (UX 표면) · R01 (backend) | 2의 UX 변경과 backend 연결 구현 후. 4~7과 병렬 가능 | R02는 새 UX의 문구·상호작용 기대를 확인한다. R01은 Jira 유형/담당 매핑·문맥, API 연결, ack/전송/사람 수신 구분, 424 거절·502/503/504 미확인 효과와 무재시도를 시험한다. | R02 사용성 증거와 R01 Jira/API/Discord·DLQ 통합 증거를 분리 기록. 기존 시민 문의 처리/담당자 이관의 업무 결과는 R01이 직접 판정 |
 | 4 | 사용자 결과 계약 정리 | R01 | 1 완료. 2~3과 병렬 가능; 5~7의 시험 사례 기반 | 기존 40개 실행 결과와 설계 시나리오를 시민 기대 결과와 Jira/DB/DLQ 효과로 연결한다. TC-15 최초 알림 미확인은 `unknown/partial_effect`와 known ID·DLQ로 확인하고, 같은 문의 후속은 기존 저장 계약의 `409 case_busy`·외부 호출 0으로 판정한다. 과거 200 기대와 실패는 보존한다. `alert_marker` DLQ dedup은 후속 차단과 분리해 모듈 시험으로 확인한다. | 각 사례에 입력·기대 응답·단계·티켓/담당 결과·금지 부작용·검증 근거가 연결되고 최초 불일치가 보존됨. TC-15의 각 단계가 상충 계약을 혼합하지 않음 |
-| 5 | 시간 경로 계측·운영 한도 확인 | R01 | 4의 결과 계약을 기준으로 진행. 6과 병렬 가능 | WF-11의 `max_seconds: 6`은 가이드 예시값으로 보존하되 운영 SLA로 간주하지 않는다. 실제 계약인 전체 deadline 20초와 관측 실패 상한 25초 내에서 lookup timeout→안전 이관→Jira/state 저장을 계측한다. 일반 응답 8초도 guide 목표 표본으로 별도 분류한다. | WF-11 반복 실측·가능한 단계 시간·응답/Jira/state/DLQ 효과가 한 실행 ID로 대조됨. 6초 초과는 guide 예시 기대 불일치로 기록하고 20초 deadline 위반과 혼동하지 않음 |
-| 6 | RAG·에이전트와 Jira 수명주기 종단 | R01 | 4 완료. 5와 병렬 가능하나 timeout/writer 변경 영향 사례는 반영 후 재실행. R02 UX 시험과 병렬 | 핵심 경로의 public/근거 없음/restricted/권한 오류와 함께 Jira 수명주기 J01~J03을 확인한다. J01은 실제 생성 ticket의 본인 조회·타인 거절·없는 ticket·가림 및 read-only 효과, J02는 보완/이관 후 같은 ticket·역할·우선순위·횟수 유지와 재배정·재알림 0, J03은 Jira 저장 문맥에서 facts 복원·누적·충돌 확인을 포함한다. 담당자 ticket 처리 후 시민 후속 조회도 대조한다. 새 UX의 화면/사용성 개선 확인은 R02 범위다. 기존 주 경로의 사용자 문의 처리·Jira/Discord 연동 효과는 R01이 검증한다. | 검색 문서/절·답변 인용·route, J01~J03 API/Jira/state 대조, 담당 처리 후 시민 응답이 같은 실행/티켓으로 연결됨. Jira 읽기 경로는 부작용 0. 새 UX 개선 결과는 별도 bundle/실행 ID |
-| 7 | 오류·DLQ와 복구 경계 | R01 | 1·4 완료. 5·6과 병렬 가능; 핵심 업무 알림 오류는 R01이 검증하며, 새 UX 전용 알림 개선 증거만 R02가 제공 | 기존 장애 회귀와 TC-07 수동 재처리를 분리한다. TC-07은 STORAGE-DESIGN 4.2 기준으로 아래 순서의 전용 세부 계획을 따른다. 자동/범용 재시도, 새 서버, 공개 webhook은 추가하지 않는다. | 장애·복구별 효과가 확인되고 위험한 외부 효과 재호출 0. TC-07 세부 완료 기준을 모두 만족한 뒤에만 미구현 판정을 해제 |
+| 5 | 시간 경로 계측·운영 한도 확인 | R01 | 기존 VM WF-11 표본 및 설계 deadline 확인 완료 | 가이드 `max_seconds: 6`은 예시로 유지하고 SLA로 승격하지 않는다. 기존 관측 8.288초와 20초 업무 deadline을 구분한다. 반복 성능 특성화·미측정 단계 시간은 현재 사용자 완료 기준의 추가 gate로 두지 않는다. | 기존 수치의 출처/해석을 구분 기록. 미측정 항목은 잔여 한계로 표시하고 통과 수치로 만들지 않음 |
+| 6 | RAG·에이전트와 Jira 수명주기 종단 | R01 | 기존 VM/Jira/UAT 증거 재사용 및 11/8 표적 보강 완료 | 핵심 경로 RAG matrix 16/16, QR·SR-WF12 Support 종단, Jira 시민/담당자 처리 및 후속 조회 결과를 같은 scope의 각 run에서 연결한다. 새 UX의 화면/사용성 확인은 R02 범위로 분리한다. | 계획된 PR36 RAG 시험과 J02 담당자 처리는 해당 증거 범위에서 완료. 60 사례/64 요구 ID 전체 판정표는 별도 마감 작업이며 전체 PASS를 뜻하지 않음 |
+| 7 | 오류·DLQ 조회 및 장애 경계 | R01 | TC-07 VM lookup 및 개별 오류/UAT 증거 확보; D10/TC-15 준비도 확인 완료 | DLQ list/inspect와 연결 Jira GET까지만 사용자 완료 범위다. retry/recovery action은 이번 범위에서 제외한다. D10 replay harness 및 TC-15 격리 경로가 준비되지 않아 요청을 보내지 않았다. | TC-07 조회 slice 통과, retry/recovery action은 범위 밖. D10/TC-15는 BLOCKED/NOT RUN으로 명시하고 기능 통과로 계산하지 않음 |
 | 8 | 전체 회귀와 문서 마감 | R01 통합; UX 개선 결과는 R02 | 2~7 완료. 미실행/외부 확인 불가는 잔여로 명시하고 완료 판정에 포함 | 지원 범위 사용자 시나리오와 UX 사본을 정상·경계·실패·담당자 처리 묶음으로 회귀하고 결과를 설계·실행 결과·원장·시연 자료에 동기화한다. | 코드/설정/workflow/지식/UX bundle 버전, 보고서, 미달·미실행 한계와 재현 방법이 서로 일치 |
 
 ### 실행 체크리스트
 
-- [ ] **1 기준 고정:** [로컬 코드·artifact manifest](../../runs/public/20261107-192148-local-p26-closeout/baseline-manifest.json)와 해시 목록을 만들었다. [Edge 웹 VM 재점검](../../runs/public/20261107-194606-vm-pr36-readonly-recheck/summary.json)에서 이미지 tag와 게시 workflow 일부를 읽었지만 전체 workflow·Credential/연결·SQL·색인·환경 설정 대조는 미완료다.
-- [ ] **2 UX 사본:** R02가 사본을 구성했고 운영 경로와 분리됨을 diff/설정 증거로 확인했다.
-- [ ] **3 UX 실연동:** R02가 Jira 티켓·담당 접근·Discord ack/채널 메시지와 오류 경계를 각각 기록했다.
-- [ ] **4 결과 계약:** 대상 사례마다 이용자 기대 결과와 외부 효과·금지 부작용을 연결했고 TC-15의 unknown→case_busy 차단과 alert_marker dedup을 별도 판정했다.
-- [ ] **5 시간 경로:** WF-11의 6초를 guide 예시로 분류하고, 반복 종단시간·단계별 지연·Jira/state/DLQ 효과를 20초 운영 deadline 및 25초 실패 관측 상한과 대조했다.
-- [ ] **6 RAG/Jira 수명주기:** Jira 표본은 [live 결과](../../runs/public/20261107-201652-vm-p26-jira-lifecycle/report.md)에서 J01 owner/other/missing 조회, J02 같은 티켓 보완, J03 문맥 누적 및 완료 전환 후 시민 `closed` 조회를 확인했다. [로컬 RAG 표적 시험](../../runs/public/20261107-204523-local-rag-contract/report.md)은 23개 fixture/자동 검사를 통과했지만 실제 VM 검색·권한·인용/오류 종단은 미검증이다. 담당 직원 직접 처리와 사람의 알림 수신도 확인되지 않아 전체 완료 기준은 미충족이다.
-- [ ] **7 실패/DLQ·TC-07 진행 중:** 기존 로컬 [P18/P20 오류·DLQ 계약](../../runs/public/20261107-205400-local-error-dlq-contract/report.md)은 통과했다. [TC-07 VM recovery 적용](../../runs/public/20261108-085318-vm-tc07-recovery-deploy/report.md)에서 migrations 010–016, 복원 DB 동시 claim 1승/1충돌·release 복귀, live operator-only inspect를 확인했다. 실제 Jira action 수행·효과 대조, 전용 LOGIN/Credential과 workflow inactive import, complete 경로는 미완료다. TC-15는 [Header Auth 호출 경로 부재](../../runs/public/20261107-214634-vm-tc15-auth-check/report.md)로 요청 0건이다. 생성 응답 unknown인 TC-05는 Jira 기존 티켓의 유일한 연결 확인 계약을 확보하기 전 재실행하지 않는다. `alert_marker` dedup과 TC-15 결과는 별도로 판정한다.
-- [ ] **8 회귀/동기화:** 마지막 증거를 설계·실행 결과·개발 원장·README/시연 자료에 동기화하고 링크 검사를 통과했다.
+- [x] **1 기준 고정 (부분 완료):** 저장소 기준은 `dd919d7`이다. VM image/tag와 일부 workflow/DB/RAG 상태를 [읽기 전용 기준선](../../runs/public/20261108-113100-vm-pr36-baseline-readonly/report.md)으로 기록했다. OCI source provenance, 모든 workflow JSON hash/ID·credential/config manifest는 미확인이라 VM과 저장소의 완전 동일성은 입증하지 않았다.
+- [x] **2 UX 분리 원칙 기록:** PR #49/#50은 병합됐고 새 UX API/사본·credential 경계는 설계에 기록했다. UX 프로젝트 credential 연결, 사본 적용과 실제 UX 알림은 미검증이므로 UX 실연동 완료로 보지 않는다.
+- [ ] **3 UX 실연동:** 새 UX 프로젝트의 Jira 연결 및 PR #50 Discord 알림 endpoint/credential/오류 경계는 VM에 적용·시험하지 않았다. R02 UX 테스트와 R01 기존 업무 경로 판정을 섞지 않는다.
+- [x] **4 결과 계약/요구 추적:** [60사례·64요구](../../runs/public/20261109-112300-local-final-closeout/evidence-matrix.md)의 원 기대·개별 판정·근거·한계를 연결했다. 자료 연결의 완료이며 전체 실행 PASS가 아니다.
+- [x] **5 시간 계약 해석:** 가이드 6초는 예시이며 VM 관측 8.288초와 20초 업무 deadline을 구분했다. 반복 성능 특성화와 index duration은 추가 완료 gate가 아니라 미측정 한계로 남긴다.
+- [x] **6 RAG/Jira 핵심 증거:** PR36 RAG matrix 16/16, QR·SR-WF12 Support 종단, J02 담당자 직접 처리 및 사용자가 확인한 알림 수신은 각 보고서의 범위에서 확인됐다. [RAG matrix](../../runs/public/20261108-142200-vm-pr36-rag-full-matrix/report.md), [J02](../../runs/public/20261108-154900-vm-jira-j02-assignee-handling/report.md), [알림 수신 확인](../../runs/public/20261108-160200-user-confirmed-discord-alert/report.md). 이는 60/64 전수 완료를 뜻하지 않는다.
+- [x] **7 DLQ 조회/장애 경계 판정:** [TC-07 lookup](../../runs/public/20261108-101605-vm-tc07-dlq-lookup/report.md)에서 bounded list/inspect와 Jira GET을 확인했다. 운영자 retry/recovery action은 이번 사용자 완료 범위 밖이다. [D10/TC-15 준비도](../../runs/public/20261108-160500-vm-final-test-environment-readiness/report.md)에서 두 항목은 BLOCKED/NOT RUN으로 종결했으며 기능 통과로 세지 않는다.
+- [ ] **8 최종 제출 마감:** 제출용 3문서·DAY82·12장 발표/메모·근거 부록을 정리했고 [최종 검사 기록](../../runs/public/20261109-112300-local-final-closeout/report.md)에 패키지·Git 결과를 취합한다. 실제 강사 제출·현장 발표·전수 VM 재현은 미관측으로 유지한다.
 
 각 체크는 해당 행의 완료 기준과 증거가 모두 충족된 뒤에만 표시한다. R02 새 UX 개선과 R01 핵심 업무 로직 마감은 별도 판정한다. 기존 문의 처리 경로의 미실행 필수 항목은 R01 마감에서 직접 검증한다. UX 개선 결과는 구분해 기록하되 R02 회신은 R01 핵심 트랙의 선행 조건이 아니다.
 
-### TC-07 수동 재처리 세부 계획
+> **범위 정정:** 아래 TC-07 수동 재처리 세부 계획은 구현 후보와 과거 검토를 보존한 설계 기록이다. 현재 사용자가 확정한 완료 범위는 DLQ 조회(list/inspect)와 연결 Jira 정보 GET까지이며, 재시도·복구 action 구현/검증은 이번 마감의 요구사항이나 차단 조건이 아니다.
+
+### TC-07 수동 재처리 세부 계획 — 과거 설계 기록, 현행 범위 제외
 
 기준은 [저장소 설계 4.2~4.3](STORAGE-DESIGN.md)이다. 자동 재시도 엔진 대신 운영자가 외부 Jira 효과를 대조·수행한 뒤 실패 단계만 저장소 처리권으로 재개하는 절차다. finish 복원 slice는 VM inspect까지 확인했으며 실제 Jira 없는 fixture라 VM finish는 실행하지 않았다. [저장 경계 시험](../../runs/public/20261108-010000-local-tc07-complete-contract/report.md)에서 migrations 011~016의 CAS claim/resume/release/verified complete를 확인했고, [후속 producer 시험](../../runs/public/20261108-071500-local-tc07-handoff-capsules/report.md)에서 close/assign 및 H61 context_update 인자 보존 6/6을 확인했다. create/alert 및 검증 snapshot 없는 context_update는 replay 가능하지 않다. 실제 Jira action은 운영자가 외부에서 확인/수행하며 VM migration/live 시험과 crash lease 운영은 미완료다.
 
@@ -178,3 +191,29 @@ R01은 사용자 지시에 따라 구현·통합·시험 창을 순차 진행한
 | 2026-11-08 | v3.6 | VM read-only catalog에서 recovery dispatcher 미설치 확인. DDL/role/state/DLQ 미변경. Migration runbook에 010~016 순서·restore rehearsal·operator/runtime 권한 경계 보강 |
 | 2026-11-08 | v3.9 | fresh backup/restore 계약 후 VM migrations 010~016을 hash 대조·순서 적용. restore DB 동시 claim 1승/1충돌·release 복귀와 live operator-only inspect를 확인. 전용 LOGIN/Credential·inactive workflow·실제 Jira action 복구는 남음 |
 | 2026-11-08 | v4.1 | 조회 전용 DLQ list/inspect 및 linked Jira GET 워크플로우, 별도 NOLOGIN reader dispatcher와 bounded migration 017 추가. full disposable migration chain·role contract 및 33 local checks 통과; fresh restore rehearsal·리뷰·VM 적용/실 Jira GET은 pending |
+| 2026-11-08 | v4.2 | 원격/로컬 `main`을 `dd919d7`로 고정하고 [P18 VM read-only DLQ/Jira 조회](../../runs/public/20261108-101605-vm-tc07-dlq-lookup/report.md) 및 [Discord/Jira 핵심 UAT 부분 결과](../../runs/public/20261108-104900-vm-discord-jira-uat/report.md)를 동기화. recovery action·전체 VM artifact manifest·전체 사용자/장애 회귀는 미완료 |
+| 2026-11-08 | v4.3 | [VM PR36/UX 읽기 전용 기준선](../../runs/public/20261108-113100-vm-pr36-baseline-readonly/report.md)을 추가. PR36·UX 병렬 배포, 이미지 태그, n8n 게시 라벨, PR36 DB의 `recovery_control` 부재를 기록하고 전체 manifest·복구 검증은 미완료로 유지 |
+| 2026-11-08 | v4.4 | 이미지 ID prefix·n8n/PostgreSQL 버전·Git tag suffix 매핑을 추가하고, OCI source provenance와 현재 RAG memory index 적재/문서 revision은 미확인임을 명시 |
+| 2026-11-08 | v4.5 | 60개 사례·64개 수용 요구와 UAT/DLQ/오류 종단을 의존성 순으로 묶은 [최종 통합 시험 계획](final-test-plan.md)을 추가. 계획만 작성했으며 시험은 실행하지 않음 |
+| 2026-11-08 | v4.6 | 가이드/요구 ID/8개 workflow/P23–P31 산출물 연결, 기존 시험 재사용 경계 및 사례·요구별 매핑을 [최종 통합 시험 계획](final-test-plan.md)에 추가·재검증. 서비스 시험은 미실행 |
+| 2026-11-08 | v4.7 | VM RAG 두 workflow namespace 교차 시험을 원인으로 확인. matching `dubakwi-index` 후 public/restricted/empty/invalid/off 표적 검증 5개 통과와 PR36 전용 search smoke를 기록. [최종 시험 계획 v1.6](final-test-plan.md)·RAG 설계를 최신 결과에 맞추고 전체 16-case RAG 및 나머지 종단은 미완료로 유지 |
+| 2026-11-08 | v4.8 | 16개 VM search case를 실행해 15/16 통과, SR-WF12 mixed-intent 기대 근거 누락 1건을 기록. B13-style security query hint 검색은 통과. `/dubakwi-support`는 auth mismatch 401로 미실행, n8n restart/reindex는 workflow 중단 가능성으로 보류. [시험 계획 v1.7](final-test-plan.md)·RAG 설계에 동기화 |
+| 2026-11-08 | v4.9 | active PR36 Support webhook을 분리 확인해 QR RAG 답변 E2E와 SR-WF12 intent-transform→security evidence→urgent Jira handoff E2E를 통과시킴. `/dubakwi-support`는 P11 skeleton endpoint로 재분류. Raw direct-search SR-WF12 failure를 보존하고, running n8n index execution 2167 때문에 restart/reindex recovery를 미완료로 유지. 시험 계획 v1.10·RAG 설계·실행 결과 동기화 |
+| 2026-11-08 | v5.0 | [Discord 읽기 전용 확인](../../runs/public/20261108-134000-vm-discord-alert-readonly/report.md)에서 기존 시민 UAT 응답을 재확인하고 제한된 Jira 알림 채널로 인해 담당자 실제 수신/열람을 BLOCKED로 판정. 문서 v1.11, 정적 링크/공개 후보 검사 결과를 동기화. TC-07 recovery action, TC-15 VM 고장 종단, n8n restart/reindex는 미완료 |
+| 2026-11-08 | v5.1 | 로컬 임시 메모 `tmp/vm-edge-web-ssh-resume.md`의 절차를 사용해 PR36 Index 실행 상태를 VM에서 재확인. 실행 #2167이 `running`·`stoppedAt=null`, 해당 workflow 최근 실행 1건이다. 상태 조회는 가능하나 memory-safe recovery 조건을 확보하지 못해 재시작/재색인은 실행하지 않음. 최종 시험 계획 v1.12·RAG 설계 v0.18·실행 결과를 동기화 |
+| 2026-11-08 | v5.2 | n8n execution UI에서 #2167 상세를 찾지 못했고 전체 Running filter도 비었음을 기록. 별도 legacy 색인 #2170 성공 10.699초와 이전 PR36 44청크 복구 성공을 서로 다른 범위로 유지. 최근 PR36 user RAG E2E 통과와 execution metadata 불일치를 분리 기록. n8n UI에 중지 대상이 없어 workflow/container 강제 종료 및 재색인은 보류. [대조 증거](../../runs/public/20261108-135700-vm-rag-execution-ui-crosscheck/report.md) |
+| 2026-11-08 | v5.4 | 11/8 RAG 16/16, D05/J04 거부 경계, J02 담당자 처리·사용자 확인 알림 수신, TC-07 read-only lookup을 반영. D10/TC-15는 환경 미준비 BLOCKED/NOT RUN, TC-07 recovery action은 미구현으로 구분. 최신 판정은 [최종 시험 계획 v1.24](final-test-plan.md) 참조 |
+| 2026-11-08 | v5.5 | 구현 기준 현황을 다시 동기화: TC-07 recovery action은 조회 전용 사용자 완료 범위 밖으로 명확화, migration 017 조회 반영, 60 사례·64 요구 추적과 제출 산출물 점검을 잔여 마감으로 고정. 최신 시험 판정은 [최종 시험 계획 v1.25](final-test-plan.md) 참조 |
+
+
+## 2026-11-08 14:01 RAG 복구 후 상태
+
+[재시험 결과](../../runs/public/20261108-140200-vm-pr36-rag-recovery/report.md)에서 n8n 재시작, PR36 전용 index 44 items UI 성공, 후속 QR 자동 답변 및 rental-guide 근거를 확인했다. 실행 DB는 #2167과 신규 #2211을 여전히 running으로 표시해 메타데이터 동기화는 미해결이다. 따라서 사용자 QR RAG 경로는 재색인 후 확인됐지만 실행 lifecycle 관측 및 미실행 TC-15 등 다른 통합 항목은 별도 미완료로 유지한다.
+
+### 2026-11-08 PR36 RAG 표적 matrix 후속
+
+[PR36 직접 검색 7-case 시험](../../runs/public/20261108-141600-vm-pr36-rag-matrix/report.md)은 표적 assertion 7/7 통과다. 비활성·invalid·empty·citizen canary·staff restricted·mixed security query를 PR36 path 자체에서 확인했다. 최초 Web SSH 입력의 구문 오류와 수정 batch 결과는 별도 run 기록으로 구분했다. 전체 16-case search matrix와 index 실행 lifecycle/소요시간은 아직 닫지 않았다.
+
+### 2026-11-08 PR36 전체 RAG 검색 matrix와 잔여 경계
+
+[전체 16-case 시험](../../runs/public/20261108-142200-vm-pr36-rag-full-matrix/report.md)은 16/16 기대 결과 통과다. QR 및 SR-WF12 Support 종단 결과와 함께 PR36 RAG 검색·권한 기능 시험을 완료로 판정한다. SQLite execution row의 `running` 표기와 index 소요시간 미측정은 실행 관측/성능 기록의 잔여 한계로 보존하며 새 시험 gate로 만들지 않는다. J02 담당자 처리는 사용자 확인 Discord 알림 수신까지 각 실행 범위에서 확인했다. TC-07은 read-only 조회까지 확인했으며 retry/recovery action은 이번 범위 밖이다. D10/TC-15는 환경 미준비로 BLOCKED/NOT RUN 종결했다. 현재 남은 마감은 60 사례·64 요구 ID 추적, 공식 제출 파일 점검, `tscan` 및 VM 재현 여부 기록이다. 이 문서에 정의한 완료 범위를 넘는 추가 RAG 시험은 열지 않는다.

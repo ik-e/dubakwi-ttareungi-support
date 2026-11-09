@@ -1,0 +1,14 @@
+{
+  "run_id": "20261108-122400-vm-rag-readiness",
+  "date_kst": "2026-11-08",
+  "environment": "aio-t2 via Edge web SSH and n8n UI; linked same-day Discord UAT evidence",
+  "historical_vm_functional_evidence": {"run": "20261107-170503-vm-pr36-integration", "chunks_reindexed": 44, "real_grounded_qr_answer": true, "auth_cases": 7, "controlled_api_fixtures": 3},
+  "current_smoke_evidence": {"case": "D08", "source_citation_visible": true},
+  "manifest": {"documents": 8, "approval_status": "all pending_review", "index_enabled": 0},
+  "vm_index_workflow": {"name": "R01 PR36 a657890 index", "trigger": "Manual", "publish_button": "disabled", "execution_history_visible": false},
+  "vm_search_workflow": {"name": "R01 PR36 a657890 search", "published": true},
+  "exact_current_population_and_lineage": "partially_verified",
+  "functional_verdict": "verified_by_prior_vm_end_to_end_and_current_cited_response",
+  "overall_readiness": "partial_lineage_gap; not a functional blocker",
+  "changes_or_external_effects": 0
+}

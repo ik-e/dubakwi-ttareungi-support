@@ -1,0 +1,33 @@
+{
+  "run_id": "20261108-133000-vm-pr36-rag-wf12-e2e",
+  "executed_at": "2026-11-08T13:30:00+09:00",
+  "environment": "aio-t2 VM via Edge web SSH",
+  "workflow": "dubakwiPR36a657Support",
+  "webhook": "/webhook/dubakwi-support-pr36-a657890",
+  "search_workflow": "dubakwiPR36a657Search",
+  "case_id": "SR-WF12-PR36-E2E",
+  "request_id": "rag-sr-wf12-pr36-20261108-1330",
+  "result": "pass",
+  "http_status": 200,
+  "route": "담당자 이관",
+  "reason": "urgent",
+  "ticket": {
+    "ticket_id": "JBYS-172",
+    "priority": "high"
+  },
+  "sources": [
+    {
+      "doc": "privacy-security-guide",
+      "section": "계정 노출·침해 의심 시 공개 초동 안내",
+      "score": 0.544052106790638,
+      "access_level": "public"
+    }
+  ],
+  "discord_delivery_verified": false,
+  "limitations": [
+    "Raw untransformed direct search for SR-WF12 remains a relevance failure; the Support B13 intent hint retrieves the expected evidence.",
+    "n8n execution 2167 is still running with no saved runData; restart/reindex recovery is unverified.",
+    "Discord delivery was not independently observed."
+  ],
+  "detail": "report.md"
+}

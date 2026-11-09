@@ -1,0 +1,31 @@
+{
+  "run_id": "20261108-135700-vm-rag-execution-ui-crosscheck",
+  "executed_at": "2026-11-08T13:57:00+09:00",
+  "environment": "aio-t2 n8n UI and existing Edge web SSH",
+  "read_only": true,
+  "execution_2167": {
+    "workflow": "R01 PR36 a657890 index",
+    "sqlite_status": "running",
+    "stopped_at": null,
+    "workflow_execution_ui": "not_found",
+    "global_running_filter": "no_executions",
+    "stoppable_in_ui": false
+  },
+  "comparison": {
+    "legacy_index_execution_id": 2170,
+    "legacy_index_workflow": "dubakwi-index",
+    "status": "success",
+    "duration_seconds": 10.699,
+    "same_key_namespace_as_pr36": false,
+    "pr36_reindex_duration_measured": false,
+    "prior_pr36_44_chunk_reindex_and_grounded_e2e": true
+  },
+  "pr36_user_e2e": {
+    "qr": "pass",
+    "sr_wf12": "pass"
+  },
+  "result": "rag_paths_working_execution_metadata_conflict_unresolved",
+  "writes": 0,
+  "workflow_stopped_or_restarted": false,
+  "detail": "report.md"
+}

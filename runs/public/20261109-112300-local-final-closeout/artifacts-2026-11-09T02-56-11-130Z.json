@@ -1,0 +1,177 @@
+{
+  "created": "2026-11-09T02:56:11.131Z",
+  "scope": "local document/schema/hash/link checks; no service requests, no visual browser validation; token pattern scan is not tscan",
+  "pass": false,
+  "checks": 23,
+  "results": [
+    {
+      "name": "WORKFLOW-DESIGN official numbered sections",
+      "pass": true,
+      "detail": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8
+      ]
+    },
+    {
+      "name": "RAG-ARCHITECTURE official numbered sections",
+      "pass": true,
+      "detail": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ]
+    },
+    {
+      "name": "EXECUTION-RESULT official numbered sections",
+      "pass": true,
+      "detail": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ]
+    },
+    {
+      "name": "15 exact original checklist items preserved with scoped decisions",
+      "pass": false,
+      "error": "0 == 15"
+    },
+    {
+      "name": "local links and tables: docs/WORKFLOW-DESIGN.md",
+      "pass": true,
+      "detail": {
+        "links": 13
+      }
+    },
+    {
+      "name": "local links and tables: docs/RAG-ARCHITECTURE.md",
+      "pass": true,
+      "detail": {
+        "links": 14
+      }
+    },
+    {
+      "name": "local links and tables: docs/EXECUTION-RESULT.md",
+      "pass": true,
+      "detail": {
+        "links": 26
+      }
+    },
+    {
+      "name": "local links and tables: docs/README.md",
+      "pass": true,
+      "detail": {
+        "links": 9
+      }
+    },
+    {
+      "name": "local links and tables: README.md",
+      "pass": true,
+      "detail": {
+        "links": 9
+      }
+    },
+    {
+      "name": "local links and tables: SUBMISSION-CANDIDATES.md",
+      "pass": true,
+      "detail": {
+        "links": 9
+      }
+    },
+    {
+      "name": "local links and tables: images/README.md",
+      "pass": true,
+      "detail": {
+        "links": 3
+      }
+    },
+    {
+      "name": "local links and tables: daily/DAY80.md",
+      "pass": true,
+      "detail": {
+        "links": 5
+      }
+    },
+    {
+      "name": "local links and tables: daily/DAY81.md",
+      "pass": true,
+      "detail": {
+        "links": 8
+      }
+    },
+    {
+      "name": "local links and tables: daily/DAY82.md",
+      "pass": true,
+      "detail": {
+        "links": 8
+      }
+    },
+    {
+      "name": "local links and tables: presentation/team-presentation/guide-coverage.md",
+      "pass": true,
+      "detail": {
+        "links": 4
+      }
+    },
+    {
+      "name": "local links and tables: presentation/team-presentation/demo-runbook.md",
+      "pass": true,
+      "detail": {
+        "links": 6
+      }
+    },
+    {
+      "name": "local links and tables: presentation/team-presentation/presenter-notes.md",
+      "pass": true,
+      "detail": {
+        "links": 47
+      }
+    },
+    {
+      "name": "final evidence matrix: all IDs, evidence files and immutable hashes",
+      "pass": true,
+      "detail": {
+        "cases": 60,
+        "requirements": 64,
+        "newServiceTests": 0
+      }
+    },
+    {
+      "name": "8 workflows match inspected LF-normalized source hashes",
+      "pass": true
+    },
+    {
+      "name": "presenter links open all three final documents",
+      "pass": true,
+      "detail": {
+        "version": "story12-final-closeout-20261109"
+      }
+    },
+    {
+      "name": "All queue in runbook and presenter actions",
+      "pass": true
+    },
+    {
+      "name": "original source SHA256 and PDF page assets",
+      "pass": true,
+      "detail": {
+        "originals": 11,
+        "pdfPages": 29
+      }
+    },
+    {
+      "name": "new mandatory documents have no high-confidence secret literal",
+      "pass": true
+    }
+  ]
+}

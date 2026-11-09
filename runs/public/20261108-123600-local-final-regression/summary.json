@@ -1,0 +1,14 @@
+{
+  "run_id": "20261108-123600-local-final-regression",
+  "date_kst": "2026-11-08",
+  "environment": "local Windows / uv locked / Node.js",
+  "baseline": "main dd919d7; current worktree includes uncommitted docs and audit changes",
+  "unittest": {"status": "pass_with_skips", "ran": 148, "passed": 141, "skipped": 7, "failed": 0, "note": "RAG HTTP tests skipped without internal key and endpoint"},
+  "node_contract_tests": {"status": "pass", "support_skeleton": "157/157", "p12": "six scripts; Jira flow 21 scenarios; repeated handoff 7/7", "p18": "7/7", "p19": "3 shared fixtures and AUTH 7/7", "p20": "16 cases", "r04_parity": "8/8", "tc07": "operator 25; finish 3; handoff capsule 6; lookup workflow 37", "verifier_boundary": "7/7 mocked"},
+  "ruff_check": {"status": "pass"},
+  "ruff_format_check": {"status": "pass", "files": 203},
+  "project_docs": {"status": "pass", "files": 23, "local_links": 844, "anchor_links": 58, "errors": 0},
+  "public_files": {"status": "pass", "candidates": 600, "tracked": 580, "ignored_tracked": 0, "public_links": 1230, "errors": 0},
+  "external_effects": {"vm": 0, "discord": 0, "jira": 0, "database": 0},
+  "not_verified": ["7 RAG HTTP live tests", "16 live RAG cases", "Jira assignee direct receipt", "TC-07 recovery action", "TC-15 VM fault end-to-end"]
+}

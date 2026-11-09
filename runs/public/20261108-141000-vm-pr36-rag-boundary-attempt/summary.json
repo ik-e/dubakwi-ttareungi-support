@@ -1,0 +1,8 @@
+{
+  "run_id": "20261108-141000-vm-pr36-rag-boundary-attempt",
+  "attempted_at": "2026-11-08T14:10:00+09:00",
+  "environment": "aio-t2 Edge Web SSH",
+  "result": "command_syntax_error_before_any_webhook_call",
+  "external_requests_sent": 0,
+  "superseding_actual_test": "../20261108-141600-vm-pr36-rag-matrix/report.md"
+}

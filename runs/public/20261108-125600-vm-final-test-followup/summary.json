@@ -1,0 +1,26 @@
+{
+  "run_id": "20261108-125600-vm-final-test-followup",
+  "date_kst": "2026-11-08 12:56",
+  "environment": "aio-t2 VM via Edge web SSH and n8n UI",
+  "code_baseline": "main dd919d7 (not asserted as VM runtime build)",
+  "checks": {
+    "rag_index_workflow": "executed_existing_manual_workflow; 44 demo chunks processed",
+    "SR-WF01_before_and_after_index": "FAIL: HTTP 200 index_not_ready both times",
+    "SR-OFF": "PASS: skipped",
+    "SR-R04": "PASS: invalid_request",
+    "TC-15": "NOT_RUN: clone ingress/fault isolation unresolved; no request sent"
+  },
+  "external_effects": {
+    "jira_ticket_created": false,
+    "discord_message_sent": false,
+    "support_state_or_dlq_mutated": false,
+    "openai_embedding_call": "existing demo-corpus index nodes ran; no secret or content excerpt recorded"
+  },
+  "documentation_checks": {
+    "project_docs": "PASS: 23 files, 847 local links, 58 anchors, 0 errors",
+    "public_files": "PASS: 601 candidates, 580 tracked, 0 ignored tracked, 1236 public local links, 0 errors",
+    "coverage_structure": "PASS: 64 requirements, 12 packages mapped; runtime_tests_executed=0 (static audit only)",
+    "git_diff_check": "PASS with CRLF normalization warnings"
+  },
+  "overall": "INCOMPLETE: live RAG search failed and TC-15 was not executed"
+}

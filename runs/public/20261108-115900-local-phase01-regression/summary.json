@@ -1,0 +1,114 @@
+{
+  "run_id": "20261108-115900-local-phase01-regression",
+  "date": "2026-11-08",
+  "environment": "local Python/Node and offline fixtures; no VM runtime service calls",
+  "source_commit": "dd919d709649171336f13a29a0306fae4da702f2",
+  "result": "local_phase_pass_with_integration_gates_blocked",
+  "checks": {
+    "python_unittest": {
+      "run": 148,
+      "passed": 141,
+      "skipped": 7,
+      "failed": 0,
+      "skip_reason": "DUBAKWI_INTERNAL_KEY/local search endpoint not configured"
+    },
+    "ruff_check": "passed",
+    "ruff_format_check": {
+      "result": "passed",
+      "files_checked": 199
+    },
+    "support_skeleton_cases": {
+      "passed": 157,
+      "total": 157
+    },
+    "support_verifier_boundary": {
+      "passed": 7,
+      "total": 7,
+      "scope": "mocked Code; no live LLM"
+    },
+    "p12_contract_scripts": {
+      "scripts_passed": 6,
+      "jira_flow_scenarios": 21,
+      "repeat_handoff_cases": 7
+    },
+    "p18_dlq_marker": {
+      "passed": 7,
+      "total": 7
+    },
+    "p19_shared_contract": {
+      "begin_fixtures": 3,
+      "auth_fixtures": 7,
+      "result": "passed"
+    },
+    "p20_error_contract": {
+      "cases": 16,
+      "result": "passed"
+    },
+    "tc07_local_contracts": {
+      "operator_checks": 25,
+      "finish_capsule": 3,
+      "handoff_capsule": 6,
+      "lookup_workflow_checks": 37,
+      "recovery_parity_actions": 8,
+      "result": "passed"
+    },
+    "parallel_contract_audit": {
+      "initial_probe": {
+        "pass": 8,
+        "false_gap": 2,
+        "probe_error": 0
+      },
+      "cause": "probe omitted B08-derived handed_off_followup context",
+      "harness_change": "probe now builds downstream context through actual B08 Code node",
+      "retest": {
+        "pass": 10,
+        "implementation_gap": 0,
+        "probe_error": 0
+      },
+      "business_workflows_changed": false
+    },
+    "coverage_plan_audit": {
+      "mapped_requirements": 64,
+      "packages": 12,
+      "runtime_tests_executed": 0,
+      "result": "passed_as_static_plan_audit"
+    },
+    "all_case_dry_run": {
+      "case_definitions": 60,
+      "request_ready": 46,
+      "blocked": 13,
+      "not_implemented": 1,
+      "requests_sent": 0,
+      "dry_run_id": "20261108-115625-local-phase01-all-cases-dryrun"
+    },
+    "offline_rag_fixture": {
+      "manifest_status": "proposed_not_approved",
+      "chunks": 44,
+      "actual_guidance_chunks": 24,
+      "simulation_chunks": 20,
+      "case_count": 16,
+      "expected_document_match": 9,
+      "offline_expected_empty_miss": 1,
+      "non_exact_candidate_cases": 5,
+      "search_disabled_cases": 1,
+      "mode": "explicit demo fixture; lexical retrieval only"
+    },
+    "documentation_checks": {
+      "project_docs": "passed",
+      "public_files": "passed",
+      "git_diff_check": "passed"
+    }
+  },
+  "live_effects": {
+    "vm_workflow_requests": 0,
+    "database_writes": 0,
+    "jira_writes": 0,
+    "discord_sends": 0
+  },
+  "blockers": [
+    "SSH tab absent from browser automation allowlist; VM cannot be inspected through current UI tool",
+    "RAG manifest remains proposed_not_approved; VM index state unverified and index workflow unpublished",
+    "TC-07 full recovery unavailable in VM; TC-15 live not run"
+  ],
+  "details": "report.md"
+}

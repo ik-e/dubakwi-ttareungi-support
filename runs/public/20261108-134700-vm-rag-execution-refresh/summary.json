@@ -1,0 +1,23 @@
+{
+  "run_id": "20261108-134700-vm-rag-execution-refresh",
+  "executed_at": "2026-11-08T13:47:00+09:00",
+  "environment": "aio-t2 VM via existing Edge web SSH",
+  "container": "day65-n8n-n8n-1",
+  "workflow": "R01 PR36 a657890 index",
+  "read_only": true,
+  "execution": {
+    "id": 2167,
+    "status": "running",
+    "started_at": "2026-11-08T03:52:15.855Z",
+    "stopped_at": null,
+    "latest_matching_execution_count": 1
+  },
+  "result": "status_confirmed_recovery_unverified",
+  "service_or_database_writes": 0,
+  "workflow_started_or_stopped": false,
+  "limitations": [
+    "Execution node data and current in-memory vector population were not inspected.",
+    "Do not stop/restart or reindex until execution ownership/effects and a memory-safe recovery procedure are established."
+  ],
+  "detail": "report.md"
+}

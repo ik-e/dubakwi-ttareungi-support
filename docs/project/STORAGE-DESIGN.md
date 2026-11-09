@@ -1,6 +1,10 @@
 # 서비스 저장소 관리 설계서 · 두바퀴
 
-현행 적용 상태: v0.17 / 2026-11-08. main `b705be3`에 포함된 PR #51 recovery 코드를 VM 서비스 DB에 적용했다. fresh private backup을 restore한 DB에서 migrations 010~016과 controlled-recovery 계약 3종·저장 snapshot 동일성을 확인한 뒤 010~016 live migration을 순서 적용했다. 별도 restore DB 동시 claim은 1승/1충돌, recovery release 복귀로 통과했다. live operator-role inspect는 read-only 성공, runtime dispatcher 권한은 거부됐다. [적용·검증 결과](../../runs/public/20261108-085318-vm-tc07-recovery-deploy/report.md). 후속 migration 017은 bounded list와 sanitized inspect를 기존 `dubakwi_recovery_operator` 역할에만 허용하고, 기존 `dubakwi-recovery-operator` workflow에 lookup 분기를 더한다. Jira는 기존 `dubakwi-Jira SW Cloud account`의 두바퀴 Jira domain에서 상태·담당자 GET만 한다. 별도 workflow/LOGIN/credential은 만들지 않는다. disposable migrations 001~017, SQL 권한·가림 계약과 workflow contract는 통과했으나 017 restore rehearsal, VM 적용, workflow 반입/갱신, 실제 Jira GET은 미완료다. 아래 준비본·연결 전 표기는 당시 이력이다.
+<!-- final-closeout-current -->
+**2026-11-09 마감 대조.** 공개 저장 계약과 SQL은 변경하지 않았다. 11/09 [대표 리허설 서버 대조](../../runs/public/20261109-001140-vm-demo-rehearsal/backend-followup.md)에서 5요청의 completed·저장 응답·감사 경로를 확인했다. completed는 요청 결과 저장이며 Jira 담당자의 실제 문제 해결이 아니다. TC07은 list/inspect·연결 Jira GET read-only 조회까지이며 recovery/retry action은 이번 범위 밖이다. [사례·요구 근거표](../../runs/public/20261109-112300-local-final-closeout/evidence-matrix.md), [마감 검사](../../runs/public/20261109-112300-local-final-closeout/report.md).
+<!-- /final-closeout-current -->
+
+현행 적용 상태: v0.17 / 2026-11-08. main `b705be3`의 PR #51 recovery 코드를 VM 서비스 DB에 적용했다. backup/restore·migrations 010~016·controlled-recovery 저장 계약은 [VM 적용 결과](../../runs/public/20261108-085318-vm-tc07-recovery-deploy/report.md)에 기록했다. 이후 TC-07 조회 범위에서 별도 restore DB와 구성된 PR36 DB에 migration 017을 적용하고, 기존 비활성 `R01 TC07 operator E2E` 수동 시험 workflow를 재사용해 bounded list·sanitized inspect·연결 Jira status/assignee GET을 통과했다. 사용한 Jira credential은 `dubakwi-Jira SW Cloud account`이며 시험 후 workflow는 비활성·입력 `{}`로 확인됐다. [조회 실행 보고서](../../runs/public/20261108-101605-vm-tc07-dlq-lookup/report.md). canonical source workflow ID 반입은 없었고 PR36 state/DLQ·Jira·Discord 쓰기는 0건이다. read-only 조회 slice만 완료했으며 `recovery_control(jsonb)` 부재로 broader operator recovery contract, 재시도/복구 action은 미완료다. 아래 이전 준비본·연결 전 표기는 당시 이력이다.
 
 전체 구성과 요청·티켓·DLQ 상태의 관계는 [최상위 시스템 설계서](SYSTEM-DESIGN.md)를 참조한다. 저장 구조·계약·복구 상세의 원본은 이 문서다.
 
@@ -17,9 +21,9 @@
 | --- | --- |
 | Jira 티켓 관리 | VM에서 실제 생성·종료·조회·담당 배정을 통합 확인했다. 담당 알림 API 수락과 사람의 수신은 구분한다. |
 | 최소 처리 상태·실행 기록·DLQ | PostgreSQL state/save/fail/DLQ와 n8n 실행 기록을 VM 통합 경로에서 사용했다. unknown·known ID·DLQ 보존 및 재전송 차단을 확인했다. |
-| 물리 저장 | PostgreSQL의 request_state/dead_letters 2테이블과 n8n 기본 실행 기록을 사용한다. SQL001~016이 VM에 적용됐고 migrations 010~016의 별도 복원 rehearsal도 확인했다. 운영 RPO/RTO는 미확정/미측정이다. |
+| 물리 저장 | PostgreSQL의 request_state/dead_letters 2테이블과 n8n 기본 실행 기록을 사용한다. SQL001~017이 VM에 적용됐고 migrations 010~016의 별도 복원 rehearsal 및 migration 017 DLQ/Jira read-only 조회를 확인했다. 운영 RPO/RTO는 미확정/미측정이다. |
 | 이전 3테이블 제안 | 제외. support_cases와 integration_events를 별도 구축하지 않음 |
-| 실제 구현 | PostgreSQL·n8n 실제 연결과 정상/장애 경계를 일부 VM 검증했다. TC-07 저장 함수는 VM에 적용했고 operator role inspect를 확인했다. 전용 credential/workflow 경로와 실제 Jira action·완료/복구는 미완료다. 운영자 수동 확인·사람 알림·전체 복구 검증은 마감 계획에 남아 있다. |
+| 실제 구현 | PostgreSQL·n8n 실제 연결과 정상/장애 경계를 일부 VM 검증했다. TC-07에서 bounded DLQ list/inspect와 연결 Jira 상태·담당자 GET을 read-only로 확인했다. 운영자 재시도·복구 action은 이번 완료 범위가 아니며 구현·검증하지 않았다. 조회에 사용한 수동 시험 workflow는 기존 비활성 항목이며 canonical source workflow ID 반입은 하지 않았다. |
 
 PostgreSQL 제안 이유는 요청 고유키·조건부 갱신·DLQ 중복 제한을 관리하기 위해서다. 다른 저장 기능으로 같은 계약을 충족하면 물리 기술을 변경할 수 있다. 단순 GET 후 SET만 제공하는 저장소가 동시 요청까지 보장한다고 가정하지 않는다. 제공 data-api의 메모리 캐시·DLQ는 공통 시험에 사용 가능하지만 재시작 복구가 구현된 것으로 보지 않는다.
 
@@ -282,7 +286,9 @@ RecoveryCapsule의 payload는 action별 허용 필드만 사용한다. create는
 - 재시작 후 오래된 processing/reprocessing은 수동 확인 대상으로 조회한다. 외부 효과를 확인하지 않고 모두 재실행하거나 completed로 바꾸지 않는다.
 - DB 접속 정보는 n8n Credential/환경 비밀로 관리한다. n8n 연결 계정은 해당 서비스 저장 영역에 필요한 권한만 부여한다. SQL은 파라미터로 전달한다. 시민이 DB/DLQ에 직접 접근하지 않는다.
 
-## 8. 구현 전 남은 확인
+## 8. 초기 구현 전 확인 목록과 현재 경계
+
+아래 표는 2026-11-03 최초 설계 시점의 미확인 질문을 보존한다. 현재 적용/검증 여부는 이 문서 머리말의 2026-11-08 상태 요약과 연결된 run 보고서를 따른다. 특히 TC-07은 list/inspect 및 연결 Jira GET 조회만 VM에서 확인했으며, 자동/수동 retry·recovery action 전체가 확인된 것은 아니다.
 
 | 항목 | 결정/확인 내용 | 담당·연결 |
 | --- | --- | --- |

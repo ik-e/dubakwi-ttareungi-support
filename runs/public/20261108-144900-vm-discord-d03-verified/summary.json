@@ -1,0 +1,19 @@
+{
+  "run_id": "20261108-144900-vm-discord-d03-verified",
+  "date": "2026-11-08",
+  "environment": "Edge connected Discord UI; existing PR36 bot",
+  "cases": {
+    "D03": "partial: exact follow-up text submitted once with existing case_ref; same case response escalated and returned a Jira key; ticket reuse/details, staff receipt and facts accumulation not verified"
+  },
+  "synthetic_discord_requests_submitted": 1,
+  "jira_key_returned": true,
+  "jira_issue_details_verified": false,
+  "database_effect_verified": false,
+  "staff_notification_delivery_verified": false,
+  "limitations": [
+    "D05/D06 require separate registered/unregistered identities; no impersonation performed",
+    "D10 exact interaction replay requires existing replay harness",
+    "J02 staff direct receipt/action requires independent staff account evidence",
+    "No claim of complete Discord/Jira UAT"
+  ]
+}

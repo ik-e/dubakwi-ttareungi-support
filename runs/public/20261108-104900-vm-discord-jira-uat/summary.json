@@ -1,0 +1,29 @@
+{
+  "run_id": "20261108-104900-vm-discord-jira-uat",
+  "date": "2026-11-08",
+  "environment": "edge-web-discord-jira-pr36",
+  "source_commit": null,
+  "workflow_version": "not_verified_in_ui",
+  "scenario": "Manual Discord-to-Jira user acceptance subset per cases/discord-jira-user-acceptance.md",
+  "result": "partial_core_live_path_verified",
+  "checks": {
+    "D02_private_intake_and_handoff": "passed",
+    "D03_exact_guide_followup_text": "not_run; same-case followup used different detail",
+    "J01_same_issue_context_revision": "passed",
+    "J02_assignee_human_read_and_discord_receipt": "not_verified",
+    "J02_current_test_account_transition_and_note": "passed",
+    "J03_jira_complete_then_owner_status_lookup": "passed_closed_message",
+    "D01_D05_to_D10_J04": "not_run",
+    "TC15_fault_injection": "not_run",
+    "DLQ_jira_ui_management": "unsupported_per_guide"
+  },
+  "live_effects": {
+    "synthetic_jira_issue_created": 1,
+    "synthetic_jira_issue_completed": 1,
+    "discord_slash_submissions": 4,
+    "accidental_independent_synthetic_request": 1,
+    "real_customer_actions": 0
+  },
+  "details": "report.md",
+  "limits": "No DB/execution-log inspection; no proof of assignee human receipt; this is not full-guide completion."
+}

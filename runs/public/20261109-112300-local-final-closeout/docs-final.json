@@ -1,0 +1,101 @@
+{
+  "scope": "current project documents; local links/anchors/tables only; external URLs, Mermaid syntax, runtime and historic snapshots excluded",
+  "files": 23,
+  "local_links": 986,
+  "anchor_links": 66,
+  "errors": [],
+  "snapshots": [
+    {
+      "file": "docs/project/EXECUTION-RESULT.md",
+      "sha256": "d6aa588759d663a9013148d611e5f2f6c794891af1b21f5eb4f6e43478e474ef"
+    },
+    {
+      "file": "docs/project/final-test-plan.md",
+      "sha256": "6e162ffc0b53adb51176d377ccbc30bc14a13a3fbf8a39af9eaa2d8f46b349e2"
+    },
+    {
+      "file": "docs/project/implementation-status-and-closeout-plan.md",
+      "sha256": "5e86bfec032ba0904db5cac7cf2e9adbff1e4af09aac2de1c2047b6ae94032fe"
+    },
+    {
+      "file": "docs/project/RAG-ARCHITECTURE.md",
+      "sha256": "1a67d42c97348c1925e19d0ce0f79fe16a3c79810d75d766fd85be9bf25082c2"
+    },
+    {
+      "file": "docs/project/README.md",
+      "sha256": "ea6da25fe40ed51a0eae9b9e9389a6a41c504c27fa6d68bce1bc0d96cf34c299"
+    },
+    {
+      "file": "docs/project/STORAGE-DESIGN.md",
+      "sha256": "d45dbc35738c0ef528c1513be881cfff9dbef52812b3f871df32af9e3e521456"
+    },
+    {
+      "file": "docs/project/SYSTEM-DESIGN.md",
+      "sha256": "001e1784361b3101edd17856da894cd25c425e2459e83991018792abadc1317c"
+    },
+    {
+      "file": "docs/project/TEAM-CHARTER.md",
+      "sha256": "d56d4d857818e419ed16cf3af1f75f05a14ca76ece323e485a15890089ff832b"
+    },
+    {
+      "file": "docs/project/TEAM-READINESS-REVIEW.md",
+      "sha256": "2765c709dab4ec7820c2c2c7d7062d701967bf63b9209247a9faafed6afb3683"
+    },
+    {
+      "file": "docs/project/TOPIC.md",
+      "sha256": "19619f7f1910cb3d2eda1498073b4d136eae67260b876722f18488ebf1f1b3a0"
+    },
+    {
+      "file": "docs/project/WORKFLOW-DESIGN.md",
+      "sha256": "971a3581bba9c05a6ef69ca0d81b33f0279e3c3dfe6ea9b2a7c7aa60dfe63d9e"
+    },
+    {
+      "file": "README.md",
+      "sha256": "c8fbbcd108da5c581dd4d5b8d9d2c09ef94e7e0aec633c7303adba5fbb661ff0"
+    },
+    {
+      "file": "AGENTS.md",
+      "sha256": "cb33eeac8ce8bd8253c9fae6bab3f1c2b15d2a0906b5f753487bc80daa485b03"
+    },
+    {
+      "file": "infra/README.md",
+      "sha256": "6f69848060db75e392811d24df45c0624639b228c6d9a7c419a6b876083c8f6d"
+    },
+    {
+      "file": "scripts/README.md",
+      "sha256": "9d6448f814dd5bf39a92a47f4a9eb5615314d07e21a5528040f8cabebf540bd0"
+    },
+    {
+      "file": "scripts/test/README.md",
+      "sha256": "936e953f3f0930c10a211cb191e8f9d1eac9cf379492f17a4033923971591d64"
+    },
+    {
+      "file": "docs/README.md",
+      "sha256": "af45e703fa90b22da8e720adfed11f006cc6d523df58cbcbceddd3248e2318cb"
+    },
+    {
+      "file": "docs/DEVELOPMENT-PLAN.md",
+      "sha256": "32e327007f5490fcac95742e1eae5de828ffb0c0f2c85e02cd717510013b4511"
+    },
+    {
+      "file": "docs/PRESENTATION-PLAN.md",
+      "sha256": "2784e7a85314981f86dc9294006bd09196f22ff86ebbe6244a2c71c6d158d492"
+    },
+    {
+      "file": "docs/PUBLICATION.md",
+      "sha256": "b619e7463c9523b08daadba2e27c87b1a14f266a02f8b12029f4d839040ce9b5"
+    },
+    {
+      "file": "docs/PYTHON-DEVELOPMENT.md",
+      "sha256": "d8c88540b57156bf4563fcfd0c34de3606740fb0a8c06766d210c97afb704b16"
+    },
+    {
+      "file": "scripts/dev/README.md",
+      "sha256": "6ce5f2721526d6af157d46f75c8dd040717b654b745806ac648aa4fa68af2212"
+    },
+    {
+      "file": "docs/TEAM-START.md",
+      "sha256": "495f76efc20c0b4c8ad687ebcabde14231ec9812198424016501f8bd63760524"
+    }
+  ]
+}
